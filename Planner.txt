@@ -1,0 +1,21 @@
+[Warp]
+-GUI
+ -Page system
+ -Max item per page = 45
+ -If the items amount is > 45, add new page
+ -Each item has their own index
+
+ ~/Neon/
+ -1.14
+ -1.15/
+ -1.16/
+    -Online_Mode
+        -Server_Settings
+        -Server_Data
+            -Chat_Logs
+            -Player_Data
+    -Offline_Mode
+        -Server_Settings
+        -Server_Data
+            -Chat_Logs
+            -Player_Data

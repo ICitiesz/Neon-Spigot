@@ -1,0 +1,4 @@
+#----------- Basic Config -----------#
+#-Changing Owner rank
+#-Default: true
+Static_Owner_Rank: true
