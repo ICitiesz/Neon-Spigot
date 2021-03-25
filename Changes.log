@@ -83,7 +83,7 @@
 -Added support for Minecraft 1.16
 
 ---Version 1.8---(Beta)
--Re-added improved coordinate manager and rename to iWaypoints --95% completion [Broadcast if waypoint remove, Change the sound/particles, Adjust title, Escape Key handling]
+-Re-added improved coordinate manager and rename to iWaypoints --99%% completion [Broadcast if waypoint remove]
 -Added compatibility for multiple Minecraft version (1.14, 1.15, 1.16)
 -Plugin compatibility checking
 -Optimized folders handling
@@ -176,7 +176,7 @@ Ender Chest [Unbreakable] => {
  - Spawn chest at last on block location (Improvement) - Done
  - Detect suffocation in blocks
  - Synchronize facing with player facing
- - Detect gamerule "keepinventory"
+ - Detect gamerule "keepInventory"
  - New player data storage
  - Despawn timer
 }

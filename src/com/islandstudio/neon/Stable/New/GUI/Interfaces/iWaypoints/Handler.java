@@ -26,7 +26,7 @@ public class Handler extends Builder {
 
     @Override
     public String getName() {
-        return ChatColor.LIGHT_PURPLE + "" + ChatColor.MAGIC + "--------" + ChatColor.DARK_PURPLE + "iWaypoints" + ChatColor.LIGHT_PURPLE + "" + ChatColor.MAGIC + "--------";
+        return ChatColor.LIGHT_PURPLE + "" + ChatColor.MAGIC + "--------" + ChatColor.DARK_PURPLE + ChatColor.BOLD + "iWaypoints" + ChatColor.LIGHT_PURPLE + "" + ChatColor.MAGIC + "---------";
     }
 
     @Override
@@ -45,7 +45,9 @@ public class Handler extends Builder {
             itemIndex = super.max * pageIndex + i;
 
             if (waypointNames != null) {
-                if (itemIndex >= waypointNames.size()) break;
+                if (itemIndex >= waypointNames.size()) {
+                    break;
+                }
 
                 if (waypointNames.get(itemIndex) != null) {
                     ItemStack waypoint = new ItemStack(Material.BEACON);
@@ -83,6 +85,9 @@ public class Handler extends Builder {
         }
     }
 
+
+    public static boolean isClicked = false;
+
     @Override
     public void clickHandler(InventoryClickEvent e) {
         ArrayList<String> waypointNames = IWaypoints.getWaypointNames();
@@ -95,12 +100,15 @@ public class Handler extends Builder {
 
         assert waypointNames != null;
 
+        ItemStack currentItem = e.getCurrentItem();
+        assert currentItem != null;
+        ItemMeta currentItemMeta = currentItem.getItemMeta();
+
         try {
             for (String waypointName: waypointNames) {
                 String waypointNameGold = ChatColor.GOLD + waypointName;
 
-                if (e.getCurrentItem() != null && e.getCurrentItem().getType().equals(Material.BEACON)
-                        && e.getCurrentItem().getItemMeta() != null && e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(waypointNameGold)) {
+                if (currentItem.getType().equals(Material.BEACON) && currentItemMeta != null && currentItemMeta.getDisplayName().equalsIgnoreCase(waypointNameGold)) {
                     yaw = (float) (double) IWaypoints.getWaypointData().get(waypointName).get("Yaw");
                     pitch = (float) (double) IWaypoints.getWaypointData().get(waypointName).get("Pitch");
                     posX = (int) (long) IWaypoints.getWaypointData().get(waypointName).get("Position-X");
@@ -141,44 +149,40 @@ public class Handler extends Builder {
             err.printStackTrace();
         }
 
-        if (e.getCurrentItem() != null) {
-            switch (e.getCurrentItem().getType()) {
-                case SPECTRAL_ARROW: {
-                    if (e.getCurrentItem().getItemMeta() != null
-                            && e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GOLD + "Next")) {
-                        if (!((itemIndex + 1) >= waypointNames.size())) {
-                            pageIndex = pageIndex + 1;
-                            super.open();
-                        } else {
-                            e.getWhoClicked().sendMessage(ChatColor.YELLOW + "Already on last page!");
-                        }
-                    } else if (e.getCurrentItem().getItemMeta() != null
-                            && e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GOLD + "Previous")) {
-                        if (pageIndex == 0) {
-                            e.getWhoClicked().sendMessage(ChatColor.YELLOW + "Already on first page!");
-                        } else {
-                            pageIndex = pageIndex - 1;
-                            super.open();
-                        }
+        switch (currentItem.getType()) {
+            case SPECTRAL_ARROW: {
+                if (currentItemMeta != null && currentItemMeta.getDisplayName().equalsIgnoreCase(ChatColor.GOLD + "Previous")) {
+                    isClicked = true;
+
+                    if (pageIndex == 0) {
+                        player.sendMessage(ChatColor.YELLOW + "Already on the first page!");
+                    } else {
+                        pageIndex = pageIndex - 1;
+                        super.open();
                     }
+                } else if (currentItemMeta != null && currentItemMeta.getDisplayName().equalsIgnoreCase(ChatColor.GOLD + "Next")) {
+                    isClicked = true;
 
-                    break;
-                }
-
-                case BARRIER: {
-                    if (e.getCurrentItem().getItemMeta() != null
-                            && e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.RED + "Close")) {
-                        e.getWhoClicked().closeInventory();
-                        waypointNames.clear();
+                    if (!((itemIndex + 1) >= waypointNames.size())) {
+                        pageIndex = pageIndex + 1;
+                        super.open();
+                    } else {
+                        player.sendMessage(ChatColor.YELLOW + "Already on the last page!");
                     }
-
-                    break;
                 }
+                break;
+            }
+
+            case BARRIER: {
+                if (currentItemMeta != null && currentItemMeta.getDisplayName().equalsIgnoreCase(ChatColor.RED + "Close")) {
+                    player.closeInventory();
+                }
+                break;
             }
         }
     }
 
-    public static void eventHandling(InventoryClickEvent e) {
+    public static void setEventHandler(InventoryClickEvent e) {
         String invName = e.getView().getTitle();
 
         if (invName.equalsIgnoreCase(new Handler(GUIUtilityHandler.getGUIUtility((Player) e.getWhoClicked())).getName())) {

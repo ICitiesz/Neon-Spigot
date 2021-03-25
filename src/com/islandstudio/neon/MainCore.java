@@ -18,12 +18,6 @@ public final class MainCore extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        //VersionHandler.sendOutro();
-    }
-
-    public final void loadConfig() {
-        this.getConfig().options().copyDefaults(true);
-        this.getConfig().options().copyHeader(true);
-        this.saveConfig();
+        PluginConstructor.sendOutro();
     }
 }

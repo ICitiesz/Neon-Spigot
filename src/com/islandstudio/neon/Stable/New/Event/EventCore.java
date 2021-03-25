@@ -1,6 +1,11 @@
 package com.islandstudio.neon.Stable.New.Event;
 
 import com.islandstudio.neon.Experimental.DeathFinder.deathFinder;
+import com.islandstudio.neon.Experimental.InvisibleConfiguration;
+import com.islandstudio.neon.Experimental.PacketReceiver;
+import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtilityHandler;
+import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.Handler;
+import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.Handler_Removal;
 import com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.RankHandler;
 import com.islandstudio.neon.Stable.New.Utilities.ProfileHandler;
 import com.islandstudio.neon.Stable.New.Utilities.ServerCfgHandler;
@@ -32,7 +37,7 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.Objects;
 
-public class EventFunctions implements Listener {
+public class EventCore implements Listener {
    private final Plugin plug = MainCore.getPlugin(MainCore.class);
 
     @EventHandler
@@ -40,21 +45,27 @@ public class EventFunctions implements Listener {
         ServerHandler.broadcastJoin(e);
         ProfileHandler.init(e.getPlayer());
         RankTags.setRankTags();
+        PacketReceiver.playerInjection(e.getPlayer());
     }
 
     @EventHandler
     public final void onPlayerQuit(PlayerQuitEvent e) {
         ServerHandler.broadcastQuit(e);
+        PacketReceiver.playerRemoval(e.getPlayer());
+        GUIUtilityHandler.utilityHM.remove(e.getPlayer());
     }
 
     @EventHandler
-    public final void onDeath(PlayerDeathEvent e) {
+    public final void onPlayerDeath(PlayerDeathEvent e) {
         Player player = e.getEntity();
 
         Location location = player.getLocation();
         deathFinder.deathSession(e);
 
         //LastDeadLocation.update(player);
+//        LastDeadLocation.playerLocation().clear();
+//        LastDeadLocation.sendLocation(player);
+//        LastDeadLocation.setDeadPlayer(player);
     }
 
     @EventHandler
@@ -65,10 +76,12 @@ public class EventFunctions implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
         deathFinder.movementSession(e);
+        InvisibleConfiguration configuration = new InvisibleConfiguration();
+        configuration.interactDetection();
     }
 
     @EventHandler
-    public void onInteract(PlayerInteractEvent e) {
+    public void onPlayerInteract(PlayerInteractEvent e) {
         deathFinder.chestInteraction(e);
     }
 
@@ -94,7 +107,7 @@ public class EventFunctions implements Listener {
     }
 
     @EventHandler
-    public final void entityExplode(EntityExplodeEvent e) throws IOException, ParseException {
+    public final void onEntityExplode(EntityExplodeEvent e) throws IOException, ParseException {
         ProtectionHandler.detectExplosion(e);
     }
 
@@ -135,7 +148,10 @@ public class EventFunctions implements Listener {
     }
 
     @EventHandler
-    public final void inventoryClick(InventoryClickEvent e) {
+    public final void onInventoryClick(InventoryClickEvent e) {
+        Handler.setEventHandler(e);
+        Handler_Removal.setEventHandler(e);
+
         EffectsManager effectsManager = new EffectsManager();
         Player player = (Player) e.getWhoClicked();
         Inventory clickedInventory = e.getClickedInventory();
@@ -166,12 +182,7 @@ public class EventFunctions implements Listener {
                                 player.sendMessage(ChatColor.YELLOW + "You already have that effect!!");
                             }
 
-                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plug, (Runnable)new Runnable() {
-                                @Override
-                                public void run() {
-                                    player.closeInventory();
-                                }
-                            }, 0L);
+                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plug, player::closeInventory, 0L);
                         } else if (itemStack.getItemMeta().getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_2) && itemStack.getItemMeta().isUnbreakable()) {
                             if (!player.hasPotionEffect(PotionEffectType.FAST_DIGGING)) {
                                 player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 300, true, true));
@@ -182,12 +193,7 @@ public class EventFunctions implements Listener {
                                 player.sendMessage(ChatColor.YELLOW + "You already have that effect!!");
                             }
 
-                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plug, (Runnable)new Runnable() {
-                                @Override
-                                public void run() {
-                                    player.closeInventory();
-                                }
-                            }, 0L);
+                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plug, player::closeInventory, 0L);
                         } else if (itemStack.getItemMeta().getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_3) && itemStack.getItemMeta().isUnbreakable()) {
                             if (!player.hasPotionEffect(PotionEffectType.FAST_DIGGING)) {
                                 player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE,600,true,true));
@@ -198,12 +204,7 @@ public class EventFunctions implements Listener {
                                 player.sendMessage(ChatColor.YELLOW + "You already have that effect!!");
                             }
 
-                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plug, (Runnable)new Runnable() {
-                                @Override
-                                public void run() {
-                                    player.closeInventory();
-                                }
-                            }, 0L);
+                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plug, player::closeInventory, 0L);
                         }
                         break;
                     }
@@ -219,12 +220,7 @@ public class EventFunctions implements Listener {
                                 player.sendMessage(ChatColor.YELLOW + "Effect may removed or you don't have effect to be removed!!");
                             }
 
-                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plug, (Runnable)new Runnable() {
-                                @Override
-                                public void run() {
-                                    player.closeInventory();
-                                }
-                            }, 0L);
+                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plug, player::closeInventory, 0L);
                         }
                         break;
                     }
@@ -234,42 +230,58 @@ public class EventFunctions implements Listener {
     }
 
     @EventHandler
-    public final void inventoryClose(InventoryCloseEvent e) {
-        EffectsManager effectsManager = new EffectsManager();
+    public final void onInventoryClose(InventoryCloseEvent e) {
+        String name = e.getView().getTitle();
         Player player = (Player) e.getPlayer();
+
+        if (name.equalsIgnoreCase(new Handler_Removal(GUIUtilityHandler.getGUIUtility(player)).getName())) {
+            if (Handler_Removal.isClicked) {
+                Handler_Removal.isClicked = false;
+            } else {
+                Handler_Removal.removalListSeparator.remove(player.getUniqueId().toString());
+                GUIUtilityHandler.utilityHM.remove(player);
+            }
+        }
+
+        if (name.equalsIgnoreCase(new Handler(GUIUtilityHandler.getGUIUtility(player)).getName())) {
+            if (Handler.isClicked) {
+                Handler.isClicked = false;
+            } else {
+                GUIUtilityHandler.utilityHM.remove(player);
+            }
+        }
+
+        EffectsManager effectsManager = new EffectsManager();
         Inventory playerInventory = player.getInventory();
 
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plug, (Runnable) new Runnable() {
-            @Override
-            public void run() {
-                ItemStack[] inventoryContents;
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plug, () -> {
+            ItemStack[] inventoryContents;
 
-                for (int length = (inventoryContents = playerInventory.getContents()).length, i = 0; i < length; ++i) {
-                    ItemStack contents = inventoryContents[i];
+            for (int length = (inventoryContents = playerInventory.getContents()).length, i = 0; i < length; ++i) {
+                ItemStack contents = inventoryContents[i];
 
-                    for (int j = 0; j < 9; ++j) {
-                        ItemStack items = playerInventory.getItem(j);
+                for (int j = 0; j < 9; ++j) {
+                    ItemStack items = playerInventory.getItem(j);
 
-                        if (items == contents && (contents != null && contents.getType().equals(Material.DIAMOND_PICKAXE) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_1)
-                        && contents.getItemMeta().isUnbreakable() || (contents != null && contents.getType().equals(Material.DIAMOND_PICKAXE) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_2)
-                        && contents.getItemMeta().isUnbreakable() || (contents != null && contents.getType().equals(Material.DIAMOND_PICKAXE) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_3)
-                        && contents.getItemMeta().isUnbreakable() || (contents != null && contents.getType().equals(Material.BARRIER) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.REMOVE_BUTTON)
-                        && contents.getItemMeta().isUnbreakable())))))
-                        {
-                            playerInventory.remove(contents);
-                            player.updateInventory();
-                        }
-                    }
-
-                    if (contents != null && contents.getType().equals(Material.DIAMOND_PICKAXE) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_1)
-                            && contents.getItemMeta().isUnbreakable() || (contents != null && contents.getType().equals(Material.DIAMOND_PICKAXE) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_2)
-                            && contents.getItemMeta().isUnbreakable() || (contents != null && contents.getType().equals(Material.DIAMOND_PICKAXE) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_3)
-                            && contents.getItemMeta().isUnbreakable() || (contents != null && contents.getType().equals(Material.BARRIER) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.REMOVE_BUTTON)
-                            && contents.getItemMeta().isUnbreakable()))))
+                    if (items == contents && (contents != null && contents.getType().equals(Material.DIAMOND_PICKAXE) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_1)
+                    && contents.getItemMeta().isUnbreakable() || (contents != null && contents.getType().equals(Material.DIAMOND_PICKAXE) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_2)
+                    && contents.getItemMeta().isUnbreakable() || (contents != null && contents.getType().equals(Material.DIAMOND_PICKAXE) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_3)
+                    && contents.getItemMeta().isUnbreakable() || (contents != null && contents.getType().equals(Material.BARRIER) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.REMOVE_BUTTON)
+                    && contents.getItemMeta().isUnbreakable())))))
                     {
                         playerInventory.remove(contents);
                         player.updateInventory();
                     }
+                }
+
+                if (contents != null && contents.getType().equals(Material.DIAMOND_PICKAXE) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_1)
+                        && contents.getItemMeta().isUnbreakable() || (contents != null && contents.getType().equals(Material.DIAMOND_PICKAXE) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_2)
+                        && contents.getItemMeta().isUnbreakable() || (contents != null && contents.getType().equals(Material.DIAMOND_PICKAXE) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.EFFECT_3)
+                        && contents.getItemMeta().isUnbreakable() || (contents != null && contents.getType().equals(Material.BARRIER) && Objects.requireNonNull(contents.getItemMeta()).getDisplayName().equalsIgnoreCase(effectsManager.REMOVE_BUTTON)
+                        && contents.getItemMeta().isUnbreakable()))))
+                {
+                    playerInventory.remove(contents);
+                    player.updateInventory();
                 }
             }
         }, 0L);

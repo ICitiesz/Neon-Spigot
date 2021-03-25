@@ -22,14 +22,16 @@ public class Handler_Removal extends Builder_Removal{
     private final Player player = guiUtility.getOwner();
     private final Plugin plugin = MainCore.getPlugin(MainCore.class);
 
+    public static final Map<String, ArrayList<String>> removalListSeparator = new TreeMap<>();
+
     public Handler_Removal(GUIUtility guiUtility) {
         super(guiUtility);
     }
 
     @Override
     public String getName() {
-        return ChatColor.LIGHT_PURPLE + "" + ChatColor.MAGIC + "------" + ChatColor.DARK_PURPLE
-                + "iWaypoints " + ChatColor.RED + "Removal" + ChatColor.LIGHT_PURPLE + "" + ChatColor.MAGIC + "------";
+        return ChatColor.LIGHT_PURPLE + "" + ChatColor.MAGIC + "----" + ChatColor.DARK_PURPLE + ChatColor.BOLD
+                + "iWaypoints " + ChatColor.RED + ChatColor.BOLD + "Removal" + ChatColor.LIGHT_PURPLE + "" + ChatColor.MAGIC + "----";
     }
 
     @Override
@@ -48,7 +50,9 @@ public class Handler_Removal extends Builder_Removal{
             itemIndex = super.max * pageIndex + i;
 
             if (waypointNames != null) {
-                if (itemIndex >= waypointNames.size()) break;
+                if (itemIndex >= waypointNames.size()) {
+                    break;
+                }
 
                 if (waypointNames.get(itemIndex) != null) {
                     ItemStack waypoint = new ItemStack(Material.BEACON);
@@ -82,7 +86,7 @@ public class Handler_Removal extends Builder_Removal{
         }
     }
 
-    public static final Map<String, ArrayList<String>> removalListSeparator = new TreeMap<>();
+    public static boolean isClicked = false;
 
     @Override
     public void clickHandler(InventoryClickEvent e) {
@@ -144,8 +148,10 @@ public class Handler_Removal extends Builder_Removal{
         switch (currentItem.getType()) {
             case SPECTRAL_ARROW: {
                 if (currentItemMeta != null && currentItemMeta.getDisplayName().equalsIgnoreCase(ChatColor.GOLD + "Previous")) {
+                    isClicked = true;
+
                     if (pageIndex == 0) {
-                        player.sendMessage(ChatColor.YELLOW + "Already on first page!");
+                        player.sendMessage(ChatColor.YELLOW + "Already on the first page!");
                     } else {
                         pageIndex = pageIndex - 1;
                         super.open();
@@ -178,6 +184,8 @@ public class Handler_Removal extends Builder_Removal{
                         }
                     }
                 } else if (currentItemMeta != null && currentItemMeta.getDisplayName().equalsIgnoreCase(ChatColor.GOLD + "Next")) {
+                    isClicked = true;
+
                     if (!((itemIndex + 1) >= waypointNames.size())) {
                         pageIndex = pageIndex + 1;
                         super.open();
@@ -209,7 +217,7 @@ public class Handler_Removal extends Builder_Removal{
                             }
                         }
                     } else {
-                        player.sendMessage(ChatColor.YELLOW + "Already on last page!");
+                        player.sendMessage(ChatColor.YELLOW + "Already on the last page!");
                     }
                 }
                 break;
@@ -220,7 +228,7 @@ public class Handler_Removal extends Builder_Removal{
                     player.closeInventory();
 
                     waypointNames.clear();
-                    removalListSeparator.remove(player.getUniqueId().toString());
+                    //removalListSeparator.remove(player.getUniqueId().toString());
                 }
                 break;
             }
@@ -261,7 +269,7 @@ public class Handler_Removal extends Builder_Removal{
         }
     }
 
-    public static void eventHandling(InventoryClickEvent e) {
+    public static void setEventHandler(InventoryClickEvent e) {
         String invName = e.getView().getTitle();
 
         if (invName.equalsIgnoreCase(new Handler_Removal(GUIUtilityHandler.getGUIUtility((Player) e.getWhoClicked())).getName())) {
