@@ -9,7 +9,6 @@ public final class MainCore extends JavaPlugin {
     public void onEnable() {
         try {
             PluginConstructor.start();
-            RankTags.test();
         } catch (Exception e) {
             e.printStackTrace();
         }
