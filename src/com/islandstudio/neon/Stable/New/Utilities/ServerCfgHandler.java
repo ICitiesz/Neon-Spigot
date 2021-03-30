@@ -90,7 +90,6 @@ public class ServerCfgHandler {
 
     public static ArrayList<String> fetchConfigs() throws IOException, ParseException {
         ArrayList<String> configs = new ArrayList<>();
-        //JSONParser jsonParser = new JSONParser();
 
         FileReader file = new FileReader(getServerConfigFile());
         JSONObject jsonObject = (JSONObject) jsonParser.parse(file);
@@ -205,6 +204,31 @@ public class ServerCfgHandler {
                             SyntaxHandler.sendSyntax(player, 1);
                             break;
                         }
+                    }
+                    break;
+                }
+
+                case "iWaypoints-Cross_Dimension": {
+                    if (value.equalsIgnoreCase("true")) {
+                        if (!jsonObject.get(setting).equals("true")) {
+                            jsonObject.replace(setting, value.toLowerCase());
+
+                            player.sendMessage(ChatColor.GREEN + "Cross Dimension for iWaypoints has been enabled!");
+                            player.sendMessage(ChatColor.GREEN + "Server settings has been updated!");
+                        } else {
+                            player.sendMessage(ChatColor.YELLOW + "Cross Dimension for iWaypoints already enabled!");
+                        }
+                    } else if (value.equalsIgnoreCase("false")) {
+                        if (!jsonObject.get(setting).equals("false")) {
+                            jsonObject.replace(setting, value.toLowerCase());
+
+                            player.sendMessage(ChatColor.GREEN + "Cross Dimension for iWaypoints has been disabled!");
+                            player.sendMessage(ChatColor.GREEN + "Server settings has been updated!");
+                        } else {
+                            player.sendMessage(ChatColor.YELLOW + "Cross Dimension for iWaypoints already disabled!");
+                        }
+                    } else {
+                        SyntaxHandler.sendSyntax(player, 1);
                     }
                     break;
                 }
