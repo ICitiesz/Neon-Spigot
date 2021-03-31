@@ -1,6 +1,6 @@
 package com.islandstudio.neon.Experimental;
 
-import com.islandstudio.neon.Stable.New.Utilities.NMS_Class_Version;
+import com.islandstudio.neon.Stable.New.Utilities.NamespaceVersion;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -83,12 +83,12 @@ public class LastDeadLocation {
     }
 
     private static void sendChat(Player player, String locationText) throws Exception {
-        for (Class<?> declaredClass : NMS_Class_Version.getNMSClass("IChatBaseComponent").getDeclaredClasses()) {
+        for (Class<?> declaredClass : NamespaceVersion.getNameSpaceClass("IChatBaseComponent").getDeclaredClasses()) {
             if (declaredClass.getSimpleName().equalsIgnoreCase("ChatSerializer")) {
                 Object chatMsg = declaredClass.getMethod("a", String.class).invoke(null, "[{\"text\":\"" + locationText + "\"},{\"text\":\"" + ChatColor.GOLD + "Teleport?\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/ldl\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"" + ChatColor.DARK_PURPLE + "Click here to teleport!\"}}}]");
-                Object chatType = NMS_Class_Version.getNMSClass("ChatMessageType").getField("CHAT").get(null);
+                Object chatType = NamespaceVersion.getNameSpaceClass("ChatMessageType").getField("CHAT").get(null);
 
-                Constructor<?> constructor = NMS_Class_Version.getNMSClass("PacketPlayOutChat").getConstructor(NMS_Class_Version.getNMSClass("IChatBaseComponent"), NMS_Class_Version.getNMSClass("ChatMessageType"), UUID.class);
+                Constructor<?> constructor = NamespaceVersion.getNameSpaceClass("PacketPlayOutChat").getConstructor(NamespaceVersion.getNameSpaceClass("IChatBaseComponent"), NamespaceVersion.getNameSpaceClass("ChatMessageType"), UUID.class);
                 Object packet = constructor.newInstance(chatMsg, chatType, player.getUniqueId());
 
                 sendPacket(player, packet);
@@ -99,6 +99,6 @@ public class LastDeadLocation {
     private static void sendPacket(Player player, Object packet) throws Exception {
         Object handler = player.getClass().getMethod("getHandle").invoke(player);
         Object playerConnection = handler.getClass().getField("playerConnection").get(handler);
-        playerConnection.getClass().getMethod("sendPacket", NMS_Class_Version.getNMSClass("Packet")).invoke(playerConnection, packet);
+        playerConnection.getClass().getMethod("sendPacket", NamespaceVersion.getNameSpaceClass("Packet")).invoke(playerConnection, packet);
     }
 }

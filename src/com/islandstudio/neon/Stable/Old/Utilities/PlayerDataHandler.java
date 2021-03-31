@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.islandstudio.neon.Stable.New.Utilities.NMS_Class_Version;
+import com.islandstudio.neon.Stable.New.Utilities.NamespaceVersion;
 import com.islandstudio.neon.MainCore;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -26,7 +26,7 @@ public class PlayerDataHandler {
 
     static {
         try {
-            Object plugin = NMS_Class_Version.getBukkitClass("plugin.java.JavaPlugin").getMethod("getPlugin", Class.class).invoke(null, MainCore.class);
+            Object plugin = NamespaceVersion.getBukkitClass("plugin.java.JavaPlugin").getMethod("getPlugin", Class.class).invoke(null, MainCore.class);
             Object getServer = plugin.getClass().getMethod("getServer").invoke(plugin);
             getOnlineMode = getServer.getClass().getMethod("getOnlineMode").invoke(getServer);
             getBukkitVersion = getServer.getClass().getMethod("getBukkitVersion").invoke(getServer);

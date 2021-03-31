@@ -1,6 +1,6 @@
 package com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem;
 
-import com.islandstudio.neon.Stable.New.Utilities.NMS_Class_Version;
+import com.islandstudio.neon.Stable.New.Utilities.NamespaceVersion;
 import com.islandstudio.neon.MainCore;
 import com.islandstudio.neon.Stable.New.Utilities.ProfileHandler;
 import org.bukkit.Bukkit;
@@ -22,7 +22,7 @@ public class RankHandler {
 
     static {
         try {
-            Object plugin_ = NMS_Class_Version.getBukkitClass("plugin.java.JavaPlugin").getMethod("getPlugin", Class.class).invoke(null, MainCore.class);
+            Object plugin_ = NamespaceVersion.getBukkitClass("plugin.java.JavaPlugin").getMethod("getPlugin", Class.class).invoke(null, MainCore.class);
             Object getServer = plugin_.getClass().getMethod("getServer").invoke(plugin_);
             getBukkitVersion = getServer.getClass().getMethod("getBukkitVersion").invoke(getServer);
         } catch (Exception e) {
@@ -162,17 +162,17 @@ public class RankHandler {
     }
 
     private static void sendChat(String rank, String playerName, String messages, Player onlinePlayer) throws Exception {
-        for (Class<?> declaredClass : NMS_Class_Version.getNMSClass("IChatBaseComponent").getDeclaredClasses()) {
+        for (Class<?> declaredClass : NamespaceVersion.getNameSpaceClass("IChatBaseComponent").getDeclaredClasses()) {
             if (declaredClass.getSimpleName().equalsIgnoreCase("ChatSerializer")) {
-                Object chatMessage = declaredClass.getMethod("a", String.class).invoke(null, "{\"text\":\"" + rank + ChatColor.WHITE + playerName + " > " + chatEscape(messages) + "\"}");
-                Object chatType = NMS_Class_Version.getNMSClass("ChatMessageType").getField("CHAT").get(null);
+                Object chatMessage = declaredClass.getMethod("a", String.class).invoke(null, "{\"text\":\"" + rank + ChatColor.WHITE + playerName + " > " + charactersEscape(messages) + "\"}");
+                Object chatType = NamespaceVersion.getNameSpaceClass("ChatMessageType").getField("CHAT").get(null);
                 Object packet = null;
 
                 if (VERSION.equalsIgnoreCase("1.16") || VERSION.equalsIgnoreCase("1.15")) {
-                    Constructor<?> constructor = NMS_Class_Version.getNMSClass("PacketPlayOutChat").getConstructor(NMS_Class_Version.getNMSClass("IChatBaseComponent"), NMS_Class_Version.getNMSClass("ChatMessageType"), UUID.class);
+                    Constructor<?> constructor = NamespaceVersion.getNameSpaceClass("PacketPlayOutChat").getConstructor(NamespaceVersion.getNameSpaceClass("IChatBaseComponent"), NamespaceVersion.getNameSpaceClass("ChatMessageType"), UUID.class);
                     packet = constructor.newInstance(chatMessage, chatType, onlinePlayer.getUniqueId());
                 } else if (VERSION.equalsIgnoreCase("1.14")) {
-                    Constructor<?> constructor = NMS_Class_Version.getNMSClass("PacketPlayOutChat").getConstructor(NMS_Class_Version.getNMSClass("IChatBaseComponent"), NMS_Class_Version.getNMSClass("ChatMessageType"));
+                    Constructor<?> constructor = NamespaceVersion.getNameSpaceClass("PacketPlayOutChat").getConstructor(NamespaceVersion.getNameSpaceClass("IChatBaseComponent"), NamespaceVersion.getNameSpaceClass("ChatMessageType"));
                     packet = constructor.newInstance(chatMessage, chatType);
                 }
 
@@ -184,10 +184,10 @@ public class RankHandler {
     private static void sendPacket(Player onlinePlayer, Object packet) throws Exception {
         Object handler = onlinePlayer.getClass().getMethod("getHandle").invoke(onlinePlayer);
         Object playerConnection = handler.getClass().getField("playerConnection").get(handler);
-        playerConnection.getClass().getMethod("sendPacket", NMS_Class_Version.getNMSClass("Packet")).invoke(playerConnection, packet);
+        playerConnection.getClass().getMethod("sendPacket", NamespaceVersion.getNameSpaceClass("Packet")).invoke(playerConnection, packet);
     }
 
-    private static String chatEscape(String message) {
+    private static String charactersEscape(String message) {
         Map<Integer, String> subStr = new TreeMap<>();
         StringBuilder stringBuilder = new StringBuilder();
 

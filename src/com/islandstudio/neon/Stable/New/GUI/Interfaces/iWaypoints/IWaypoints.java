@@ -238,12 +238,11 @@ public class IWaypoints {
     }
 
     public static void teleport(Player player, Location location, String waypointNameGold, int posX, int posY, int posZ) {
-        player.spawnParticle(Particle.PORTAL, player.getLocation(), 300);
+        player.spawnParticle(Particle.DRAGON_BREATH, player.getLocation(), 700);
         player.teleport(location);
-        //player.playSound(player.getLocation(), Sound.BLOCK_PORTAL_TRAVEL, 0.3f,1);
 
-        player.playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 1);
-        player.spawnParticle(Particle.PORTAL, player.getLocation(), 600);
+        player.playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1f, 1);
+        player.spawnParticle(Particle.PORTAL, player.getLocation(), 700);
         player.sendMessage(ChatColor.GREEN + "You have been teleported to " + waypointNameGold + ChatColor.GRAY + ", " + ChatColor.AQUA + posX + ", " + posY + ", " + posZ + ChatColor.GREEN + " !");
     }
 
@@ -254,7 +253,7 @@ public class IWaypoints {
         return (Location) bukkitObjectInputStream.readObject();
     }
 
-    public static void commandHandling(String[] args, Player player) {
+    public static void setCommandHandler(String[] args, Player player) {
         switch (args.length) {
             case 0: {
                 new Handler(GUIUtilityHandler.getGUIUtility(player)).open();
@@ -264,7 +263,6 @@ public class IWaypoints {
             case 1: {
                 if (args[0].equalsIgnoreCase("remove")) {
                     new Handler_Removal(GUIUtilityHandler.getGUIUtility(player)).open();
-                    Handler_Removal.removalListSeparator.remove(player.getUniqueId().toString());
                 } else {
                     SyntaxHandler.sendSyntax(player, 1);
                 }
@@ -282,7 +280,7 @@ public class IWaypoints {
                     try {
                         IWaypoints.remove(args[1]);
 
-                        player.sendMessage(ChatColor.RED + "The waypoint " + ChatColor.GRAY + "'" + ChatColor.GOLD + args[1] + ChatColor.GRAY + "'" + ChatColor.RED + " has been removed!");
+                        Bukkit.getServer().broadcastMessage(ChatColor.RED + "The waypoint " + ChatColor.GRAY + "'" + ChatColor.GOLD + args[1] + ChatColor.GRAY + "'" + ChatColor.RED + " has been removed by " + ChatColor.WHITE + player.getName() + ChatColor.RED + " !");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

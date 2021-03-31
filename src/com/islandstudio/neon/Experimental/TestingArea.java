@@ -5,17 +5,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.islandstudio.neon.MainCore;
+import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtilityHandler;
 import com.islandstudio.neon.Stable.New.Initialization.FolderManager.FolderHandler;
-import org.bukkit.ChatColor;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.util.*;
@@ -33,9 +29,7 @@ public class TestingArea {
 
     }
 
-    public static void playSound(Player player) {
-        player.playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1f, 1);
-        player.spawnParticle(Particle.PORTAL, player.getLocation(), 600);
+    public static void playSound() {
     }
 
     public static void test() throws Exception {

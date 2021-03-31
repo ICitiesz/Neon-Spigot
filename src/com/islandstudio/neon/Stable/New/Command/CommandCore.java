@@ -3,7 +3,6 @@ package com.islandstudio.neon.Stable.New.Command;
 import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.IWaypoints;
 import com.islandstudio.neon.Experimental.GameModes;
 import com.islandstudio.neon.Experimental.GameModeHandler;
-import com.islandstudio.neon.Experimental.TestingArea;
 import com.islandstudio.neon.Stable.New.Utilities.ServerCfgHandler;
 import com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.RankHandler;
 import com.islandstudio.neon.Stable.Deprecated.Utilities.PlayerDataHandler;
@@ -279,7 +278,7 @@ public class CommandCore implements Listener, TabExecutor {
             }
 
             if (cmd.getName().equalsIgnoreCase(CommandAlias.CMD_7.getCommandAlias())) {
-                IWaypoints.commandHandling(args, (Player) sender);
+                IWaypoints.setCommandHandler(args, (Player) sender);
                 return true;
             }
 
@@ -307,7 +306,6 @@ public class CommandCore implements Listener, TabExecutor {
                     //deathFinder.test2(player);
                     //TestingArea.getDataFolder(player);
                     //TestingArea.setFileData();
-                    TestingArea.playSound(player);
 
                     try {
                         //TestingArea.initialize();

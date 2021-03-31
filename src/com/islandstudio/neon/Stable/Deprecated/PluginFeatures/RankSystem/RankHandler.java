@@ -1,6 +1,6 @@
 package com.islandstudio.neon.Stable.Deprecated.PluginFeatures.RankSystem;
 
-import com.islandstudio.neon.Stable.New.Utilities.NMS_Class_Version;
+import com.islandstudio.neon.Stable.New.Utilities.NamespaceVersion;
 import com.islandstudio.neon.MainCore;
 import com.islandstudio.neon.Stable.Old.Initialization.FolderManager.FolderList;
 import com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.ServerRanks;
@@ -379,12 +379,12 @@ public class RankHandler {
     }
 
     private static void sendChat(String rank, String playerName, String messages, Player onlinePlayer) throws Exception {
-        for (Class<?> declaredClass : NMS_Class_Version.getNMSClass("IChatBaseComponent").getDeclaredClasses()) {
+        for (Class<?> declaredClass : NamespaceVersion.getNameSpaceClass("IChatBaseComponent").getDeclaredClasses()) {
             if (declaredClass.getSimpleName().equalsIgnoreCase("ChatSerializer")) {
                 Object chatMsg = declaredClass.getMethod("a", String.class).invoke(null, "{\"text\":\"" + rank + ChatColor.WHITE + playerName + " > " + messages + "\"}");
-                Object chatType = NMS_Class_Version.getNMSClass("ChatMessageType").getField("CHAT").get(null);
+                Object chatType = NamespaceVersion.getNameSpaceClass("ChatMessageType").getField("CHAT").get(null);
 
-                Constructor<?> constructor = NMS_Class_Version.getNMSClass("PacketPlayOutChat").getConstructor(NMS_Class_Version.getNMSClass("IChatBaseComponent"), NMS_Class_Version.getNMSClass("ChatMessageType"), UUID.class);
+                Constructor<?> constructor = NamespaceVersion.getNameSpaceClass("PacketPlayOutChat").getConstructor(NamespaceVersion.getNameSpaceClass("IChatBaseComponent"), NamespaceVersion.getNameSpaceClass("ChatMessageType"), UUID.class);
                 Object packet = constructor.newInstance(chatMsg, chatType, onlinePlayer.getUniqueId());
 
                 sendPacket(onlinePlayer, packet);
@@ -395,7 +395,7 @@ public class RankHandler {
     private static void sendPacket(Player onlinePlayer, Object packet) throws Exception {
         Object handler = onlinePlayer.getClass().getMethod("getHandle").invoke(onlinePlayer);
         Object playerConnection = handler.getClass().getField("playerConnection").get(handler);
-        playerConnection.getClass().getMethod("sendPacket", NMS_Class_Version.getNMSClass("Packet")).invoke(playerConnection, packet);
+        playerConnection.getClass().getMethod("sendPacket", NamespaceVersion.getNameSpaceClass("Packet")).invoke(playerConnection, packet);
     }
 
 }

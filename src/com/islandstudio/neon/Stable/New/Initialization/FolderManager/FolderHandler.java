@@ -1,7 +1,7 @@
 package com.islandstudio.neon.Stable.New.Initialization.FolderManager;
 
 
-import com.islandstudio.neon.Stable.New.Utilities.NMS_Class_Version;
+import com.islandstudio.neon.Stable.New.Utilities.NamespaceVersion;
 import com.islandstudio.neon.MainCore;
 
 import java.io.File;
@@ -14,7 +14,7 @@ public class FolderHandler {
 
     static {
         try {
-            Object plugin = NMS_Class_Version.getBukkitClass("plugin.java.JavaPlugin").getMethod("getPlugin", Class.class).invoke(null, MainCore.class);
+            Object plugin = NamespaceVersion.getBukkitClass("plugin.java.JavaPlugin").getMethod("getPlugin", Class.class).invoke(null, MainCore.class);
             Object getServer = plugin.getClass().getMethod("getServer").invoke(plugin);
 
             getDataFolder = plugin.getClass().getMethod("getDataFolder").invoke(plugin);

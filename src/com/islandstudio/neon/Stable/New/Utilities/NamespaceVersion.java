@@ -1,6 +1,6 @@
 package com.islandstudio.neon.Stable.New.Utilities;
 
-public class NMS_Class_Version {
+public class NamespaceVersion {
 
     private static Object getServer;
 
@@ -14,7 +14,7 @@ public class NMS_Class_Version {
 
     private static final String version = getServer.getClass().getPackage().getName().split("\\.")[3];
 
-    public static Class<?> getNMSClass(String className) throws ClassNotFoundException {
+    public static Class<?> getNameSpaceClass(String className) throws ClassNotFoundException {
         return Class.forName("net.minecraft.server." + version + "." + className);
     }
 

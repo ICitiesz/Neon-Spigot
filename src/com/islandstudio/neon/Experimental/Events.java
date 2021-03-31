@@ -1,68 +1,8 @@
 package com.islandstudio.neon.Experimental;
 
-import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.Handler;
-import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.Handler_Removal;
-import com.islandstudio.neon.MainCore;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.server.BroadcastMessageEvent;
-import org.bukkit.plugin.Plugin;
 
 public class Events implements Listener {
-    //Commands commands_ = new Commands();
-    InvisibleConfiguration invisibleConfiguration = new InvisibleConfiguration();
-    Plugin plug = MainCore.getPlugin(MainCore.class);
-
-    @EventHandler
-    public void playerDamageEvent(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player) {
-
-        }
-
-        if (e.isCancelled()) {
-            e.setCancelled(false);
-        }
-
-        if (e.getDamager().getName().equalsIgnoreCase("ICities")) {
-            /*if (commands_beta.isEnabled) {
-
-            }*/
-        }
-    }
-
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent e) {
-        InvisibleConfiguration configuration = new InvisibleConfiguration();
-        configuration.interactDetection();
-    }
-
-    @EventHandler
-    public void onBroadcastMessage(BroadcastMessageEvent e) {
-
-    }
-
-    @EventHandler
-    public void onPlayerDead(PlayerDeathEvent e) throws Exception {
-        Player player = e.getEntity();
-        LastDeadLocation.playerLocation().clear();
-        LastDeadLocation.sendLocation(player);
-        LastDeadLocation.setDeadPlayer(player);
-    }
-
-    @EventHandler
-    public final void onInventoryClick(InventoryClickEvent e) {
-        String invName = e.getView().getTitle();
-
-        Handler.eventHandling(e);
-        Handler_Removal.eventHandling(e);
-    }
-
-
 
     /*@EventHandler
     public final void inventoryClick(InventoryClickEvent e) {

@@ -4,6 +4,7 @@ import com.islandstudio.neon.MainCore;
 import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIConstructor;
 import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtility;
 import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtilityHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -228,7 +229,6 @@ public class Handler_Removal extends Builder_Removal{
                     player.closeInventory();
 
                     waypointNames.clear();
-                    //removalListSeparator.remove(player.getUniqueId().toString());
                 }
                 break;
             }
@@ -240,7 +240,7 @@ public class Handler_Removal extends Builder_Removal{
                     } else {
                         player.closeInventory();
 
-                        player.sendMessage(ChatColor.RED + "The waypoint(s): ");
+                        Bukkit.getServer().broadcastMessage(ChatColor.RED + "The waypoint(s): ");
 
                         for (String name : removalList) {
                             try {
@@ -252,13 +252,13 @@ public class Handler_Removal extends Builder_Removal{
                                     }
                                 }
 
-                                player.sendMessage(ChatColor.GRAY + "'" + ChatColor.GOLD + name + ChatColor.GRAY + "'");
+                                Bukkit.getServer().broadcastMessage(ChatColor.GRAY + "'" + ChatColor.GOLD + name + ChatColor.GRAY + "'");
                             } catch (Exception err) {
                                 err.printStackTrace();
                             }
                         }
 
-                        player.sendMessage(ChatColor.RED + "has been removed!");
+                        Bukkit.getServer().broadcastMessage(ChatColor.RED + "has been removed by " + ChatColor.WHITE + player.getName() + ChatColor.RED + " !");
 
                         removalListSeparator.remove(player.getUniqueId().toString());
                     }

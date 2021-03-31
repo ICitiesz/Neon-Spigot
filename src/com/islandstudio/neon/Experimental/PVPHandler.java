@@ -1,6 +1,6 @@
 package com.islandstudio.neon.Experimental;
 
-import com.islandstudio.neon.Stable.New.Utilities.NMS_Class_Version;
+import com.islandstudio.neon.Stable.New.Utilities.NamespaceVersion;
 import com.islandstudio.neon.Stable.New.Utilities.ServerCfgHandler;
 import com.islandstudio.neon.MainCore;
 import org.bukkit.World;
@@ -15,7 +15,7 @@ public class PVPHandler {
 
     static {
         try {
-            Object plugin = NMS_Class_Version.getBukkitClass("plugin.java.JavaPlugin").getMethod("getPlugin", Class.class).invoke(null, MainCore.class);
+            Object plugin = NamespaceVersion.getBukkitClass("plugin.java.JavaPlugin").getMethod("getPlugin", Class.class).invoke(null, MainCore.class);
             Object getServer = plugin.getClass().getMethod("getServer").invoke(plugin);
             getWorlds = getServer.getClass().getMethod("getWorlds").invoke(getServer);
         } catch (Exception e) {
@@ -25,7 +25,7 @@ public class PVPHandler {
 
     private static final List<World> worlds = (List<World>) getWorlds;
 
-    public static void initialize() throws IOException, ParseException {
+    public static void init() throws IOException, ParseException {
         for (World world : worlds) {
             if (Objects.requireNonNull(ServerCfgHandler.getValue()).get("PVP").equals(true)) {
                 if (!world.getPVP()) {
