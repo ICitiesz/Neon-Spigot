@@ -254,45 +254,49 @@ public class IWaypoints {
     }
 
     public static void setCommandHandler(String[] args, Player player) {
-        switch (args.length) {
-            case 0: {
-                new Handler(GUIUtilityHandler.getGUIUtility(player)).open();
-                break;
-            }
+        if (!player.isSleeping()) {
+            switch (args.length) {
+                case 0: {
+                    new Handler(GUIUtilityHandler.getGUIUtility(player)).open();
+                    break;
+                }
 
-            case 1: {
-                if (args[0].equalsIgnoreCase("remove")) {
-                    new Handler_Removal(GUIUtilityHandler.getGUIUtility(player)).open();
-                } else {
+                case 1: {
+                    if (args[0].equalsIgnoreCase("remove")) {
+                        new Handler_Removal(GUIUtilityHandler.getGUIUtility(player)).open();
+                    } else {
+                        SyntaxHandler.sendSyntax(player, 1);
+                    }
+                    break;
+                }
+
+                case 2: {
+                    if (args[0].equalsIgnoreCase("add")) {
+                        try {
+                            IWaypoints.add(args[1], player);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else if (args[0].equalsIgnoreCase("remove")) {
+                        try {
+                            IWaypoints.remove(args[1]);
+
+                            Bukkit.getServer().broadcastMessage(ChatColor.RED + "The waypoint " + ChatColor.GRAY + "'" + ChatColor.GOLD + args[1] + ChatColor.GRAY + "'" + ChatColor.RED + " has been removed by " + ChatColor.WHITE + player.getName() + ChatColor.RED + " !");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        SyntaxHandler.sendSyntax(player, 1);
+                    }
+                    break;
+                }
+
+                default: {
                     SyntaxHandler.sendSyntax(player, 1);
                 }
-                break;
             }
-
-            case 2: {
-                if (args[0].equalsIgnoreCase("add")) {
-                    try {
-                        IWaypoints.add(args[1], player);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else if (args[0].equalsIgnoreCase("remove")) {
-                    try {
-                        IWaypoints.remove(args[1]);
-
-                        Bukkit.getServer().broadcastMessage(ChatColor.RED + "The waypoint " + ChatColor.GRAY + "'" + ChatColor.GOLD + args[1] + ChatColor.GRAY + "'" + ChatColor.RED + " has been removed by " + ChatColor.WHITE + player.getName() + ChatColor.RED + " !");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    SyntaxHandler.sendSyntax(player, 1);
-                }
-                break;
-            }
-
-            default: {
-                SyntaxHandler.sendSyntax(player, 1);
-            }
+        } else {
+            player.sendMessage(ChatColor.YELLOW + "You can't use Effects Manager while you're sleeping!");
         }
     }
 

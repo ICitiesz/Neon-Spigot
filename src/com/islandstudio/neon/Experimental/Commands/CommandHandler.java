@@ -3,7 +3,6 @@ package com.islandstudio.neon.Experimental.Commands;
 import com.islandstudio.neon.Stable.New.Command.CommandAlias;
 import com.islandstudio.neon.Stable.New.Command.CommandCore;
 import com.islandstudio.neon.MainCore;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Objects;
@@ -16,7 +15,6 @@ public final class CommandHandler {
         for (CommandAlias cmds : CommandAlias.values()) {
             Objects.requireNonNull(plugin.getServer().getPluginCommand(cmds.getCommandAlias())).setExecutor(cmd);
         }
-
         //Bukkit.getServer().getPluginCommand("test").setExecutor(cmd);
     }
 }

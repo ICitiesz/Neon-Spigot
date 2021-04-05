@@ -23,9 +23,9 @@ public final class PluginConstructor {
             case "1.15":
 
             case "1.16": {
-                plugin.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "Detected Minecraft " + ChatColor.GREEN + RAW_VERSION + ChatColor.YELLOW + "!");
+                plugin.getServer().getConsoleSender().sendMessage(ChatColor.GRAY + "[Neon] " + ChatColor.YELLOW + "Detected Minecraft " + ChatColor.GREEN + RAW_VERSION + ChatColor.YELLOW + "!");
                 Thread.sleep(1000);
-                plugin.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "Initializing features for Minecraft " + ChatColor.GREEN + VERSION + ChatColor.YELLOW + "......");
+                plugin.getServer().getConsoleSender().sendMessage(ChatColor.GRAY + "[Neon] " + ChatColor.YELLOW + "Initializing features for Minecraft " + ChatColor.GREEN + VERSION + ChatColor.YELLOW + "......");
 
                 eventRegister();
                 FolderHandler.init();
@@ -38,7 +38,7 @@ public final class PluginConstructor {
                 loadConfig();
 
                 Thread.sleep(2500);
-                plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Initialization complete!");
+                plugin.getServer().getConsoleSender().sendMessage(ChatColor.GRAY + "[Neon] " + ChatColor.GREEN + "Initialization complete!");
                 sendIntro();
                 break;
             }
@@ -46,31 +46,29 @@ public final class PluginConstructor {
             default: {
                 final String SUPPORTED_VERSION = "1.14 ~ 1.16";
 
-                System.out.println("Incompatible Minecraft version! Please check for the latest version!");
-                System.out.println("Supported version: " + SUPPORTED_VERSION);
+                plugin.getServer().getConsoleSender().sendMessage(ChatColor.GRAY + "[Neon] " + ChatColor.RED + "Incompatible Minecraft version! Please check for the latest version!");
+                plugin.getServer().getConsoleSender().sendMessage(ChatColor.GRAY + "[Neon] " + ChatColor.YELLOW + "Supported version: " + ChatColor.GREEN + SUPPORTED_VERSION);
                 break;
             }
         }
     }
 
     public static void sendIntro() {
-        plugin.getServer().getConsoleSender().sendMessage(
-                ChatColor.GOLD + "|-----------------=================-----------------|" + "\n"
-                + ChatColor.GOLD + "|-----------------=================-----------------|" + "\n"
-                + ChatColor.GOLD + "|----------------= Neon v1.8-Pre_2 =----------------|" + "\n"
-                + ChatColor.GOLD + "|-----------------===" + ChatColor.GREEN + " <Started> " + ChatColor.GOLD + "===-----------------|" + "\n"
-                + ChatColor.GOLD + "|-----------------=================-----------------|" + "\n"
-                + ChatColor.GOLD + "|-----------------=================-----------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|----------------==== Neon v1.8 ====----------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------===" + ChatColor.GREEN + " <Started> " + ChatColor.GOLD + "===-----------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
     }
 
     public static void sendOutro() {
-        plugin.getServer().getConsoleSender().sendMessage(
-                ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|" + "\n"
-                + ChatColor.GOLD + "|-----------------=================-----------------|" + "\n"
-                + ChatColor.GOLD + "|----------------= Neon v1.8-Pre_2 =----------------|" + "\n"
-                + ChatColor.GOLD + "|-----------------===" + ChatColor.RED + " <Stopped> " + ChatColor.GOLD + "===-----------------|" + "\n"
-                + ChatColor.GOLD + "|-----------------=================-----------------|" + "\n"
-                + ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|----------------==== Neon v1.8 ====----------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------===" + ChatColor.RED + " <Stopped> " + ChatColor.GOLD + "===-----------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
     }
 
     private static void loadConfig() {

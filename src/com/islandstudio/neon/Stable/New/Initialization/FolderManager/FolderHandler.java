@@ -3,34 +3,18 @@ package com.islandstudio.neon.Stable.New.Initialization.FolderManager;
 
 import com.islandstudio.neon.Stable.New.Utilities.NamespaceVersion;
 import com.islandstudio.neon.MainCore;
+import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.util.ArrayList;
 
 public class FolderHandler {
-    private static Object getBukkitVersion;
-    private static Object getOnlineMode;
-    private static Object getDataFolder;
+    private static final Plugin plugin = MainCore.getPlugin(MainCore.class);
 
-    static {
-        try {
-            Object plugin = NamespaceVersion.getBukkitClass("plugin.java.JavaPlugin").getMethod("getPlugin", Class.class).invoke(null, MainCore.class);
-            Object getServer = plugin.getClass().getMethod("getServer").invoke(plugin);
-
-            getDataFolder = plugin.getClass().getMethod("getDataFolder").invoke(plugin);
-            getOnlineMode = getServer.getClass().getMethod("getOnlineMode").invoke(getServer);
-            getBukkitVersion = getServer.getClass().getMethod("getBukkitVersion").invoke(getServer);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private static final File DATA_FOLDER = (File) getDataFolder;
+    private static final File DATA_FOLDER = plugin.getDataFolder();
     private static final File BETA_FOLDER = new File(DATA_FOLDER, "Beta_Folder");
 
-    private static final String VERSION = ((String) getBukkitVersion).split("\\.")[0] + "." + ((String) getBukkitVersion).split("\\.")[1];
-    private static final boolean ONLINE_MODE = (boolean) getOnlineMode;
+    private static final String VERSION = plugin.getServer().getBukkitVersion().split("\\.")[0] + "." + plugin.getServer().getBukkitVersion().split("\\.")[1];
 
     public static void init() {
         ArrayList<File> folders = new ArrayList<>();
@@ -61,7 +45,7 @@ public class FolderHandler {
     }
 
     public static String getMode() {
-        if (ONLINE_MODE) {
+        if (plugin.getServer().getOnlineMode()) {
             return "Online_Mode";
         } else {
             return "Offline_Mode";

@@ -196,10 +196,10 @@ Ender Chest [Unbreakable] => {
 - Command -> {
  -//efsAmp set {effectName} {value} {time}
    - effectName = Haste 1,2,3
-   - value = 0 > x < 1001
+   - value = 0 > x <= 1000
    - time = seconds? ticks?
  -//efsConfig list
- -//efsConfig set {effectName} {Level/0 is all} {isEnabled}
+ -//efsConfig set {effectName} {Level 0 is all} {isEnabled}
 }
 - File -> {
   {
@@ -217,8 +217,11 @@ Ender Chest [Unbreakable] => {
   }
 }
 --------------------------------------------------------------
-
-[iWaypoints]
+[Command Handling]
+- Add compatibility to other plugin [Add plugin name in front of the command (/neon waypoints add)]
+- Improved command list
+--------------------------------------------------------------
+[iWaypoints] (Completed)
 - File format -> {
     {
         "Waypoints": [
@@ -245,6 +248,7 @@ Ender Chest [Unbreakable] => {
     }
 }
 - Some characters create naming error.
+- Disable open iWaypoints while sleeping
 
 
 

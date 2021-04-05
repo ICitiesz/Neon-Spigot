@@ -3,6 +3,7 @@ package com.islandstudio.neon.Stable.New.Command;
 import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.IWaypoints;
 import com.islandstudio.neon.Experimental.GameModes;
 import com.islandstudio.neon.Experimental.GameModeHandler;
+import com.islandstudio.neon.Stable.New.Utilities.ProfileHandler;
 import com.islandstudio.neon.Stable.New.Utilities.ServerCfgHandler;
 import com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.RankHandler;
 import com.islandstudio.neon.Stable.Deprecated.Utilities.PlayerDataHandler;
@@ -142,21 +143,32 @@ public class CommandCore implements Listener, TabExecutor {
 
             if (cmd.getName().equalsIgnoreCase(CommandAlias.CMD_3.getCommandAlias())) {
                 Player player = (Player) sender;
-                String playerRank = PlayerDataHandler.getData(PlayerDataHandler.getDataFile(player)).getString("Rank");
 
-                if (player.isOp() || ServerRanks.OWNER.toString().equalsIgnoreCase(playerRank)) {
-                    if (player.getFoodLevel() < 20 || (player.getSaturation() < 20)) {
-                        player.setFoodLevel(20);
-                        player.setSaturation(20);
-                    } else if (player.getHealth() < 20) {
-                        player.setHealth(20);
+                try {
+                    String playerRank2 = (String) ProfileHandler.getValue(player).get("Rank");
+
+                    if (player.isOp() || playerRank2.equalsIgnoreCase(ServerRanks.OWNER.toString())) {
+                        if (player.getFoodLevel() <20 && player.getHealth() < 20) {
+                            player.setFoodLevel(20);
+                            player.setSaturation(20);
+                            player.setHealth(20);
+                            player.sendMessage(ChatColor.GREEN + "Your health and hunger have been filled!");
+                        } else if (player.getFoodLevel() <20) {
+                            player.setFoodLevel(20);
+                            player.setSaturation(20);
+                            player.sendMessage(ChatColor.GREEN + "Your hunger has been filled!");
+                        } else if (player.getHealth() < 0) {
+                            player.setHealth(20);
+                            player.sendMessage(ChatColor.GREEN + "Your health has been filled!");
+                        } else {
+                            player.sendRawMessage(ChatColor.YELLOW + "Regen only available when your health level or food level is below 20!!");
+                        }
                     } else {
-                        player.sendRawMessage(ChatColor.YELLOW + "Regen only available when your health level or food level is below 20!!");
+                        SyntaxHandler.sendSyntax(player, 2);
                     }
-                } else {
-                    SyntaxHandler.sendSyntax(player, 2);
+                } catch (ParseException | IOException e) {
+                    e.printStackTrace();
                 }
-
             }
 
             if (cmd.getName().equalsIgnoreCase(CommandAlias.CMD_4.getCommandAlias())) {

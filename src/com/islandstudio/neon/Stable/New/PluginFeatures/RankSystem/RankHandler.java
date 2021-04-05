@@ -6,6 +6,7 @@ import com.islandstudio.neon.Stable.New.Utilities.ProfileHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
@@ -18,19 +19,8 @@ import java.util.UUID;
 public class RankHandler {
     public static ArrayList<String> rankNames = new ArrayList<>();
 
-    private static Object getBukkitVersion;
-
-    static {
-        try {
-            Object plugin_ = NamespaceVersion.getBukkitClass("plugin.java.JavaPlugin").getMethod("getPlugin", Class.class).invoke(null, MainCore.class);
-            Object getServer = plugin_.getClass().getMethod("getServer").invoke(plugin_);
-            getBukkitVersion = getServer.getClass().getMethod("getBukkitVersion").invoke(getServer);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static final String VERSION = ((String) getBukkitVersion).split("\\.")[0] + "." + ((String) getBukkitVersion).split("\\.")[1];
+    private static final Plugin plugin = MainCore.getPlugin(MainCore.class);
+    private static final String VERSION = plugin.getServer().getBukkitVersion().split("\\.")[0] + "." + plugin.getServer().getBukkitVersion().split("\\.")[1];
 
     public static void setRank(Player commander, Player onlinePlayers, String rankName, String playerName) throws IOException, ParseException {
         for (ServerRanks serverRanks : ServerRanks.values()) {

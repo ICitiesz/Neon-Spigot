@@ -75,24 +75,6 @@ public class ProfileHandler {
         }
     }
 
-    public static void createNewFiles(Player player) throws IOException {
-        File playerFolder = getPlayerFolder(player);
-        File playerProfile = getPlayerProfile(player);
-        File mainFolder = FolderList.FOLDER_B.getFolder();
-
-        if (!mainFolder.exists()) {
-            boolean createFolder = mainFolder.mkdirs();
-        }
-
-        if (!playerFolder.exists()) {
-            boolean createFolder = playerFolder.mkdirs();
-        }
-
-        if (!playerProfile.exists()) {
-            boolean createFile = playerProfile.createNewFile();
-        }
-    }
-
     public static File getPlayerProfile(Player player) {
         return new File(getPlayerFolder(player), "profile_" + player.getUniqueId().toString() + ".json");
     }
@@ -124,4 +106,21 @@ public class ProfileHandler {
         }
     }
 
+    private static void createNewFiles(Player player) throws IOException {
+        File playerFolder = getPlayerFolder(player);
+        File playerProfile = getPlayerProfile(player);
+        File mainFolder = FolderList.FOLDER_B.getFolder();
+
+        if (!mainFolder.exists()) {
+            boolean createFolder = mainFolder.mkdirs();
+        }
+
+        if (!playerFolder.exists()) {
+            boolean createFolder = playerFolder.mkdirs();
+        }
+
+        if (!playerProfile.exists()) {
+            boolean createFile = playerProfile.createNewFile();
+        }
+    }
 }

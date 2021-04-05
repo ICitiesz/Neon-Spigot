@@ -1,7 +1,5 @@
 package com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem;
 
-import com.islandstudio.neon.Stable.New.Utilities.NamespaceVersion;
-import com.islandstudio.neon.MainCore;
 import com.islandstudio.neon.Stable.New.Utilities.ProfileHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -10,7 +8,6 @@ import org.bukkit.scoreboard.Team;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Objects;
 
 public class RankTags {

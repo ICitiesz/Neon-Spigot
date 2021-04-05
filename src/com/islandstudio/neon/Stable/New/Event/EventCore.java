@@ -1,7 +1,6 @@
 package com.islandstudio.neon.Stable.New.Event;
 
 import com.islandstudio.neon.Experimental.DeathFinder.deathFinder;
-import com.islandstudio.neon.Experimental.InvisibleConfiguration;
 import com.islandstudio.neon.Stable.New.Utilities.PacketReceiver;
 import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtilityHandler;
 import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.Handler;
@@ -42,17 +41,21 @@ public class EventCore implements Listener {
 
     @EventHandler
     public final void onPlayerJoin(PlayerJoinEvent e) throws Exception {
+        Player player = e.getPlayer();
+
         ServerHandler.broadcastJoin(e);
-        ProfileHandler.init(e.getPlayer());
+        ProfileHandler.init(player);
         RankTags.setRankTags();
-        PacketReceiver.playerInjection(e.getPlayer());
+        PacketReceiver.playerInjection(player);
     }
 
     @EventHandler
     public final void onPlayerQuit(PlayerQuitEvent e) {
+        Player player = e.getPlayer();
+
         ServerHandler.broadcastQuit(e);
-        PacketReceiver.playerRemoval(e.getPlayer());
-        GUIUtilityHandler.utilityHM.remove(e.getPlayer());
+        PacketReceiver.playerRemoval(player);
+        GUIUtilityHandler.utilityHM.remove(player);
     }
 
     @EventHandler
@@ -75,14 +78,14 @@ public class EventCore implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
-        deathFinder.movementSession(e);
-        InvisibleConfiguration configuration = new InvisibleConfiguration();
-        configuration.interactDetection();
+        //deathFinder.movementSession(e);
+        //InvisibleConfiguration configuration = new InvisibleConfiguration();
+        //configuration.interactDetection();
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
-        deathFinder.chestInteraction(e);
+        //deathFinder.chestInteraction(e);
     }
 
     @EventHandler
