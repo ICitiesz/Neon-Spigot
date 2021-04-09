@@ -6,7 +6,6 @@ import com.islandstudio.neon.Experimental.GameModeHandler;
 import com.islandstudio.neon.Stable.New.Utilities.ProfileHandler;
 import com.islandstudio.neon.Stable.New.Utilities.ServerCfgHandler;
 import com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.RankHandler;
-import com.islandstudio.neon.Stable.Deprecated.Utilities.PlayerDataHandler;
 import com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.ServerRanks;
 import com.islandstudio.neon.Stable.New.GUI.Interfaces.EffectsManager.EffectsManager;
 import org.bukkit.Bukkit;
@@ -161,7 +160,7 @@ public class CommandCore implements Listener, TabExecutor {
                             player.setHealth(20);
                             player.sendMessage(ChatColor.GREEN + "Your health has been filled!");
                         } else {
-                            player.sendRawMessage(ChatColor.YELLOW + "Regen only available when your health level or food level is below 20!!");
+                            player.sendMessage(ChatColor.YELLOW + "Regen only available when your health level or food level is below 20!!");
                         }
                     } else {
                         SyntaxHandler.sendSyntax(player, 2);
@@ -172,20 +171,24 @@ public class CommandCore implements Listener, TabExecutor {
             }
 
             if (cmd.getName().equalsIgnoreCase(CommandAlias.CMD_4.getCommandAlias())) {
-                Player player = (Player) sender;
-                String playerRank = PlayerDataHandler.getData(PlayerDataHandler.getDataFile(player)).getString("Rank");
-                EffectsManager effectsManager = new EffectsManager();
+                try {
+                    Player player = (Player) sender;
+                    String playerRank = (String) ProfileHandler.getValue(player).get("Rank");
+                    EffectsManager effectsManager = new EffectsManager();
 
-                if (player.isOp() || ServerRanks.OWNER.toString().equalsIgnoreCase(playerRank) || ServerRanks.VIP_PLUS.toString().equalsIgnoreCase(playerRank)) {
-                    if (!player.isSleeping()) {
-                        effectsManager.openEffectManager(player);
+                    if (player.isOp() || ServerRanks.OWNER.toString().equalsIgnoreCase(playerRank) || ServerRanks.VIP_PLUS.toString().equalsIgnoreCase(playerRank)) {
+                        if (!player.isSleeping()) {
+                            effectsManager.openEffectManager(player);
+                        } else {
+                            player.sendMessage(ChatColor.YELLOW + "You can't use Effects Manager while you're sleeping!");
+                        }
                     } else {
-                        player.sendRawMessage(ChatColor.YELLOW + "You can't use Effects Manager while you're sleeping!");
+                        player.sendMessage(ChatColor.RED + "You need a higher rank to do that!");
                     }
-                } else {
-                    player.sendRawMessage(ChatColor.RED + "You need a higher rank to do that!");
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                return true;
             }
 
             if (cmd.getName().equalsIgnoreCase(CommandAlias.CMD_5.getCommandAlias())) {
@@ -231,7 +234,7 @@ public class CommandCore implements Listener, TabExecutor {
                             for (Player onlinePlayers : Bukkit.getServer().getOnlinePlayers()) {
                                 if (playerName.equalsIgnoreCase(onlinePlayers.getName())) {
                                     try {
-                                        com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.RankHandler.removeRank(player, onlinePlayers);
+                                        RankHandler.removeRank(player, onlinePlayers);
                                     } catch (IOException | ParseException e) {
                                         e.printStackTrace();
                                     }

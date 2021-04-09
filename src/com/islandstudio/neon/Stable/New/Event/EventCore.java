@@ -63,7 +63,7 @@ public class EventCore implements Listener {
         Player player = e.getEntity();
 
         Location location = player.getLocation();
-        deathFinder.deathSession(e);
+        //deathFinder.deathSession(e);
 
         //LastDeadLocation.update(player);
 //        LastDeadLocation.playerLocation().clear();
@@ -73,7 +73,7 @@ public class EventCore implements Listener {
 
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent e) {
-        deathFinder.testEvent4(e);
+        //deathFinder.testEvent4(e);
     }
 
     @EventHandler

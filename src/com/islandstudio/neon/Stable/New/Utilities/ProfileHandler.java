@@ -76,11 +76,11 @@ public class ProfileHandler {
     }
 
     public static File getPlayerProfile(Player player) {
-        return new File(getPlayerFolder(player), "profile_" + player.getUniqueId().toString() + ".json");
+        return new File(getPlayerFolder(player), "profile_" + player.getUniqueId() + ".json");
     }
 
     public static File getPlayerFolder(Player player) {
-        return new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "\\" + FolderHandler.getMode() + "\\Server_Data\\Player_Data" + "\\" + "player_" + player.getUniqueId().toString());
+        return new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "\\" + FolderHandler.getMode() + "\\Server_Data\\Player_Data" + "\\" + "player_" + player.getUniqueId());
     }
 
     public static JSONObject getValue(Player player) throws IOException, ParseException {
