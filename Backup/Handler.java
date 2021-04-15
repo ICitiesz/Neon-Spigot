@@ -15,11 +15,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class Handler extends Builder {
-    public static boolean isClicked = false;
-
     private final Player player = guiUtility.getOwner();
     private final Plugin plugin = MainCore.getPlugin(MainCore.class);
 
@@ -29,7 +26,7 @@ public class Handler extends Builder {
 
     @Override
     public String getName() {
-        return ChatColor.LIGHT_PURPLE + "" + ChatColor.MAGIC + "--------" + ChatColor.DARK_PURPLE + ChatColor.BOLD + "iWaypoints" + ChatColor.LIGHT_PURPLE + ChatColor.MAGIC + "---------";
+        return ChatColor.LIGHT_PURPLE + "" + ChatColor.MAGIC + "--------" + ChatColor.DARK_PURPLE + ChatColor.BOLD + "iWaypoints" + ChatColor.LIGHT_PURPLE + "" + ChatColor.MAGIC + "---------";
     }
 
     @Override
@@ -41,7 +38,7 @@ public class Handler extends Builder {
     public void setItems() {
         addButtons();
 
-        ArrayList<String> waypointNames = IWaypoints.getWaypointNames(player);
+        ArrayList<String> waypointNames = IWaypoints.getWaypointNames();
         ArrayList<String> details = new ArrayList<>();
 
         for (int i = 0; i < super.max; i++) {
@@ -59,21 +56,19 @@ public class Handler extends Builder {
                     String waypointName = waypointNames.get(itemIndex);
 
                     try {
-                        Location location = IWaypoints.locationDeserialize(player, waypointName);
-
-                        int posX = location.getBlockX();
-                        int posY = location.getBlockY();
-                        int posZ = location.getBlockZ();
+                        int posX = (int) (long) IWaypoints.getWaypointData().get(waypointName).get("Position-X");
+                        int posY = (int) (long) IWaypoints.getWaypointData().get(waypointName).get("Position-Y");
+                        int posZ = (int) (long) IWaypoints.getWaypointData().get(waypointName).get("Position-Z");
 
                         details.add(ChatColor.GRAY + "Coordinate: " + ChatColor.AQUA + posX + ChatColor.GRAY + ", " + ChatColor.AQUA + posY + ChatColor.GRAY + ", " + ChatColor.AQUA + posZ);
-                        details.add(ChatColor.GRAY + "Dimension: " + IWaypoints.getDimension(player, waypointName));
+                        details.add(ChatColor.GRAY + "Dimension: " + IWaypoints.getDimension(waypointName));
 
-                        if (ServerCfgHandler.getValue().get("iWaypoints-Cross_Dimension").equals("false")) {
+                        if (ServerCfgHandler.getValue().get("iWaypoints-Cross_Dimension").equals(false)) {
                             details.add(ChatColor.GRAY + "Status: " + IWaypoints.getAvailability(player, waypointName));
                         }
 
                         if (waypointMeta != null) {
-                            waypointMeta.setDisplayName(ChatColor.GOLD + waypointName);
+                            waypointMeta.setDisplayName(ChatColor.GOLD + IWaypoints.getWaypointNames().get(itemIndex));
                             waypointMeta.setLore(details);
                         }
 
@@ -88,14 +83,17 @@ public class Handler extends Builder {
                 }
             }
         }
-
-
     }
+
+
+    public static boolean isClicked = false;
 
     @Override
     public void clickHandler(InventoryClickEvent e) {
-        ArrayList<String> waypointNames = IWaypoints.getWaypointNames(player);
+        ArrayList<String> waypointNames = IWaypoints.getWaypointNames();
 
+        float yaw;
+        float pitch;
         double posX;
         double posY;
         double posZ;
@@ -107,34 +105,42 @@ public class Handler extends Builder {
         ItemMeta currentItemMeta = currentItem.getItemMeta();
 
         try {
-            for (String waypointName : waypointNames) {
+            for (String waypointName: waypointNames) {
                 String waypointNameGold = ChatColor.GOLD + waypointName;
 
                 if (currentItem.getType().equals(Material.BEACON) && currentItemMeta != null && currentItemMeta.getDisplayName().equalsIgnoreCase(waypointNameGold)) {
-                    Location location = IWaypoints.locationDeserialize(player, waypointName);
+                    yaw = (float) (double) IWaypoints.getWaypointData().get(waypointName).get("Yaw");
+                    pitch = (float) (double) IWaypoints.getWaypointData().get(waypointName).get("Pitch");
+                    posX = (int) (long) IWaypoints.getWaypointData().get(waypointName).get("Position-X");
+                    posY = (int) (long) IWaypoints.getWaypointData().get(waypointName).get("Position-Y");
+                    posZ = (int) (long) IWaypoints.getWaypointData().get(waypointName).get("Position-Z");
 
-                    posX = location.getBlockX();
-                    posY = location.getBlockY();
-                    posZ = location.getBlockZ();
+                    World world = player.getWorld();
 
-                    location.setX(posX + 0.5);
-                    location.setZ(posZ + 0.5);
+                    Location location_1 = new Location(world, posX + 0.5, posY, posZ + 0.5, yaw, pitch);
+                    Location location_2 = IWaypoints.locationDeserialize((String) IWaypoints.getWaypointData().get(waypointName).get("Raw_Location"));
 
                     if (ServerCfgHandler.getValue().get("iWaypoints-Cross_Dimension").equals(false)) {
                         if (player.getLocation().getWorld() != null) {
-                            if (player.getLocation().getWorld().getEnvironment().toString().equalsIgnoreCase(Objects.requireNonNull(location.getWorld()).getEnvironment().toString())) {
-                                IWaypoints.teleport((Player) e.getWhoClicked(), location, waypointNameGold, (int) posX, (int) posY, (int) posZ);
+                            if (player.getLocation().getWorld().getEnvironment().toString().equalsIgnoreCase((String) IWaypoints.getWaypointData().get(waypointName).get("Dimension"))) {
+                                IWaypoints.teleport(player, location_1, waypointNameGold, (int) posX, (int) posY, (int) posZ);
                             } else {
                                 player.sendMessage(ChatColor.YELLOW + "iWaypoints-[Cross Dimension] has been restricted!");
                             }
                         }
                     } else {
-                        IWaypoints.teleport((Player) e.getWhoClicked(), location, waypointNameGold, (int) posX, (int) posY, (int) posZ);
+                        location_2.setX(posX + 0.5);
+                        location_2.setY(posY + 0.5);
+                        location_2.setZ(posZ + 0.5);
+                        location_2.setYaw(yaw);
+                        location_2.setPitch(pitch);
+
+                        IWaypoints.teleport(player, location_2, waypointNameGold, (int) posX, (int) posY, (int) posZ);
                     }
 
                     e.setCancelled(true);
 
-                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, player::closeInventory, 0L);
+                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, player::closeInventory, 0L);
 
                     return;
                 }
@@ -149,7 +155,7 @@ public class Handler extends Builder {
                     isClicked = true;
 
                     if (pageIndex == 0) {
-                        return;
+                        player.sendMessage(ChatColor.YELLOW + "Already on the first page!");
                     } else {
                         pageIndex = pageIndex - 1;
                         super.open();
@@ -161,7 +167,7 @@ public class Handler extends Builder {
                         pageIndex = pageIndex + 1;
                         super.open();
                     } else {
-                        return;
+                        player.sendMessage(ChatColor.YELLOW + "Already on the last page!");
                     }
                 }
                 break;

@@ -56,7 +56,7 @@ public final class PluginConstructor {
     public static void sendIntro() {
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|----------------==== Neon v1.8 ====----------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------== Neon v1.8.1 ===----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------===" + ChatColor.GREEN + " <Started> " + ChatColor.GOLD + "===-----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
@@ -65,7 +65,7 @@ public final class PluginConstructor {
     public static void sendOutro() {
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|----------------==== Neon v1.8 ====----------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------== Neon v1.8.1 ===----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------===" + ChatColor.RED + " <Stopped> " + ChatColor.GOLD + "===-----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");

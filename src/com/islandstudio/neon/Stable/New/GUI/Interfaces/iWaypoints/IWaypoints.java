@@ -18,6 +18,8 @@ import java.io.*;
 import java.util.*;
 
 public class IWaypoints {
+    public static Map<String, Map<String, JSONObject>> waypointData = new TreeMap<>();
+
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private static final JSONParser jsonParser = new JSONParser();
     private final ClassLoader classLoader = this.getClass().getClassLoader();
@@ -96,16 +98,9 @@ public class IWaypoints {
         if (name.contains("\\") || name.contains("\"")) {
             player.sendMessage(ChatColor.RED + "The name must not contain character(s) " + ChatColor.GOLD + "\\ " + ChatColor.RED + "or " + ChatColor.GOLD +  "\" " + ChatColor.RED  + "!");
         } else {
-            if (getWaypointNames() != null) {
-                if (!getWaypointNames().contains(name)) {
+            if (getWaypointNames(player) != null) {
+                if (!Objects.requireNonNull(getWaypointNames(player)).contains(name)) {
                     Location location = player.getLocation();
-                    World.Environment dimension = Objects.requireNonNull(location.getWorld()).getEnvironment();
-
-                    float yaw = location.getYaw();
-                    float pitch = location.getPitch();
-                    int posX = location.getBlockX();
-                    int posY = location.getBlockY();
-                    int posZ = location.getBlockZ();
 
                     FileReader fileReader = new FileReader(file);
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -117,13 +112,7 @@ public class IWaypoints {
                     JSONArray jsonArray_1 = (JSONArray) jsonObject_1.get("Waypoints");
                     JSONArray jsonArray_2 = new JSONArray();
 
-                    jsonObject_3.put("Yaw", yaw);
-                    jsonObject_3.put("Pitch", pitch);
-                    jsonObject_3.put("Dimension", dimension);
-                    jsonObject_3.put("Position-X", posX);
-                    jsonObject_3.put("Position-Y", posY);
-                    jsonObject_3.put("Position-Z", posZ);
-                    jsonObject_3.put("Raw_Location", locationSerialize(player));
+                    jsonObject_3.put("Location", locationSerialize(player));
 
                     jsonArray_2.add(jsonObject_3);
 
@@ -175,11 +164,15 @@ public class IWaypoints {
 
     public static Map<String, JSONObject> getWaypointData() throws Exception {
         FileReader fileReader = new FileReader(getWaypointFile());
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
 
         Map<String, JSONObject> data = new TreeMap<>();
 
         JSONParser jsonParser = new JSONParser();
-        JSONArray jsonArray = (JSONArray) ((JSONObject) jsonParser.parse(fileReader)).get("Waypoints");
+        JSONArray jsonArray = (JSONArray) ((JSONObject) jsonParser.parse(bufferedReader)).get("Waypoints");
+
+        fileReader.close();
+        bufferedReader.close();
 
         for (Object object : jsonArray) {
             JSONObject jsonObject = (JSONObject) object;
@@ -192,22 +185,24 @@ public class IWaypoints {
             }
         }
 
-        fileReader.close();
-
         return data;
     }
 
-    public static ArrayList<String> getWaypointNames() {
+
+
+    public static ArrayList<String> getWaypointNames(Player player) {
         try {
-            return new ArrayList<>(getWaypointData().keySet());
+            return new ArrayList<>(waypointData.get(player.getUniqueId().toString()).keySet());
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static String getDimension(String waypointName) throws Exception {
-        switch ((String) getWaypointData().get(waypointName).get("Dimension")) {
+    public static String getDimension(Player player, String waypointName) throws Exception {
+        Location location = locationDeserialize(player, waypointName);
+
+        switch (Objects.requireNonNull(location.getWorld()).getEnvironment().toString()) {
             case "NORMAL": {
                 return ChatColor.GREEN + "Over World";
             }
@@ -227,8 +222,10 @@ public class IWaypoints {
     }
 
     public static String getAvailability(Player player, String waypointName) throws Exception {
+        Location location = locationDeserialize(player, waypointName);
+
         if (player.getLocation().getWorld() != null) {
-            if (player.getLocation().getWorld().getEnvironment().toString().equalsIgnoreCase((String) getWaypointData().get(waypointName).get("Dimension"))) {
+            if (player.getLocation().getWorld().getEnvironment().toString().equalsIgnoreCase(Objects.requireNonNull(location.getWorld()).getEnvironment().toString())) {
                 return ChatColor.GREEN + "Available!";
             } else {
                 return ChatColor.RED + "Unavailable!";
@@ -246,23 +243,28 @@ public class IWaypoints {
         player.sendMessage(ChatColor.GREEN + "You have been teleported to " + waypointNameGold + ChatColor.GRAY + ", " + ChatColor.AQUA + posX + ", " + posY + ", " + posZ + ChatColor.GREEN + " !");
     }
 
-    public static Location locationDeserialize(String rawLocation) throws Exception {
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(rawLocation));
-        BukkitObjectInputStream bukkitObjectInputStream = new BukkitObjectInputStream(byteArrayInputStream);
-
-        return (Location) bukkitObjectInputStream.readObject();
-    }
-
     public static void setCommandHandler(String[] args, Player player) {
         if (!player.isSleeping()) {
             switch (args.length) {
                 case 0: {
+                    try {
+                        waypointData.put(player.getUniqueId().toString(), getWaypointData());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                     new Handler(GUIUtilityHandler.getGUIUtility(player)).open();
                     break;
                 }
 
                 case 1: {
                     if (args[0].equalsIgnoreCase("remove")) {
+                        try {
+                            waypointData.put(player.getUniqueId().toString(), getWaypointData());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                         new Handler_Removal(GUIUtilityHandler.getGUIUtility(player)).open();
                     } else {
                         SyntaxHandler.sendSyntax(player, 1);
@@ -273,14 +275,16 @@ public class IWaypoints {
                 case 2: {
                     if (args[0].equalsIgnoreCase("add")) {
                         try {
+                            waypointData.put(player.getUniqueId().toString(), getWaypointData());
                             IWaypoints.add(args[1], player);
+                            waypointData.remove(player.getUniqueId().toString());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     } else if (args[0].equalsIgnoreCase("remove")) {
                         try {
                             IWaypoints.remove(args[1]);
-
+                            waypointData.remove(player.getUniqueId().toString());
                             Bukkit.getServer().broadcastMessage(ChatColor.RED + "The waypoint " + ChatColor.GRAY + "'" + ChatColor.GOLD + args[1] + ChatColor.GRAY + "'" + ChatColor.RED + " has been removed by " + ChatColor.WHITE + player.getName() + ChatColor.RED + " !");
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -296,8 +300,15 @@ public class IWaypoints {
                 }
             }
         } else {
-            player.sendMessage(ChatColor.YELLOW + "You can't use Effects Manager while you're sleeping!");
+            player.sendMessage(ChatColor.YELLOW + "You can't use iWaypoints while you're sleeping!");
         }
+    }
+
+    public static Location locationDeserialize(Player player, String waypointName) throws Exception {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(Base64.getDecoder().decode((String) waypointData.get(player.getUniqueId().toString()).get(waypointName).get("Location")));
+        BukkitObjectInputStream bukkitObjectInputStream = new BukkitObjectInputStream(byteArrayInputStream);
+
+        return (Location) bukkitObjectInputStream.readObject();
     }
 
     private static String locationSerialize(Player player) throws Exception {

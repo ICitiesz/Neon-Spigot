@@ -4,10 +4,10 @@ import java.io.File;
 
 public enum FolderList {
 
-    FOLDER_A(new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "\\" + FolderHandler.getMode() + "\\Server_Configuration")),
-    FOLDER_B(new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "\\" + FolderHandler.getMode() + "\\Server_Data\\Player_Data")),
-    FOLDER_C(new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "\\" + FolderHandler.getMode() + "\\Server_Data\\Chat_Logs")),
-    FOLDER_D(new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "\\" + FolderHandler.getMode() + "\\Server_Data\\iWaypoints"));
+    FOLDER_A(new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "/" + FolderHandler.getMode() + "/Server_Configuration")),
+    FOLDER_B(new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "/" + FolderHandler.getMode() + "/Server_Data/Player_Data")),
+    FOLDER_C(new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "/" + FolderHandler.getMode() + "/Server_Data/Chat_Logs")),
+    FOLDER_D(new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "/" + FolderHandler.getMode() + "/Server_Data/iWaypoints"));
 
     private final File folder;
 

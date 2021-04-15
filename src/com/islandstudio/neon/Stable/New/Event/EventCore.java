@@ -1,6 +1,7 @@
 package com.islandstudio.neon.Stable.New.Event;
 
 import com.islandstudio.neon.Experimental.DeathFinder.deathFinder;
+import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.IWaypoints;
 import com.islandstudio.neon.Stable.New.Utilities.PacketReceiver;
 import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtilityHandler;
 import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.Handler;
@@ -243,6 +244,7 @@ public class EventCore implements Listener {
             } else {
                 Handler_Removal.removalListSeparator.remove(player.getUniqueId().toString());
                 GUIUtilityHandler.utilityHM.remove(player);
+                IWaypoints.waypointData.remove(player.getUniqueId().toString());
             }
         }
 
@@ -251,6 +253,7 @@ public class EventCore implements Listener {
                 Handler.isClicked = false;
             } else {
                 GUIUtilityHandler.utilityHM.remove(player);
+                IWaypoints.waypointData.remove(player.getUniqueId().toString());
             }
         }
 

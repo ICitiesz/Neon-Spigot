@@ -4,8 +4,8 @@ import com.islandstudio.neon.MainCore;
 import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIConstructor;
 import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtility;
 import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtilityHandler;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -20,10 +20,11 @@ import org.bukkit.plugin.Plugin;
 import java.util.*;
 
 public class Handler_Removal extends Builder_Removal{
+    public static boolean isClicked = false;
+    public static final Map<String, ArrayList<String>> removalListSeparator = new TreeMap<>();
+
     private final Player player = guiUtility.getOwner();
     private final Plugin plugin = MainCore.getPlugin(MainCore.class);
-
-    public static final Map<String, ArrayList<String>> removalListSeparator = new TreeMap<>();
 
     public Handler_Removal(GUIUtility guiUtility) {
         super(guiUtility);
@@ -44,7 +45,7 @@ public class Handler_Removal extends Builder_Removal{
     public void setItems() {
         addButtons();
 
-        ArrayList<String> waypointNames = IWaypoints.getWaypointNames();
+        ArrayList<String> waypointNames = IWaypoints.getWaypointNames(player);
         ArrayList<String> details = new ArrayList<>();
 
         for (int i = 0; i < super.max; i++) {
@@ -62,15 +63,17 @@ public class Handler_Removal extends Builder_Removal{
                     String waypointName = waypointNames.get(itemIndex);
 
                     try {
-                        int posX = (int) (long) IWaypoints.getWaypointData().get(waypointName).get("Position-X");
-                        int posY = (int) (long) IWaypoints.getWaypointData().get(waypointName).get("Position-Y");
-                        int posZ = (int) (long) IWaypoints.getWaypointData().get(waypointName).get("Position-Z");
+                        Location location = IWaypoints.locationDeserialize(player, waypointName);
+
+                        int posX = location.getBlockX();
+                        int posY = location.getBlockY();
+                        int posZ = location.getBlockZ();
 
                         details.add(ChatColor.GRAY + "Coordinate: " + ChatColor.AQUA + posX + ChatColor.GRAY + ", " + ChatColor.AQUA + posY + ChatColor.GRAY + ", " + ChatColor.AQUA + posZ);
-                        details.add(ChatColor.GRAY + "Dimension: " + IWaypoints.getDimension(waypointName));
+                        details.add(ChatColor.GRAY + "Dimension: " + IWaypoints.getDimension(player, waypointName));
 
                         if (waypointMeta != null) {
-                            waypointMeta.setDisplayName(ChatColor.GOLD + IWaypoints.getWaypointNames().get(itemIndex));
+                            waypointMeta.setDisplayName(ChatColor.GOLD + waypointName);
                             waypointMeta.setLore(details);
                         }
 
@@ -87,12 +90,10 @@ public class Handler_Removal extends Builder_Removal{
         }
     }
 
-    public static boolean isClicked = false;
-
     @Override
     public void clickHandler(InventoryClickEvent e) {
         ArrayList<String> removalList;
-        ArrayList<String> waypointNames = IWaypoints.getWaypointNames();
+        ArrayList<String> waypointNames = IWaypoints.getWaypointNames(player);
 
         if (removalListSeparator.containsKey(player.getUniqueId().toString())) {
             removalList = removalListSeparator.get(player.getUniqueId().toString());
@@ -106,7 +107,7 @@ public class Handler_Removal extends Builder_Removal{
         assert currentItem != null;
         ItemMeta currentItemMeta = currentItem.getItemMeta();
 
-        for (String waypointName: waypointNames) {
+        for (String waypointName : waypointNames) {
             String waypointNameGold = ChatColor.GOLD + waypointName;
 
             if (currentItem.getType().equals(Material.BEACON) && currentItemMeta != null && currentItemMeta.getDisplayName().equalsIgnoreCase(waypointNameGold)) {
@@ -152,7 +153,7 @@ public class Handler_Removal extends Builder_Removal{
                     isClicked = true;
 
                     if (pageIndex == 0) {
-                        player.sendMessage(ChatColor.YELLOW + "Already on the first page!");
+                        return;
                     } else {
                         pageIndex = pageIndex - 1;
                         super.open();
@@ -218,7 +219,7 @@ public class Handler_Removal extends Builder_Removal{
                             }
                         }
                     } else {
-                        player.sendMessage(ChatColor.YELLOW + "Already on the last page!");
+                        return;
                     }
                 }
                 break;
@@ -240,25 +241,31 @@ public class Handler_Removal extends Builder_Removal{
                     } else {
                         player.closeInventory();
 
-                        Bukkit.getServer().broadcastMessage(ChatColor.RED + "The waypoint(s): ");
+                        plugin.getServer().broadcastMessage(ChatColor.RED + "The waypoint(s): ");
 
                         for (String name : removalList) {
                             try {
-                                IWaypoints.remove(name);
-
                                 for (String playerUUID : removalListSeparator.keySet()) {
                                     if (!playerUUID.equalsIgnoreCase(player.getUniqueId().toString())) {
                                         removalListSeparator.get(playerUUID).remove(name);
                                     }
                                 }
 
-                                Bukkit.getServer().broadcastMessage(ChatColor.GRAY + "'" + ChatColor.GOLD + name + ChatColor.GRAY + "'");
+                                for (String playerUUID : IWaypoints.waypointData.keySet()) {
+                                    if (!playerUUID.equalsIgnoreCase(player.getUniqueId().toString())) {
+                                        IWaypoints.waypointData.get(playerUUID).remove(name);
+                                    }
+                                }
+
+                                IWaypoints.remove(name);
+
+                                plugin.getServer().broadcastMessage(ChatColor.GRAY + "'" + ChatColor.GOLD + name + ChatColor.GRAY + "'");
                             } catch (Exception err) {
                                 err.printStackTrace();
                             }
                         }
 
-                        Bukkit.getServer().broadcastMessage(ChatColor.RED + "has been removed by " + ChatColor.WHITE + player.getName() + ChatColor.RED + " !");
+                        plugin.getServer().broadcastMessage(ChatColor.RED + "has been removed by " + ChatColor.WHITE + player.getName() + ChatColor.RED + " !");
 
                         removalListSeparator.remove(player.getUniqueId().toString());
                     }

@@ -27,11 +27,11 @@ public class PVPHandler {
 
     public static void init() throws IOException, ParseException {
         for (World world : worlds) {
-            if (Objects.requireNonNull(ServerCfgHandler.getValue()).get("PVP").equals(true)) {
+            if (Objects.requireNonNull(ServerCfgHandler.getValue()).get("PVP").equals("true")) {
                 if (!world.getPVP()) {
                     world.setPVP(true);
                 }
-            } else if (ServerCfgHandler.getValue().get("PVP").equals(false)) {
+            } else if (ServerCfgHandler.getValue().get("PVP").equals("false")) {
                 if (world.getPVP()) {
                     world.setPVP(false);
                 }

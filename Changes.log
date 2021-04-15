@@ -115,6 +115,7 @@
  -Add wood variants for recipe to stone cutter
  -Permission handling
  -AFK handling
+ -Ore excavation
 
 --------------------------------------------------------------
 [Target Selector(@p nearby player)]
@@ -122,7 +123,7 @@
 
 --------------------------------------------------------------
 [Server Hub]
--1 dimension 1 hub
+-1 hub per dimension
 
 --------------------------------------------------------------
 [Warping]
@@ -220,6 +221,7 @@ Ender Chest [Unbreakable] => {
 [Command Handling]
 - Add compatibility to other plugin [Add plugin name in front of the command (/neon waypoints add)]
 - Improved command list
+- Command Tab Completion only show commands that available within the given Rank
 --------------------------------------------------------------
 [iWaypoints] (Completed)
 - File format -> {

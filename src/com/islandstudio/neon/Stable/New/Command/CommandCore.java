@@ -1,5 +1,6 @@
 package com.islandstudio.neon.Stable.New.Command;
 
+import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.Handler;
 import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.IWaypoints;
 import com.islandstudio.neon.Experimental.GameModes;
 import com.islandstudio.neon.Experimental.GameModeHandler;
@@ -303,27 +304,10 @@ public class CommandCore implements Listener, TabExecutor {
                 if (args.length == 1) {
                     String value = args[0];
 
-                    //TestingArea.test(value);
-
-//                    if (value.equalsIgnoreCase("remove")) {
-//                        //deathFinder.removeData(player);
-//                        HubHandler.remove(player);
-//                    } else if (value.equalsIgnoreCase("read")) {
-//                        //TestingArea.readFileData(player);
-//                    } else if (value.equalsIgnoreCase("edit")) {
-//                        //TestingArea.modifyFileData(player);
-//                    } else if (value.equalsIgnoreCase("set")) {
-//                        HubHandler.setHub(player);
-//                    }
                 } else {
-                    //Test.readData(player);
-                    //Test.ftTest(player);
-                    //deathFinder.test2(player);
-                    //TestingArea.getDataFolder(player);
-                    //TestingArea.setFileData();
-
                     try {
-                        //TestingArea.initialize();
+
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -379,7 +363,9 @@ public class CommandCore implements Listener, TabExecutor {
                     switch (value) {
                         case "PVP":
 
-                        case "ChatLogging" : {
+                        case "ChatLogging" :
+
+                        case "iWaypoints-Cross_Dimension": {
                             values.add("true");
                             values.add("false");
                             break;
@@ -409,37 +395,16 @@ public class CommandCore implements Listener, TabExecutor {
 
                     case 2: {
                         if (args[0].equalsIgnoreCase("remove")) {
-                            return IWaypoints.getWaypointNames();
+                            try {
+                                IWaypoints.waypointData.put(((Player) sender).getUniqueId().toString(), IWaypoints.getWaypointData());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return IWaypoints.getWaypointNames((Player) sender);
                         }
                     }
                 }
             }
-
-            /*if (cmd.getName().equalsIgnoreCase(new Commands().cmd_1)) {
-                if (args.length == 1) {
-                    String firstArgs = args[0];
-
-                    level.add("0");
-                    level.add("1");
-                    level.add("2");
-
-                    completion.addAll(level);
-
-                    if (!firstArgs.equalsIgnoreCase("")) {
-
-                        if (!level.contains(firstArgs)) {
-                            completion.removeAll(level);
-                        } else {
-                            completion.addAll(level);
-                        }
-                    }
-                } else if (args.length > 1) {
-                    completion.removeAll(level);
-                }
-            } else if (cmd.getName().equalsIgnoreCase(new Commands().cmd_test_1)) {
-                completion.add("Test1");
-                completion.add("Test2");
-            }*/
         }
 
         return null;
