@@ -1,6 +1,6 @@
 package com.islandstudio.neon.Stable.Old.Utilities;
 
-import com.islandstudio.neon.Stable.New.Utilities.ServerCfgHandler;
+import com.islandstudio.neon.Stable.New.Utilities.ServerCFGHandler;
 import com.islandstudio.neon.Stable.Old.Initialization.FolderManager.FolderList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,7 +19,7 @@ public class ChatLogger {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy_MM_dd");
 
         if (Bukkit.getServer().getOnlineMode()) {
-            if (ServerCfgHandler.getValue().get("ChatLogging").equals(true)) {
+            if (ServerCFGHandler.getValue().get("ChatLogging").equals(true)) {
                 HashMap<Integer, File> fileMap = new HashMap<>();
 
                 File[] listFiles = FolderList.getFolder_2a_2.listFiles();
@@ -78,7 +78,7 @@ public class ChatLogger {
                 }
             }
         } else {
-            if (ServerCfgHandler.getValue().get("ChatLogging").equals(true)) {
+            if (ServerCFGHandler.getValue().get("ChatLogging").equals(true)) {
                 HashMap<Integer, File> fileMap = new HashMap<>();
 
                 File[] listFiles = FolderList.getFolder_2b_2.listFiles();

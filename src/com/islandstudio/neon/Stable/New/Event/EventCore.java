@@ -1,6 +1,6 @@
 package com.islandstudio.neon.Stable.New.Event;
 
-import com.islandstudio.neon.Experimental.DeathFinder.deathFinder;
+import com.islandstudio.neon.Experimental.iHarvest.IHarvest;
 import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.IWaypoints;
 import com.islandstudio.neon.Stable.New.Utilities.PacketReceiver;
 import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtilityHandler;
@@ -8,7 +8,7 @@ import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.Handler;
 import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.Handler_Removal;
 import com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.RankHandler;
 import com.islandstudio.neon.Stable.New.Utilities.ProfileHandler;
-import com.islandstudio.neon.Stable.New.Utilities.ServerCfgHandler;
+import com.islandstudio.neon.Stable.New.Utilities.ServerCFGHandler;
 import com.islandstudio.neon.MainCore;
 import com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.RankTags;
 import com.islandstudio.neon.Stable.New.GUI.Interfaces.EffectsManager.EffectsManager;
@@ -21,10 +21,12 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -66,6 +68,12 @@ public class EventCore implements Listener {
         Location location = player.getLocation();
         //deathFinder.deathSession(e);
 
+        if (player.getName().equalsIgnoreCase("ICities")) {
+            //e.setKeepInventory(true);
+            //e.getDrops().clear();
+            //System.out.println("Test");
+        }
+
         //LastDeadLocation.update(player);
 //        LastDeadLocation.playerLocation().clear();
 //        LastDeadLocation.sendLocation(player);
@@ -87,10 +95,12 @@ public class EventCore implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         //deathFinder.chestInteraction(e);
+        //OreExc.playerInteract(e);
+        IHarvest.setEventHandler(e);
     }
 
     @EventHandler
-    public void onPlayerChatting (AsyncPlayerChatEvent e) throws IOException, ParseException {
+    public void onPlayerChatting(AsyncPlayerChatEvent e) throws IOException, ParseException {
         Player player = e.getPlayer();
         String messages = e.getMessage();
 
@@ -103,11 +113,21 @@ public class EventCore implements Listener {
     public final void onBlockPlaced(BlockPlaceEvent e) throws IOException, ParseException {
         Block blockPlaced = e.getBlockPlaced();
 
-        if (ServerCfgHandler.getValue().get("TNT_Protection").equals(2L)) {
+        if (ServerCFGHandler.getValue().get("TNT_Protection").equals(2L)) {
             if (blockPlaced.getType().equals(Material.TNT)) {
                 e.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent e) {
+
+    }
+
+    @EventHandler
+    public void onInventoryOpen(InventoryOpenEvent e) {
+
     }
 
     @EventHandler
@@ -117,7 +137,7 @@ public class EventCore implements Listener {
 
     @EventHandler
     public final void entityPlaced(EntityPlaceEvent e) throws IOException, ParseException {
-        if (ServerCfgHandler.getValue().get("TNT_Protection").equals(2L)) {
+        if (ServerCFGHandler.getValue().get("TNT_Protection").equals(2L)) {
             if (e.getEntityType().equals(EntityType.MINECART_TNT)) {
                 e.setCancelled(true);
             }
@@ -127,12 +147,6 @@ public class EventCore implements Listener {
     @EventHandler
     public final void entityDamage(EntityDamageByEntityEvent e) throws IOException, ParseException {
         ProtectionHandler.setNoDamage(e);
-
-        /*if ((e.getEntity().getName().equalsIgnoreCase("iDefault")) && (e.getDamager().getName().equalsIgnoreCase("ICities"))) {
-            if (e.getDamager().isOp()) {
-            }
-            System.out.println("Test");
-        }*/
     }
 
     @EventHandler
@@ -148,7 +162,6 @@ public class EventCore implements Listener {
                 droppedItem.remove();
             }
         }
-
     }
 
     @EventHandler

@@ -4,7 +4,7 @@ import com.islandstudio.neon.MainCore;
 import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIConstructor;
 import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtility;
 import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtilityHandler;
-import com.islandstudio.neon.Stable.New.Utilities.ServerCfgHandler;
+import com.islandstudio.neon.Stable.New.Utilities.ServerCFGHandler;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -68,7 +68,7 @@ public class Handler extends Builder {
                         details.add(ChatColor.GRAY + "Coordinate: " + ChatColor.AQUA + posX + ChatColor.GRAY + ", " + ChatColor.AQUA + posY + ChatColor.GRAY + ", " + ChatColor.AQUA + posZ);
                         details.add(ChatColor.GRAY + "Dimension: " + IWaypoints.getDimension(player, waypointName));
 
-                        if (ServerCfgHandler.getValue().get("iWaypoints-Cross_Dimension").equals("false")) {
+                        if (ServerCFGHandler.getValue().get("iWaypoints-Cross_Dimension").equals("false")) {
                             details.add(ChatColor.GRAY + "Status: " + IWaypoints.getAvailability(player, waypointName));
                         }
 
@@ -120,7 +120,7 @@ public class Handler extends Builder {
                     location.setX(posX + 0.5);
                     location.setZ(posZ + 0.5);
 
-                    if (ServerCfgHandler.getValue().get("iWaypoints-Cross_Dimension").equals(false)) {
+                    if (ServerCFGHandler.getValue().get("iWaypoints-Cross_Dimension").equals("false")) {
                         if (player.getLocation().getWorld() != null) {
                             if (player.getLocation().getWorld().getEnvironment().toString().equalsIgnoreCase(Objects.requireNonNull(location.getWorld()).getEnvironment().toString())) {
                                 IWaypoints.teleport((Player) e.getWhoClicked(), location, waypointNameGold, (int) posX, (int) posY, (int) posZ);

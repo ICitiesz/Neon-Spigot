@@ -100,8 +100,6 @@ public class IWaypoints {
         } else {
             if (getWaypointNames(player) != null) {
                 if (!Objects.requireNonNull(getWaypointNames(player)).contains(name)) {
-                    Location location = player.getLocation();
-
                     FileReader fileReader = new FileReader(file);
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -187,8 +185,6 @@ public class IWaypoints {
 
         return data;
     }
-
-
 
     public static ArrayList<String> getWaypointNames(Player player) {
         try {

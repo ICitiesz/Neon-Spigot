@@ -80,7 +80,7 @@ public class ProfileHandler {
     }
 
     public static File getPlayerFolder(Player player) {
-        return new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "\\" + FolderHandler.getMode() + "\\Server_Data\\Player_Data" + "\\" + "player_" + player.getUniqueId());
+        return new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "/" + FolderHandler.getMode() + "/Server_Data/Player_Data" + "/" + "player_" + player.getUniqueId());
     }
 
     public static JSONObject getValue(Player player) throws IOException, ParseException {

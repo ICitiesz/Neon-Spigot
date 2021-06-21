@@ -107,7 +107,6 @@
  -Skin getter
  -Chat muting
  -Morph disguise (Disguise Creeper to trolled people)
- -Plugin Compatibility Checker
  -Experimental Option
  -Auto saving
  -Death backpack
@@ -116,6 +115,9 @@
  -Permission handling
  -AFK handling
  -Ore excavation
+ -Tool repair
+ -Inventory Sorter
+ -Crops harvest
 
 --------------------------------------------------------------
 [Target Selector(@p nearby player)]
@@ -222,6 +224,12 @@ Ender Chest [Unbreakable] => {
 - Add compatibility to other plugin [Add plugin name in front of the command (/neon waypoints add)]
 - Improved command list
 - Command Tab Completion only show commands that available within the given Rank
+
+--------------------------------------------------------------
+[Ore Excavation]
+- getBlock
+- get vein
+-
 --------------------------------------------------------------
 [iWaypoints] (Completed)
 - File format -> {

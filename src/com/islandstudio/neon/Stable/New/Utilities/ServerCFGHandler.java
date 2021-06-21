@@ -14,14 +14,14 @@ import org.json.simple.parser.ParseException;
 import java.io.*;
 import java.util.ArrayList;
 
-public class ServerCfgHandler {
+public class ServerCFGHandler {
     private final ClassLoader classLoader = this.getClass().getClassLoader();
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private static final JSONParser jsonParser = new JSONParser();
 
     public static void init() throws IOException, ParseException {
-        ServerCfgHandler serverCfgHandler = new ServerCfgHandler();
+        ServerCFGHandler serverCFGHandler = new ServerCFGHandler();
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -32,7 +32,7 @@ public class ServerCfgHandler {
         long dataOutLength = bufferedReader_1.lines().toArray().length;
 
         if (dataOutLength == 0) {
-            InputStream inputStream = serverCfgHandler.classLoader.getResourceAsStream("Resources/Server_Configuration.json");
+            InputStream inputStream = serverCFGHandler.classLoader.getResourceAsStream("Resources/Server_Configuration.json");
 
             fileReader.close();
             bufferedReader_1.close();

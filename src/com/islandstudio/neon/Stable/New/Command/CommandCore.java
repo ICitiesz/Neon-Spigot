@@ -1,11 +1,12 @@
 package com.islandstudio.neon.Stable.New.Command;
 
-import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.Handler;
+import com.islandstudio.neon.Experimental.iCutter.ICutter;
+import com.islandstudio.neon.Experimental.iSmelter.ISmelter;
 import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.IWaypoints;
 import com.islandstudio.neon.Experimental.GameModes;
 import com.islandstudio.neon.Experimental.GameModeHandler;
 import com.islandstudio.neon.Stable.New.Utilities.ProfileHandler;
-import com.islandstudio.neon.Stable.New.Utilities.ServerCfgHandler;
+import com.islandstudio.neon.Stable.New.Utilities.ServerCFGHandler;
 import com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.RankHandler;
 import com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.ServerRanks;
 import com.islandstudio.neon.Stable.New.GUI.Interfaces.EffectsManager.EffectsManager;
@@ -280,7 +281,7 @@ public class CommandCore implements Listener, TabExecutor {
                         String value = args[1];
 
                         try {
-                            ServerCfgHandler.setValue(setting, value, player);
+                            ServerCFGHandler.setValue(setting, value, player);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -305,12 +306,6 @@ public class CommandCore implements Listener, TabExecutor {
                     String value = args[0];
 
                 } else {
-                    try {
-
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
                 }
             }
         }
@@ -349,7 +344,7 @@ public class CommandCore implements Listener, TabExecutor {
             if (cmd.getName().equalsIgnoreCase(CommandAlias.CMD_6.getCommandAlias())) {
                 if (args.length == 1) {
                     try {
-                        return ServerCfgHandler.fetchConfigs();
+                        return ServerCFGHandler.fetchConfigs();
                     } catch (IOException | ParseException e) {
                         e.printStackTrace();
                     }
