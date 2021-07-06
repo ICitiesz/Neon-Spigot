@@ -9,6 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.Plugin;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ISmelter {
@@ -27,160 +29,57 @@ public class ISmelter {
     */
 
     public static void init() {
-        String[] colors = {"WHITE", "ORANGE", "MAGENTA", "LIGHT_BLUE", "YELLOW", "LIME", "PINK", "GRAY",
-                          "LIGHT_GRAY", "CYAN", "PURPLE", "BLUE", "BROWN", "GREEN", "RED", "BLACK"};
+        for (String key : getSmeltable().keySet()) {
+            FurnaceRecipe furnaceRecipe = null;
 
-        String[] woodType = {"OAK", "SPRUCE", "BIRCH", "JUNGLE", "ACACIA", "DARK_OAK", "WARPED", "CRIMSON"};
+            Material inputMaterial = getSmeltable().get(key).get(0);
+            Material outputMaterial = getSmeltable().get(key).get(1);
 
-        for (Material input : Material.values()) {
-            for (Material output : Material.values()) {
-                String inputName = input.name();
-                String outputName = output.name();
+            ItemStack output = new ItemStack(outputMaterial);
+            NamespacedKey namespacedKey = output.getType().getKey();
 
-                if (inputName.equalsIgnoreCase("SAND") || inputName.equalsIgnoreCase("RED_SAND")) {
-                    if (outputName.equalsIgnoreCase("GLASS")) {
-                        addRecipe(input, output, null);
-                    }
-                }
+            List<Recipe> recipes = plugin.getServer().getRecipesFor(new ItemStack(outputMaterial));
 
-                if (inputName.equalsIgnoreCase("COBBLESTONE")) {
-                    if (outputName.equalsIgnoreCase("STONE")) {
-                        addRecipe(input, output, null);
-                    }
-                }
+            float exp;
+            int cookingTime;
 
-                if ((inputName.equalsIgnoreCase("SANDSTONE") && outputName.equalsIgnoreCase("SMOOTH_SANDSTONE"))
-                   || (inputName.equalsIgnoreCase("RED_SANDSTONE") && outputName.equalsIgnoreCase("SMOOTH_RED_SANDSTONE"))) {
-                    addRecipe(input, output, null);
-                }
-
-                if (inputName.equalsIgnoreCase("STONE")) {
-                    if (outputName.equalsIgnoreCase("SMOOTH_STONE")) {
-                        addRecipe(input, output, null);
-                    }
-                }
-
-                if (inputName.equalsIgnoreCase("QUARTZ_BLOCK")) {
-                    if (outputName.equalsIgnoreCase("SMOOTH_QUARTZ")) {
-                        addRecipe(input, output, null);
-                    }
-                }
-
-                if (inputName.equalsIgnoreCase("CLAY_BALL")) {
-                    if (outputName.equalsIgnoreCase("BRICK")) {
-                        addRecipe(input, output, null);
-                    }
-                }
-
-                if (inputName.equalsIgnoreCase("NETHERRACK")) {
-                    if (outputName.equalsIgnoreCase("NETHER_BRICK")) {
-                        addRecipe(input, output, null);
-                    }
-                }
-
-                if (inputName.equalsIgnoreCase("NETHER_BRICKS")) {
-                    if (outputName.equalsIgnoreCase("CRACKED_NETHER_BRICKS")) {
-                        addRecipe(input, output, null);
-                    }
-                }
-
-                if (inputName.equalsIgnoreCase("CLAY")) {
-                    if (outputName.equalsIgnoreCase("TERRACOTTA")) {
-                        addRecipe(input, output, null);
-                    }
-                }
-
-                if (inputName.equalsIgnoreCase("STONE_BRICKS")) {
-                    if (outputName.equalsIgnoreCase("CRACKED_STONE_BRICKS")) {
-                        addRecipe(input, output, null);
-                    }
-                }
-
-                for (String color : colors) {
-                    if (inputName.equalsIgnoreCase(color + "_TERRACOTTA")) {
-                        if (outputName.equalsIgnoreCase(color + "_GLAZED_TERRACOTTA")) {
-                            addRecipe(input, output, null);
-                        }
-                    }
-                }
-
-                if (inputName.equalsIgnoreCase("CACTUS")) {
-                    if (outputName.equalsIgnoreCase("GREEN_DYE")) {
-                        addRecipe(input, output, null);
-                    }
-                }
-
-                for (String woodName : woodType) {
-                    if (inputName.equalsIgnoreCase(woodName + "_WOOD") || inputName.equalsIgnoreCase(woodName + "_LOG")
-                       || inputName.equalsIgnoreCase("STRIPPED_" + woodName + "_WOOD") || inputName.equalsIgnoreCase("STRIPPED_" + woodName + "_LOG")) {
-                        if (outputName.equalsIgnoreCase("CHARCOAL")) {
-                            addRecipe(input, output, woodName);
-                        }
-                    }
-                }
-
-                if (inputName.equalsIgnoreCase("CHORUS_FRUIT")) {
-                    if (outputName.equalsIgnoreCase("POPPED_CHORUS_FRUIT")) {
-                        addRecipe(input, output, null);
-                    }
-                }
-
-                if (inputName.equalsIgnoreCase("WET_SPONGE")) {
-                    if (outputName.equalsIgnoreCase("SPONGE")) {
-                        addRecipe(input, output, null);
-                    }
-                }
-
-                if (inputName.equalsIgnoreCase("SEA_PICKLE")) {
-                    if (outputName.equalsIgnoreCase("LIME_DYE")) {
-                        addRecipe(input, output, null);
-                    }
+            for (Recipe recipe : recipes) {
+                if (recipe.toString().contains("FurnaceRecipe")) {
+                    furnaceRecipe = (FurnaceRecipe) recipe;
                 }
             }
+
+            if (key.startsWith("SAND") || key.startsWith("RED_SAND")) {
+                namespacedKey = new NamespacedKey(plugin, inputMaterial.name().toLowerCase() + "_glass");
+            }
+
+            if (key.endsWith("CHARCOAL")) {
+                namespacedKey = new NamespacedKey(plugin, key.toLowerCase());
+            }
+
+            if (furnaceRecipe == null) return;
+
+            exp = furnaceRecipe.getExperience();
+            cookingTime = (furnaceRecipe.getCookingTime() / 2);
+
+            BlastingRecipe blastingRecipe = new BlastingRecipe(namespacedKey, output, inputMaterial, exp, cookingTime);
+            plugin.getServer().addRecipe(blastingRecipe);
         }
     }
 
-    private static void addRecipe(Material input, Material output, String woodName) {
-        String inputName = input.name();
-        ItemStack itemStack = new ItemStack(output);
-        NamespacedKey namespacedKey = itemStack.getType().getKey();
-        List<Recipe> recipes = plugin.getServer().getRecipesFor(new ItemStack(output));
+    private static HashMap<String, ArrayList<Material>> getSmeltable() {
+        HashMap<String, ArrayList<Material>> combinedSmeltable = new HashMap<>();
 
-        float exp;
-        int cookingTime;
+        for (Smeltable smeltable : Smeltable.values()) {
+            ArrayList<Material> smeltableItems = new ArrayList<>();
 
-        FurnaceRecipe furnaceRecipe = null;
-
-        for (Recipe recipe : recipes) {
-            if (recipe.toString().contains("FurnaceRecipe")) {
-                furnaceRecipe = (FurnaceRecipe) recipe;
+            if (smeltable.getInput() != null && smeltable.getOutput() != null) {
+                smeltableItems.add(smeltable.getInput());
+                smeltableItems.add(smeltable.getOutput());
+                combinedSmeltable.put(smeltable.name(), smeltableItems);
             }
         }
 
-        if (inputName.equalsIgnoreCase("SAND")) {
-            namespacedKey = new NamespacedKey(plugin, inputName.toLowerCase() + "_glass");
-        } else if (inputName.equalsIgnoreCase("RED_SAND")) {
-            namespacedKey = new NamespacedKey(plugin, inputName.toLowerCase() + "_glass");
-        }
-
-        if (woodName != null) {
-            if (inputName.equalsIgnoreCase(woodName + "_WOOD")) {
-                namespacedKey = new NamespacedKey(plugin,  inputName.toLowerCase() + "_charcoal");
-            } else if (inputName.equalsIgnoreCase(woodName + "_LOG")) {
-                namespacedKey = new NamespacedKey(plugin, inputName.toLowerCase() + "_charcoal");
-            } else if (inputName.equalsIgnoreCase("STRIPPED_" + woodName + "_WOOD")) {
-                namespacedKey = new NamespacedKey(plugin, inputName.toLowerCase() + "_charcoal");
-            } else if (inputName.equalsIgnoreCase("STRIPPED_" + woodName + "_LOG")) {
-                namespacedKey = new NamespacedKey(plugin, inputName.toLowerCase() + "_charcoal");
-            }
-        }
-
-        if (furnaceRecipe == null) return;
-
-        exp = furnaceRecipe.getExperience();
-        cookingTime = furnaceRecipe.getCookingTime() / 2;
-
-        BlastingRecipe blastingRecipe = new BlastingRecipe(namespacedKey, itemStack, input, exp, cookingTime);
-        plugin.getServer().addRecipe(blastingRecipe);
+        return combinedSmeltable;
     }
 }

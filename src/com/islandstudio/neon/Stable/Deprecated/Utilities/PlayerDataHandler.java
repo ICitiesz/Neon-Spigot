@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.io.IOException;
 
+@Deprecated
 public class PlayerDataHandler {
     private static FileConfiguration fileConfiguration;
 

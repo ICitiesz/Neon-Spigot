@@ -5,6 +5,7 @@ import com.islandstudio.neon.MainCore;
 
 import java.io.File;
 
+@Deprecated
 public class FolderList {
     private static Object getDataFolder;
 

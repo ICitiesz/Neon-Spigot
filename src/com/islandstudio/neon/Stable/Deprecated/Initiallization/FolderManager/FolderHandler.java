@@ -5,6 +5,7 @@ import com.islandstudio.neon.MainCore;
 
 import java.io.File;
 
+@Deprecated
 public class FolderHandler {
     private static Object getDataFolder;
     private static Object getBukkitVersion;

@@ -1,6 +1,6 @@
 name: Neon
 author: ICities
-version: '1.9-pre_1'
+version: '1.9-pre_2'
 api-version: '1.14'
 depend: []
 softdepend: []
@@ -8,6 +8,10 @@ main: com.islandstudio.neon.MainCore
 description: Server Tools.
 
 commands:
+  neon:
+    usage: /<command>
+    description: Command prefix.
+
   /mod:
     usage: /<command>
     description: Enable moderator.
@@ -66,7 +70,7 @@ commands:
     description: Null.
 
   ?:
-    description: Null.
+    description: Null
 
   help:
     description: Null.

@@ -1,5 +1,6 @@
 package com.islandstudio.neon.Stable.New.Initialization;
 
+import com.islandstudio.neon.Experimental.Commands.CommandController;
 import com.islandstudio.neon.Experimental.Commands.CommandHandler;
 import com.islandstudio.neon.Experimental.iCutter.ICutter;
 import com.islandstudio.neon.Experimental.iSmelter.ISmelter;
@@ -36,6 +37,7 @@ public final class PluginConstructor {
                 ISmelter.init();
                 IWaypoints.init();
                 CommandHandler.init();
+                CommandController.init();
                 PVPHandler.init();
                 RankTags.init();
                 //ChatLogger.initialize();
@@ -60,7 +62,7 @@ public final class PluginConstructor {
     public static void sendIntro() {
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|---------------== Neon v1.9-pre_1 ==---------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|---------------== Neon v1.9-pre_2 ==---------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------===" + ChatColor.GREEN + " <Started> " + ChatColor.GOLD + "===-----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
@@ -69,7 +71,7 @@ public final class PluginConstructor {
     public static void sendOutro() {
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|---------------== Neon v1.9-pre_1 ==----------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|---------------== Neon v1.9-pre_2 ==---------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------===" + ChatColor.RED + " <Stopped> " + ChatColor.GOLD + "===-----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");

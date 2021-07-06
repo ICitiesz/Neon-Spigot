@@ -14,6 +14,7 @@ import org.json.simple.parser.ParseException;
 import java.io.*;
 import java.util.*;
 
+@Deprecated
 public class SettingsHandler {
     private static final boolean isOnlineMode = Bukkit.getServer().getOnlineMode();
     private static final File offlineFile = new File(FolderList.getFolder_1_b, "Server_Configuration.json");

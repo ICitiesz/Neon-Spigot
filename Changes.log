@@ -161,6 +161,7 @@
 --------------------------------------------------------------
 [Experimental Option]
 - Separate folder for experimental features (Experimental)
+- File name = "Experimental.json"
 - Enable/disable experimental features (/expfunct enable, /expfunct disable)
 - Messages:
     "Warning! Experimental features has been enabled! Please ensure you have backup your world!"

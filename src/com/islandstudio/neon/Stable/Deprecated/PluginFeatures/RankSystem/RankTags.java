@@ -10,6 +10,7 @@ import org.bukkit.scoreboard.*;
 import java.io.File;
 import java.util.Objects;
 
+@Deprecated
 public class RankTags {
     private final static Scoreboard scoreboard = Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard();
 

@@ -239,10 +239,71 @@ public class IWaypoints {
         player.sendMessage(ChatColor.GREEN + "You have been teleported to " + waypointNameGold + ChatColor.GRAY + ", " + ChatColor.AQUA + posX + ", " + posY + ", " + posZ + ChatColor.GREEN + " !");
     }
 
+//    public static void setCommandHandler(String[] args, Player player) {
+//        if (!player.isSleeping()) {
+//            switch (args.length) {
+//                case 0: {
+//                    try {
+//                        waypointData.put(player.getUniqueId().toString(), getWaypointData());
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    new Handler(GUIUtilityHandler.getGUIUtility(player)).open();
+//                    break;
+//                }
+//
+//                case 1: {
+//                    if (args[0].equalsIgnoreCase("remove")) {
+//                        try {
+//                            waypointData.put(player.getUniqueId().toString(), getWaypointData());
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        new Handler_Removal(GUIUtilityHandler.getGUIUtility(player)).open();
+//                    } else {
+//                        SyntaxHandler.sendSyntax(player, 1);
+//                    }
+//                    break;
+//                }
+//
+//                case 2: {
+//                    if (args[0].equalsIgnoreCase("add")) {
+//                        try {
+//                            waypointData.put(player.getUniqueId().toString(), getWaypointData());
+//                            IWaypoints.add(args[1], player);
+//                            waypointData.remove(player.getUniqueId().toString());
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    } else if (args[0].equalsIgnoreCase("remove")) {
+//                        try {
+//                            IWaypoints.remove(args[1]);
+//                            waypointData.remove(player.getUniqueId().toString());
+//                            Bukkit.getServer().broadcastMessage(ChatColor.RED + "The waypoint " + ChatColor.GRAY + "'" + ChatColor.GOLD + args[1] + ChatColor.GRAY + "'" + ChatColor.RED + " has been removed by " + ChatColor.WHITE + player.getName() + ChatColor.RED + " !");
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    } else {
+//                        SyntaxHandler.sendSyntax(player, 1);
+//                    }
+//                    break;
+//                }
+//
+//                default: {
+//                    SyntaxHandler.sendSyntax(player, 1);
+//                }
+//            }
+//        } else {
+//            player.sendMessage(ChatColor.YELLOW + "You can't use iWaypoints while you're sleeping!");
+//        }
+//    }
+
     public static void setCommandHandler(String[] args, Player player) {
         if (!player.isSleeping()) {
             switch (args.length) {
-                case 0: {
+                case 1: {
                     try {
                         waypointData.put(player.getUniqueId().toString(), getWaypointData());
                     } catch (Exception e) {
@@ -253,8 +314,8 @@ public class IWaypoints {
                     break;
                 }
 
-                case 1: {
-                    if (args[0].equalsIgnoreCase("remove")) {
+                case 2: {
+                    if (args[1].equalsIgnoreCase("remove")) {
                         try {
                             waypointData.put(player.getUniqueId().toString(), getWaypointData());
                         } catch (Exception e) {
@@ -268,20 +329,20 @@ public class IWaypoints {
                     break;
                 }
 
-                case 2: {
-                    if (args[0].equalsIgnoreCase("add")) {
+                case 3: {
+                    if (args[1].equalsIgnoreCase("add")) {
                         try {
                             waypointData.put(player.getUniqueId().toString(), getWaypointData());
-                            IWaypoints.add(args[1], player);
+                            IWaypoints.add(args[2], player);
                             waypointData.remove(player.getUniqueId().toString());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    } else if (args[0].equalsIgnoreCase("remove")) {
+                    } else if (args[1].equalsIgnoreCase("remove")) {
                         try {
-                            IWaypoints.remove(args[1]);
+                            IWaypoints.remove(args[2]);
                             waypointData.remove(player.getUniqueId().toString());
-                            Bukkit.getServer().broadcastMessage(ChatColor.RED + "The waypoint " + ChatColor.GRAY + "'" + ChatColor.GOLD + args[1] + ChatColor.GRAY + "'" + ChatColor.RED + " has been removed by " + ChatColor.WHITE + player.getName() + ChatColor.RED + " !");
+                            Bukkit.getServer().broadcastMessage(ChatColor.RED + "The waypoint " + ChatColor.GRAY + "'" + ChatColor.GOLD + args[2] + ChatColor.GRAY + "'" + ChatColor.RED + " has been removed by " + ChatColor.WHITE + player.getName() + ChatColor.RED + "!");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

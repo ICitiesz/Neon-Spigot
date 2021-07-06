@@ -1,7 +1,5 @@
 package com.islandstudio.neon.Stable.New.Command;
 
-import com.islandstudio.neon.Experimental.iCutter.ICutter;
-import com.islandstudio.neon.Experimental.iSmelter.ISmelter;
 import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.IWaypoints;
 import com.islandstudio.neon.Experimental.GameModes;
 import com.islandstudio.neon.Experimental.GameModeHandler;
@@ -196,61 +194,62 @@ public class CommandCore implements Listener, TabExecutor {
             if (cmd.getName().equalsIgnoreCase(CommandAlias.CMD_5.getCommandAlias())) {
                 Player player = (Player) sender;
 
-                if (player.isOp()) {
-                    if (args.length == 3) {
-                        String option = args[0];
-                        String playerName = args[1];
-                        String rankName = args[2];
-                        ArrayList<String> playerNames = new ArrayList<>();
-                        ArrayList<String> rankNames = RankHandler.rankNames;
-
-                        if (option.equalsIgnoreCase("set")) {
-                            for (Player onlinePlayers : Bukkit.getServer().getOnlinePlayers()) {
-                                playerNames.add(onlinePlayers.getName());
-
-                                if (playerName.equalsIgnoreCase(onlinePlayers.getName())) {
-                                    try {
-                                        RankHandler.setRank(player, onlinePlayers, rankName, playerName);
-                                    } catch (IOException | ParseException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-
-                            if (!playerNames.contains(playerName)) {
-                                player.sendMessage(ChatColor.RED + "Can't find player " + ChatColor.WHITE + playerName + ChatColor.RED + " !");
-                            } else if (!rankNames.contains(rankName.toUpperCase())) {
-                                player.sendMessage(ChatColor.RED + "No such rank as " + ChatColor.WHITE + rankName.toUpperCase() + ChatColor.RED + " !");
-                            }
-
-                            playerNames.clear();
-                            rankNames.clear();
-                        } else {
-                            SyntaxHandler.sendSyntax(player, 1);
-                        }
-                    } else if (args.length == 2) {
-                        String option = args[0];
-                        String playerName = args[1];
-
-                        if (option.equalsIgnoreCase("remove")) {
-                            for (Player onlinePlayers : Bukkit.getServer().getOnlinePlayers()) {
-                                if (playerName.equalsIgnoreCase(onlinePlayers.getName())) {
-                                    try {
-                                        RankHandler.removeRank(player, onlinePlayers);
-                                    } catch (IOException | ParseException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                        } else {
-                            SyntaxHandler.sendSyntax(player, 1);
-                        }
-                    } else {
-                        SyntaxHandler.sendSyntax(player, 1);
-                    }
-                } else {
-                    SyntaxHandler.sendSyntax(player, 2);
-                }
+//                if (player.isOp()) {
+//                    if (args.length == 3) {
+//                        String option = args[0];
+//                        String playerName = args[1];
+//                        String rankName = args[2];
+//                        ArrayList<String> playerNames = new ArrayList<>();
+//                        ArrayList<String> rankNames = RankHandler.rankNames;
+//
+//                        if (option.equalsIgnoreCase("set")) {
+//                            for (Player onlinePlayers : Bukkit.getServer().getOnlinePlayers()) {
+//                                playerNames.add(onlinePlayers.getName());
+//
+//                                if (playerName.equalsIgnoreCase(onlinePlayers.getName())) {
+//                                    try {
+//                                        RankHandler.setRank(player, onlinePlayers, rankName, playerName);
+//                                    } catch (IOException | ParseException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                            }
+//
+//                            if (!playerNames.contains(playerName)) {
+//                                player.sendMessage(ChatColor.RED + "Can't find player " + ChatColor.WHITE + playerName + ChatColor.RED + " !");
+//                            } else if (!rankNames.contains(rankName.toUpperCase())) {
+//                                player.sendMessage(ChatColor.RED + "No such rank as " + ChatColor.WHITE + rankName.toUpperCase() + ChatColor.RED + " !");
+//                            }
+//
+//                            playerNames.clear();
+//                            rankNames.clear();
+//                        } else {
+//                            SyntaxHandler.sendSyntax(player, 1);
+//                        }
+//                    } else if (args.length == 2) {
+//                        String option = args[0];
+//                        String playerName = args[1];
+//
+//                        if (option.equalsIgnoreCase("remove")) {
+//                            for (Player onlinePlayers : Bukkit.getServer().getOnlinePlayers()) {
+//                                if (playerName.equalsIgnoreCase(onlinePlayers.getName())) {
+//                                    try {
+//                                        RankHandler.removeRank(player, onlinePlayers);
+//                                    } catch (IOException | ParseException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                            }
+//                        } else {
+//                            SyntaxHandler.sendSyntax(player, 1);
+//                        }
+//                    } else {
+//                        SyntaxHandler.sendSyntax(player, 1);
+//                    }
+//                } else {
+//                    SyntaxHandler.sendSyntax(player, 2);
+//                }
+                player.sendMessage(ChatColor.RED + "This command has been temporarily disabled!");
                 return true;
             }
 
@@ -295,18 +294,15 @@ public class CommandCore implements Listener, TabExecutor {
             }
 
             if (cmd.getName().equalsIgnoreCase(CommandAlias.CMD_7.getCommandAlias())) {
-                IWaypoints.setCommandHandler(args, (Player) sender);
+                //IWaypoints.setCommandHandler(args, (Player) sender);
+                Player player = (Player) sender;
+                player.sendMessage(ChatColor.RED + "This command has been temporarily disabled!");
                 return true;
             }
 
             if (cmd.getName().equalsIgnoreCase("test")) {
                 Player player = (Player) sender;
-
-                if (args.length == 1) {
-                    String value = args[0];
-
-                } else {
-                }
+                return true;
             }
         }
         return false;
@@ -316,29 +312,29 @@ public class CommandCore implements Listener, TabExecutor {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player) {
             if (cmd.getName().equalsIgnoreCase(CommandAlias.CMD_5.getCommandAlias())) {
-                List<String> option = new ArrayList<>();
-                List<String> playerNames = new ArrayList<>();
-                List<String> ranks = new ArrayList<>();
-
-                if (args.length == 1) {
-                    option.add("set");
-                    option.add("remove");
-                    return option;
-                }
-
-                if (args.length == 2) {
-                    for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-                        playerNames.add(player.getName());
-                    }
-                    return playerNames;
-                }
-
-                if (args.length == 3) {
-                    for (ServerRanks serverRanks : ServerRanks.values()) {
-                        ranks.add(serverRanks.name());
-                    }
-                    return ranks;
-                }
+//                List<String> option = new ArrayList<>();
+//                List<String> playerNames = new ArrayList<>();
+//                List<String> ranks = new ArrayList<>();
+//
+//                if (args.length == 1) {
+//                    option.add("set");
+//                    option.add("remove");
+//                    return option;
+//                }
+//
+//                if (args.length == 2) {
+//                    for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+//                        playerNames.add(player.getName());
+//                    }
+//                    return playerNames;
+//                }
+//
+//                if (args.length == 3) {
+//                    for (ServerRanks serverRanks : ServerRanks.values()) {
+//                        ranks.add(serverRanks.name());
+//                    }
+//                    return ranks;
+//                }
             }
 
             if (cmd.getName().equalsIgnoreCase(CommandAlias.CMD_6.getCommandAlias())) {
@@ -378,27 +374,27 @@ public class CommandCore implements Listener, TabExecutor {
             }
 
             if (cmd.getName().equalsIgnoreCase(CommandAlias.CMD_7.getCommandAlias())) {
-                switch (args.length) {
-                    case 1: {
-                        List<String> options = new ArrayList<>();
-
-                        options.add("add");
-                        options.add("remove");
-
-                        return options;
-                    }
-
-                    case 2: {
-                        if (args[0].equalsIgnoreCase("remove")) {
-                            try {
-                                IWaypoints.waypointData.put(((Player) sender).getUniqueId().toString(), IWaypoints.getWaypointData());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            return IWaypoints.getWaypointNames((Player) sender);
-                        }
-                    }
-                }
+//                switch (args.length) {
+//                    case 1: {
+//                        List<String> options = new ArrayList<>();
+//
+//                        options.add("add");
+//                        options.add("remove");
+//
+//                        return options;
+//                    }
+//
+//                    case 2: {
+//                        if (args[0].equalsIgnoreCase("remove")) {
+//                            try {
+//                                IWaypoints.waypointData.put(((Player) sender).getUniqueId().toString(), IWaypoints.getWaypointData());
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                            return IWaypoints.getWaypointNames((Player) sender);
+//                        }
+//                    }
+//                }
             }
         }
 

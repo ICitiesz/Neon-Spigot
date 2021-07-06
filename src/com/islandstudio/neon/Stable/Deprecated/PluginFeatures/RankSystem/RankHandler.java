@@ -18,6 +18,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.UUID;
 
+@Deprecated
 public class RankHandler {
     public static ArrayList<String> rankNames = new ArrayList<>();
 

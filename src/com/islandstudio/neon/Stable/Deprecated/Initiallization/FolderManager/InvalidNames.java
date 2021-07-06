@@ -1,5 +1,6 @@
 package com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager;
 
+@Deprecated
 public enum InvalidNames {
     CON,
     PRN,
@@ -22,5 +23,5 @@ public enum InvalidNames {
     LPT6,
     LPT7,
     LPT8,
-    LPT9;
+    LPT9
 }

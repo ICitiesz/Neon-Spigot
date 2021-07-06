@@ -15,6 +15,6 @@ public final class CommandHandler {
         for (CommandAlias cmds : CommandAlias.values()) {
             Objects.requireNonNull(plugin.getServer().getPluginCommand(cmds.getCommandAlias())).setExecutor(cmd);
         }
-        //plugin.getServer().getPluginCommand("test").setExecutor(cmd);
+        Objects.requireNonNull(plugin.getServer().getPluginCommand("test")).setExecutor(cmd);
     }
 }
