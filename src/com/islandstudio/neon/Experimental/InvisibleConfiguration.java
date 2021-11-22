@@ -1,7 +1,6 @@
 package com.islandstudio.neon.Experimental;
 
 import com.islandstudio.neon.MainCore;
-import org.bukkit.Sound;
 import org.bukkit.plugin.Plugin;
 
 public class InvisibleConfiguration {

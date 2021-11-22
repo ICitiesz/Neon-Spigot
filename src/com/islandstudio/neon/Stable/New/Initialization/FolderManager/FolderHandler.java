@@ -1,7 +1,6 @@
 package com.islandstudio.neon.Stable.New.Initialization.FolderManager;
 
 
-import com.islandstudio.neon.Stable.New.Utilities.NamespaceVersion;
 import com.islandstudio.neon.MainCore;
 import org.bukkit.plugin.Plugin;
 
@@ -14,8 +13,9 @@ public class FolderHandler {
     private static final File DATA_FOLDER = plugin.getDataFolder();
     private static final File BETA_FOLDER = new File(DATA_FOLDER, "Beta_Folder");
 
-    private static final String VERSION = plugin.getServer().getBukkitVersion().split("\\.")[0] + "." + plugin.getServer().getBukkitVersion().split("\\.")[1];
+    private static final String VERSION = (plugin.getServer().getBukkitVersion().split("-")[0]).split("\\.")[0] + "." + (plugin.getServer().getBukkitVersion().split("-")[0]).split("\\.")[1];
 
+    /* Initialization for Folder Handler */
     public static void init() {
         ArrayList<File> folders = new ArrayList<>();
 
@@ -36,14 +36,17 @@ public class FolderHandler {
         return BETA_FOLDER;
     }
 
+    /* Get the directory of Neon which inside the plugin directory witin the Spigot server directory. */
     public static File getDataFolder() {
         return DATA_FOLDER;
     }
 
+    /* Get the Spigot version which is required for creating folder for each individual version. */
     public static String getVersion() {
         return VERSION.replace(".", "_");
     }
 
+    /* Get the mode, either Online Mode or Offline Mode */
     public static String getMode() {
         if (plugin.getServer().getOnlineMode()) {
             return "Online_Mode";

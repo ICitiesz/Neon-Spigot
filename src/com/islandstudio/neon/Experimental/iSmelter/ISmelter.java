@@ -1,5 +1,6 @@
 package com.islandstudio.neon.Experimental.iSmelter;
 
+import com.islandstudio.neon.Experimental.iExperimental.IExperimental;
 import com.islandstudio.neon.MainCore;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -8,7 +9,11 @@ import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.Plugin;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +33,9 @@ public class ISmelter {
     *
     */
 
-    public static void init() {
+    public static void init() throws IOException, ParseException {
+        if (((JSONObject) ((JSONArray) IExperimental.getClient().get("iSmelter")).get(0)).get("is_enabled").equals(false)) return;
+
         for (String key : getSmeltable().keySet()) {
             FurnaceRecipe furnaceRecipe = null;
 

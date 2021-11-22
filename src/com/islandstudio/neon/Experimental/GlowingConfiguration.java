@@ -4,8 +4,6 @@ import com.islandstudio.neon.MainCore;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class GlowingConfiguration {
     private final Plugin plug = MainCore.getPlugin(MainCore.class);
 

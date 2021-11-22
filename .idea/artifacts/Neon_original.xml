@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Neon-original">
+    <output-path>$USER_HOME$/Desktop/Personal Project/Minecraft Development/Server/TestingWorld/plugins</output-path>
+    <root id="archive" name="Neon-original.jar">
+      <element id="module-output" name="Neon" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+    </root>
+  </artifact>
+</component>

@@ -32,7 +32,7 @@ public class ServerCFGHandler {
         long dataOutLength = bufferedReader_1.lines().toArray().length;
 
         if (dataOutLength == 0) {
-            InputStream inputStream = serverCFGHandler.classLoader.getResourceAsStream("Resources/Server_Configuration.json");
+            InputStream inputStream = serverCFGHandler.classLoader.getResourceAsStream("resources/Server_Configuration.json");
 
             fileReader.close();
             bufferedReader_1.close();
@@ -67,7 +67,7 @@ public class ServerCFGHandler {
         }
     }
 
-    public static void createNewFiles() throws IOException {
+    private static void createNewFiles() throws IOException {
         File file = getServerConfigFile();
 
         if (!FolderList.FOLDER_A.getFolder().exists()) {

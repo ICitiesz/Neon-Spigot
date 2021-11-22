@@ -1,18 +1,18 @@
 package com.islandstudio.neon.Stable.New.Event;
 
 import com.islandstudio.neon.Experimental.iHarvest.IHarvest;
-import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.IWaypoints;
+import com.islandstudio.neon.Stable.New.Initialization.PluginConstructor;
 import com.islandstudio.neon.Stable.New.Utilities.PacketReceiver;
-import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtilityHandler;
-import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.Handler;
-import com.islandstudio.neon.Stable.New.GUI.Interfaces.iWaypoints.Handler_Removal;
-import com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.RankHandler;
+import com.islandstudio.neon.Stable.New.features.iWaypoints.IWaypoints;
+import com.islandstudio.neon.Stable.New.features.GUI.Initialization.GUIUtilityHandler;
+import com.islandstudio.neon.Stable.New.features.iWaypoints.Handler_Removal;
+import com.islandstudio.neon.Stable.New.features.iRank.IRank;
 import com.islandstudio.neon.Stable.New.Utilities.ProfileHandler;
 import com.islandstudio.neon.Stable.New.Utilities.ServerCFGHandler;
 import com.islandstudio.neon.MainCore;
-import com.islandstudio.neon.Stable.New.PluginFeatures.RankSystem.RankTags;
-import com.islandstudio.neon.Stable.New.GUI.Interfaces.EffectsManager.EffectsManager;
+import com.islandstudio.neon.Stable.New.features.EffectsManager.EffectsManager;
 import com.islandstudio.neon.Stable.New.Utilities.ServerHandler;
+import com.islandstudio.neon.Stable.New.features.iWaypoints.Handler;
 import com.islandstudio.neon.Stable.Old.PluginFunctions.TNTProtection.ProtectionHandler;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -28,6 +28,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -48,7 +49,7 @@ public class EventCore implements Listener {
 
         ServerHandler.broadcastJoin(e);
         ProfileHandler.init(player);
-        RankTags.setRankTags();
+        IRank.updateTag();
         PacketReceiver.playerInjection(player);
     }
 
@@ -62,6 +63,28 @@ public class EventCore implements Listener {
     }
 
     @EventHandler
+    public final void onEntityDeath(EntityDeathEvent e) {
+        if (e.getEntityType().equals(EntityType.ARMOR_STAND)) {
+            if (Objects.requireNonNull(e.getEntity().getCustomName()).equalsIgnoreCase("Hello")) {
+                //IHologram.createHologram(e.getEntity().getWorld(), e.getEntity().getLocation());
+            }
+        }
+    }
+
+    @EventHandler
+    public final void onServerLoad(ServerLoadEvent e) {
+        if (e.getType().equals(ServerLoadEvent.LoadType.RELOAD)) {
+            Bukkit.getServer().getOnlinePlayers().forEach(player -> {
+                try {
+                    PluginConstructor.updateRecipe(player);
+                } catch (Exception err) {
+                    err.printStackTrace();
+                }
+            });
+        }
+    }
+
+    @EventHandler
     public final void onPlayerDeath(PlayerDeathEvent e) {
         Player player = e.getEntity();
 
@@ -71,7 +94,7 @@ public class EventCore implements Listener {
         if (player.getName().equalsIgnoreCase("ICities")) {
             //e.setKeepInventory(true);
             //e.getDrops().clear();
-            //System.out.println("Test");
+            //System.out.println("testpackage.Test");
         }
 
         //LastDeadLocation.update(player);
@@ -106,7 +129,7 @@ public class EventCore implements Listener {
 
         e.setCancelled(true);
 
-        RankHandler.setChatTag(player, player.getName(), messages);
+        IRank.sendMessage(player, messages);
     }
 
     @EventHandler
@@ -168,6 +191,11 @@ public class EventCore implements Listener {
     public final void onInventoryClick(InventoryClickEvent e) {
         Handler.setEventHandler(e);
         Handler_Removal.setEventHandler(e);
+        try {
+            com.islandstudio.neon.Experimental.iExperimental.Handler.setEventHandler(e);
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
 
         EffectsManager effectsManager = new EffectsManager();
         Player player = (Player) e.getWhoClicked();

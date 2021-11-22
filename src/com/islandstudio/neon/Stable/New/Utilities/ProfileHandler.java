@@ -18,6 +18,7 @@ public class ProfileHandler {
     private static final JSONParser jsonParser = new JSONParser();
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+    @SuppressWarnings("unchecked")
     public static void init(Player player) throws Exception {
         ProfileHandler profileHandler = new ProfileHandler();
 
@@ -31,43 +32,41 @@ public class ProfileHandler {
         long dataOutLength = bufferedReader_1.lines().toArray().length;
 
         if (dataOutLength == 0) {
-            InputStream inputStream = profileHandler.classLoader.getResourceAsStream("Resources/player_.json");
+            InputStream inputStream = profileHandler.classLoader.getResourceAsStream("resources/player_.json");
 
             fileReader.close();
             bufferedReader_1.close();
 
-            if (inputStream != null) {
-                BufferedReader bufferedReader_2 = new BufferedReader(new InputStreamReader(inputStream));
-                Object[] dataIn = bufferedReader_2.lines().toArray();
+            if (inputStream == null) return;
 
-                if (dataIn.length != 0) {
-                    FileOutputStream fileOutputStream = new FileOutputStream(playerProfile);
-                    BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
+            BufferedReader bufferedReader_2 = new BufferedReader(new InputStreamReader(inputStream));
+            Object[] dataIn = bufferedReader_2.lines().toArray();
 
-                    for (Object data : dataIn) {
-                        stringBuilder.append(data);
-                    }
+            if (dataIn.length != 0) {
+                FileOutputStream fileOutputStream = new FileOutputStream(playerProfile);
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
 
-                    JSONObject jsonObject = (JSONObject) jsonParser.parse(stringBuilder.toString());
-
-                    jsonObject.replace("Name", player.getName());
-                    jsonObject.replace("UUID", player.getUniqueId().toString());
-
-                    if (player.isOp()) {
-                        jsonObject.replace("Rank", "OWNER");
-                    }
-
-                    String result = gson.toJson(jsonObject);
-
-                    bufferedWriter.write(result);
-                    bufferedWriter.flush();
-                    bufferedWriter.close();
-
-                    bufferedReader_2.close();
-                    inputStream.close();
-
-                    fileOutputStream.close();
+                for (Object data : dataIn) {
+                    stringBuilder.append(data);
                 }
+
+                JSONObject jsonObject = (JSONObject) jsonParser.parse(stringBuilder.toString());
+
+                jsonObject.replace("Name", player.getName());
+                jsonObject.replace("UUID", player.getUniqueId().toString());
+
+                if (player.isOp()) {
+                    jsonObject.replace("Rank", "OWNER");
+                }
+
+                bufferedWriter.write(gson.toJson(jsonObject));
+                bufferedWriter.flush();
+                bufferedWriter.close();
+
+                bufferedReader_2.close();
+                inputStream.close();
+
+                fileOutputStream.close();
             }
         } else {
             fileReader.close();
@@ -80,14 +79,14 @@ public class ProfileHandler {
     }
 
     public static File getPlayerFolder(Player player) {
-        return new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "/" + FolderHandler.getMode() + "/Server_Data/Player_Data" + "/" + "player_" + player.getUniqueId());
+        return new File(FolderHandler.getDataFolder(), FolderHandler.getVersion() + "/" + FolderHandler.getMode() + "/Server_Data/Player_Data/" + "player_" + player.getUniqueId());
     }
 
     public static JSONObject getValue(Player player) throws IOException, ParseException {
-        FileReader fileReader = new FileReader(getPlayerProfile(player));
-        return (JSONObject) jsonParser.parse(fileReader);
+        return (JSONObject) jsonParser.parse(new FileReader(getPlayerProfile(player)));
     }
 
+    @SuppressWarnings("unchecked")
     public static void setValue(Player player, String key, String value) throws IOException, ParseException {
         JSONObject jsonObject = getValue(player);
 
@@ -95,14 +94,13 @@ public class ProfileHandler {
             FileOutputStream fileOutputStream = new FileOutputStream(getPlayerProfile(player));
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
 
-            if (!jsonObject.get(key).equals(value)) {
-                jsonObject.replace(key, value);
+            if (jsonObject.get(key).equals(value)) return;
 
-                String result = gson.toJson(jsonObject);
-                bufferedWriter.write(result);
-                bufferedWriter.flush();
-                bufferedWriter.close();
-            }
+            jsonObject.replace(key, value);
+
+            bufferedWriter.write(gson.toJson(jsonObject));
+            bufferedWriter.flush();
+            bufferedWriter.close();
         }
     }
 

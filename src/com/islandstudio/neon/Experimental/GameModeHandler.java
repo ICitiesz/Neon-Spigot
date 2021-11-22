@@ -1,13 +1,13 @@
 package com.islandstudio.neon.Experimental;
 
-import com.islandstudio.neon.Stable.New.Command.CommandCore;
+import com.islandstudio.neon.Experimental.iCommand.CommandHandler;
 import com.islandstudio.neon.Stable.New.Command.SyntaxHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 public class GameModeHandler {
-    private static final boolean MODERATION = CommandCore.moderation;
+    private static final boolean MODERATION = CommandHandler.moderation;
 
     public static void setSurvival(Player player) {
         if (player.isOp()) {

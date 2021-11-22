@@ -1,6 +1,6 @@
 name: Neon
 author: ICities
-version: '1.9-pre_2'
+version: '1.9-pre_3'
 api-version: '1.14'
 depend: []
 softdepend: []
@@ -11,50 +11,6 @@ commands:
   neon:
     usage: /<command>
     description: Command prefix.
-
-  /mod:
-    usage: /<command>
-    description: Enable moderator.
-
-  gm:
-    usage: /<command>
-    description: Set gamemode.
-
-  regen:
-    usage: /<command>
-    description: Full fill health level & saturation level.
-
-  efs:
-    usage: /<command>
-    description: Effect Manager.
-
-  test:
-      usage: /<command>
-      description: Test.
-
-  hidden:
-    usage: /<command>
-    description: Invisibility.
-
-  highlight:
-    usage: /<command>
-    description: Highlight selected player.
-
-  rank:
-    usage: /<command>
-    description: Ranks.
-
-  waypoints:
-    usage: /<command>
-    description: iWaypoints.
-
-  mute:
-    usage: /<command>
-    description: Mute chatting.
-
-  serverconfig:
-    usage: /<command>
-    description: Server settings.
 
   ldl:
     usage: /<command>
@@ -74,46 +30,3 @@ commands:
 
   help:
     description: Null.
-
-  rc:
-    description: Reload config file.
-
-  bt:
-    usage: /<command>
-    description: Enable Beta Features.
-
-  nbt:
-    usage: /<command>
-    description: Disable Beta Features.
-
-  md:
-    usage: /<command>
-    description: Enable mod.
-
-  cmd:
-    usage: /<command>
-    description: Show available commands.
-
-  hd:
-    usage: /<command>
-    description: Hidden.
-
-  uhd:
-    usage: /<command>
-    description: Visible.
-
-  fh:
-    usage: /<command>
-    description: Fill your health & food level.
-
-  hide:
-    usage: /<command>
-    description: Hide.
-
-  inv:
-    usage: /<command>
-    description: Open Inventory.
-
-  he:
-    usage: /<command>
-    description: Hide from entity.

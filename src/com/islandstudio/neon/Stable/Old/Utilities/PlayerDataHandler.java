@@ -79,9 +79,9 @@ public class PlayerDataHandler {
         switch (VERSION) {
             case "1.14": {
                 if (IS_ONLINE_MODE) {
-                    return new File(com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager.FolderList.dataFolder_1_a_1, player.getUniqueId() + ".json");
+                    return new File(com.islandstudio.neon.Deprecated.Initiallization.FolderManager.FolderList.dataFolder_1_a_1, player.getUniqueId() + ".json");
                 } else {
-                    return new File(com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager.FolderList.dataFolder_1_b_1, player.getUniqueId() + ".json");
+                    return new File(com.islandstudio.neon.Deprecated.Initiallization.FolderManager.FolderList.dataFolder_1_b_1, player.getUniqueId() + ".json");
                 }
 
 
@@ -89,17 +89,17 @@ public class PlayerDataHandler {
 
             case "1.15": {
                 if (IS_ONLINE_MODE) {
-                    return new File(com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager.FolderList.dataFolder_2_a_1, player.getUniqueId() + ".json");
+                    return new File(com.islandstudio.neon.Deprecated.Initiallization.FolderManager.FolderList.dataFolder_2_a_1, player.getUniqueId() + ".json");
                 } else {
-                    return new File(com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager.FolderList.dataFolder_2_b_1, player.getUniqueId() + ".json");
+                    return new File(com.islandstudio.neon.Deprecated.Initiallization.FolderManager.FolderList.dataFolder_2_b_1, player.getUniqueId() + ".json");
                 }
             }
 
             case "1.16": {
                 if (IS_ONLINE_MODE) {
-                    return new File(com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager.FolderList.dataFolder_3_a_1, player.getUniqueId() + ".json");
+                    return new File(com.islandstudio.neon.Deprecated.Initiallization.FolderManager.FolderList.dataFolder_3_a_1, player.getUniqueId() + ".json");
                 } else {
-                    return new File(com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager.FolderList.dataFolder_3_b_1, player.getUniqueId() + ".json");
+                    return new File(com.islandstudio.neon.Deprecated.Initiallization.FolderManager.FolderList.dataFolder_3_b_1, player.getUniqueId() + ".json");
                 }
             }
 

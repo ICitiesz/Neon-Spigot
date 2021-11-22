@@ -1,21 +1,31 @@
 package com.islandstudio.neon.Experimental.iCutter;
 
+import com.islandstudio.neon.Experimental.iExperimental.IExperimental;
 import com.islandstudio.neon.MainCore;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.*;
 import org.bukkit.plugin.Plugin;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
 import java.util.*;
 
 public class ICutter {
     private static final Plugin plugin = MainCore.getPlugin(MainCore.class);
 
-    public static void init() {
+    public static void init() throws IOException, ParseException {
+
+        if (((JSONObject) ((JSONArray) IExperimental.getClient().get("iCutter")).get(0)).get("is_enabled").equals(false)) return;
+
         for (WoodPlanks woodPlanks : WoodPlanks.values()) {
             ItemStack result;
             NamespacedKey namespacedKey;
             StonecuttingRecipe stonecuttingRecipe;
+
+            if (woodPlanks.getWoodType() == null) continue;
 
             for (Material woodItems : getWoodItems()) {
                 result = new ItemStack(woodItems);

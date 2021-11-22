@@ -20,14 +20,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class SettingsHandler {
-    private static final File onlineFile_1 = new File(com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager.FolderList.serverFolder_1_a, "Server_Configuration.json");
-    private static final File offlineFile_1 = new File(com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager.FolderList.serverFolder_1_b, "Server_Configuration.json");
+    private static final File onlineFile_1 = new File(com.islandstudio.neon.Deprecated.Initiallization.FolderManager.FolderList.serverFolder_1_a, "Server_Configuration.json");
+    private static final File offlineFile_1 = new File(com.islandstudio.neon.Deprecated.Initiallization.FolderManager.FolderList.serverFolder_1_b, "Server_Configuration.json");
 
-    private static final File onlineFile_2 = new File(com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager.FolderList.serverFolder_2_a, "Server_Configuration.json");
-    private static final File offlineFile_2 = new File(com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager.FolderList.serverFolder_2_b, "Server_Configuration.json");
+    private static final File onlineFile_2 = new File(com.islandstudio.neon.Deprecated.Initiallization.FolderManager.FolderList.serverFolder_2_a, "Server_Configuration.json");
+    private static final File offlineFile_2 = new File(com.islandstudio.neon.Deprecated.Initiallization.FolderManager.FolderList.serverFolder_2_b, "Server_Configuration.json");
 
-    private static final File onlineFile_3 = new File(com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager.FolderList.serverFolder_3_a, "Server_Configuration.json");
-    private static final File offlineFile_3 = new File(com.islandstudio.neon.Stable.Deprecated.Initiallization.FolderManager.FolderList.serverFolder_3_b, "Server_Configuration.json");
+    private static final File onlineFile_3 = new File(com.islandstudio.neon.Deprecated.Initiallization.FolderManager.FolderList.serverFolder_3_a, "Server_Configuration.json");
+    private static final File offlineFile_3 = new File(com.islandstudio.neon.Deprecated.Initiallization.FolderManager.FolderList.serverFolder_3_b, "Server_Configuration.json");
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private static final JSONParser jsonParser = new JSONParser();

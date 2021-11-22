@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.islandstudio.neon.MainCore;
-import com.islandstudio.neon.Stable.New.GUI.Initialization.GUIUtilityHandler;
 import com.islandstudio.neon.Stable.New.Initialization.FolderManager.FolderHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -33,7 +32,7 @@ public class TestingArea {
     }
 
     public static void test() throws Exception {
-        File file = new File(FolderHandler.getBetaFolder(), "iWaypoint_Global.json");
+        File file = new File(FolderHandler.getBetaFolder(), "iExperimental.json");
 
         if (!file.exists()) {
             boolean create = file.createNewFile();
@@ -42,29 +41,24 @@ public class TestingArea {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JSONParser jsonParser = new JSONParser();
 
-        FileReader fileReader = new FileReader(file);
-
-        JSONObject jsonObject_1 = (JSONObject) jsonParser.parse(fileReader);
+        JSONObject jsonObject_1 = new JSONObject();
         JSONObject jsonObject_2 = new JSONObject();
         JSONObject jsonObject_3 = new JSONObject();
 
-        JSONArray jsonArray_1 = (JSONArray) jsonObject_1.get("Waypoints");
+        JSONArray jsonArray_1 = new JSONArray();
         JSONArray jsonArray_2 = new JSONArray();
 
-        jsonObject_3.put("Yaw", 0);
-        jsonObject_3.put("Pitch", 0);
-        jsonObject_3.put("Dimension", "NORMAL");
-        jsonObject_3.put("Position-X", 0);
-        jsonObject_3.put("Position-Y", 0);
-        jsonObject_3.put("Position-Z", 0);
+        jsonObject_1.put("description", "Test Feature");
+        jsonObject_1.put("conflict", "No conflict");
+        jsonArray_1.add(jsonObject_1);
+        jsonObject_2.put("feature_1", jsonArray_1);
 
+        jsonObject_3.put("description", "Test Feature 2");
+        jsonObject_3.put("conflict", "No conflict 2");
         jsonArray_2.add(jsonObject_3);
+        jsonObject_2.put("feature_2", jsonArray_2);
 
-        jsonObject_2.put("Test_2", jsonArray_2);
-
-        jsonArray_1.add(jsonObject_2);
-
-        String result = gson.toJson(jsonObject_1);
+        String result = gson.toJson(jsonObject_2);
 
         FileOutputStream fileOutputStream = new FileOutputStream(file);
         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
@@ -90,22 +84,18 @@ public class TestingArea {
 
     public static void readFileData(Player player) {
         try {
-            FileReader fileReader = new FileReader(testFile);
+            FileReader fileReader = new FileReader(new File(FolderHandler.getBetaFolder(), "iExperimental.json"));
             JSONParser jsonParser = new JSONParser();
 
             JSONObject jsonObject = (JSONObject) jsonParser.parse(fileReader);
-            JSONArray jsonArray = (JSONArray) jsonObject.get("Hub_Location");
+            JSONArray jsonArray = (JSONArray) jsonObject.get("feature_1");
             JSONObject inObj;
             String result = null;
 
             for (int i = 0; i < jsonArray.size(); i++) {
                 inObj = (JSONObject) jsonArray.get(i);
-
-                if (inObj.get("Dimension").equals("Nether")) {
-                    result = inObj.toString();
-                }
+                result = inObj.toString();
             }
-
 
             assert result != null;
             player.sendMessage(result);
@@ -116,24 +106,29 @@ public class TestingArea {
 
     public static void modifyFileData(Player player) {
         try {
-            FileReader fileReader = new FileReader(testFile);
+            FileReader fileReader = new FileReader(new File(FolderHandler.getBetaFolder(), "iExperimental.json"));
             JSONParser jsonParser = new JSONParser();
 
             JSONObject jsonObject = (JSONObject) jsonParser.parse(fileReader);
-            JSONArray jsonArray = (JSONArray) jsonObject.get("Hub_Location");
-            JSONObject inObj;
 
-
-            for (int i = 0; i < jsonArray.size(); i++) {
-                inObj = (JSONObject) jsonArray.get(i);
-
-                if (inObj.get("Dimension").equals("Nether")) {
-                    inObj.replace("X", 22);
-                }
+            if (jsonObject.containsKey("feature_1")) {
+                jsonObject.remove("feature_1");
             }
+
+//            JSONArray jsonArray = (JSONArray) jsonObject.get("feature_1");
+//            JSONObject inObj;
+//
+//            for (int i = 0; i < jsonArray.size(); i++) {
+//                inObj = (JSONObject) jsonArray.get(i);
+//
+//                if (inObj.get("conflict").equals("No conflict")) {
+//                    inObj.replace("conflict", "got conflict");
+//                }
+//            }
+
             String result = gson.toJson(jsonObject);
 
-            FileOutputStream fileOutputStream = new FileOutputStream(testFile);
+            FileOutputStream fileOutputStream = new FileOutputStream(new File(FolderHandler.getBetaFolder(), "iExperimental.json"));
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
 
             assert result != null;

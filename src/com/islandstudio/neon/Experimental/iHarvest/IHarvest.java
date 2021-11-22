@@ -1,15 +1,41 @@
 package com.islandstudio.neon.Experimental.iHarvest;
 
+import com.islandstudio.neon.Experimental.iExperimental.IExperimental;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class IHarvest {
+    private static final ArrayList<Player> players = new ArrayList<>();
+
+    public static void init() throws IOException, ParseException {
+        boolean isEnabled = (boolean) ((JSONObject) ((JSONArray) IExperimental.getClient().get("iHarvest")).get(0)).get("is_enabled");
+
+        if (isEnabled) {
+            players.addAll(Bukkit.getServer().getOnlinePlayers());
+        } else {
+            if (players.size() > 0) {
+                players.clear();
+            }
+        }
+    }
+
     public static void setEventHandler(PlayerInteractEvent e) {
+        if (!players.contains(e.getPlayer())) return;
+
         Block block = e.getClickedBlock();
         ItemStack heldItem = e.getItem();
 
@@ -31,7 +57,7 @@ public class IHarvest {
 
                         if (ageable.getAge() == ageable.getMaximumAge()) {
                             harvest(block, heldItem, e.hasItem());
-
+                            block.getWorld().playSound(block.getLocation().add(0.5, 0, 0.5), Sound.ITEM_CROP_PLANT, 1f, 1f);
                             ageable.setAge(0);
                             block.setBlockData(ageable);
                         }
