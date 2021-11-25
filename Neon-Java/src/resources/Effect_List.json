@@ -1,0 +1,577 @@
+{
+  "Absorption_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Absorption_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Absorption_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Bad_Luck_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Bad_Luck_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Bad_Luck_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Bad_Omen_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Bad_Omen_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Bad_Omen_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Blindness_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Blindness_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Blindness_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Conduit_Power_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Conduit_Power_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Conduit_Power_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Dolphin's Grace 1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Dolphin's Grace 2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Dolphin's Grace 3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Fire_Resistance_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Fire_Resistance_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Fire_Resistance_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Glowing_1": [{
+    "isEnabled": "true",
+    "Amplifier": "1",
+    "Duration": "100"
+  }],
+
+  "Glowing_2": [{
+    "isEnabled": "true",
+    "Amplifier": "1",
+    "Duration": "100"
+  }],
+
+  "Glowing_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Haste_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Haste_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Haste_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Health_Boost_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Health_Boost_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Health_Boost_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Hero_of_the_Village_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Hero_of_the_Village_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Hero_of_the_Village_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Hunger_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Hunger_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Hunger_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Instant_Damage_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Instant_Damage_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Instant_Damage_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Instant_Health_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Instant_Health_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Instant_Health_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Invisibility_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Invisibility_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Invisibility_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Jump_Boost_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Jump_Boost_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Jump_Boost_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Levitation_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Levitation_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Levitation_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Luck_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Luck_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Luck_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Mining_Fatigue_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Mining_Fatigue_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Mining_Fatigue_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Nausea_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Nausea_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Nausea_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Night_Vision_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Night_Vision_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Night_Vision_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Poison_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Poison_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Poison_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Regeneration_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Regeneration_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Regeneration_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Resistance_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Resistance_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Resistance_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Saturation_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Saturation_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Saturation_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Slow_Falling_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Slow_Falling_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Slow_Falling_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Slowness_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Slowness_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Slowness_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Speed_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Speed_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Speed_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Strength_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Strength_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Strength_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Water_Breathing_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Water_Breathing_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Water_Breathing_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Weakness_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Weakness_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Weakness_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Wither_1": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Wither_2": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }],
+
+  "Wither_3": [{
+    "isEnabled": "true",
+    "Amplifier": "100",
+    "Duration": "100"
+  }]
+}
