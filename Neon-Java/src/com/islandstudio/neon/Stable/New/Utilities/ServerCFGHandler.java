@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.islandstudio.neon.Stable.New.Initialization.FolderManager.FolderList;
 import com.islandstudio.neon.Experimental.PVPHandler;
-import com.islandstudio.neon.Stable.New.Command.SyntaxHandler;
+import com.islandstudio.neon.Stable.New.iCommand.SyntaxHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
@@ -64,7 +64,56 @@ public class ServerCFGHandler {
         } else {
             fileReader.close();
             bufferedReader_1.close();
+            updateConfigElement();
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void updateConfigElement() throws IOException, ParseException {
+        FileReader fileReader = new FileReader(getServerConfigFile());
+
+        JSONObject sourceElement = getSourceConfigElement();
+        if (sourceElement == null) return;
+        JSONObject targetElement = getValue();
+
+        FileOutputStream fileOutputStream = new FileOutputStream(getServerConfigFile());
+        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
+
+        sourceElement.keySet().forEach(key -> {
+            if (!targetElement.containsKey(key)) {
+                targetElement.putIfAbsent(key, sourceElement.get(key));
+            }
+        });
+
+        targetElement.keySet().removeIf(key -> !sourceElement.containsKey(key));
+
+        bufferedWriter.write(gson.toJson(targetElement));
+        bufferedWriter.close();
+        fileOutputStream.close();
+        fileReader.close();
+    }
+
+    private static JSONObject getSourceConfigElement() throws IOException, ParseException {
+        ServerCFGHandler serverCFGHandler = new ServerCFGHandler();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        InputStream inputStream = serverCFGHandler.classLoader.getResourceAsStream("resources/Server_Configuration.json");
+
+        if (inputStream == null) return null;
+
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        Object[] resourceData = bufferedReader.lines().toArray();
+
+        if (resourceData.length == 0) return null;
+
+        for (Object data : resourceData) {
+            stringBuilder.append(data);
+        }
+
+        bufferedReader.close();
+        inputStream.close();
+
+        return (JSONObject) jsonParser.parse(stringBuilder.toString());
     }
 
     private static void createNewFiles() throws IOException {
@@ -211,7 +260,7 @@ public class ServerCFGHandler {
                 case "iWaypoints-Cross_Dimension": {
                     if (value.equalsIgnoreCase("true")) {
                         if (!jsonObject.get(setting).equals("true")) {
-                            jsonObject.replace(setting, value.toLowerCase());
+                            jsonObject.replace(setting, Boolean.parseBoolean(value.toLowerCase()));
 
                             player.sendMessage(ChatColor.GREEN + "Cross Dimension for iWaypoints has been enabled!");
                             player.sendMessage(ChatColor.GREEN + "Server settings has been updated!");
@@ -220,12 +269,93 @@ public class ServerCFGHandler {
                         }
                     } else if (value.equalsIgnoreCase("false")) {
                         if (!jsonObject.get(setting).equals("false")) {
-                            jsonObject.replace(setting, value.toLowerCase());
+                            jsonObject.replace(setting, Boolean.parseBoolean(value.toLowerCase()));
 
                             player.sendMessage(ChatColor.GREEN + "Cross Dimension for iWaypoints has been disabled!");
                             player.sendMessage(ChatColor.GREEN + "Server settings has been updated!");
                         } else {
                             player.sendMessage(ChatColor.YELLOW + "Cross Dimension for iWaypoints already disabled!");
+                        }
+                    } else {
+                        SyntaxHandler.sendSyntax(player, 1);
+                    }
+                    break;
+                }
+
+                case "iCutter": {
+                    if (value.equalsIgnoreCase("true")) {
+                        if (!jsonObject.get(setting).equals("true")) {
+                            jsonObject.replace(setting, Boolean.parseBoolean(value.toLowerCase()));
+
+                            player.sendMessage(ChatColor.GREEN + "iCutter has been enabled!");
+                            player.sendMessage(ChatColor.GREEN + "Server settings has been updated!");
+                            player.sendMessage(ChatColor.YELLOW + "Please reload the server to apply the effect!");
+                        } else {
+                            player.sendMessage(ChatColor.YELLOW + "iCutter already enabled!");
+                        }
+                    } else  if (value.equalsIgnoreCase("false")) {
+                        if (!jsonObject.get(setting).equals("false")) {
+                            jsonObject.replace(setting, Boolean.parseBoolean(value.toLowerCase()));
+
+                            player.sendMessage(ChatColor.GREEN + "iCutter has been disabled!");
+                            player.sendMessage(ChatColor.GREEN + "Server settings has been updated!");
+                            player.sendMessage(ChatColor.YELLOW + "Please reload the server to apply the effect!");
+                        } else {
+                            player.sendMessage(ChatColor.YELLOW + "iCutter already disabled!");
+                        }
+                    } else {
+                        SyntaxHandler.sendSyntax(player, 1);
+                    }
+                    break;
+                }
+
+                case "iSmelter": {
+                    if (value.equalsIgnoreCase("true")) {
+                        if (!jsonObject.get(setting).equals("true")) {
+                            jsonObject.replace(setting, Boolean.parseBoolean(value.toLowerCase()));
+
+                            player.sendMessage(ChatColor.GREEN + "iSmelter has been enabled!");
+                            player.sendMessage(ChatColor.GREEN + "Server settings has been updated!");
+                            player.sendMessage(ChatColor.YELLOW + "Please reload the server to apply the effect!");
+                        } else {
+                            player.sendMessage(ChatColor.YELLOW + "iSmelter already enabled!");
+                        }
+                    } else if (value.equalsIgnoreCase("false")) {
+                        if (!jsonObject.get(setting).equals("false")) {
+                            jsonObject.replace(setting, Boolean.parseBoolean(value.toLowerCase()));
+
+                            player.sendMessage(ChatColor.GREEN + "iSmelter has been disabled!");
+                            player.sendMessage(ChatColor.GREEN + "Server settings has been updated!");
+                            player.sendMessage(ChatColor.YELLOW + "Please reload the server to apply the effect!");
+                        } else {
+                            player.sendMessage(ChatColor.YELLOW + "iSmelter already disabled!");
+                        }
+                    } else {
+                        SyntaxHandler.sendSyntax(player, 1);
+                    }
+                    break;
+                }
+
+                case "iHarvest": {
+                    if (value.equalsIgnoreCase("true")) {
+                        if (!jsonObject.get(setting).equals("true")) {
+                            jsonObject.replace(setting, Boolean.parseBoolean(value.toLowerCase()));
+
+                            player.sendMessage(ChatColor.GREEN + "iHarvest has been enabled!");
+                            player.sendMessage(ChatColor.GREEN + "Server settings has been updated!");
+                            player.sendMessage(ChatColor.YELLOW + "Please reload the server to apply the effect!");
+                        } else {
+                            player.sendMessage(ChatColor.YELLOW + "iHarvest already enabled!");
+                        }
+                    } else if (value.equalsIgnoreCase("false")) {
+                        if (!jsonObject.get(setting).equals("false")) {
+                            jsonObject.replace(setting, Boolean.parseBoolean(value.toLowerCase()));
+
+                            player.sendMessage(ChatColor.GREEN + "iHarvest has been disabled!");
+                            player.sendMessage(ChatColor.GREEN + "Server settings has been updated!");
+                            player.sendMessage(ChatColor.YELLOW + "Please reload the server to apply the effect!");
+                        } else {
+                            player.sendMessage(ChatColor.YELLOW + "iHarvest already disabled!");
                         }
                     } else {
                         SyntaxHandler.sendSyntax(player, 1);

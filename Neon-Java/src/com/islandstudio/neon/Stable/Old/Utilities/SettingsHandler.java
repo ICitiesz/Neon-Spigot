@@ -7,7 +7,7 @@ import com.google.gson.JsonParser;
 import com.islandstudio.neon.Stable.New.Utilities.NamespaceVersion;
 import com.islandstudio.neon.Experimental.PVPHandler;
 import com.islandstudio.neon.MainCore;
-import com.islandstudio.neon.Stable.New.Command.SyntaxHandler;
+import com.islandstudio.neon.Stable.New.iCommand.SyntaxHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;

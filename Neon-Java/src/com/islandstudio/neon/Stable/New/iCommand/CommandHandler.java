@@ -1,31 +1,21 @@
-package com.islandstudio.neon.Experimental.iCommand;
+package com.islandstudio.neon.Stable.New.iCommand;
 
 import com.islandstudio.neon.Experimental.GameModeHandler;
 import com.islandstudio.neon.Experimental.GameModes;
-import com.islandstudio.neon.Experimental.TestingArea;
-import com.islandstudio.neon.Experimental.iCutter.ICutter;
-import com.islandstudio.neon.Experimental.iCutter.WoodPlanks;
-import com.islandstudio.neon.Experimental.iExperimental.IExperimental;
+import com.islandstudio.neon.Stable.New.Utilities.iExperimental.IExperimental;
 import com.islandstudio.neon.MainCore;
-import com.islandstudio.neon.Stable.New.Command.SyntaxHandler;
-import com.islandstudio.neon.Stable.New.Utilities.INamespaceKeys;
-import com.islandstudio.neon.Stable.New.Utilities.NamespaceVersion;
 import com.islandstudio.neon.Stable.New.features.EffectsManager.EffectsManager;
 import com.islandstudio.neon.Stable.New.features.iWaypoints.IWaypoints;
 import com.islandstudio.neon.Stable.New.features.iRank.IRank;
 import com.islandstudio.neon.Stable.New.features.iRank.ServerRanks;
 import com.islandstudio.neon.Stable.New.Utilities.ProfileHandler;
 import com.islandstudio.neon.Stable.New.Utilities.ServerCFGHandler;
-import net.minecraft.server.v1_14_R1.RecipeStonecutting;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.StonecutterInventory;
 import org.bukkit.plugin.Plugin;
 import org.json.simple.parser.ParseException;
 
@@ -80,13 +70,17 @@ public class CommandHandler implements Listener, TabExecutor {
                 }
 
                 case EXPERIMENTAL: {
-                    if (commander.isOp()) {
-                        try {
-                            IExperimental.open(commander);
-                        } catch (IOException | ParseException e) {
-                            e.printStackTrace();
-                        }
+                    if (!commander.isOp()) {
+                        SyntaxHandler.sendSyntax(commander, 2);
+                        return;
                     }
+
+                    try {
+                        IExperimental.open(commander);
+                    } catch (IOException | ParseException e) {
+                        e.printStackTrace();
+                    }
+
                     break;
                 }
 
@@ -161,6 +155,12 @@ public class CommandHandler implements Listener, TabExecutor {
 
                                 case "TNT_Protection":
 
+                                case "iCutter":
+
+                                case "iSmelter":
+
+                                case "iHarvest":
+
                                 case "ChatLogging": {
                                     commander.sendMessage(ChatColor.YELLOW + "Please provide a value!");
                                     break;
@@ -194,12 +194,7 @@ public class CommandHandler implements Listener, TabExecutor {
                 }
 
                 case DEBUG: {
-                    if (!commander.getName().equalsIgnoreCase("ICities")) {
-                        commander.sendMessage(ChatColor.YELLOW + "Nothing to see here...");
-                        return;
-                    }
-                    Plugin plugin = MainCore.getPlugin(MainCore.class);
-
+                    commander.sendMessage(ChatColor.YELLOW + "Nothing to see here...");
                     break;
                 }
 
@@ -213,9 +208,6 @@ public class CommandHandler implements Listener, TabExecutor {
                         SyntaxHandler.sendSyntax(commander, 1);
                         return;
                     }
-
-                    
-
 
                     String option = args[1];
 
@@ -396,6 +388,12 @@ public class CommandHandler implements Listener, TabExecutor {
                                     case "PVP":
 
                                     case "ChatLogging" :
+
+                                    case "iCutter":
+
+                                    case "iSmelter":
+
+                                    case "iHarvest":
 
                                     case "iWaypoints-Cross_Dimension": {
                                         values.add("true");

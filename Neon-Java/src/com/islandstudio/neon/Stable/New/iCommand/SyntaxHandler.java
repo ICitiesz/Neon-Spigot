@@ -1,4 +1,4 @@
-package com.islandstudio.neon.Stable.New.Command;
+package com.islandstudio.neon.Stable.New.iCommand;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

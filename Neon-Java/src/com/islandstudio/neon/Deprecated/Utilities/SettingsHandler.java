@@ -2,7 +2,7 @@ package com.islandstudio.neon.Deprecated.Utilities;
 
 import com.google.gson.*;
 import com.islandstudio.neon.Experimental.PVPHandler;
-import com.islandstudio.neon.Stable.New.Command.SyntaxHandler;
+import com.islandstudio.neon.Stable.New.iCommand.SyntaxHandler;
 import com.islandstudio.neon.Stable.Old.Initialization.FolderManager.FolderList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

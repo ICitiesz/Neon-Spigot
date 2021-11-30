@@ -4,7 +4,7 @@ import com.islandstudio.neon.Experimental.GlowingConfiguration;
 import com.islandstudio.neon.Experimental.InvisibleConfiguration;
 import com.islandstudio.neon.Experimental.LastDeadLocation;
 import com.islandstudio.neon.Experimental.ReflectedClass;
-import com.islandstudio.neon.Stable.New.Command.SyntaxHandler;
+import com.islandstudio.neon.Stable.New.iCommand.SyntaxHandler;
 import com.islandstudio.neon.MainCore;
 import net.minecraft.server.v1_16_R3.EntityPlayer;
 import org.bukkit.Bukkit;

@@ -1,4 +1,4 @@
-package com.islandstudio.neon.Experimental.iExperimental;
+package com.islandstudio.neon.Stable.New.Utilities.iExperimental;
 
 import com.islandstudio.neon.Stable.New.features.GUI.Initialization.GUIConstructor;
 import com.islandstudio.neon.Stable.New.features.GUI.Initialization.GUIUtility;

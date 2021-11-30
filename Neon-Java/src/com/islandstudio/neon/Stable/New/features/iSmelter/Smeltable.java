@@ -1,4 +1,4 @@
-package com.islandstudio.neon.Experimental.iSmelter;
+package com.islandstudio.neon.Stable.New.features.iSmelter;
 
 import org.bukkit.Material;
 

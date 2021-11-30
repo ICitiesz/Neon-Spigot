@@ -1,7 +1,6 @@
-package com.islandstudio.neon.Experimental.iHarvest;
+package com.islandstudio.neon.Stable.New.features.iHarvest;
 
-import com.islandstudio.neon.Experimental.iExperimental.IExperimental;
-import org.bukkit.Bukkit;
+import com.islandstudio.neon.Stable.New.Utilities.ServerCFGHandler;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -11,8 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
@@ -22,7 +19,7 @@ public class IHarvest {
     private static final ArrayList<Player> players = new ArrayList<>();
 
     public static void addPlayer(Player player) throws IOException, ParseException {
-        boolean isEnabled = (boolean) ((JSONObject) ((JSONArray) IExperimental.getClient().get("iHarvest")).get(0)).get("is_enabled");
+        boolean isEnabled = (Boolean) ServerCFGHandler.getValue().get("iHarvest");
 
         if (isEnabled) {
             if (!players.contains(player)) {

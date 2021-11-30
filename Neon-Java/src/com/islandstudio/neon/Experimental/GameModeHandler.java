@@ -1,7 +1,7 @@
 package com.islandstudio.neon.Experimental;
 
-import com.islandstudio.neon.Experimental.iCommand.CommandHandler;
-import com.islandstudio.neon.Stable.New.Command.SyntaxHandler;
+import com.islandstudio.neon.Stable.New.iCommand.CommandHandler;
+import com.islandstudio.neon.Stable.New.iCommand.SyntaxHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;

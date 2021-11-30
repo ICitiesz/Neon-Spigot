@@ -2,7 +2,7 @@ package com.islandstudio.neon.Deprecated.Command;
 
 import com.islandstudio.neon.Experimental.GameModes;
 import com.islandstudio.neon.Experimental.GameModeHandler;
-import com.islandstudio.neon.Stable.New.Command.SyntaxHandler;
+import com.islandstudio.neon.Stable.New.iCommand.SyntaxHandler;
 import com.islandstudio.neon.Stable.New.Utilities.ProfileHandler;
 import com.islandstudio.neon.Stable.New.Utilities.ServerCFGHandler;
 import com.islandstudio.neon.Stable.New.features.iRank.ServerRanks;

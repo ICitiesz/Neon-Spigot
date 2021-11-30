@@ -2,5 +2,8 @@
   "ChatLogging": true,
   "TNT_Protection": 0,
   "PVP": true,
-  "iWaypoints-Cross_Dimension": false
+  "iWaypoints-Cross_Dimension": false,
+  "iCutter": true,
+  "iSmelter": true,
+  "iHarvest": true
 }

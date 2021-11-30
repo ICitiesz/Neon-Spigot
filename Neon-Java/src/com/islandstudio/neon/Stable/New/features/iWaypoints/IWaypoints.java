@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.islandstudio.neon.Stable.New.features.GUI.Initialization.GUIUtilityHandler;
 import com.islandstudio.neon.Stable.New.Initialization.FolderManager.FolderList;
-import com.islandstudio.neon.Stable.New.Command.SyntaxHandler;
+import com.islandstudio.neon.Stable.New.iCommand.SyntaxHandler;
 import org.bukkit.*;
 
 import org.bukkit.entity.Player;

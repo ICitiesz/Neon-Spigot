@@ -1,11 +1,10 @@
 package com.islandstudio.neon.Stable.New.Initialization;
 
-import com.islandstudio.neon.Experimental.iCommand.CommandHandler;
+import com.islandstudio.neon.Stable.New.iCommand.CommandHandler;
 import com.islandstudio.neon.Experimental.PVPHandler;
-import com.islandstudio.neon.Experimental.iCutter.ICutter;
-import com.islandstudio.neon.Experimental.iExperimental.IExperimental;
-import com.islandstudio.neon.Experimental.iHarvest.IHarvest;
-import com.islandstudio.neon.Experimental.iSmelter.ISmelter;
+import com.islandstudio.neon.Stable.New.features.iCutter.ICutter;
+import com.islandstudio.neon.Stable.New.Utilities.iExperimental.IExperimental;
+import com.islandstudio.neon.Stable.New.features.iSmelter.ISmelter;
 import com.islandstudio.neon.MainCore;
 import com.islandstudio.neon.Stable.New.Event.EventCore;
 import com.islandstudio.neon.Stable.New.Utilities.NamespaceVersion;
@@ -80,7 +79,7 @@ public final class PluginConstructor {
     public static void sendIntro() {
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|---------------== Neon v1.9-pre_4 ==---------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|------------------== Neon v1.9 ==------------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------===" + ChatColor.GREEN + " <Started> " + ChatColor.GOLD + "===-----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
@@ -89,7 +88,7 @@ public final class PluginConstructor {
     public static void sendOutro() {
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|---------------== Neon v1.9-pre_4 ==---------------|");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|------------------== Neon v1.9 ==------------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------===" + ChatColor.RED + " <Stopped> " + ChatColor.GOLD + "===-----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|-----------------=================-----------------|");
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "|+++++++++++++++++=================+++++++++++++++++|");

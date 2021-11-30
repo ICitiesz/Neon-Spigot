@@ -1,4 +1,4 @@
-package com.islandstudio.neon.Experimental.iCutter;
+package com.islandstudio.neon.Stable.New.features.iCutter;
 
 import org.bukkit.Material;
 

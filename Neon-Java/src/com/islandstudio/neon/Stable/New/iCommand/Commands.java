@@ -1,4 +1,4 @@
-package com.islandstudio.neon.Experimental.iCommand;
+package com.islandstudio.neon.Stable.New.iCommand;
 
 public enum Commands {
     WAYPOINTS("waypoints"),

@@ -1,6 +1,6 @@
 name: Neon
 author: ICities
-version: '1.9-pre_4'
+version: '1.9'
 api-version: '1.14'
 depend: []
 softdepend: []

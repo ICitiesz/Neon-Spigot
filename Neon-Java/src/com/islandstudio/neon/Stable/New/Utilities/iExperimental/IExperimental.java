@@ -1,12 +1,11 @@
-package com.islandstudio.neon.Experimental.iExperimental;
+package com.islandstudio.neon.Stable.New.Utilities.iExperimental;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.islandstudio.neon.Experimental.iCommand.CommandHandler;
+import com.islandstudio.neon.Stable.New.iCommand.CommandHandler;
 import com.islandstudio.neon.Stable.New.features.GUI.Initialization.GUIUtilityHandler;
 import com.islandstudio.neon.Stable.New.Initialization.FolderManager.FolderHandler;
 import com.islandstudio.neon.Stable.New.Initialization.FolderManager.FolderList;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.json.simple.JSONArray;
@@ -82,7 +81,7 @@ public class IExperimental {
 
     /* Update the content of iExperimental.json if any experimental feature added or removed. */
     @SuppressWarnings("unchecked")
-    private static void update() throws IOException, ParseException {
+    private static void update() throws IOException {
         FileReader fileReader = new FileReader(getFile());
         IExperimental iExperimental = new IExperimental();
 
@@ -125,14 +124,7 @@ public class IExperimental {
             fileOutputStream.close();
             fileReader.close();
         } catch (ParseException e) {
-            fileReader.close();
-
-            boolean delete = getFile().delete();
-
-            // Temporary error message
-            Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GRAY + "[Neon] " + ChatColor.RED + "File corruption found: iExperiment.json");
-            init();
-            Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GRAY + "[Neon] " + ChatColor.RED + "File recreated: iExperiment.json");
+            e.printStackTrace();
         }
     }
 
