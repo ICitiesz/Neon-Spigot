@@ -39,7 +39,6 @@ public class IExperimental {
         fileReader.close();
         bufferedReader_1.close();
 
-
         /* Check if the target file is empty. */
         if (targetDataLength == 0) {
             InputStream inputStream = new IExperimental().classLoader.getResourceAsStream("resources/iExperimental.json");

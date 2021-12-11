@@ -306,6 +306,11 @@ public class IWaypoints {
             switch (args.length) {
                 case 1: {
                     try {
+                        if (getWaypointData().size() == 0 ) {
+                            player.sendMessage(ChatColor.YELLOW + "There are currently no waypoints!");
+                            return;
+                        }
+
                         waypointData.put(player.getUniqueId().toString(), getWaypointData());
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -318,6 +323,10 @@ public class IWaypoints {
                 case 2: {
                     if (args[1].equalsIgnoreCase("remove")) {
                         try {
+                            if (getWaypointData().size() == 0 ) {
+                                player.sendMessage(ChatColor.YELLOW + "There are currently no waypoints!");
+                                return;
+                            }
                             waypointData.put(player.getUniqueId().toString(), getWaypointData());
                         } catch (Exception e) {
                             e.printStackTrace();
