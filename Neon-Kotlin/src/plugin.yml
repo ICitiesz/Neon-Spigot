@@ -1,0 +1,13 @@
+name: Neon
+author: ICities
+version: '1.10-pre_1'
+api-version: '1.17'
+depend: []
+softdepend: []
+main: com.islandstudio.neon.Main
+description: Plugin for Spigot server
+
+commands:
+  neon:
+    usage: /<command>
+    description: Command prefix.
