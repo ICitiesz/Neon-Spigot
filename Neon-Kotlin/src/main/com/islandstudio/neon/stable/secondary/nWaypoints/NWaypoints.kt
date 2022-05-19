@@ -2,7 +2,7 @@ package com.islandstudio.neon.stable.secondary.nWaypoints
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.islandstudio.neon.Main
+import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nCommand.NCommand
@@ -60,7 +60,9 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
         private val jsonParser: JSONParser = JSONParser()
         private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 
-        /* Initialization */
+        /**
+         * Initialize the nWaypoints.
+         */
         fun run() {
             createNewFiles()
 
@@ -91,7 +93,16 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             }
         }
 
-        /* Teleport operation */
+        /**
+         * Teleport the player to the selected waypoint.
+         *
+         * @param player The player to teleport. (Player)
+         * @param location Player's location. (Location)
+         * @param goldWaypoint The waypoint name. (String)
+         * @param posX The X coordinate of the waypoint. (Int)
+         * @param posY The Y coordinate of the waypoint. (Int)
+         * @param posZ The Z coordinate of the waypoint. (Int)
+         */
         fun teleportToWaypoint(player: Player, location: Location, goldWaypoint: String, posX: Int, posY: Int, posZ: Int) {
             player.spawnParticle(Particle.PORTAL, player.location, 700)
             player.teleport(location)
@@ -104,7 +115,13 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             )
         }
 
-        /* Set command handling */
+        /**
+         * Set command handler for the nWaypoints.
+         *
+         * @param commander The player who executed the command. (Player)
+         * @param args The command arguments. (String)
+         * @param pluginName The plugin name. (String)
+         */
         fun setCommandHandler(commander: Player, args: Array<out String>, pluginName: String) {
             if (commander.isSleeping) {
                 commander.sendMessage(CommandSyntax.createSyntaxMessage(
@@ -192,7 +209,13 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             }
         }
 
-        /* Set tab completion */
+        /**
+         * Set tab completion for the nWaypoints.
+         *
+         * @param commander The player who executed the command. (Player)
+         * @param args The arguments of the command. (String[])
+         * @return A list of tab completion. (List<String>)
+         */
         fun tabCompletion(commander: Player, args: Array<out String>): MutableList<String>? {
             when (args.size) {
                 2 -> {
@@ -322,7 +345,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             var isClicked: Boolean = false // isClicked is used to remove the player from nGUIContainer
         }
 
-        private val plugin: Plugin = getPlugin(Main::class.java)
+        private val plugin: Plugin = getPlugin(Neon::class.java)
         private val player: Player = nGUI.getGUIOwner()
 
         override fun getGUIName(): String {
@@ -479,7 +502,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             var removalContainer: MutableMap<String, MutableSet<String>> = HashMap()
         }
 
-        private val plugin: Plugin = getPlugin(Main::class.java)
+        private val plugin: Plugin = getPlugin(Neon::class.java)
         private val player: Player = nGUI.getGUIOwner()
 
         override fun getGUIName(): String {

@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.secondary.nCutter
 
-import com.islandstudio.neon.Main
+import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -10,9 +10,11 @@ import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin.getPlugin
 
 object NCutter {
-    private val plugin: Plugin = getPlugin(Main::class.java)
+    private val plugin: Plugin = getPlugin(Neon::class.java)
 
-    /* Initialization */
+    /**
+     * Initializes the nCutter.
+     */
     fun run() {
         if (NServerConfiguration.Handler.getServerConfig()["nCutter"] == false) return
 

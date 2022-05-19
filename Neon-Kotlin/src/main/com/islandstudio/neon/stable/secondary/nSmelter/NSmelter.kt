@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.secondary.nSmelter
 
-import com.islandstudio.neon.Main
+import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -12,9 +12,11 @@ import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin.getPlugin
 
 object NSmelter {
-    private val plugin: Plugin = getPlugin(Main::class.java)
+    private val plugin: Plugin = getPlugin(Neon::class.java)
 
-    /* Initialization */
+    /**
+     * Initializes the nSmelter.
+     */
     fun run() {
         if (NServerConfiguration.Handler.getServerConfig()["nSmelter"] == false) return
 
@@ -28,7 +30,7 @@ object NSmelter {
 
 
             val result = ItemStack(resultMaterial)
-            var namespacedKey: NamespacedKey = NamespacedKey(plugin, "neon_${result.type.name.lowercase()}")
+            var namespacedKey = NamespacedKey(plugin, "neon_${result.type.name.lowercase()}")
 
             val recipes: List<Recipe> = plugin.server.getRecipesFor(ItemStack(resultMaterial))
 
@@ -63,6 +65,11 @@ object NSmelter {
         }
     }
 
+    /**
+     * Gets the smeltable items.
+     *
+     * @return The smeltable items. (Map<String, ArrayList<Material>>)
+     */
     private fun getSmeltableItems(): MutableMap<String, ArrayList<Material?>> {
         val combinedSmeltableItems: MutableMap<String, ArrayList<Material?>> = HashMap()
 

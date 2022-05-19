@@ -1,5 +1,6 @@
 package com.islandstudio.neon.stable.utils
 
+import com.islandstudio.neon.stable.primary.nCommand.NCommand
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket
 import net.minecraft.server.level.ServerPlayer
@@ -13,27 +14,41 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 
 object ServerHandler {
-    // Future Improvement: TODO: Add a prefix '[Neon]' to the front of join and quit messages
-
+    /**
+     * Broadcast join message to all players when a player join the server.
+     *
+     * @param e PlayerJoinEvent
+     */
     fun broadcastJoinMessage(e: PlayerJoinEvent) {
         val player: Player = e.player
         val server: Server = player.server
 
         e.joinMessage = ""
 
-        server.broadcastMessage(ChatColor.GOLD.toString() + "Welcome back, " + ChatColor.GREEN + player.name + ChatColor.GOLD + "!")
-        server.broadcastMessage(ChatColor.GREEN.toString() + "" + server.onlinePlayers.size + ChatColor.GOLD + " of " + ChatColor.RED + Bukkit.getMaxPlayers() + ChatColor.GOLD + " player(s) Online!")
+        server.broadcastMessage("${NCommand.getPluginName()} ${ChatColor.GOLD}Welcome back, ${ChatColor.GREEN}${player.name}${ChatColor.GOLD}!")
+        server.broadcastMessage("${NCommand.getPluginName()} ${ChatColor.GREEN}${server.onlinePlayers.size}${ChatColor.GOLD} of ${ChatColor.RED}${server.maxPlayers}${ChatColor.GOLD} player(s) Online!")
     }
 
+
+    /**
+     * Broadcast quit message to all players when a player quit the server.
+     *
+     * @param e PlayerQuitEvent
+     */
     fun broadcastQuitMessage(e: PlayerQuitEvent) {
         val player: Player = e.player
         val server: Server = player.server
 
         e.quitMessage = ""
 
-        server.broadcastMessage(ChatColor.GREEN.toString() + player.name + ChatColor.GOLD + " left," + ChatColor.GREEN + " " + (server.onlinePlayers.size - 1) + ChatColor.GOLD + " other(s) here!")
+        server.broadcastMessage("${NCommand.getPluginName()} ${ChatColor.GREEN}${player.name}${ChatColor.GOLD} left, ${ChatColor.GREEN}${server.onlinePlayers.size - 1}${ChatColor.GOLD} other(s) here!")
     }
 
+    /**
+     * Update player recipes once the server reloaded.
+     *
+     * @param player The player to update the recipes for. (Player)
+     */
     @Suppress("UNCHECKED_CAST")
     fun updateRecipe(player: Player) {
         val handle: Any = player.javaClass.getMethod("getHandle").invoke(player)!!

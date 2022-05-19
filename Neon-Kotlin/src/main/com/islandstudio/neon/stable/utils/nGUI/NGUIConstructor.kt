@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.utils.nGUI
 
-import com.islandstudio.neon.Main
+import com.islandstudio.neon.Neon
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
@@ -8,7 +8,7 @@ import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin.getPlugin
 
 abstract class NGUIConstructor(protected val nGUI: NGUI): InventoryHolder {
-    private val plugin: Plugin = getPlugin(Main::class.java)
+    private val plugin: Plugin = getPlugin(Neon::class.java)
 
     private lateinit var inventory: Inventory
 

@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.secondary.nRank
 
-import com.islandstudio.neon.Main
+import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nProfile.NProfile
 import net.minecraft.network.chat.ChatType
@@ -17,10 +17,12 @@ import org.bukkit.scoreboard.Team
 import java.util.*
 
 object NRank {
-    private val plugin: Plugin = getPlugin(Main::class.java)
+    private val plugin: Plugin = getPlugin(Neon::class.java)
     private val scoreboard: Scoreboard = plugin.server.scoreboardManager!!.newScoreboard
 
-    /* Initialization */
+    /**
+     * Initializes the nRank.
+     */
     fun run() {
         for (ranks in RankList.values()) {
             val team: Team = scoreboard.registerNewTeam(ranks.name)
@@ -28,7 +30,9 @@ object NRank {
         }
     }
 
-    /* Update tag */
+    /**
+     * Updates the rank tag of the player.
+     */
     fun updateTag() {
         plugin.server.onlinePlayers.forEach { target ->
             val playerProfile = NProfile(target)
@@ -41,7 +45,14 @@ object NRank {
         }
     }
 
-    /* Send message with rank prefix in front of player name */
+    /**
+     * Add rank prefix in front of their name in the chat.
+     *
+     * @param player The player who sent the message. (Player)
+     * @param message The message was sent. (String)
+     *
+     * @return The message with the rank prefix in front of the player's name. (String)
+     */
     fun sendMessage(player: Player, message: String) {
         val rank: String = NProfile.Handler.getProfileData(player)["Rank"] as String
 
@@ -52,7 +63,13 @@ object NRank {
         }
     }
 
-    /* Set command handler to handle the command execution */
+    /**
+     * Sets the command handler to handle the command execution.
+     *
+     * @param commander The player who execute the command. (Player)
+     * @param args The arguments in the command. (String)
+     * @param pluginName The plugin name that used in the plugin message. (String)
+     */
     fun setCommandHandler(commander: Player, args: Array<out String>, pluginName: String) {
         if (!commander.isOp) {
             commander.sendMessage(pluginName + ChatColor.RED.toString() + "You don't have permission to execute this command!")
@@ -106,6 +123,14 @@ object NRank {
         }
     }
 
+    /**
+     * Handle the tab completion for the command.
+     *
+     * @param player The player who execute the command. (Player)
+     * @param args The arguments in the command. (String)
+     *
+     * @return The list of tab completion. (List<String>)
+     */
     fun tabCompletion(player: Player, args: Array<out String>): MutableList<String>? {
         if (!player.isOp) return null
 
@@ -130,7 +155,14 @@ object NRank {
         return null
     }
 
-    /* Set player rank */
+    /**
+     * Set the player rank.
+     *
+     * @param commander The player who execute the command. (Player)
+     * @param rankName The rank name. (String)
+     * @param playerName The player name to set. (String)
+     * @param pluginName The plugin name that used in the plugin message. (String)
+     */
     private fun setPlayerRank(commander: Player, rankName: String, playerName:String, pluginName: String) {
         val target: Player = plugin.server.getPlayer(playerName)!!
 
@@ -156,6 +188,13 @@ object NRank {
     }
 
     /* Remove player rank */
+    /**
+     * Remove the player rank.
+     *
+     * @param commander The player who execute the command. (Player)
+     * @param playerName The player name to remove the rank. (String)
+     * @param pluginName The plugin name that used in the plugin message. (String)
+     */
     private fun removePlayerRank(commander: Player, playerName: String, pluginName: String) {
         val target: Player = plugin.server.getPlayer(playerName)!!
         val playerRank: String = NProfile.Handler.getProfileData(target)["Rank"] as String
@@ -172,7 +211,13 @@ object NRank {
         target.sendMessage(pluginName + ChatColor.RED + "Your '" + ChatColor.GRAY + playerRank.uppercase() + ChatColor.RED + "' rank has been removed!")
     }
 
-    /* Process message with rank prefix in front of player name */
+    /**
+     * Process message with rank prefix in front of player name.
+     *
+     * @param rank The rank name. (String)
+     * @param message The message to process. (String)
+     * @param onlinePlayers The online players. (Player)
+     */
     private fun processMessage(rank: String, playerName: String, message: String, onlinePlayers: Player) {
         val messagePacket = ClientboundChatPacket(
             Component.Serializer.fromJson("{\"text\":\"$rank${ChatColor.WHITE}$playerName${ChatColor.GRAY} > ${ChatColor.WHITE}${messageFilter(message)}\"}"),
@@ -193,7 +238,13 @@ object NRank {
         }
     }
 
-    /* Filter out some characters in the message to avoid parsing error */
+    /**
+     * Filter out some characters in the message to avoid parsing error.
+     *
+     * @param message The message to filter. (String)
+     *
+     * @return The filtered message. (String)
+     */
     private fun messageFilter(message: String): String {
         val subStr: MutableMap<Int, String> = TreeMap()
         val stringBuilder: StringBuilder = StringBuilder()

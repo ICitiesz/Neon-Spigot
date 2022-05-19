@@ -1,6 +1,7 @@
 package com.islandstudio.neon.stable.primary.nCommand
 
-import com.islandstudio.neon.Main
+import com.islandstudio.neon.Neon
+import com.islandstudio.neon.experimental.nDisguise.NDisguise
 import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.stable.primary.nExperimental.NExperimental
 import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
@@ -22,13 +23,18 @@ class NCommand: Listener, TabExecutor {
         var isModerating: Boolean = false
 
         private const val COMMAND_PREFIX: String = "neon"
-        private val pluginName: String = ChatColor.WHITE.toString() + "[" + ChatColor.AQUA + "Neon" + ChatColor.WHITE + "] "
-        private val plugin: Plugin = getPlugin(Main::class.java)
+        private val pluginName: String = "${ChatColor.WHITE}[${ChatColor.AQUA}Neon${ChatColor.WHITE}]"
+        private val plugin: Plugin = getPlugin(Neon::class.java)
 
         fun run() {
             (plugin.server.getPluginCommand(COMMAND_PREFIX))?.setExecutor(NCommand())
         }
 
+        /**
+         * Return the plugin name that used in the plugin message.
+         *
+         * @return The plugin name. (String)
+         */
         fun getPluginName(): String {
             return pluginName
         }
@@ -66,7 +72,31 @@ class NCommand: Listener, TabExecutor {
                     commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
                     return true
                 }
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("There is nothing here :D"))
+
+                NDisguise.test(commander)
+                NDisguise.testPacket(commander)
+
+                //commander.sendMessage(CommandSyntax.createSyntaxMessage("There is nothing here :D"))
+
+//                val testRunnable: ArrayList<String> = ArrayList()
+//                testRunnable.add("1")
+//                testRunnable.add("2")
+//                testRunnable.add("3")
+//                testRunnable.add("4")
+//                testRunnable.add("5")
+//                testRunnable.add("6")
+//                testRunnable.add("7")
+//                testRunnable.add("8")
+//                testRunnable.add("9")
+//                testRunnable.add("10")
+//
+//                for (i in 0 until testRunnable.size) {
+//                    val percentage = (i + 1) * 100 / testRunnable.size
+//                    println("$percentage%")
+//                    Thread.sleep(1000)
+//                }
+
+
                 return true
             }
 

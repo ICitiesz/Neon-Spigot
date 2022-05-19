@@ -15,6 +15,11 @@ import org.bukkit.inventory.ItemStack
 object NHarvest {
     private val players: MutableSet<Player> = HashSet()
 
+    /**
+     * Add player to the set of players that can harvest
+     *
+     * @param player Player to add. (Player)
+     */
     fun addPlayer(player: Player) {
         if (NServerConfiguration.Handler.getServerConfig()["nHarvest"] == true) {
             if (!players.contains(player)) {
@@ -28,10 +33,20 @@ object NHarvest {
         }
     }
 
+    /**
+     * Remove player from the set of players that can harvest
+     *
+     * @param player Player to remove. (Player)
+     */
     fun removePlayer(player: Player) {
         players.remove(player)
     }
 
+    /**
+     * Set the event handler for the nHarvest.
+     *
+     * @param e PlayerInteractEvent. (PlayerInteractEvent)
+     */
     fun setEventHandler(e: PlayerInteractEvent) {
         if (!players.contains(e.player)) return
 
@@ -68,6 +83,13 @@ object NHarvest {
 
     }
 
+    /**
+     * Harvest the crops.
+     *
+     * @param block Block to harvest. (Block)
+     * @param heldItem Item in hand. (ItemStack)
+     * @param hasItem True if the player has an item in hand. (Boolean)
+     */
     private fun harvest(block: Block, heldItem: ItemStack?, hasItem: Boolean) {
         var unplantable: ItemStack? = null
         var plantable: ItemStack? = null

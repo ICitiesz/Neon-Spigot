@@ -38,6 +38,9 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
         private val jsonParser: JSONParser = JSONParser()
 
         /* Initialization */
+        /**
+         * Initialize the nExperimental.
+         */
         fun run() {
             createNewFiles()
 

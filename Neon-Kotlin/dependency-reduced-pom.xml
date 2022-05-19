@@ -85,7 +85,7 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot</artifactId>
-      <version>1.18.1-R0.1-SNAPSHOT</version>
+      <version>1.18.2-R0.1-SNAPSHOT</version>
       <classifier>remapped-mojang</classifier>
       <scope>provided</scope>
       <exclusions>
@@ -123,6 +123,10 @@
         </exclusion>
         <exclusion>
           <artifactId>javabridge</artifactId>
+          <groupId>com.mojang</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>logging</artifactId>
           <groupId>com.mojang</groupId>
         </exclusion>
         <exclusion>
@@ -186,7 +190,7 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.18.1-R0.1-SNAPSHOT</version>
+      <version>1.18.2-R0.1-SNAPSHOT</version>
       <classifier>shaded</classifier>
       <scope>provided</scope>
       <exclusions>
@@ -212,10 +216,42 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-maven-plugin</artifactId>
+      <version>1.6.21</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>maven-core</artifactId>
+          <groupId>org.apache.maven</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>maven-plugin-api</artifactId>
+          <groupId>org.apache.maven</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>maven-plugin-annotations</artifactId>
+          <groupId>org.apache.maven.plugin-tools</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>kotlin-compiler</artifactId>
+          <groupId>org.jetbrains.kotlin</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>kotlin-scripting-compiler</artifactId>
+          <groupId>org.jetbrains.kotlin</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
   <properties>
     <maven.compiler.target>16</maven.compiler.target>
-    <kotlin.version>1.6.10</kotlin.version>
+    <kotlin.version>1.6.21</kotlin.version>
     <maven.compiler.source>16</maven.compiler.source>
     <kotlin.compiler.jvmTarget>16</kotlin.compiler.jvmTarget>
   </properties>

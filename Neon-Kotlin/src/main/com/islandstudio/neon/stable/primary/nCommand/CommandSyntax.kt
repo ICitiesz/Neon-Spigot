@@ -8,9 +8,13 @@ enum class CommandSyntax(val syntaxMessage: String) {
     INVALID_RANK("${NCommand.getPluginName()}${ChatColor.RED}You need higher rank to use this command!");
 
     companion object {
-        /* Create custom syntax message. */
+        /**
+         * Create custom syntax message
+         *
+         * @param syntaxMessage The custom syntax message including the plugin name
+         */
         fun createSyntaxMessage(syntaxMessage: String): String {
-            return "${NCommand.getPluginName()}$syntaxMessage"
+            return "${NCommand.getPluginName()} $syntaxMessage"
         }
     }
 }

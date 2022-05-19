@@ -1,6 +1,6 @@
 package com.islandstudio.neon.experimental.nEffect
 
-import com.islandstudio.neon.Main
+import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nProfile.NProfile
 import org.bukkit.ChatColor
@@ -17,10 +17,9 @@ import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin.getPlugin
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
-import org.jetbrains.annotations.Nullable
 
 object NEffect: Listener {
-    private val plugin: Plugin = getPlugin(Main::class.java)
+    private val plugin: Plugin = getPlugin(Neon::class.java)
 
     /* Inventory name */
     private val inventoryName: String = "${ChatColor.GREEN}nEffect"
