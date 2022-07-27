@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
-        <kotlin.version>1.6.21</kotlin.version>
+        <kotlin.version>1.7.10</kotlin.version>
         <kotlin.compiler.jvmTarget>16</kotlin.compiler.jvmTarget>
     </properties>
 
@@ -19,6 +19,11 @@
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
@@ -29,13 +34,13 @@
             <version>${kotlin.version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.spigotmc</groupId>-->
-<!--            <artifactId>spigot</artifactId>-->
-<!--            <version>1.17.1-R0.1-SNAPSHOT</version>-->
-<!--            <classifier>remapped-mojang</classifier>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <classifier>shaded</classifier>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -45,19 +50,26 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.18.2-R0.1-SNAPSHOT</version>
-            <classifier>shaded</classifier>
-            <scope>provided</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.spigotmc</groupId>-->
+<!--            <artifactId>spigot-api</artifactId>-->
+<!--            <version>1.18.2-R0.1-SNAPSHOT</version>-->
+<!--            <classifier>shaded</classifier>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-maven-plugin</artifactId>
-            <version>1.6.21</version>
+            <version>1.7.10</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>me.carleslc.Simple-YAML</groupId>
+            <artifactId>Simple-Yaml</artifactId>
+            <version>1.8</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -70,6 +82,7 @@
                 <includes>
                     <include>plugin.yml</include>
                     <include>**/*.json</include>
+                    <include>**/*.yml</include>
                 </includes>
             </resource>
         </resources>
