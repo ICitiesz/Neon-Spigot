@@ -1,9 +1,12 @@
 package com.islandstudio.neon.stable.secondary.nSmelter
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.experimental.nServerConfigurationNew.NServerConfigurationNew
+import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.event.Listener
 import org.bukkit.inventory.BlastingRecipe
 import org.bukkit.inventory.FurnaceRecipe
 import org.bukkit.inventory.ItemStack
@@ -18,7 +21,7 @@ object NSmelter {
      * Initializes the nSmelter.
      */
     fun run() {
-        if (NServerConfiguration.Handler.getServerConfig()["nSmelter"] == false) return
+        if (!NServerConfigurationNew.getToggle("nCutter")) return
 
         getSmeltableItems().keys.forEach { key ->
             var furnaceRecipe: FurnaceRecipe? = null
@@ -85,5 +88,4 @@ object NSmelter {
 
         return combinedSmeltableItems
     }
-
 }

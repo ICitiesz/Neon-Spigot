@@ -1,10 +1,11 @@
 package com.islandstudio.neon.stable.primary.nCommand
 
-import com.islandstudio.neon.Neon
-import com.islandstudio.neon.experimental.nDisguise.NDisguise
 import com.islandstudio.neon.experimental.nEffect.NEffect
+import com.islandstudio.neon.experimental.nServerConfigurationNew.NServerConfigurationNew
+import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nExperimental.NExperimental
 import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
+import com.islandstudio.neon.stable.secondary.nHarvest.NHarvest
 import com.islandstudio.neon.stable.secondary.nRank.NRank
 import com.islandstudio.neon.stable.secondary.nWaypoints.NWaypoints
 import org.bukkit.ChatColor
@@ -15,7 +16,6 @@ import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
-import org.bukkit.plugin.java.JavaPlugin.getPlugin
 
 class NCommand: Listener, TabExecutor {
 
@@ -24,7 +24,7 @@ class NCommand: Listener, TabExecutor {
 
         private const val COMMAND_PREFIX: String = "neon"
         private val pluginName: String = "${ChatColor.WHITE}[${ChatColor.AQUA}Neon${ChatColor.WHITE}]"
-        private val plugin: Plugin = getPlugin(Neon::class.java)
+        private val plugin: Plugin = NConstructor.plugin
 
         fun run() {
             (plugin.server.getPluginCommand(COMMAND_PREFIX))?.setExecutor(NCommand())
@@ -42,8 +42,7 @@ class NCommand: Listener, TabExecutor {
 
     override fun onCommand(sender: CommandSender, cmd: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) {
-            sender.sendMessage(pluginName + ChatColor.RED + "This command doesn't support console execution!")
-            plugin.server.consoleSender.sendMessage()
+            plugin.server.consoleSender.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}This command doesn't support console execution!"))
             return true
         }
 
@@ -52,59 +51,63 @@ class NCommand: Listener, TabExecutor {
         if (!cmd.name.equals(COMMAND_PREFIX, true)) return true
 
         if (args.isEmpty()) {
-            commander.sendMessage(pluginName + ChatColor.YELLOW + "Please type '/neon help <pageNumber>' to show all the available commands!")
+            commander.sendMessage(CommandSyntax.createSyntaxMessage(
+                "${ChatColor.YELLOW}Please type '/neon help <pageNumber>' to show all the available commands!"))
             return true
         }
 
         when (args[0].lowercase()) {
-            Commands.RANK.name.lowercase() -> {
+            Commands.RANK.commandAlias -> {
                 NRank.setCommandHandler(commander, args, pluginName)
                 return true
             }
 
-            Commands.WAYPOINTS.name.lowercase() -> {
-                NWaypoints.Handler.setCommandHandler(commander, args, pluginName)
+            Commands.WAYPOINTS.commandAlias -> {
+                NWaypoints.Handler.setCommandHandler(commander, args)
                 return true
             }
 
-            Commands.DEBUG.name.lowercase() -> {
+            Commands.DEBUG.commandAlias -> {
                 if (!commander.isOp) {
                     commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
                     return true
                 }
 
-                NDisguise.test(commander)
-                NDisguise.testPacket(commander)
+//                NDisguise.test(comm
+//                ander)
+//                NDisguise.testPacket(commander)
 
                 //commander.sendMessage(CommandSyntax.createSyntaxMessage("There is nothing here :D"))
-
-//                val testRunnable: ArrayList<String> = ArrayList()
-//                testRunnable.add("1")
-//                testRunnable.add("2")
-//                testRunnable.add("3")
-//                testRunnable.add("4")
-//                testRunnable.add("5")
-//                testRunnable.add("6")
-//                testRunnable.add("7")
-//                testRunnable.add("8")
-//                testRunnable.add("9")
-//                testRunnable.add("10")
-//
-//                for (i in 0 until testRunnable.size) {
-//                    val percentage = (i + 1) * 100 / testRunnable.size
-//                    println("$percentage%")
-//                    Thread.sleep(1000)
-//                }
 
 
                 return true
             }
 
-            Commands.SERVERCONFIG.name.lowercase() -> {
-                NServerConfiguration.Handler.setCommandHandler(commander, args)
+            Commands.SERVERCONFIG.commandAlias -> {
+                if (!commander.isOp) {
+                    commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
+                    return true
+                }
+
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}The old nServerConfiguration is disabled for renovation!"))
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Please use the list of commands below to test the new nServerConfiguration:"))
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverconfignew${ChatColor.WHITE}' " +
+                        "${ChatColor.YELLOW}to open the nServerConfiguration GUI."))
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverconfignew <feature/config name>${ChatColor.WHITE}' " +
+                        "${ChatColor.YELLOW}to view toggle status for the feature/config."))
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverconfignew <feature/config name> <option name>${ChatColor.WHITE}' " +
+                        "${ChatColor.YELLOW}to view option value for the feature/config."))
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverconfignew <feature/config name> <option name> <option value>${ChatColor.WHITE}' " +
+                        "${ChatColor.YELLOW}to tweak options for the feature/config."))
+
+                //NServerConfiguration.Handler.setCommandHandler(commander, args)
             }
 
-            Commands.REGEN.name.lowercase() -> {
+            Commands.SERVERCONFIGNEW.commandAlias -> {
+                NServerConfigurationNew.Handler.setCommandHandler(commander, args)
+            }
+
+            Commands.REGEN.commandAlias -> {
                 if (!commander.isOp) {
                     commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
                     return true
@@ -123,7 +126,7 @@ class NCommand: Listener, TabExecutor {
                 return true
             }
 
-            Commands.GM.name.lowercase() -> {
+            Commands.GM.commandAlias -> {
                 if (!commander.isOp) {
                     commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
                     return true
@@ -162,7 +165,7 @@ class NCommand: Listener, TabExecutor {
                 }
             }
 
-            Commands.MOD.name.lowercase() -> {
+            Commands.MOD.commandAlias -> {
                 if (!commander.isOp) {
                     commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
                     return true
@@ -219,17 +222,18 @@ class NCommand: Listener, TabExecutor {
 
             }
 
-            Commands.EFS.name.lowercase() -> {
+            Commands.EFS.commandAlias -> {
                 NEffect.setCommandHandler(commander)
             }
 
-            Commands.EXPERIMENTAL.name.lowercase() -> {
+            Commands.EXPERIMENTAL.commandAlias -> {
                 NExperimental.Handler.setCommandHandler(commander, args)
             }
 
             else -> {
-                commander.sendMessage("$pluginName${ChatColor.YELLOW}Sorry, there are no command as " +
-                        "${ChatColor.WHITE}'${ChatColor.GRAY}${args[0]}${ChatColor.WHITE}'${ChatColor.YELLOW}!")
+                commander.sendMessage(CommandSyntax.createSyntaxMessage(
+                    "${ChatColor.YELLOW}Sorry, there are no command as ${ChatColor.WHITE}" +
+                                "'${ChatColor.GRAY}${args[0]}${ChatColor.WHITE}'${ChatColor.YELLOW}!"))
                 return true
             }
         }
@@ -239,7 +243,7 @@ class NCommand: Listener, TabExecutor {
 
     override fun onTabComplete(sender: CommandSender, cmd: Command, label: String, args: Array<out String>): MutableList<String>? {
         if (sender !is Player) {
-            plugin.server.consoleSender.sendMessage(ChatColor.RED.toString() + "This command doesn't support console execution!")
+            plugin.server.consoleSender.sendMessage("${ChatColor.RED}This command doesn't support console execution!")
             return null
         }
 
@@ -247,21 +251,25 @@ class NCommand: Listener, TabExecutor {
 
         val commander: Player = sender
 
-        if (args.size == 1) return Commands.values().sorted().map { it.commandAlias }.toMutableList()
+        if (args.size == 1) return Commands.values().sorted().map { it.commandAlias }.filter { it.startsWith(args[0], true) }.toMutableList()
 
         if (args.isEmpty()) return null
 
         when (args[0].lowercase()) {
-            Commands.RANK.name.lowercase() -> {
+            Commands.RANK.commandAlias -> {
                 return NRank.tabCompletion(commander, args)
             }
 
-            Commands.WAYPOINTS.name.lowercase() -> {
+            Commands.WAYPOINTS.commandAlias -> {
                 return NWaypoints.Handler.tabCompletion(commander, args)
             }
 
-            Commands.SERVERCONFIG.name.lowercase() -> {
+            Commands.SERVERCONFIG.commandAlias -> {
                 return NServerConfiguration.Handler.tabCompletion(commander, args)
+            }
+
+            Commands.SERVERCONFIGNEW.commandAlias -> {
+                return NServerConfigurationNew.Handler.tabCompletion(commander, args)
             }
         }
 

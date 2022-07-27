@@ -1,5 +1,6 @@
 package com.islandstudio.neon.experimental.nPVP
 
+import com.islandstudio.neon.experimental.nServerConfigurationNew.NServerConfigurationNew
 import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
 import org.bukkit.Bukkit
 
@@ -8,11 +9,11 @@ object NPVP {
 
     fun run() {
         serverWorlds.forEach {
-            if (NServerConfiguration.Handler.getServerConfig()["nPVP"] == true) {
+            if (NServerConfigurationNew.getToggle("nPVP")) {
                 if (!it.pvp) {
                     it.pvp = true
                 }
-            } else if (NServerConfiguration.Handler.getServerConfig()["nPVP"] == false) {
+            } else {
                 if (it.pvp) {
                     it.pvp = false
                 }

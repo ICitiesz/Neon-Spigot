@@ -23,6 +23,20 @@ object NFolder {
     }
 
     /**
+     * Create new file by given file object.
+     *
+     * @param file The file need to create.
+     * @param requiredFolder The folder that contain the file.
+     */
+    fun createNewFile(file: File, requiredFolder: File) {
+        if (!requiredFolder.exists()) requiredFolder.mkdirs()
+
+        if (file.exists()) return
+
+        file.createNewFile()
+    }
+
+    /**
      * Get the data folder of Neon which inside the plugin directory within the Spigot server directory.
      * @return The data folder of Neon. (File)
      */
@@ -37,19 +51,6 @@ object NFolder {
      */
     fun getVersion(): String {
         return version
-    }
-
-    /**
-     * Get the mode, either Online Mode or Offline Mode.
-     *
-     * @return The mode. (String)
-     */
-    fun getMode(): String {
-        return if (plugin.server.onlineMode) {
-            "online"
-        } else {
-            "offline"
-        }
     }
 
 }

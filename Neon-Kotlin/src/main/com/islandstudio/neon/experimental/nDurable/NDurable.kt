@@ -1,18 +1,22 @@
 package com.islandstudio.neon.experimental.nDurable
 
 import com.islandstudio.neon.stable.primary.nCommand.NCommand
+import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nExperimental.NExperimental
 import org.bukkit.ChatColor
 import org.bukkit.Material
-import org.bukkit.block.Block
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockDamageEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.PrepareAnvilEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
+import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.PlayerInventory
 import org.bukkit.inventory.meta.Damageable
@@ -36,6 +40,14 @@ object NDurable {
         }
 
         tempBool
+    }
+
+    object Handler {
+        fun run() {
+            if (!isEnabled()) return NConstructor.unRegisterEvent(EventController())
+
+            NConstructor.registerEvent(EventController())
+        }
     }
 
     /**
@@ -219,6 +231,59 @@ object NDurable {
     }
 
     /**
+     * Cancel the copper deoxidization if the axe has the "DAMAGED" tag and the durability == 0.
+     *
+     * @param e PlayerInteractEvent
+     */
+    fun setCopperDeoxidize(e: PlayerInteractEvent) {
+        if (!isEnabled()) return
+
+        if (e.action != Action.RIGHT_CLICK_BLOCK) return
+
+        val player: Player = e.player
+        val itemInHand: ItemStack = player.inventory.itemInMainHand
+        val itemName: String = itemInHand.type.name
+
+        if (!itemName.contains("_AXE")) return
+
+        e.clickedBlock?.let { block ->
+            val clickedBlockName: String = block.type.name
+
+            if (!clickedBlockName.contains("COPPER")) return
+
+            if (clickedBlockName.contains("EXPOSED") || clickedBlockName.contains("WEATHERED") || clickedBlockName.contains("OXIDIZED")) {
+                val itemMeta: ItemMeta = itemInHand.itemMeta!!
+
+                if ((itemMeta as Damageable).damage >= itemInHand.type.maxDurability) {
+                    itemMeta.lore = (itemMeta.lore as? ArrayList<String>)?.let { setDamageTag(it) } ?: setDamageTag(ArrayList())
+                    itemInHand.itemMeta = itemMeta
+                }
+
+                if ((itemMeta.lore?.contains("${ChatColor.RED}DAMAGED") != true && itemMeta.damage < itemInHand.type.maxDurability)) return
+
+                e.isCancelled = true
+
+                if (itemMeta.hasDisplayName()) {
+                    player.sendMessage("${NCommand.getPluginName()} ${ChatColor.RED}Your ${ChatColor.YELLOW}${itemMeta.displayName} ${ChatColor.RED}is damaged!")
+                    return
+                }
+
+                val itemNameTrimmed: String = if (itemName.contains("_")) {
+                    var tempStr = ""
+
+                    itemName.split("_").forEach { str ->
+                        tempStr += str.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }.plus(" ")
+                    }
+
+                    tempStr.trimEnd()
+                } else itemName.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+                player.sendMessage("${NCommand.getPluginName()} ${ChatColor.RED}Your ${ChatColor.YELLOW}${itemNameTrimmed} ${ChatColor.RED}is damaged!")
+            }
+        }
+    }
+
+    /**
      * Get instant break of the targeted block.
      *
      * @param e BlockDamageEvent
@@ -302,5 +367,68 @@ object NDurable {
             }
         }
 
+    }
+
+    private class EventController: Listener {
+        @EventHandler
+        private fun onItemDamage(e: PlayerItemDamageEvent) {
+            itemDamage(e)
+        }
+
+        @EventHandler
+        private fun onEntityDamageByEntity(e: EntityDamageByEntityEvent) {
+            setAttackDamage(e)
+        }
+
+        @EventHandler
+        private fun onPrepareAnvil(e: PrepareAnvilEvent) {
+            repairItem(e)
+        }
+
+        @EventHandler
+        private fun onBlockDamage(e: BlockDamageEvent) {
+            getInstantBreak(e)
+        }
+
+        @EventHandler
+        private fun onBlockBreak(e: BlockBreakEvent) {
+            setBlockBreaking(e)
+        }
+
+        @EventHandler
+        private fun onPlayerInteract(e: PlayerInteractEvent) {
+            setWoodStripping(e)
+            setCopperDeoxidize(e)
+        }
+
+        @EventHandler
+        private fun onInventoryOpen(e: InventoryOpenEvent) {
+//            val inventory: Inventory = e.inventory
+//
+//            //println(inventory.type)
+//            //println(inventory is PlayerInventory)
+//
+//            inventory.contents.forEach {
+//                if (it == null) return@forEach
+//
+//                val item: Material = it.type
+//                val itemName: String = it.type.name
+//
+//                when {
+//                    itemName.contains("_PICKAXE") || itemName.contains("_AXE")
+//                            || itemName.contains("_SHOVEL") || itemName.contains("_SWORD")
+//                            || itemName.contains("_HOE") -> {
+//                        val itemMeta: Damageable = (it.itemMeta as Damageable?)!!
+//
+//                        itemMeta.damage = item.maxDurability - 1
+//                        itemMeta.lore = listOf("${ChatColor.RED}BROKEN")
+//
+//                        it.itemMeta = itemMeta
+//                    }
+//                }
+//
+//                //(e.player as Player).updateInventory()
+//            }
+        }
     }
 }

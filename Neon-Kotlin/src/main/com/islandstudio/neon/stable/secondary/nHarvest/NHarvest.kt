@@ -1,6 +1,7 @@
 package com.islandstudio.neon.stable.secondary.nHarvest
 
-import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
+import com.islandstudio.neon.experimental.nServerConfigurationNew.NServerConfigurationNew
+import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -8,12 +9,23 @@ import org.bukkit.World
 import org.bukkit.block.Block
 import org.bukkit.block.data.Ageable
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.server.ServerLoadEvent
 import org.bukkit.inventory.ItemStack
 
 object NHarvest {
     private val players: MutableSet<Player> = HashSet()
+
+    fun run() {
+        if (!NServerConfigurationNew.getToggle("nHarvest")) return NConstructor.unRegisterEvent(EventController())
+
+        NConstructor.registerEvent(EventController())
+    }
 
     /**
      * Add player to the set of players that can harvest
@@ -21,16 +33,9 @@ object NHarvest {
      * @param player Player to add. (Player)
      */
     fun addPlayer(player: Player) {
-        if (NServerConfiguration.Handler.getServerConfig()["nHarvest"] == true) {
-            if (!players.contains(player)) {
-                players.add(player)
-            }
-            return
-        }
+        if (players.contains(player)) return
 
-        if (players.size > 0) {
-            players.clear()
-        }
+        players.add(player)
     }
 
     /**
@@ -38,49 +43,13 @@ object NHarvest {
      *
      * @param player Player to remove. (Player)
      */
-    fun removePlayer(player: Player) {
-        players.remove(player)
-    }
-
-    /**
-     * Set the event handler for the nHarvest.
-     *
-     * @param e PlayerInteractEvent. (PlayerInteractEvent)
-     */
-    fun setEventHandler(e: PlayerInteractEvent) {
-        if (!players.contains(e.player)) return
-
-        val block = e.clickedBlock
-        val heldItem = e.item
-
-        if (e.action != Action.RIGHT_CLICK_BLOCK) return
-
-        val ageable: Ageable
-
-        if (block == null) return
-
-        when (block.type) {
-            Material.WHEAT,
-            Material.CARROTS,
-            Material.POTATOES,
-            Material.BEETROOTS,
-            Material.NETHER_WART -> {
-                ageable = block.blockData as Ageable
-
-                if (ageable.age == ageable.maximumAge) {
-                    harvest(block, heldItem, e.hasItem())
-                    block.world.playSound(block.location.add(0.5, 0.0, 0.5), Sound.ITEM_CROP_PLANT, 1f, 1f)
-                    ageable.age = 0
-                    block.blockData = ageable
-                }
-
-            }
-
-            else -> {
-                return
-            }
+    fun removePlayer(player: Player?) {
+        if (player == null) {
+            players.clear()
+            return
         }
 
+        players.remove(player)
     }
 
     /**
@@ -99,6 +68,8 @@ object NHarvest {
         var dropsAmount = 0
 
         if (hasItem) {
+            if (heldItem == null) return
+
             block.getDrops(heldItem).forEach {
                 when (it.type) {
                     Material.WHEAT,
@@ -179,4 +150,65 @@ object NHarvest {
             }
         }
     }
+
+    private class EventController: Listener {
+        @EventHandler
+        private fun onPlayerJoin(e: PlayerJoinEvent) {
+            addPlayer(e.player)
+        }
+
+        @EventHandler
+        private fun onPlayerQuit(e: PlayerQuitEvent) {
+            removePlayer(e.player)
+        }
+
+        @EventHandler
+        private fun onServerLoad(e: ServerLoadEvent) {
+            when (e.type) {
+                ServerLoadEvent.LoadType.STARTUP, ServerLoadEvent.LoadType.RELOAD -> {
+                    NConstructor.plugin.server.onlinePlayers.parallelStream().forEach {player ->
+                        if (!NServerConfigurationNew.getToggle("nHarvest")) return@forEach removePlayer(player)
+                        addPlayer(player)
+                    }
+                }
+            }
+        }
+
+        @EventHandler
+        private fun onPlayerInteract(e: PlayerInteractEvent) {
+            if (!players.contains(e.player)) return
+
+            val block = e.clickedBlock
+            val heldItem = e.item
+
+            if (e.action != Action.RIGHT_CLICK_BLOCK) return
+
+            val ageable: Ageable
+
+            if (block == null) return
+
+            when (block.type) {
+                Material.WHEAT,
+                Material.CARROTS,
+                Material.POTATOES,
+                Material.BEETROOTS,
+                Material.NETHER_WART -> {
+                    ageable = block.blockData as Ageable
+
+                    if (ageable.age == ageable.maximumAge) {
+                        harvest(block, heldItem, e.hasItem())
+                        block.world.playSound(block.location.add(0.5, 0.0, 0.5), Sound.ITEM_CROP_PLANT, 1f, 1f)
+                        ageable.age = 0
+                        block.blockData = ageable
+                    }
+
+                }
+
+                else -> {
+                    return
+                }
+            }
+        }
+    }
 }
+

@@ -3,9 +3,11 @@ package com.islandstudio.neon.stable.secondary.nWaypoints
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.experimental.nServerConfigurationNew.NServerConfigurationNew
 import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nCommand.NCommand
+import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nFolder.FolderList
 import com.islandstudio.neon.stable.utils.NItemHighlight
 import com.islandstudio.neon.stable.utils.NNamespaceKeys
@@ -18,6 +20,8 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.persistence.PersistentDataContainer
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin.getPlugin
 import org.bukkit.util.io.BukkitObjectInputStream
@@ -28,6 +32,8 @@ import org.json.simple.parser.JSONParser
 import java.io.*
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.ceil
+import kotlin.math.max
 
 data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
     val location: Location = Handler.locationDeserializer(waypointData.value["Location"] as String)
@@ -109,20 +115,17 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
 
             player.playSound(player.location, Sound.BLOCK_BEACON_ACTIVATE, 1f, 1f)
             player.spawnParticle(Particle.PORTAL, player.location, 700)
-            player.sendMessage(
-                "${NCommand.getPluginName()}${ChatColor.GREEN}You have been teleported to $goldWaypoint${ChatColor.GRAY}, " +
-                "${ChatColor.AQUA}$posX${ChatColor.GRAY}, ${ChatColor.AQUA}$posY${ChatColor.GRAY}, ${ChatColor.AQUA}$posZ${ChatColor.GREEN}!"
-            )
+            player.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.GREEN}You have been teleported to $goldWaypoint${ChatColor.GRAY}, " +
+                    "${ChatColor.AQUA}$posX${ChatColor.GRAY}, ${ChatColor.AQUA}$posY${ChatColor.GRAY}, ${ChatColor.AQUA}$posZ${ChatColor.GREEN}!"))
         }
 
         /**
          * Set command handler for the nWaypoints.
          *
-         * @param commander The player who executed the command. (Player)
-         * @param args The command arguments. (String)
-         * @param pluginName The plugin name. (String)
+         * @param commander The player who executed the command.
+         * @param args The command arguments.
          */
-        fun setCommandHandler(commander: Player, args: Array<out String>, pluginName: String) {
+        fun setCommandHandler(commander: Player, args: Array<out String>) {
             if (commander.isSleeping) {
                 commander.sendMessage(CommandSyntax.createSyntaxMessage(
                     "${ChatColor.YELLOW}You may not using nWaypoints while sleeping!"
@@ -159,23 +162,21 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                 3 -> {
                     if (args[1].equals("add", true)) {
                         if (args[2].contains("\\") || args[2].contains("\"")) {
-                            commander.sendMessage(
-                                "$pluginName${ChatColor.RED}The waypoint name must not contain${ChatColor.GOLD} " +
-                                "\\ ${ChatColor.RED}or${ChatColor.GOLD} \"${ChatColor.RED}!")
+                            commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}The waypoint name must not contain${ChatColor.GOLD} " +
+                                "\\ ${ChatColor.RED}or${ChatColor.GOLD} \"${ChatColor.RED}!"))
                             return
                         }
 
                         if (getNWaypointsData().containsKey(args[2])) {
-                            commander.sendMessage(
-                                "$pluginName${ChatColor.YELLOW}The waypoint name ${ChatColor.GRAY}'${ChatColor.GOLD}${args[2]}" +
-                                "${ChatColor.GRAY}' ${ChatColor.YELLOW}already exist! Please try another one!")
+                            commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}The waypoint name ${ChatColor.GRAY}'${ChatColor.GOLD}${args[2]}" +
+                                    "${ChatColor.GRAY}' ${ChatColor.YELLOW}already exist! Please try another one!"))
                             return
                         }
 
                         addWaypoint(args[2], commander)
-                        commander.sendMessage(
-                            "${pluginName}${ChatColor.GREEN}The waypoint has been saved as ${ChatColor.GRAY}'${ChatColor.GOLD}${args[2]}${ChatColor.GRAY}'${ChatColor.GREEN}!"
-                        )
+
+                        commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.GREEN}The waypoint has been saved as " +
+                                "${ChatColor.GRAY}'${ChatColor.GOLD}${args[2]}${ChatColor.GRAY}'${ChatColor.GREEN}!"))
                         return
                     }
 
@@ -216,20 +217,20 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
          * @param args The arguments of the command. (String[])
          * @return A list of tab completion. (List<String>)
          */
-        fun tabCompletion(commander: Player, args: Array<out String>): MutableList<String>? {
+        fun tabCompletion(commander: Player, args: Array<out String>): MutableList<String> {
             when (args.size) {
                 2 -> {
-                    return listOf("add", "remove").toMutableList()
+                    return listOf("add", "remove").filter { it.startsWith(args[1]) }.toMutableList()
                 }
 
                 3 -> {
-                    if (!args[1].equals("remove", true)) return null
+                    if (!args[1].equals("remove", true)) return mutableListOf()
 
-                    return getNWaypointsData().keys.toList().toMutableList()
+                    return getNWaypointsData().keys.toList().filter { it.startsWith(args[2]) }.toMutableList()
                 }
             }
 
-            return null
+            return mutableListOf()
         }
 
         /* Get waypoints data */
@@ -322,15 +323,15 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
 
         /* Get waypoints file */
         private fun getNWaypointsFile(): File {
-            return File(FolderList.FOLDER_C.folder, "nWaypoints-Global.json")
+            return File(FolderList.NWAYPOINTS_FOLDER.folder, "nWaypoints-Global.json")
         }
 
         /* File generation */
         private fun createNewFiles() {
             val nWaypointsFile = getNWaypointsFile()
 
-            if (!FolderList.FOLDER_C.folder.exists()) {
-                FolderList.FOLDER_C.folder.mkdirs()
+            if (!FolderList.NWAYPOINTS_FOLDER.folder.exists()) {
+                FolderList.NWAYPOINTS_FOLDER.folder.mkdirs()
             }
 
             if (!nWaypointsFile.exists()) {
@@ -357,10 +358,12 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
         }
 
         override fun setItems() {
-            addGUIButtons()
-
             val waypoints: ArrayList<Map.Entry<String, JSONObject>> = Handler.getNWaypointsData().entries.toCollection(ArrayList())
             val waypointDetails: ArrayList<String> = ArrayList()
+
+            maxPage = ceil(waypoints.size.toDouble() / maxItemPerPage.toDouble()).toInt()
+
+            addGUIButtons()
 
             for (i in 0 until super.maxItemPerPage) {
                 itemIndex = super.maxItemPerPage * pageIndex + i
@@ -385,12 +388,14 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                 )
                 waypointDetails.add("${ChatColor.GRAY}Dimension: ${waypointDimension()}")
 
-                if (NServerConfiguration.Handler.getServerConfig()["nWaypoints-Cross_Dimension"] == false) {
+                if (!(NServerConfigurationNew.getOptionValue("nWaypoints", "cross_dimension") as Boolean)) {
                     waypointDetails.add("${ChatColor.GRAY}Status: ${waypointAvailability(player)}")
                 }
 
                 waypointMeta.setDisplayName("${ChatColor.GOLD}${waypointName}")
                 waypointMeta.lore = waypointDetails
+
+                waypointMeta.persistentDataContainer.set(buttonIDKey, PersistentDataType.STRING, buttonIDKey.toString())
 
                 waypoint.itemMeta = waypointMeta
                 inventory.addItem(waypoint)
@@ -403,9 +408,13 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
         override fun guiClickHandler(e: InventoryClickEvent) {
             val currentItem = e.currentItem!!
             val currentItemMeta = currentItem.itemMeta!!
+            val persistentDataContainer: PersistentDataContainer = currentItemMeta.persistentDataContainer
 
             when (currentItem.type) {
+                /* Waypoint button */
                 Material.BEACON -> {
+                    if (!persistentDataContainer.has(buttonIDKey, PersistentDataType.STRING)) return
+
                     Handler.getNWaypointsData().forEach { waypointData ->
                         val nWaypoints = NWaypoints(waypointData)
                         val goldWaypointName = "${ChatColor.GOLD}${nWaypoints.waypointName}"
@@ -420,7 +429,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                         modifiedLocation.x = waypointBlockX + 0.5
                         modifiedLocation.z = waypointBlockZ + 0.5
 
-                        if (NServerConfiguration.Handler.getServerConfig()["nWaypoints-Cross_Dimension"] == false) {
+                        if (!(NServerConfigurationNew.getOptionValue("nWaypoints", "cross_dimension") as Boolean)) {
                             if (player.location.world!!.environment.toString().equals(modifiedLocation.world!!.environment.toString(), true)) {
                                 Handler.teleportToWaypoint(player, modifiedLocation, goldWaypointName,
                                     waypointBlockX.toInt(), waypointBlockY.toInt(), waypointBlockZ.toInt()
@@ -442,29 +451,40 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                     }
                 }
 
+                /* Navigation button  */
                 Material.SPECTRAL_ARROW -> {
-                    if (currentItemMeta.displayName.equals("${ChatColor.GOLD}Previous", true)) {
-                        isClicked = true
+                    if (!persistentDataContainer.has(buttonIDKey, PersistentDataType.STRING)) return
 
-                        if (pageIndex == 0) return
+                    when (currentItemMeta.displayName) {
+                        previousButtonDisplayName -> {
+                            isClicked = true
 
-                        pageIndex--
-                        super.openGUI()
-                    } else if (currentItemMeta.displayName.equals("${ChatColor.GOLD}Next", true)) {
-                        isClicked = true
+                            if (pageIndex == 0) return
 
-                        if ((itemIndex + 1) >= Handler.getNWaypointsData().size) return
+                            pageIndex--
+                            super.openGUI()
+                        }
 
-                        pageIndex++
-                        super.openGUI()
+                        nextButtonDisplayName -> {
+                            isClicked = true
+
+                            if ((itemIndex + 1) >= Handler.getNWaypointsData().size) return
+
+                            pageIndex++
+                            super.openGUI()
+                        }
                     }
                 }
 
+                /* Close button */
                 Material.BARRIER -> {
-                    if (!currentItemMeta.displayName.equals("${ChatColor.RED}Close", true)) return
+                    if (!persistentDataContainer.has(buttonIDKey, PersistentDataType.STRING)) return
+
+                    if (currentItemMeta.displayName != closeButtonDisplayName) return
 
                     player.closeInventory()
                 }
+
                 else -> {
                     return
                 }
@@ -502,7 +522,6 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             var removalContainer: MutableMap<String, MutableSet<String>> = HashMap()
         }
 
-        private val plugin: Plugin = getPlugin(Neon::class.java)
         private val player: Player = nGUI.getGUIOwner()
 
         override fun getGUIName(): String {
@@ -515,10 +534,12 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
         }
 
         override fun setItems() {
-            addGUIButtons()
-
             val waypoints: ArrayList<Map.Entry<String, JSONObject>> = Handler.getNWaypointsData().entries.toCollection(ArrayList())
             val waypointDetails: ArrayList<String> = ArrayList()
+
+            maxPage = ceil(waypoints.size.toDouble() / maxItemPerPage.toDouble()).toInt()
+
+            addGUIButtons()
 
             for (i in 0 until super.maxItemPerPage) {
                 itemIndex = super.maxItemPerPage * pageIndex + i
@@ -545,6 +566,8 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                 waypointMeta.setDisplayName("${ChatColor.GOLD}${waypointName}")
                 waypointMeta.lore = waypointDetails
 
+                waypointMeta.persistentDataContainer.set(buttonIDKey, PersistentDataType.STRING, buttonIDKey.toString())
+
                 waypoint.itemMeta = waypointMeta
                 inventory.addItem(waypoint)
 
@@ -562,9 +585,13 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             val currentItem: ItemStack = e.currentItem!!
             val currentItemMeta: ItemMeta = currentItem.itemMeta!!
             val nItemHighlight = NItemHighlight(NNamespaceKeys.NEON_BUTTON_HIGHLIGHT.key)
+            val persistentDataContainer: PersistentDataContainer = currentItemMeta.persistentDataContainer
 
             when (currentItem.type) {
+                /* Waypoint button */
                 Material.BEACON -> {
+                    if (!persistentDataContainer.has(buttonIDKey, PersistentDataType.STRING)) return
+
                     Handler.getNWaypointsData().forEach { waypointData ->
                         val nWaypoints = NWaypoints(waypointData)
                         val goldWaypointName = "${ChatColor.GOLD}${nWaypoints.waypointName}"
@@ -592,85 +619,98 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                     }
                 }
 
+                /* Navigation button */
                 Material.SPECTRAL_ARROW -> {
-                    if (currentItemMeta.displayName.equals("${ChatColor.GOLD}Previous", true)) {
-                        isClicked = true
+                    if (!persistentDataContainer.has(buttonIDKey, PersistentDataType.STRING)) return
 
-                        if (pageIndex == 0) return
+                    when (currentItemMeta.displayName) {
+                        previousButtonDisplayName -> {
+                            isClicked = true
 
-                        pageIndex--
-                        super.openGUI()
+                            if (pageIndex == 0) return
 
-                        val contents: Array<ItemStack> = super.getInventory().contents
+                            pageIndex--
+                            super.openGUI()
 
-                        contents.forEach { item: ItemStack? ->
-                            if (item == null) return@forEach
+                            val contents: Array<ItemStack> = super.getInventory().contents
 
-                            if (item.type != Material.BEACON) return
+                            contents.forEach { item: ItemStack? ->
+                                if (item == null) return@forEach
 
-                            val itemMeta: ItemMeta = item.itemMeta!!
+                                if (item.type != Material.BEACON) return
 
-                            selectedWaypoints.forEach { selectedWaypoint: String ->
-                                if (itemMeta.displayName.substring(2).equals(selectedWaypoint, true)) {
-                                    val waypointsDetails: MutableList<String> = itemMeta.lore!!
+                                val itemMeta: ItemMeta = item.itemMeta!!
 
-                                    if (!itemMeta.hasEnchant(nItemHighlight)) {
-                                        itemMeta.addEnchant(nItemHighlight, 0, true)
-                                        waypointsDetails.add("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
-                                    } else {
-                                        itemMeta.removeEnchant(nItemHighlight)
-                                        waypointsDetails.remove("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
+                                selectedWaypoints.forEach { selectedWaypoint: String ->
+                                    if (itemMeta.displayName.substring(2).equals(selectedWaypoint, true)) {
+                                        val waypointsDetails: MutableList<String> = itemMeta.lore!!
+
+                                        if (!itemMeta.hasEnchant(nItemHighlight)) {
+                                            itemMeta.addEnchant(nItemHighlight, 0, true)
+                                            waypointsDetails.add("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
+                                        } else {
+                                            itemMeta.removeEnchant(nItemHighlight)
+                                            waypointsDetails.remove("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
+                                        }
+
+                                        itemMeta.lore = waypointsDetails
+                                        item.itemMeta = itemMeta
                                     }
-
-                                    itemMeta.lore = waypointsDetails
-                                    item.itemMeta = itemMeta
                                 }
                             }
                         }
-                    } else if (currentItemMeta.displayName.equals("${ChatColor.GOLD}Next", true)) {
-                        isClicked = true
 
-                        if ((itemIndex + 1) >= Handler.getNWaypointsData().size) return
+                        nextButtonDisplayName -> {
+                            isClicked = true
 
-                        pageIndex++
-                        super.openGUI()
+                            if ((itemIndex + 1) >= Handler.getNWaypointsData().size) return
 
-                        val contents: Array<ItemStack> = super.getInventory().contents
+                            pageIndex++
+                            super.openGUI()
 
-                        contents.forEach { item: ItemStack? ->
-                            if (item == null) return@forEach
+                            val contents: Array<ItemStack> = super.getInventory().contents
 
-                            if (item.type != Material.BEACON) return
+                            contents.forEach { item: ItemStack? ->
+                                if (item == null) return@forEach
 
-                            val itemMeta: ItemMeta = item.itemMeta!!
+                                if (item.type != Material.BEACON) return
 
-                            selectedWaypoints.forEach { selectedWaypoint: String ->
-                                if (itemMeta.displayName.substring(2).equals(selectedWaypoint, true)) {
-                                    val waypointsDetails: MutableList<String> = itemMeta.lore!!
+                                val itemMeta: ItemMeta = item.itemMeta!!
 
-                                    if (!itemMeta.hasEnchant(nItemHighlight)) {
-                                        itemMeta.addEnchant(nItemHighlight, 0, true)
-                                        waypointsDetails.add("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
-                                    } else {
-                                        itemMeta.removeEnchant(nItemHighlight)
-                                        waypointsDetails.remove("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
+                                selectedWaypoints.forEach { selectedWaypoint: String ->
+                                    if (itemMeta.displayName.substring(2).equals(selectedWaypoint, true)) {
+                                        val waypointsDetails: MutableList<String> = itemMeta.lore!!
+
+                                        if (!itemMeta.hasEnchant(nItemHighlight)) {
+                                            itemMeta.addEnchant(nItemHighlight, 0, true)
+                                            waypointsDetails.add("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
+                                        } else {
+                                            itemMeta.removeEnchant(nItemHighlight)
+                                            waypointsDetails.remove("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
+                                        }
+
+                                        itemMeta.lore = waypointsDetails
+                                        item.itemMeta = itemMeta
                                     }
-
-                                    itemMeta.lore = waypointsDetails
-                                    item.itemMeta = itemMeta
                                 }
                             }
                         }
                     }
                 }
 
+                /* Close button */
                 Material.BARRIER -> {
-                    if (!currentItemMeta.displayName.equals("${ChatColor.RED}Close", true)) return
+                    if (!persistentDataContainer.has(buttonIDKey, PersistentDataType.STRING)) return
+
+                    if (currentItemMeta.displayName != closeButtonDisplayName) return
                     player.closeInventory()
                 }
 
+                /* Remove button */
                 Material.BLAZE_POWDER -> {
-                    if (!currentItemMeta.displayName.equals("${ChatColor.RED}Remove", true)) return
+                    if (!persistentDataContainer.has(buttonIDKey, PersistentDataType.STRING)) return
+
+                    if (currentItemMeta.displayName != removeButtonDisplayName) return
 
                     if (selectedWaypoints.isEmpty()) {
                         player.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}You must select at least one waypoint to delete!"))
@@ -708,7 +748,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                         stringBuilder.append(tempString)
                     }
 
-                    plugin.server.broadcastMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}The " +
+                    NConstructor.plugin.server.broadcastMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}The " +
                             "waypoint(s): ${stringBuilder}${ChatColor.RED}has been removed by${ChatColor.WHITE} ${player.name}${ChatColor.RED}!"))
                 }
 

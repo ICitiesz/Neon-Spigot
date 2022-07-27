@@ -8,6 +8,7 @@ enum class Commands(val commandAlias: String) {
     GM("gm"),
     REGEN("regen"),
     SERVERCONFIG("serverconfig"),
+    SERVERCONFIGNEW("serverconfignew"),
     EFS("efs"),
-    MOD("mod")
+    MOD("mod");
 }

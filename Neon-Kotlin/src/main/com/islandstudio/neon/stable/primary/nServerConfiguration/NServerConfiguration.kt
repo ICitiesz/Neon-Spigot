@@ -185,8 +185,8 @@ class NServerConfiguration(private val serverConfig: Map.Entry<String, Any>) {
         private fun createNewFiles() {
             val serverConfigFile = getServerConfigFile()
 
-            if (!FolderList.FOLDER_A.folder.exists()) {
-                FolderList.FOLDER_A.folder.mkdirs()
+            if (!FolderList.SERVER_CONFIG_FOLDER.folder.exists()) {
+                FolderList.SERVER_CONFIG_FOLDER.folder.mkdirs()
             }
 
             if (!serverConfigFile.exists()) {
@@ -196,7 +196,7 @@ class NServerConfiguration(private val serverConfig: Map.Entry<String, Any>) {
 
         /* Get server config file */
         private fun getServerConfigFile(): File {
-            return File(FolderList.FOLDER_A.folder, "server_configuration.json")
+            return File(FolderList.SERVER_CONFIG_FOLDER.folder, "server_configuration.json")
         }
     }
 }

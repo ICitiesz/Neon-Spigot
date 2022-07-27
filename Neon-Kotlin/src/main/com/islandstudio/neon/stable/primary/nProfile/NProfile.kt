@@ -2,13 +2,12 @@ package com.islandstudio.neon.stable.primary.nProfile
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.islandstudio.neon.stable.primary.nFolder.NFolder
 import com.islandstudio.neon.stable.primary.nFolder.FolderList
+import com.islandstudio.neon.stable.primary.nFolder.NFolder
 import org.bukkit.entity.Player
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import java.io.*
-import java.util.stream.Collectors
 
 data class NProfile(val player: Player) {
     private val playerProfile = Handler.getProfileData(player)
@@ -25,7 +24,7 @@ data class NProfile(val player: Player) {
         private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 
         fun createProfile(player: Player) {
-            createNewFiles(player)
+            createPlayerProfile(player)
 
             val fileReader = FileReader(getPlayerProfile(player))
             val clientBufferedReader = BufferedReader(fileReader)
@@ -105,7 +104,7 @@ data class NProfile(val player: Player) {
 
         /* Get player profile */
         private fun getPlayerProfile(player: Player): File {
-            return File(getPlayerFolder(player), "profile_" + player.uniqueId + ".json")
+            return File(getPlayerFolder(player), "profile_${player.uniqueId}.json")
         }
 
         /* Get profile element from source */
@@ -125,28 +124,15 @@ data class NProfile(val player: Player) {
 
         /* Get player folder */
         private fun getPlayerFolder(player: Player): File {
-            return File(NFolder.getDataFolder(),
-                NFolder.getVersion() + "/" + NFolder.getMode()
-                        + "/server_data/players/player_" + player.uniqueId)
+            return File(FolderList.PLAYERS_FOLDER.folder, "player_${player.uniqueId}")
         }
 
         /* Create required folders and files */
-        private fun createNewFiles(player: Player) {
-            val mainFolder: File = FolderList.FOLDER_B.folder
+        private fun createPlayerProfile(player: Player) {
             val playerFolder: File = getPlayerFolder(player)
             val playerProfile: File = getPlayerProfile(player)
 
-            if (!mainFolder.exists()) {
-                mainFolder.mkdirs()
-            }
-
-            if (!playerFolder.exists()) {
-                playerFolder.mkdirs()
-            }
-
-            if (!playerProfile.exists()) {
-                playerProfile.createNewFile()
-            }
+            NFolder.createNewFile(playerProfile, playerFolder)
         }
     }
 }

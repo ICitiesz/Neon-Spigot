@@ -3,6 +3,7 @@ package com.islandstudio.neon.stable.primary.nExperimental
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
+import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nFolder.FolderList
 import com.islandstudio.neon.stable.utils.NItemHighlight
 import com.islandstudio.neon.stable.utils.NNamespaceKeys
@@ -11,17 +12,22 @@ import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
 import org.json.simple.JSONArray
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import java.io.*
 import kotlin.collections.ArrayList
+import kotlin.math.ceil
 
 data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
     private val jsonObject: JSONObject = (experimentalData.value as JSONArray)[0] as JSONObject
@@ -37,7 +43,6 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
         private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
         private val jsonParser: JSONParser = JSONParser()
 
-        /* Initialization */
         /**
          * Initialize the nExperimental.
          */
@@ -63,6 +68,8 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
             }
 
             updateElement()
+
+            NConstructor.registerEvent(EventController())
         }
 
         /* Save the nExperiment config */
@@ -150,8 +157,8 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
         private fun createNewFiles() {
             val nExperimentalFile: File = getNExperimentalFile()
 
-            if (!FolderList.FOLDER_A.folder.exists()) {
-                FolderList.FOLDER_A.folder.mkdirs()
+            if (!FolderList.SERVER_CONFIG_FOLDER.folder.exists()) {
+                FolderList.SERVER_CONFIG_FOLDER.folder.mkdirs()
             }
 
             if (!nExperimentalFile.exists()) {
@@ -161,7 +168,7 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
 
         /* Get the nExperimental.json file */
         private fun getNExperimentalFile(): File {
-            return File(FolderList.FOLDER_A.folder, "nExperimental.json")
+            return File(FolderList.SERVER_CONFIG_FOLDER.folder, "nExperimental.json")
         }
     }
 
@@ -182,14 +189,16 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
 
         @Suppress("UNCHECKED_CAST")
         override fun setItems() {
-            addGUIButtons()
-
             if (sourceElement.size == 0) return
+
+            maxPage = ceil((sourceElement.size.toDouble() / maxItemPerPage.toDouble())).toInt()
+
+            addGUIButtons()
 
             for (i in 0 until super.maxItemPerPage) {
                 itemIndex = super.maxItemPerPage * pageIndex + i
 
-                if (itemIndex >= clientElement.size) break
+                if (itemIndex >= sourceElement.size) break
 
                 val experimentalDetails: ArrayList<String> = ArrayList()
 
@@ -200,12 +209,12 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
                 val nExperimentalClient = NExperimental(clientExperimental as Map.Entry<String, Any>)
 
                 val experimentFeature = ItemStack(Material.BIRCH_SIGN)
-                val experimentFeatureMeta = experimentFeature.itemMeta
+                val experimentFeatureMeta = experimentFeature.itemMeta!!
 
                 /* Is enabled? */
                 if (nExperimentalClient.isEnabled) {
                     experimentalDetails.add("${ChatColor.GRAY}Status: ${ChatColor.GREEN}Enabled!")
-                    experimentFeatureMeta!!.addEnchant(NItemHighlight(NNamespaceKeys.NEON_BUTTON_HIGHLIGHT.key), 0, true)
+                    experimentFeatureMeta.addEnchant(NItemHighlight(NNamespaceKeys.NEON_BUTTON_HIGHLIGHT.key), 0, true)
                 } else {
                     experimentalDetails.add("${ChatColor.GRAY}Status: ${ChatColor.RED}Disabled!")
                 }
@@ -217,6 +226,7 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
                 val modifiedDescription: ArrayList<Collection<String>> = ArrayList()
                 var splicedWords: ArrayList<String> = ArrayList()
 
+                /* Spit up the description into 7 words for a sentence */
                 for (word in description) {
                     if (splicedWords.size == 7) {
                         modifiedDescription.add(splicedWords)
@@ -245,8 +255,10 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
                     experimentalDetails.add("${ChatColor.GRAY}Conflict: ${ChatColor.RED}${nExperimentalSource.conflict}!")
                 }
 
-                experimentFeatureMeta!!.setDisplayName("${ChatColor.GOLD}${nExperimentalSource.experimentalName}")
+                experimentFeatureMeta.setDisplayName("${ChatColor.GOLD}${nExperimentalSource.experimentalName}")
                 experimentFeatureMeta.lore = experimentalDetails
+
+                experimentFeatureMeta.persistentDataContainer.set(buttonIDKey, PersistentDataType.STRING, buttonIDKey.toString())
 
                 experimentFeature.itemMeta = experimentFeatureMeta
 
@@ -259,11 +271,13 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
         override fun guiClickHandler(e: InventoryClickEvent) {
             val clickedItem: ItemStack = e.currentItem!!
             val clickedItemMeta: ItemMeta = clickedItem.itemMeta!!
-            val nItemHighlight = NItemHighlight(NNamespaceKeys.NEON_BUTTON_HIGHLIGHT.key)
+            val persistentDataContainer: PersistentDataContainer = clickedItemMeta.persistentDataContainer
 
             when (clickedItem.type) {
                 /* Experimental feature button */
                 Material.BIRCH_SIGN -> {
+                    if (!persistentDataContainer.has(buttonIDKey, PersistentDataType.STRING)) return
+
                     val clickedItemDisplayName: String = clickedItemMeta.displayName
 
                     Handler.getSourceElement().forEach { element ->
@@ -297,6 +311,10 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
 
                 /* Apply button */
                 Material.LEVER -> {
+                    if (!persistentDataContainer.has(buttonIDKey, PersistentDataType.STRING)) return
+
+                    if (clickedItemMeta.displayName != applyButtonDisplayName) return
+
                     Handler.save(clientElement)
 
                     player.closeInventory()
@@ -305,12 +323,14 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
 
                 /* Navigation button */
                 Material.SPECTRAL_ARROW -> {
-                    if (clickedItemMeta.displayName.equals("${ChatColor.GOLD}Previous", true)) {
+                    if (!persistentDataContainer.has(buttonIDKey, PersistentDataType.STRING)) return
+
+                    if (clickedItemMeta.displayName.equals(previousButtonDisplayName, true)) {
                         if (pageIndex == 0)  return
 
                         pageIndex--
                         super.openGUI()
-                    } else if (clickedItemMeta.displayName.equals("${ChatColor.GOLD}Next", true)) {
+                    } else if (clickedItemMeta.displayName.equals(nextButtonDisplayName, true)) {
                         if ((itemIndex + 1) >= clientElement.size) return
 
                         pageIndex++
@@ -320,9 +340,10 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
 
                 /* Close button */
                 Material.BARRIER -> {
-                    if (clickedItemMeta.persistentDataContainer.get(NNamespaceKeys.NEON_BUTTON.key,
-                            PersistentDataType.STRING).equals(NNamespaceKeys.NEON_BUTTON.key.toString(),
-                            true) && !clickedItemMeta.displayName.equals("${ChatColor.RED}Close", true)) return
+                    if (!persistentDataContainer.has(buttonIDKey, PersistentDataType.STRING)) return
+
+                    if (clickedItemMeta.displayName != closeButtonDisplayName) return
+
                     player.closeInventory()
                 }
 
@@ -354,5 +375,22 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
             nGUIConstructor.guiClickHandler(e)
         }
 
+    }
+
+    private class EventController: Listener {
+        @EventHandler
+        private fun onInventoryClick(e: InventoryClickEvent) {
+            GUIHandler(NGUI.Handler.getNGUI(e.whoClicked as Player)).setEventHandler(e)
+        }
+
+        @EventHandler
+        private fun onInventoryClose(e: InventoryCloseEvent) {
+            val inventoryName = e.view.title
+            val player = e.player as Player
+
+            if (inventoryName.equals(GUIHandler(NGUI.Handler.getNGUI(player)).getGUIName(), true)) {
+                NGUI.Handler.nGUIContainer.remove(player)
+            }
+        }
     }
 }

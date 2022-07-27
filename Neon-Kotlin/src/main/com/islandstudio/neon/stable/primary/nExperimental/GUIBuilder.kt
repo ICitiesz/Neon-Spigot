@@ -1,48 +1,64 @@
 package com.islandstudio.neon.stable.primary.nExperimental
 
+import com.islandstudio.neon.stable.utils.NItemHighlight
 import com.islandstudio.neon.stable.utils.NNamespaceKeys
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import org.bukkit.ChatColor
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 
-abstract class GUIBuilder(nGUI: NGUI) : NGUIConstructor(nGUI) {
+abstract class GUIBuilder(nGUI: NGUI): NGUIConstructor(nGUI) {
     protected val maxItemPerPage = 45
+    protected var maxPage = 1
     protected var pageIndex = 0
     protected var itemIndex = 0
 
-    fun addGUIButtons() {
-        val buttonLore: ArrayList<String> = ArrayList()
-        buttonLore.add("${ChatColor.GRAY}Current page: ${ChatColor.GREEN}${pageIndex + 1}")
+    /* Button display names */
+    protected val previousButtonDisplayName = "${ChatColor.GOLD}Previous"
+    protected val nextButtonDisplayName = "${ChatColor.GOLD}Next"
+    protected val closeButtonDisplayName = "${ChatColor.RED}Close"
+    protected val applyButtonDisplayName = "${ChatColor.RED}Apply Changes"
 
+    /* Button identifier key */
+    protected val buttonIDKey: NamespacedKey = NNamespaceKeys.NEON_BUTTON.key
+
+    /* Button highlight effect */
+    protected val nItemHighlight: NItemHighlight = NItemHighlight(NNamespaceKeys.NEON_BUTTON_HIGHLIGHT.key)
+
+    fun addGUIButtons() {
+        /* Button lore */
+        val buttonLore1: List<String> = listOf("${ChatColor.GRAY}Current:", "${ChatColor.WHITE}Page ${ChatColor.GREEN}${pageIndex + 1} ${ChatColor.WHITE}of ${ChatColor.GREEN}$maxPage")
+        val buttonLore2: List<String> = listOf("${ChatColor.YELLOW}Server reload are required!")
+
+        /* Button item */
         val nextButton = ItemStack(Material.SPECTRAL_ARROW)
         val previousButton = ItemStack(Material.SPECTRAL_ARROW)
         val closeButton = ItemStack(Material.BARRIER)
         val applyButton = ItemStack(Material.LEVER)
 
+        /* Button item meta */
         val nextButtonMeta = nextButton.itemMeta
         val previousButtonMeta = previousButton.itemMeta
         val closeButtonMeta = closeButton.itemMeta
         val applyButtonMeta = applyButton.itemMeta
 
-        if (nextButtonMeta != null) {
-            nextButtonMeta.setDisplayName("${ChatColor.GOLD}Next")
-            nextButtonMeta.lore = buttonLore
-            nextButtonMeta.persistentDataContainer.set(NNamespaceKeys.NEON_BUTTON.key, PersistentDataType.STRING, NNamespaceKeys.NEON_BUTTON.key.toString())
-        }
+        nextButtonMeta!!.setDisplayName(nextButtonDisplayName)
+        nextButtonMeta.lore = buttonLore1
+        nextButtonMeta.persistentDataContainer.set(buttonIDKey, PersistentDataType.STRING, buttonIDKey.toString())
 
-        if (previousButtonMeta != null) {
-            previousButtonMeta.setDisplayName("${ChatColor.GOLD}Previous")
-            previousButtonMeta.lore = buttonLore
-            previousButtonMeta.persistentDataContainer.set(NNamespaceKeys.NEON_BUTTON.key, PersistentDataType.STRING, NNamespaceKeys.NEON_BUTTON.key.toString())
-        }
+        previousButtonMeta!!.setDisplayName(previousButtonDisplayName)
+        previousButtonMeta.lore = buttonLore1
+        previousButtonMeta.persistentDataContainer.set(buttonIDKey, PersistentDataType.STRING, buttonIDKey.toString())
 
-        closeButtonMeta!!.setDisplayName("${ChatColor.RED}Close")
-        closeButtonMeta.persistentDataContainer.set(NNamespaceKeys.NEON_BUTTON.key, PersistentDataType.STRING, NNamespaceKeys.NEON_BUTTON.key.toString())
-        applyButtonMeta!!.setDisplayName("${ChatColor.RED}Apply")
-        applyButtonMeta.persistentDataContainer.set(NNamespaceKeys.NEON_BUTTON.key, PersistentDataType.STRING, NNamespaceKeys.NEON_BUTTON.key.toString())
+        closeButtonMeta!!.setDisplayName(closeButtonDisplayName)
+        closeButtonMeta.persistentDataContainer.set(buttonIDKey, PersistentDataType.STRING, buttonIDKey.toString())
+
+        applyButtonMeta!!.setDisplayName(applyButtonDisplayName)
+        applyButtonMeta.lore = buttonLore2
+        applyButtonMeta.persistentDataContainer.set(buttonIDKey, PersistentDataType.STRING, buttonIDKey.toString())
 
         nextButton.itemMeta = nextButtonMeta
         previousButton.itemMeta = previousButtonMeta
@@ -50,8 +66,10 @@ abstract class GUIBuilder(nGUI: NGUI) : NGUIConstructor(nGUI) {
         applyButton.itemMeta = applyButtonMeta
 
         inventory.setItem(53, applyButton)
-        inventory.setItem(50, nextButton)
         inventory.setItem(49, closeButton)
-        inventory.setItem(48, previousButton)
+
+        if (pageIndex > 0) inventory.setItem(48, previousButton)
+
+        if ((pageIndex + 1) != maxPage) inventory.setItem(50, nextButton)
     }
 }

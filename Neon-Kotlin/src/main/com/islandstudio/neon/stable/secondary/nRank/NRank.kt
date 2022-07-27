@@ -1,6 +1,7 @@
 package com.islandstudio.neon.stable.secondary.nRank
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nProfile.NProfile
 import net.minecraft.network.chat.ChatType
@@ -71,10 +72,7 @@ object NRank {
      * @param pluginName The plugin name that used in the plugin message. (String)
      */
     fun setCommandHandler(commander: Player, args: Array<out String>, pluginName: String) {
-        if (!commander.isOp) {
-            commander.sendMessage(pluginName + ChatColor.RED.toString() + "You don't have permission to execute this command!")
-            return
-        }
+        if (!commander.isOp) return commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
 
         val onlinePlayer: Collection<Player> = plugin.server.onlinePlayers
 
@@ -83,14 +81,13 @@ object NRank {
                 val playerName: String = args[2]
 
                 /* Check if the option is 'remove' */
-                if (!args[1].equals("remove", true)) {
-                    commander.sendMessage(pluginName + ChatColor.RED + "Invalid or missing argument!")
-                }
+                if (!args[1].equals("remove", true)) return commander
+                    .sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
+
 
                 /* Check if the given player name is exist */
-                if (onlinePlayer.parallelStream().noneMatch { player: Player -> player.name.equals(playerName, true) }) {
-                    commander.sendMessage(pluginName + ChatColor.RED + "No such player as '" + ChatColor.WHITE + playerName + ChatColor.RED + "'!")
-                }
+                if (onlinePlayer.parallelStream().noneMatch { player: Player -> player.name.equals(playerName, true) }) return commander
+                    .sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}No such player as '${ChatColor.WHITE}$playerName${ChatColor.RED}'!"))
 
                 removePlayerRank(commander, playerName, pluginName)
             }
@@ -100,25 +97,22 @@ object NRank {
                 val rankName: String = args[3]
 
                 /* Check if the option is 'set' */
-                if (!args[1].equals("set", true)) {
-                    commander.sendMessage(pluginName + ChatColor.RED + "Invalid or missing argument!")
-                }
+                if (!args[1].equals("set", true)) return commander
+                    .sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
 
                 /* Check if the given player name is exist */
-                if (onlinePlayer.parallelStream().noneMatch { player: Player -> player.name.equals(playerName, true) }) {
-                    commander.sendMessage(pluginName + ChatColor.RED + "No such player as '" + ChatColor.WHITE + playerName + ChatColor.RED + "'!")
-                }
+                if (onlinePlayer.parallelStream().noneMatch { player: Player -> player.name.equals(playerName, true) }) return commander
+                    .sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}No such player as '${ChatColor.WHITE}$playerName${ChatColor.RED}'!"))
 
                 /* Check if the given rank name is existed */
-                if (RankList.values().none { ranks: RankList -> rankName.equals(ranks.name, true) }) {
-                    commander.sendMessage(pluginName + ChatColor.RED + "No such rank as '" + ChatColor.WHITE + rankName + ChatColor.RED + "'!")
-                }
+                if (RankList.values().none { ranks: RankList -> rankName.equals(ranks.name, true) }) return commander
+                    .sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}No such rank as '${ChatColor.WHITE}$rankName${ChatColor.RED}'!"))
 
                 setPlayerRank(commander, rankName, playerName, pluginName)
             }
 
             else -> {
-                commander.sendMessage(pluginName + ChatColor.RED + "Invalid or missing argument!")
+                commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
             }
         }
     }
@@ -131,28 +125,28 @@ object NRank {
      *
      * @return The list of tab completion. (List<String>)
      */
-    fun tabCompletion(player: Player, args: Array<out String>): MutableList<String>? {
-        if (!player.isOp) return null
+    fun tabCompletion(player: Player, args: Array<out String>): MutableList<String> {
+        if (!player.isOp) return mutableListOf()
 
         when (args.size) {
             2 -> {
-                return listOf("set", "remove").toMutableList()
+                return listOf("set", "remove").filter { it.startsWith(args[1]) }.toMutableList()
             }
 
             3 -> {
                 if (args[1].equals("set", true) || args[1].equals("remove", true)) {
-                    return plugin.server.onlinePlayers.parallelStream().map { target: Player -> target.name }.toList().toMutableList()
+                    return plugin.server.onlinePlayers.parallelStream().map { target: Player -> target.name }.toList().filter { it.startsWith(args[2]) }.toMutableList()
                 }
             }
 
             4 -> {
-                if (args[1].equals("set", true) && args[2].isNotEmpty()) {
-                    return RankList.values().map { rank: RankList -> rank.name }.toList().toMutableList()
-                }
+                if (!args[1].equals("set", true)) return mutableListOf()
+
+                return RankList.values().map { rank: RankList -> rank.name }.toList().filter { it.startsWith(args[3]) }.toMutableList()
             }
         }
 
-        return null
+        return mutableListOf()
     }
 
     /**
@@ -164,27 +158,29 @@ object NRank {
      * @param pluginName The plugin name that used in the plugin message. (String)
      */
     private fun setPlayerRank(commander: Player, rankName: String, playerName:String, pluginName: String) {
-        val target: Player = plugin.server.getPlayer(playerName)!!
+        val target: Player = plugin.server.getPlayerExact(playerName)!!
 
         /* Check if the given rankName matches the 'Rank' field in the player profile.  */
         if (!rankName.equals(NProfile.Handler.getProfileData(target)["Rank"] as String, true)) {
 
             /* Check if the given rankName is 'OWNER', and check if the target player is server operator */
             if (rankName.equals(RankList.OWNER.name, true) && !target.isOp) {
-                commander.sendMessage(pluginName + ChatColor.YELLOW + "The '" + ChatColor.GRAY + rankName.uppercase() + ChatColor.YELLOW + "' rank is unavailable for this player.")
+                commander.sendMessage(
+                    CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}The '${ChatColor.GRAY}${rankName.uppercase()}${ChatColor.YELLOW}' " +
+                    "rank is unavailable for this player."))
                 return
             }
 
             NProfile.Handler.setValue(target, "Rank", rankName.uppercase())
             updateTag()
-            commander.sendMessage(pluginName + ChatColor.GREEN + "Rank successfully set!")
+            commander.sendMessage(
+                CommandSyntax.createSyntaxMessage("${ChatColor.GREEN}Rank successfully set!"))
             return
         }
 
         commander.sendMessage(
-            pluginName + ChatColor.RED + "The player " + ChatColor.WHITE + playerName + ChatColor.RED
-                    + " already has the '" + ChatColor.GRAY + rankName.uppercase() + ChatColor.RED + "' rank!"
-        )
+            CommandSyntax.createSyntaxMessage("${ChatColor.RED}The player ${ChatColor.WHITE}${target.name}${ChatColor.RED} already has the " +
+            "'${ChatColor.GRAY}${rankName.uppercase()}${ChatColor.RED}' rank!"))
     }
 
     /* Remove player rank */
@@ -200,15 +196,19 @@ object NRank {
         val playerRank: String = NProfile.Handler.getProfileData(target)["Rank"] as String
 
         if (playerRank.equals(RankList.MEMBER.name, true)) {
-            commander.sendMessage(pluginName + ChatColor.YELLOW + "Minimum rank must be a Member!")
+            commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Minimum rank must be a Member!"))
             return
         }
 
         NProfile.Handler.setValue(target, "Rank", RankList.MEMBER.name)
         updateTag()
 
-        commander.sendMessage(pluginName + ChatColor.RED+ "The '" + ChatColor.GRAY + playerRank.uppercase() + ChatColor.RED + "' rank has been removed from '" + ChatColor.GRAY + target.name + ChatColor.RED + "'!")
-        target.sendMessage(pluginName + ChatColor.RED + "Your '" + ChatColor.GRAY + playerRank.uppercase() + ChatColor.RED + "' rank has been removed!")
+        commander.sendMessage(
+            CommandSyntax.createSyntaxMessage("${ChatColor.RED}The '${ChatColor.GRAY}${playerRank.uppercase()}${ChatColor.RED}' " +
+            "rank has been removed from '${ChatColor.GRAY}${target.name}${ChatColor.RED}'!"))
+        target.sendMessage(
+            CommandSyntax.createSyntaxMessage("${ChatColor.RED}Your '${ChatColor.GRAY}${playerRank.uppercase()}${ChatColor.RED}' " +
+            "rank has been removed!"))
     }
 
     /**

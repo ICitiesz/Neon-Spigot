@@ -6,6 +6,7 @@ import org.bukkit.enchantments.EnchantmentTarget
 import org.bukkit.inventory.ItemStack
 
 class NItemHighlight(key: NamespacedKey) : Enchantment(key) {
+    @Deprecated("Deprecated in Java", ReplaceWith("\"\""))
     override fun getName(): String {
         return ""
     }
@@ -26,6 +27,7 @@ class NItemHighlight(key: NamespacedKey) : Enchantment(key) {
         return false
     }
 
+    @Deprecated("Deprecated in Java", ReplaceWith("false"))
     override fun isCursed(): Boolean {
         return false
     }
