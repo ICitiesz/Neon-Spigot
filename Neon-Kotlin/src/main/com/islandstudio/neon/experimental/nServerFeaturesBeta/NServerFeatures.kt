@@ -1,4 +1,4 @@
-package com.islandstudio.neon.experimental.nServerConfigurationNew
+package com.islandstudio.neon.experimental.nServerFeaturesBeta
 
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
@@ -30,7 +30,6 @@ import org.simpleyaml.configuration.comments.CommentType
 import org.simpleyaml.configuration.comments.format.YamlCommentFormat
 import org.simpleyaml.configuration.file.YamlFile
 import org.simpleyaml.utils.SupplierIO
-import org.yaml.snakeyaml.Yaml
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
@@ -41,22 +40,22 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.ceil
 
-object NServerConfigurationNew {
+object NServerFeatures {
     /**
      * Set toggle for the specified config.
      *
-     * @param parentKey The parent key (feature name) of the config.
+     * @param parentKey The parent key (feature name) of the feature.
      * @param value The boolean value to set.
      */
     fun setToggle(parentKey: String, value: Boolean, commander: Player? = null) {
-        Handler.getClientConfigSection(parentKey, commander)?.set(ServerConfigGeneralProperties.IS_ENABLED.property, value)
+        Handler.getClientConfigSection(parentKey, commander)?.set(ServerFeatureGeneralProperties.IS_ENABLED.property, value)
     }
 
     /**
-     * Set option value for the specific config.
+     * Set option value for the specific feature.
      *
-     * @param parentKey The parent key (feature name) of the config.
-     * @param optionKey The option key (option name) of the config.
+     * @param parentKey The parent key (feature name) of the feature.
+     * @param optionKey The option key (option name) of the feature.
      * @param value The value need to be set for the option.
      */
     fun setOptionValue(parentKey: String, optionKey: String, value: Any) {
@@ -71,100 +70,105 @@ object NServerConfigurationNew {
      * @return The status of the client config (enabled or disabled).
      */
     fun getToggle(parentKey: String): Boolean {
-        return getClientValue(parentKey, ServerConfigGeneralProperties.IS_ENABLED) as Boolean
+        return getClientValue(parentKey, ServerFeatureGeneralProperties.IS_ENABLED) as Boolean
     }
 
     fun getOptionValue(parentKey: String, optionKey: String): Any? {
-        return getClientValue(parentKey, ServerConfigGeneralProperties.OPTION, optionKey)
+        return getClientValue(parentKey, ServerFeatureGeneralProperties.OPTION, optionKey)
     }
 
     /**
-     * Save the client config to the file.
+     * Save the client server features to the file.
      *
      */
     fun save(commander: Player? = null) {
-        val nServerConfigFile = Handler.nServerConfigFile
+        val nServerFeaturesFile = Handler.nServerFeaturesFile
 
-        nServerConfigFile.copyTo(Handler.nServerConfigFileBackup, true)
-        Handler.getClientFileConfiguration(commander).save(nServerConfigFile)
-        Handler.loadConfig()
+        nServerFeaturesFile.copyTo(Handler.nServerFeaturesFileBackup, true)
+        Handler.getClientFileConfiguration(commander).save(nServerFeaturesFile)
+        Handler.loadServerFeatures()
     }
 
     /**
-     * Get all the parent keys from source config. (config names).
+     * Get all the parent keys from source server features. (feature names).
      *
-     * @return List of parent keys from source config.
+     * @return List of parent keys from source server features.
      */
     private fun getSourceParentKeys(): ArrayList<String> {
         return Handler.getSourceFileConfiguration().getKeys(false).toCollection(ArrayList())
     }
 
     /**
-     * Get all the parent keys from client config. (config names).
+     * Get all the parent keys from client server features. (feature names).
      *
-     * @return List of parent keys from client config.
+     * @return List of parent keys from client server features.
      */
     fun getClientParentKeys(commander: Player? = null): ArrayList<String> {
         return Handler.getClientFileConfiguration(commander).getKeys(false).toCollection(ArrayList())
     }
 
     /**
-     * Get source config details
+     * Get source server feature details.
      *
      * @param isOptionKey Whether the key is option key or not.
-     * @return The config details.
+     * @return The server feature details from source.
      */
-    fun getSourceConfigDetails(isOptionKey: Boolean): TreeMap<String, ArrayList<String>> {
-        val sourceConfigDetails: TreeMap<String, ArrayList<String>> = TreeMap()
+    fun getSourceFeatureDetails(isOptionKey: Boolean): TreeMap<String, ArrayList<String>> {
+        val sourceFeatureDetails: TreeMap<String, ArrayList<String>> = TreeMap()
 
         if (isOptionKey) {
             getSourceParentKeys().forEach {parentKey ->
-                sourceConfigDetails[parentKey] = Handler.getSourceConfigSection("${parentKey}.option")?.getKeys(false)
+                sourceFeatureDetails[parentKey] = Handler.getSourceConfigSection("${parentKey}.option")?.getKeys(false)
                     ?.toCollection(ArrayList()) ?: ArrayList()
             }
 
-            return sourceConfigDetails
+            return sourceFeatureDetails
         }
 
         getSourceParentKeys().forEach { parentKey ->
-            sourceConfigDetails[parentKey] = Handler.getSourceConfigSection(parentKey)?.getKeys(false)
+            sourceFeatureDetails[parentKey] = Handler.getSourceConfigSection(parentKey)?.getKeys(false)
                 ?.toCollection(ArrayList()) ?: ArrayList()
         }
 
-        return sourceConfigDetails
+        return sourceFeatureDetails
     }
 
     /**
-     * Get client config details.
+     * Get client server feature details.
      *
-     * @param isOptionKey Whether the config is option key or not.
-     * @return The config details.
+     * @param isOptionKey Whether the key is option key or not.
+     * @return The server feature details from client.
      */
-    fun getClientConfigDetails(isOptionKey: Boolean, commander: Player? = null): TreeMap<String, ArrayList<String>> {
-        val clientConfigDetails: TreeMap<String, ArrayList<String>> = TreeMap()
+    fun getClientFeatureDetails(isOptionKey: Boolean, commander: Player? = null): TreeMap<String, ArrayList<String>> {
+        val clientFeatureDetails: TreeMap<String, ArrayList<String>> = TreeMap()
 
         if (isOptionKey) {
             getClientParentKeys().forEach {parentKey ->
-                clientConfigDetails[parentKey] = Handler.getClientConfigSection("${parentKey}.option")?.getKeys(false)
+                clientFeatureDetails[parentKey] = Handler.getClientConfigSection("${parentKey}.option")?.getKeys(false)
                     ?.toCollection(ArrayList()) ?: ArrayList()
             }
 
-            return clientConfigDetails
+            return clientFeatureDetails
         }
 
         getClientParentKeys().forEach { parentKey ->
-            clientConfigDetails[parentKey] = Handler.getClientConfigSection(parentKey)?.getKeys(false)
+            clientFeatureDetails[parentKey] = Handler.getClientConfigSection(parentKey)?.getKeys(false)
                 ?.toCollection(ArrayList()) ?: ArrayList()
         }
 
-        return clientConfigDetails
+        return clientFeatureDetails
     }
 
+    /**
+     * Get source option comments.
+     *
+     * @return The option comments from source.
+     */
     fun getSourceOptionComments(): TreeMap<String, String?> {
-        val sourceYamlFile = YamlFile.loadConfiguration(SupplierIO.InputStream { NServerConfigurationNew::class.java.
-        classLoader.getResourceAsStream("resources/server_configuration-new.yml") }, true)
+        val sourceYamlFile = YamlFile.loadConfiguration(SupplierIO.InputStream { NServerFeatures::class.java.
+        classLoader.getResourceAsStream("resources/nServerFeatures.yml") }, true)
 
-        val sourceOptionKeys: TreeMap<String, ArrayList<String>> = getSourceConfigDetails(true)
+        val sourceOptionKeys: TreeMap<String, ArrayList<String>> = getSourceFeatureDetails(true)
         val sourceOptionComments: TreeMap<String, String?> = TreeMap()
 
         sourceOptionKeys.forEach { (featureName, keys) ->
@@ -176,10 +180,15 @@ object NServerConfigurationNew {
         return sourceOptionComments
     }
 
+    /**
+     * Get client option comments.
+     *
+     * @return The option comments from client.
+     */
     fun getClientOptionComments(): TreeMap<String, String?> {
-        val clientYamlFile = YamlFile.loadConfiguration(Handler.nServerConfigFile, true)
+        val clientYamlFile = YamlFile.loadConfiguration(Handler.nServerFeaturesFile, true)
 
-        val clientOptionKeys: TreeMap<String, ArrayList<String>> = getClientConfigDetails(true)
+        val clientOptionKeys: TreeMap<String, ArrayList<String>> = getClientFeatureDetails(true)
         val clientOptionComments: TreeMap<String, String?> = TreeMap()
 
         clientOptionKeys.forEach { (featureName, keys) ->
@@ -192,38 +201,38 @@ object NServerConfigurationNew {
     }
 
     /**
-     * Get value from source config based on ServerConfigProperties.
+     * Get value from source server features based on ServerFeatureGeneralProperties.
      *
-     * @param parentKey Parent key (config name) of the config.
-     * @param key Child key (config detail) of the config.
-     * @param serverConfigGeneralProperties ServerConfigProperties
-     * @return Value of the given child key (config detail).
+     * @param parentKey Parent key (feature name) of the feature.
+     * @param key Child key (feature detail) of the feature.
+     * @param serverFeatureGeneralProperties ServerFeatureGeneralProperties.
+     * @return Value of the given child key (feature detail).
      */
-    private fun getSourceValue(parentKey: String, serverConfigGeneralProperties: ServerConfigGeneralProperties, key: String? = null): Any? {
-        if (serverConfigGeneralProperties != ServerConfigGeneralProperties.OPTION) return Handler.getSourceConfigSection(parentKey)?.get(serverConfigGeneralProperties.property)
+    private fun getSourceValue(parentKey: String, serverFeatureGeneralProperties: ServerFeatureGeneralProperties, key: String? = null): Any? {
+        if (serverFeatureGeneralProperties != ServerFeatureGeneralProperties.OPTION) return Handler.getSourceConfigSection(parentKey)?.get(serverFeatureGeneralProperties.property)
 
         return key?.let { Handler.getSourceConfigSection("${parentKey}.option")?.get(it) }
     }
 
     /**
-     * Get value from client config based on ServerConfigProperties.
+     * Get value from client server features based on ServerFeaturesGeneralProperties.
      *
-     * @param parentKey Parent key (config name) of the config.
-     * @param key Child key (config detail) of the config.
-     * @param serverConfigGeneralProperties ServerConfigProperties
-     * @return Value of the given child key (config detail).
+     * @param parentKey Parent key (feature name) of the feature.
+     * @param key Child key (feature detail) of the feature.
+     * @param serverFeatureGeneralProperties ServerFeaturesGeneralProperties
+     * @return Value of the given child key (feature detail).
      */
-    private fun getClientValue(parentKey: String, serverConfigGeneralProperties: ServerConfigGeneralProperties, key: String? = null, commander: Player? = null): Any? {
-        if (serverConfigGeneralProperties != ServerConfigGeneralProperties.OPTION) return Handler.getClientConfigSection(parentKey, commander)?.get(serverConfigGeneralProperties.property)
+    private fun getClientValue(parentKey: String, serverFeatureGeneralProperties: ServerFeatureGeneralProperties, key: String? = null, commander: Player? = null): Any? {
+        if (serverFeatureGeneralProperties != ServerFeatureGeneralProperties.OPTION) return Handler.getClientConfigSection(parentKey, commander)?.get(serverFeatureGeneralProperties.property)
 
         return key?.let { Handler.getClientConfigSection("${parentKey}.option", commander)?.get(it) }
     }
 
     object Handler {
-        private val nServerConfigFolder: File = FolderList.SERVER_CONFIGURATION_FOLDER_NEW.folder
+        private val nServerFeaturesFolder: File = FolderList.NSERVERFEATURES_BETA_FOLDER.folder
 
-        val nServerConfigFile = File(nServerConfigFolder, "nServerConfig.yml")
-        val nServerConfigFileBackup = File(nServerConfigFolder, "nServerConfig_backup.yml")
+        val nServerFeaturesFile = File(nServerFeaturesFolder, "nServerFeatures.yml")
+        val nServerFeaturesFileBackup = File(nServerFeaturesFolder, "nServerFeatures_backup.yml")
 
         val guiSessions: TreeMap<UUID, FileConfiguration> = TreeMap()
         var isNavigating = false
@@ -231,16 +240,20 @@ object NServerConfigurationNew {
         private lateinit var clientFileConfiguration: FileConfiguration
         private lateinit var sourceFileConfiguration: FileConfiguration
 
+        /**
+         * Initialization for nServerFeatures
+         *
+         */
         fun run() {
-            NFolder.createNewFile(nServerConfigFile, nServerConfigFolder)
+            NFolder.createNewFile(nServerFeaturesFile, nServerFeaturesFolder)
 
-            val clientBufferedReader: BufferedReader = nServerConfigFile.bufferedReader()
+            val clientBufferedReader: BufferedReader = nServerFeaturesFile.bufferedReader()
             val clientFileLines: Long = clientBufferedReader.lines().count()
 
             clientBufferedReader.close()
 
             if (clientFileLines == 0L) {
-                val clientFileOutputStream: FileOutputStream = nServerConfigFile.outputStream()
+                val clientFileOutputStream: FileOutputStream = nServerFeaturesFile.outputStream()
                 val clientBufferedWriter: BufferedWriter = clientFileOutputStream.bufferedWriter()
 
                 getSourceContent().forEachIndexed { index, line ->
@@ -254,16 +267,16 @@ object NServerConfigurationNew {
                 clientBufferedWriter.close()
             }
 
-            loadConfig()
+            loadServerFeatures()
 
             NConstructor.registerEvent(EventController())
         }
 
         /**
-         * Set command handler
+         * Set command handler for nServerFeatures.
          *
-         * @param commander The player who perform the command
-         * @param args The command arguments
+         * @param commander The player who perform the command.
+         * @param args The command arguments.
          */
         fun setCommandHandler(commander: Player, args: Array<out String>) {
             if (!commander.isOp) {
@@ -272,22 +285,21 @@ object NServerConfigurationNew {
             }
 
             when (args.size) {
-                /* Size 1: Open nServerConfiguration GUI */
+                /* Size 1: Open nServerFeatures GUI */
                 1 -> {
-                    loadConfig()
+                    loadServerFeatures()
                     guiSessions[commander.uniqueId] = getClientFileConfiguration()
                     GUIHandler(NGUI.Handler.getNGUI(commander)).openGUI()
-                    return
                 }
 
-                /* Size 2: Get toggle status for the specific config/feature */
+                /* Size 2: Get toggle status for the specific feature */
                 2 -> {
                     val featureNameField = args[1]
                     val sourceFeatureNames: List<String> = getSourceParentKeys()
 
                     /* Check and get feature name, if null will be sending a reminder message that the given feature name is not exists. */
                     val featureName: String = sourceFeatureNames.firstOrNull { it.equals(featureNameField, true) } ?: return commander
-                        .sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no server config as ${ChatColor.WHITE}'" +
+                        .sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no such server feature as ${ChatColor.WHITE}'" +
                                 "${ChatColor.GRAY}${featureNameField}${ChatColor.WHITE}'${ChatColor.YELLOW}!"))
 
                     val isEnabled: String = if (getToggle(featureName)) "${ChatColor.GREEN}enabled" else "${ChatColor.RED}disabled"
@@ -307,26 +319,26 @@ object NServerConfigurationNew {
 
                     /* Check and get feature name, if null will be sending a reminder message that the given feature name is not exists. */
                     val featureName: String = sourceFeatureNames.firstOrNull { it.equals(featureNameField, true) } ?: return commander
-                        .sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no server config as ${ChatColor.WHITE}'" +
+                        .sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no such server feature as ${ChatColor.WHITE}'" +
                                 "${ChatColor.GRAY}${featureNameField}${ChatColor.WHITE}'${ChatColor.YELLOW}!"))
 
-                    val sourceOptionNames: List<String> = getSourceConfigDetails(true)[featureName] ?: ArrayList()
+                    val sourceOptionNames: List<String> = getSourceFeatureDetails(true)[featureName] ?: ArrayList()
 
                     /* Check and get option name, if null will be sending a reminder message that the given option name is not exists. */
                     val optionName: String = sourceOptionNames.firstOrNull { it.equals(featureOptionField, true) } ?: return commander
                         .sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no option as ${ChatColor.WHITE}'" +
                                 "${ChatColor.GRAY}${featureOptionField}${ChatColor.WHITE}' ${ChatColor.YELLOW}for ${ChatColor.GOLD}${featureName}${ChatColor.YELLOW}!"))
 
-                    loadConfig()
+                    loadServerFeatures()
 
                     /* Loop through OptionValueProperties to return the current option value to commander. */
-                    ServerConfigOptionProperties.values().forEach {
+                    ServerFeatureOptionProperties.values().forEach {
                         if (!it.option.split(".")[2].equals(optionName, true)) return@forEach
 
                         val valueMessage: String = CommandSyntax.createSyntaxMessage("${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
                                 "${ChatColor.GOLD}${optionName} ${ChatColor.YELLOW}is currently set to${ChatColor.WHITE}: ")
 
-                        val clientValue: Any? = getClientValue(featureName, ServerConfigGeneralProperties.OPTION, optionName)
+                        val clientValue: Any? = getClientValue(featureName, ServerFeatureGeneralProperties.OPTION, optionName)
 
                         when (it.dataType) {
                             OptionDataValidation.DataTypes.BOOLEAN -> {
@@ -375,32 +387,36 @@ object NServerConfigurationNew {
 
                     /* Check and get feature name, if null will be sending a reminder message that the given feature name is not exists. */
                     val featureName: String = sourceFeatureNames.firstOrNull { it.equals(featureNameField, true) } ?: return commander
-                        .sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no server config as ${ChatColor.WHITE}'" +
+                        .sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no such server feature as ${ChatColor.WHITE}'" +
                             "${ChatColor.GRAY}${featureNameField}${ChatColor.WHITE}'${ChatColor.YELLOW}!"))
 
-                    val sourceOptionNames: List<String> = getSourceConfigDetails(true)[featureName] ?: ArrayList()
+                    val sourceOptionNames: List<String> = getSourceFeatureDetails(true)[featureName] ?: ArrayList()
 
                     /* Check and get option name, if null will be sending a reminder message that the given option name is not exists. */
                     val optionName: String = sourceOptionNames.firstOrNull { it.equals(featureOptionField, true) } ?: return commander
-                        .sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no option as ${ChatColor.WHITE}'" +
+                        .sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no such option as ${ChatColor.WHITE}'" +
                             "${ChatColor.GRAY}${featureOptionField}${ChatColor.WHITE}' ${ChatColor.YELLOW}for ${ChatColor.GOLD}${featureName}${ChatColor.YELLOW}!"))
 
+                    /* Preset messages */
+                    val errorMessage: String = CommandSyntax.createSyntaxMessage("${ChatColor.RED}Invalid! ${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
+                            "${ChatColor.GOLD}${optionName} ${ChatColor.YELLOW}is required${ChatColor.WHITE}: ")
+
+                    val reloadMessage: String = CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Please reload the server to apply the effects!")
+
+                    val modifiedMessage: String = CommandSyntax.createSyntaxMessage("${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
+                            "${ChatColor.GOLD}${optionName} ${ChatColor.YELLOW}has been set to${ChatColor.WHITE}: ")
+
                     /* Loop through OptionValueProperties to perform input value verification. */
-                    ServerConfigOptionProperties.values().forEach {
+                    ServerFeatureOptionProperties.values().forEach {
                         if (!it.option.split(".")[2].equals(optionName, true)) return@forEach
 
-                        /* Preset messages */
-                        val errorMessage: String = CommandSyntax.createSyntaxMessage("${ChatColor.RED}Invalid! ${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
-                                "${ChatColor.GOLD}${optionName} ${ChatColor.YELLOW}is required${ChatColor.WHITE}: ")
-
-                        val reloadMessage: String = CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Please reload the server to apply the effects!")
-
-                        val modifiedMessage: String = CommandSyntax.createSyntaxMessage("${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
-                                "${ChatColor.GOLD}${optionName} ${ChatColor.YELLOW}has been set to${ChatColor.WHITE}: ")
-
                         /* Data type verification */
-                        val value: Any = OptionDataValidation.isDataTypeValid(it.dataType, featureOptionValueField) ?: return commander
-                            .sendMessage("${errorMessage}${ChatColor.GREEN}${it.dataType.name.lowercase().replaceFirstChar {char -> char.titlecase(Locale.getDefault())}} value")
+                        val value: Any = if (featureOptionValueField.equals("default", true)) {
+                            getSourceValue(featureName, ServerFeatureGeneralProperties.OPTION, optionName)!!
+                        } else {
+                            OptionDataValidation.isDataTypeValid(it.dataType, featureOptionValueField) ?: return commander
+                                .sendMessage("${errorMessage}${ChatColor.GREEN}${it.dataType.name.lowercase().replaceFirstChar {char -> char.titlecase(Locale.getDefault())}} value")
+                        }
 
                         when (it.dataType) {
                             OptionDataValidation.DataTypes.BOOLEAN -> {
@@ -458,7 +474,7 @@ object NServerConfigurationNew {
         fun tabCompletion(commander: Player, args: Array<out String>): MutableList<String> {
             if (!commander.isOp) return mutableListOf()
 
-            loadConfig()
+            loadServerFeatures()
 
             val sourceFeatureNames: List<String> = getSourceParentKeys()
 
@@ -470,23 +486,25 @@ object NServerConfigurationNew {
                 3 -> {
                     val featureName = sourceFeatureNames.firstOrNull { it.equals(args[1], true) } ?: return mutableListOf()
 
-                    return getSourceConfigDetails(true)[featureName]?.filter { it.startsWith(args[2], true) }
+                    return getSourceFeatureDetails(true)[featureName]?.filter { it.startsWith(args[2], true) }
                         ?.toMutableList() ?: return mutableListOf()
                 }
 
                 4 -> {
                     val featureName = sourceFeatureNames.firstOrNull { it.equals(args[1], true) } ?: return mutableListOf()
 
-                    val sourceOptionNames: List<String> = getSourceConfigDetails(true)[featureName] ?: return mutableListOf()
+                    val sourceOptionNames: List<String> = getSourceFeatureDetails(true)[featureName] ?: return mutableListOf()
 
                     val optionName: String = sourceOptionNames.firstOrNull { it.equals(args[2], true) } ?: return mutableListOf()
 
-                    ServerConfigOptionProperties.values().forEach { optionDataTypes ->
+                    ServerFeatureOptionProperties.values().forEach { optionDataTypes ->
                         if (!optionDataTypes.option.split(".")[2].equals(optionName, true)) return@forEach
 
-                        if (optionDataTypes.dataType != OptionDataValidation.DataTypes.BOOLEAN) return@forEach
+                        if (optionDataTypes.dataType == OptionDataValidation.DataTypes.BOOLEAN) {
+                            return mutableListOf("default", "true", "false").filter { it.startsWith(args[3], true) }.toMutableList()
+                        }
 
-                        return mutableListOf("true", "false").filter { it.startsWith(args[3], true) }.toMutableList()
+                        return mutableListOf("default").filter { it.startsWith(args[3], true) }.toMutableList()
                     }
                 }
             }
@@ -495,56 +513,56 @@ object NServerConfigurationNew {
         }
 
         /**
-         * Load config both source and client.
+         * Load server features both source and client.
          *
          */
-        fun loadConfig() {
+        fun loadServerFeatures() {
             // TODO: Error messages handling.
             /* This section is used to loading the source server config. */
-            val nServerConfigSource: Reader = NServerConfigurationNew::class.java.
-            classLoader.getResourceAsStream("resources/server_configuration-new.yml")?.reader() as Reader
+            val nServerFeaturesSource: Reader = NServerFeatures::class.java.
+            classLoader.getResourceAsStream("resources/nServerFeatures.yml")?.reader() as Reader
 
-            sourceFileConfiguration = YamlConfiguration.loadConfiguration(nServerConfigSource)
-            nServerConfigSource.close()
+            sourceFileConfiguration = YamlConfiguration.loadConfiguration(nServerFeaturesSource)
+            nServerFeaturesSource.close()
 
-            /* This section is used to loading the client server config.
-            * Several processes will be run accordingly if the client server config can't be loaded.
+            /* This section is used to loading the client server features.
+            * Several processes will be run accordingly if the client server features can't be loaded.
             * */
             try {
                 val yamlConfig = YamlConfiguration()
-                yamlConfig.load(nServerConfigFile)
+                yamlConfig.load(nServerFeaturesFile)
 
                 clientFileConfiguration = yamlConfig
 
-                if (!nServerConfigFileBackup.exists()) {
-                    nServerConfigFile.copyTo(nServerConfigFileBackup, true)
+                if (!nServerFeaturesFileBackup.exists()) {
+                    nServerFeaturesFile.copyTo(nServerFeaturesFileBackup, true)
                 }
             } catch (err: Exception) {
-                val nServerConfigFileError = File(nServerConfigFolder, "nServerConfig_corrupted.yml")
+                val nServerConfigFileError = File(nServerFeaturesFolder, "nServerFeatures_corrupted.yml")
 
-                /* Create a copy of the corrupted server config file named 'nServerConfig_corrupted.yml' */
-                println("There is an error while loading the 'nServerConfig.yml' file!")
-                nServerConfigFile.copyTo(nServerConfigFileError, true)
+                /* Create a copy of the corrupted server features file named 'nServerFeatures_corrupted.yml' */
+                println("There is an error while loading the 'nServerFeatures.yml' file!")
+                nServerFeaturesFile.copyTo(nServerConfigFileError, true)
 
-                println("Corrupted server config has been copied to the 'nServerConfig_corrupted.yml' file.")
+                println("Corrupted server features has been copied to the 'nServerFeatures_corrupted.yml' file.")
                 Thread.sleep(200)
 
-                println("Rolling back previous server config from the 'nServerConfig_backup.yml' file......")
+                println("Rolling back previous server features from the 'nServerFeatures_backup.yml' file......")
                 Thread.sleep(200)
 
-                /* Roll back the server config from the 'nServerConfig_backup.yml'. */
-                if (nServerConfigFileBackup.exists()) {
+                /* Roll back the server features from the 'nServerFeatures_backup.yml'. */
+                if (nServerFeaturesFileBackup.exists()) {
                     try {
-                        /* Load the 'nServerConfig_backup.yml' */
+                        /* Load the 'nServerFeatures_backup.yml' */
                         val backupYamlConfig = YamlConfiguration()
-                        backupYamlConfig.load(nServerConfigFileBackup)
+                        backupYamlConfig.load(nServerFeaturesFileBackup)
 
                         backupYamlConfig.saveToString().let {
-                            nServerConfigFile.writeText(it)
+                            nServerFeaturesFile.writeText(it)
                         }
 
                         run()
-                        println("Server config has been rolled back!")
+                        println("Server features has been rolled back!")
                     } catch (err: InvalidConfigurationException) {
                         resetServerConfig()
                     }
@@ -558,7 +576,7 @@ object NServerConfigurationNew {
         }
 
         /**
-         * Get source file configuration
+         * Get source file configuration.
          *
          * @return Source file configuration
          */
@@ -567,7 +585,7 @@ object NServerConfigurationNew {
         }
 
         /**
-         * Get client file configuration
+         * Get client file configuration.
          *
          * @return Client file configuration
          */
@@ -578,153 +596,153 @@ object NServerConfigurationNew {
         }
 
         /**
-         * Reset server config to default. This method only used within the loadConfig() method.
+         * Reset server features to default. This method only used within the loadConfig() method.
          *
          */
         private fun resetServerConfig() {
-            if (nServerConfigFileBackup.exists()) {
-                /* Reset server config to default if the 'nServerConfig_backup.yml' can't be loaded. */
-                println("There is an error while loading the 'nServerConfig_backup.yml' file!")
+            if (nServerFeaturesFileBackup.exists()) {
+                /* Reset server features to default if the 'nServerFeatures_backup.yml' can't be loaded. */
+                println("There is an error while loading the 'nServerFeatures_backup.yml' file!")
                 Thread.sleep(200)
 
-                println("Removing the corrupted 'nServerConfig_backup.yml' file......")
+                println("Removing the corrupted 'nServerFeatures_backup.yml' file......")
                 Thread.sleep(200)
 
-                println("Resetting the server config to default......")
+                println("Resetting the server features to default......")
                 Thread.sleep(200)
 
-                nServerConfigFileBackup.delete()
-                nServerConfigFile.delete()
+                nServerFeaturesFileBackup.delete()
+                nServerFeaturesFile.delete()
                 run()
 
-                println("Server config has been reset to default!")
+                println("Server features has been reset to default!")
                 return
             }
 
-            /* Reset server config to default if the 'nServerConfig_backup.yml' does not exist. */
-            println("'nServerConfig_backup.yml' file not found!")
+            /* Reset server features to default if the 'nServerConfig_backup.yml' does not exist. */
+            println("'nServerFeatures_backup.yml' file not found!")
             Thread.sleep(200)
 
-            println("Resetting the server config to default......")
+            println("Resetting the server features to default......")
             Thread.sleep(200)
 
-            nServerConfigFile.delete()
-            println("Server config has been reset to default!")
+            nServerFeaturesFile.delete()
+            println("Server features has been reset to default!")
             run()
         }
 
         /**
-         * Update server config from source to client.
+         * Update server features from source to client.
          *
          */
         private fun update() {
-            val sourceConfig = sourceFileConfiguration
+            val sourceServerFeatures = sourceFileConfiguration
 
             /* Checking 1: Check and update the parent keys. */
             if (!getClientParentKeys().containsAll(getSourceParentKeys())) {
                 getSourceParentKeys().forEach { parentKey ->
-                    sourceConfig.set(parentKey, getSourceConfigSection(parentKey))
+                    sourceServerFeatures.set(parentKey, getSourceConfigSection(parentKey))
 
                     if (!getClientParentKeys().contains(parentKey)) return@forEach
 
                     val clientSection: MemorySection = getClientConfigSection(parentKey) as MemorySection
 
-                    sourceConfig.set("${parentKey}.is_enabled", clientSection.get("is_enabled") as Boolean)
-                    sourceConfig.set("${parentKey}.option", clientSection.get("option") as MemorySection)
+                    sourceServerFeatures.set("${parentKey}.is_enabled", clientSection.get("is_enabled") as Boolean)
+                    sourceServerFeatures.set("${parentKey}.option", clientSection.get("option") as MemorySection)
                 }
 
-                val clientFileOutputStream: FileOutputStream = nServerConfigFile.outputStream()
+                val clientFileOutputStream: FileOutputStream = nServerFeaturesFile.outputStream()
                 val clientBufferedWriter: BufferedWriter = clientFileOutputStream.bufferedWriter()
 
-                clientBufferedWriter.write(sourceConfig.saveToString().trim())
+                clientBufferedWriter.write(sourceServerFeatures.saveToString().trim())
                 clientBufferedWriter.close()
 
-                loadConfig()
+                loadServerFeatures()
             }
 
             /* Checking 2: Check and update the child keys. */
-            if (getClientConfigDetails(false) != getSourceConfigDetails(false)) {
-                val sourceConfigChild = getSourceConfigDetails(false)
-                val clientConfigChild = getClientConfigDetails(false)
+            if (getClientFeatureDetails(false) != getSourceFeatureDetails(false)) {
+                val sourceServerFeaturesChild = getSourceFeatureDetails(false)
+                val clientServerFeaturesChild = getClientFeatureDetails(false)
 
-                sourceConfigChild.forEach fE1@ { (parentKey, childKeys) ->
+                sourceServerFeaturesChild.forEach fE1@ { (parentKey, childKeys) ->
                     val sourceSection: ConfigurationSection = getSourceConfigSection(parentKey) as ConfigurationSection
 
-                    sourceConfig.set(parentKey, sourceSection)
+                    sourceServerFeatures.set(parentKey, sourceSection)
 
                     childKeys.forEach fE2@ {childKey ->
-                        if (!clientConfigChild[parentKey]!!.contains(childKey)) return@fE2
+                        if (!clientServerFeaturesChild[parentKey]!!.contains(childKey)) return@fE2
 
                         val clientSection: MemorySection = getClientConfigSection(parentKey) as MemorySection
 
-                        if (childKey.equals(ServerConfigGeneralProperties.DESCRIPTION.property, true)) return@fE2
+                        if (childKey.equals(ServerFeatureGeneralProperties.DESCRIPTION.property, true)) return@fE2
 
-                        if (childKey.equals(ServerConfigGeneralProperties.OPTION.property, true)) {
+                        if (childKey.equals(ServerFeatureGeneralProperties.OPTION.property, true)) {
                             if (clientSection[childKey] !is ConfigurationSection) return@fE2
                         }
 
-                        sourceConfig.set("${parentKey}.${childKey}", clientSection.get(childKey))
+                        sourceServerFeatures.set("${parentKey}.${childKey}", clientSection.get(childKey))
                     }
                 }
 
-                val clientFileOutputStream: FileOutputStream = nServerConfigFile.outputStream()
+                val clientFileOutputStream: FileOutputStream = nServerFeaturesFile.outputStream()
                 val clientBufferedWriter: BufferedWriter = clientFileOutputStream.bufferedWriter()
 
-                clientBufferedWriter.write(sourceConfig.saveToString().trim())
+                clientBufferedWriter.write(sourceServerFeatures.saveToString().trim())
                 clientBufferedWriter.close()
 
-                loadConfig()
+                loadServerFeatures()
             }
 
             /* Checking 3: Check and update the option keys. */
-            if (getClientConfigDetails(true) != getSourceConfigDetails(true)) {
-                val sourceOptionKeys: TreeMap<String, ArrayList<String>> = getSourceConfigDetails(true)
-                val clientOptionKeys: TreeMap<String, ArrayList<String>> = getClientConfigDetails(true)
+            if (getClientFeatureDetails(true) != getSourceFeatureDetails(true)) {
+                val sourceOptionKeys: TreeMap<String, ArrayList<String>> = getSourceFeatureDetails(true)
+                val clientOptionKeys: TreeMap<String, ArrayList<String>> = getClientFeatureDetails(true)
 
                 sourceOptionKeys.forEach fE1@ { (parentKey, optionKeys) ->
                     val sourceSection: ConfigurationSection = getSourceConfigSection("${parentKey}.option")
-                        ?: sourceConfig.createSection("${parentKey}.option")
+                        ?: sourceServerFeatures.createSection("${parentKey}.option")
 
-                    sourceConfig.set("${parentKey}.is_enabled", getClientConfigSection(parentKey)?.get("is_enabled") as Boolean)
-                    sourceConfig.set("${parentKey}.option", sourceSection)
+                    sourceServerFeatures.set("${parentKey}.is_enabled", getClientConfigSection(parentKey)?.get("is_enabled") as Boolean)
+                    sourceServerFeatures.set("${parentKey}.option", sourceSection)
 
                     optionKeys.forEach fE2@ {
                         if (!clientOptionKeys[parentKey]!!.contains(it)) return@fE2
 
                         val clientSection: MemorySection = getClientConfigSection("${parentKey}.option") as MemorySection
 
-                        sourceConfig.set("${parentKey}.option.${it}", clientSection.get(it))
+                        sourceServerFeatures.set("${parentKey}.option.${it}", clientSection.get(it))
                     }
                 }
 
-                val clientFileOutputStream: FileOutputStream = nServerConfigFile.outputStream()
+                val clientFileOutputStream: FileOutputStream = nServerFeaturesFile.outputStream()
                 val clientBufferedWriter: BufferedWriter = clientFileOutputStream.bufferedWriter()
 
-                clientBufferedWriter.write(sourceConfig.saveToString().trim())
+                clientBufferedWriter.write(sourceServerFeatures.saveToString().trim())
                 clientBufferedWriter.close()
 
-                loadConfig()
+                loadServerFeatures()
             }
 
             /* Checking 4: Validate toggle, description, and command, it will reset to default if invalid  */
-            getSourceConfigDetails(false).forEach { (parentKey, childKeys) ->
+            getSourceFeatureDetails(false).forEach { (parentKey, childKeys) ->
                 childKeys.forEach childKey@ {
                     when {
-                        it.equals(ServerConfigGeneralProperties.DESCRIPTION.property, true) -> {
-                            val sourceDescription: String = getSourceValue(parentKey, ServerConfigGeneralProperties.DESCRIPTION) as String
-                            val clientDescription: String = getClientValue(parentKey, ServerConfigGeneralProperties.DESCRIPTION) as String
+                        it.equals(ServerFeatureGeneralProperties.DESCRIPTION.property, true) -> {
+                            val sourceDescription: String = getSourceValue(parentKey, ServerFeatureGeneralProperties.DESCRIPTION) as String
+                            val clientDescription: String = getClientValue(parentKey, ServerFeatureGeneralProperties.DESCRIPTION) as String
 
                             if (clientDescription != sourceDescription) {
-                                getClientConfigSection(parentKey)?.set(ServerConfigGeneralProperties.DESCRIPTION.property, sourceDescription)
+                                getClientConfigSection(parentKey)?.set(ServerFeatureGeneralProperties.DESCRIPTION.property, sourceDescription)
                                 save()
                             }
 
                             return@childKey
                         }
 
-                        it.equals(ServerConfigGeneralProperties.IS_ENABLED.property, true) -> {
-                            val sourceToggle: Boolean = getSourceValue(parentKey, ServerConfigGeneralProperties.IS_ENABLED) as Boolean
-                            val clientToggle: Boolean? = (getClientValue(parentKey, ServerConfigGeneralProperties.IS_ENABLED).toString()).toBooleanStrictOrNull()
+                        it.equals(ServerFeatureGeneralProperties.IS_ENABLED.property, true) -> {
+                            val sourceToggle: Boolean = getSourceValue(parentKey, ServerFeatureGeneralProperties.IS_ENABLED) as Boolean
+                            val clientToggle: Boolean? = (getClientValue(parentKey, ServerFeatureGeneralProperties.IS_ENABLED).toString()).toBooleanStrictOrNull()
 
                             if (clientToggle == null) {
                                 setToggle(parentKey, sourceToggle)
@@ -734,12 +752,12 @@ object NServerConfigurationNew {
                             return@childKey
                         }
 
-                        it.equals(ServerConfigGeneralProperties.COMMAND.property, true) -> {
-                            val sourceCommand: String = getSourceValue(parentKey, ServerConfigGeneralProperties.COMMAND) as String
-                            val clientCommand: String = getClientValue(parentKey, ServerConfigGeneralProperties.COMMAND) as String
+                        it.equals(ServerFeatureGeneralProperties.COMMAND.property, true) -> {
+                            val sourceCommand: String = getSourceValue(parentKey, ServerFeatureGeneralProperties.COMMAND) as String
+                            val clientCommand: String = getClientValue(parentKey, ServerFeatureGeneralProperties.COMMAND) as String
 
                             if (clientCommand != sourceCommand) {
-                                getClientConfigSection(parentKey)?.set(ServerConfigGeneralProperties.COMMAND.property, sourceCommand)
+                                getClientConfigSection(parentKey)?.set(ServerFeatureGeneralProperties.COMMAND.property, sourceCommand)
                                 save()
                             }
 
@@ -754,11 +772,11 @@ object NServerConfigurationNew {
             }
 
             /* Checking 5: Validate option value and reset to default if invalid. */
-            ServerConfigOptionProperties.values().forEach {
+            ServerFeatureOptionProperties.values().forEach {
                 val featureName: String = it.option.split(".")[0]
                 val optionName: String = it.option.split(".")[2]
-                val sourceOptionValue: Any = getSourceValue(featureName, ServerConfigGeneralProperties.OPTION, optionName)!!
-                val clientOptionValue: Any? = getClientValue(featureName, ServerConfigGeneralProperties.OPTION, optionName)
+                val sourceOptionValue: Any = getSourceValue(featureName, ServerFeatureGeneralProperties.OPTION, optionName)!!
+                val clientOptionValue: Any? = getClientValue(featureName, ServerFeatureGeneralProperties.OPTION, optionName)
 
                 when (it.dataType) {
                     OptionDataValidation.DataTypes.BOOLEAN -> {
@@ -799,7 +817,7 @@ object NServerConfigurationNew {
                     clientOptionComments[optionPathName] = optionComments
                 }
 
-                val clientYamlFile = YamlFile.loadConfiguration(nServerConfigFile, true)
+                val clientYamlFile = YamlFile.loadConfiguration(nServerFeaturesFile, true)
 
                 clientOptionComments.forEach { (optionPathName, optionComments) ->
                     clientYamlFile.setComment(optionPathName, optionComments, CommentType.BLOCK)
@@ -808,7 +826,7 @@ object NServerConfigurationNew {
                 clientYamlFile.setCommentFormat(YamlCommentFormat.PRETTY)
                 clientYamlFile.save()
 
-                loadConfig()
+                loadServerFeatures()
             }
         }
 
@@ -833,7 +851,7 @@ object NServerConfigurationNew {
         }
 
         private fun getSourceContent(): List<String> {
-            val inputStream: InputStream = NServerConfigurationNew::class.java.
+            val inputStream: InputStream = NServerFeatures::class.java.
                             classLoader.getResourceAsStream("resources/server_configuration-new.yml")!!
 
             val bufferedReader: BufferedReader = inputStream.bufferedReader()
@@ -852,7 +870,7 @@ object NServerConfigurationNew {
         private val player: Player = nGUI.getGUIOwner()
 
         override fun getGUIName(): String {
-            return "nServerConfiguration"
+            return "${ChatColor.YELLOW}${ChatColor.MAGIC}-----${ChatColor.LIGHT_PURPLE}${ChatColor.BOLD}nServerFeatures${ChatColor.YELLOW}${ChatColor.MAGIC}-----"
         }
 
         override fun getGUISlots(): Int {
@@ -869,89 +887,89 @@ object NServerConfigurationNew {
 
                 if (itemIndex >= getSourceParentKeys().size) break
 
-                val serverConfigDetails: ArrayList<String> = ArrayList()
+                val serverFeatureDetails: ArrayList<String> = ArrayList()
 
-                val serverConfig = ItemStack(Material.BIRCH_SIGN)
-                val serverConfigMeta = serverConfig.itemMeta!!
+                val serverFeature = ItemStack(Material.BIRCH_SIGN)
+                val serverFeatureMeta = serverFeature.itemMeta!!
 
-                val serverConfigName = getSourceParentKeys()[itemIndex]
+                val serverFeatureName = getSourceParentKeys()[itemIndex]
 
-                /* Setting up the status of the config to the button */
-                if (getClientValue(serverConfigName, ServerConfigGeneralProperties.IS_ENABLED, commander = player) as Boolean) {
-                    serverConfigDetails.add("${ChatColor.GRAY}Status: ${ChatColor.GREEN}Enabled!")
-                    serverConfigMeta.addEnchant(NItemHighlight(NNamespaceKeys.NEON_BUTTON_HIGHLIGHT.key), 0, true)
+                /* Setting up the status of the feature to the button */
+                if (getClientValue(serverFeatureName, ServerFeatureGeneralProperties.IS_ENABLED, commander = player) as Boolean) {
+                    serverFeatureDetails.add("${ChatColor.GRAY}Status: ${ChatColor.GREEN}Enabled!")
+                    serverFeatureMeta.addEnchant(NItemHighlight(NNamespaceKeys.NEON_BUTTON_HIGHLIGHT.key), 0, true)
                 } else {
-                    serverConfigDetails.add("${ChatColor.GRAY}Status: ${ChatColor.RED}Disabled!")
+                    serverFeatureDetails.add("${ChatColor.GRAY}Status: ${ChatColor.RED}Disabled!")
                 }
 
-                serverConfigDetails.add("")
+                serverFeatureDetails.add("")
 
                 when (isOptionVisible) {
                     true -> {
-                        serverConfigDetails.add("${ChatColor.GRAY}${ChatColor.UNDERLINE}Option:")
-                        val sourceOption: TreeMap<String, ArrayList<String>> = getSourceConfigDetails(true)
+                        serverFeatureDetails.add("${ChatColor.GRAY}${ChatColor.UNDERLINE}Option:")
+                        val sourceOption: TreeMap<String, ArrayList<String>> = getSourceFeatureDetails(true)
 
-                        if (sourceOption[serverConfigName].isNullOrEmpty()) {
-                            serverConfigDetails.add("${ChatColor.YELLOW}No option available!")
+                        if (sourceOption[serverFeatureName].isNullOrEmpty()) {
+                            serverFeatureDetails.add("${ChatColor.YELLOW}No option available!")
                         }
 
-                        sourceOption[serverConfigName]?.forEach { optionName ->
-                            val clientOptionValue: Any? = getClientValue(serverConfigName, ServerConfigGeneralProperties.OPTION, optionName, player)
+                        sourceOption[serverFeatureName]?.forEach { optionName ->
+                            val clientOptionValue: Any? = getClientValue(serverFeatureName, ServerFeatureGeneralProperties.OPTION, optionName, player)
 
-                            serverConfigDetails.add("${ChatColor.WHITE}${optionName}: ${ChatColor.YELLOW}${clientOptionValue}")
+                            serverFeatureDetails.add("${ChatColor.WHITE}${optionName}: ${ChatColor.YELLOW}${clientOptionValue}")
                         }
                     }
 
                     false -> {
-                        val serverConfigDescription: ArrayList<String> = (getSourceValue(serverConfigName,
-                            ServerConfigGeneralProperties.DESCRIPTION) as String).split(" ").toCollection(ArrayList())
+                        val serverFeatureDescription: ArrayList<String> = (getSourceValue(serverFeatureName,
+                            ServerFeatureGeneralProperties.DESCRIPTION) as String).split(" ").toCollection(ArrayList())
 
-                        val modifiedServerConfigDescription: ArrayList<Collection<String>> = ArrayList()
+                        val modifiedServerFeatureDescription: ArrayList<Collection<String>> = ArrayList()
                         var splicedWords: ArrayList<String> = ArrayList()
 
-                        /* Spit up the description into 7 words for a sentence */
-                        for (word in serverConfigDescription) {
+                        /* Spit up the description into 7 words per line */
+                        for (word in serverFeatureDescription) {
                             if (splicedWords.size == 7) {
-                                modifiedServerConfigDescription.add(splicedWords)
+                                modifiedServerFeatureDescription.add(splicedWords)
                                 splicedWords = ArrayList()
                             }
 
                             splicedWords.add(word)
 
-                            if ((serverConfigDescription.size - serverConfigDescription.indexOf(word)) == 1) {
-                                modifiedServerConfigDescription.add(splicedWords)
+                            if ((serverFeatureDescription.size - serverFeatureDescription.indexOf(word)) == 1) {
+                                modifiedServerFeatureDescription.add(splicedWords)
                             }
                         }
 
-                        serverConfigDetails.add("${ChatColor.GRAY}Description: ")
+                        serverFeatureDetails.add("${ChatColor.GRAY}Description: ")
 
-                        /* Setting up the config description to the button */
-                        modifiedServerConfigDescription.forEach { word ->
-                            serverConfigDetails.add("${ChatColor.YELLOW}${word.joinToString(" ")}")
+                        /* Setting up the server feature description to the button */
+                        modifiedServerFeatureDescription.forEach { word ->
+                            serverFeatureDetails.add("${ChatColor.YELLOW}${word.joinToString(" ")}")
                         }
 
-                        serverConfigDetails.add("")
-                        serverConfigDetails.add("${ChatColor.GRAY}Command:")
+                        serverFeatureDetails.add("")
+                        serverFeatureDetails.add("${ChatColor.GRAY}Command:")
 
-                        getSourceValue(serverConfigName, ServerConfigGeneralProperties.COMMAND)?.let { command ->
+                        getSourceValue(serverFeatureName, ServerFeatureGeneralProperties.COMMAND)?.let { command ->
                             if ((command as String).isEmpty()) {
-                                serverConfigDetails.add("${ChatColor.YELLOW}No command available!")
+                                serverFeatureDetails.add("${ChatColor.YELLOW}No command available!")
                                 return@let
                             }
-                            serverConfigDetails.add("${ChatColor.YELLOW}${command}")
+                            serverFeatureDetails.add("${ChatColor.YELLOW}${command}")
                         }
                     }
                 }
 
-                /* Setting up the config name to the button */
-                serverConfigMeta.setDisplayName("${ChatColor.GOLD}${serverConfigName}")
-                serverConfigMeta.lore = serverConfigDetails
+                /* Setting up the server feature name to the button */
+                serverFeatureMeta.setDisplayName("${ChatColor.GOLD}${serverFeatureName}")
+                serverFeatureMeta.lore = serverFeatureDetails
 
-                serverConfigMeta.persistentDataContainer.set(buttonIDKey, PersistentDataType.STRING, buttonIDKey.toString())
+                serverFeatureMeta.persistentDataContainer.set(buttonIDKey, PersistentDataType.STRING, buttonIDKey.toString())
 
-                serverConfig.itemMeta = serverConfigMeta
+                serverFeature.itemMeta = serverFeatureMeta
 
-                inventory.addItem(serverConfig)
+                inventory.addItem(serverFeature)
             }
 
         }
@@ -962,14 +980,14 @@ object NServerConfigurationNew {
             val persistentDataContainer: PersistentDataContainer = clickedItemMeta.persistentDataContainer
 
             when (clickedItem.type) {
-                /* Server config button */
+                /* Server feature button */
                 Material.BIRCH_SIGN -> {
                     if (!persistentDataContainer.has(buttonIDKey, PersistentDataType.STRING)) return
 
                     val clickedItemDisplayName: String = clickedItemMeta.displayName.substring(2)
 
-                    getSourceParentKeys().forEach { configName ->
-                        if (configName != clickedItemDisplayName) return@forEach
+                    getSourceParentKeys().forEach { featureName ->
+                        if (featureName != clickedItemDisplayName) return@forEach
 
                         val lore: ArrayList<String> = clickedItemMeta.lore as ArrayList<String>
 
@@ -979,13 +997,13 @@ object NServerConfigurationNew {
                         lore.forEach { status ->
                             when (status) {
                                 statusEnabled -> {
-                                    setToggle(configName, false, player)
+                                    setToggle(featureName, false, player)
                                     lore[lore.indexOf(status)] = statusDisabled
                                     clickedItemMeta.removeEnchant(nItemHighlight)
                                 }
 
                                 statusDisabled -> {
-                                    setToggle(configName, true, player)
+                                    setToggle(featureName, true, player)
                                     lore[lore.indexOf(status)] = statusEnabled
                                     clickedItemMeta.addEnchant(nItemHighlight, 0, true)
                                 }

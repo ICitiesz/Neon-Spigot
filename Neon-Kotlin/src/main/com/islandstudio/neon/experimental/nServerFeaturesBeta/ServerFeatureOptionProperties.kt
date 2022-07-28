@@ -1,6 +1,6 @@
-package com.islandstudio.neon.experimental.nServerConfigurationNew
+package com.islandstudio.neon.experimental.nServerFeaturesBeta
 
-enum class ServerConfigOptionProperties(val option: String, val dataType: OptionDataValidation.DataTypes, val dataRange: List<String>) {
+enum class ServerFeatureOptionProperties(val option: String, val dataType: OptionDataValidation.DataTypes, val dataRange: List<String>) {
     NWAYPOINTS_CROSS_DIMENSION("nWaypoints.option.cross_dimension", OptionDataValidation.DataTypes.BOOLEAN, DataRange.booleanRange),
     FEATURE_NAME_6_LEVEL("featureName6.option.level", OptionDataValidation.DataTypes.INTEGER, DataRange.getNumberRange("1", "10")),
     FEATURENAME7_OPTION_1("featureName7.option.level", OptionDataValidation.DataTypes.BOOLEAN, DataRange.booleanRange);

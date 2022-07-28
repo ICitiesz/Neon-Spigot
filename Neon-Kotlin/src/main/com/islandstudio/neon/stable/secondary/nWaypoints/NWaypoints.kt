@@ -3,10 +3,8 @@ package com.islandstudio.neon.stable.secondary.nWaypoints
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.experimental.nServerConfigurationNew.NServerConfigurationNew
-import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
+import com.islandstudio.neon.experimental.nServerFeaturesBeta.NServerFeatures
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
-import com.islandstudio.neon.stable.primary.nCommand.NCommand
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nFolder.FolderList
 import com.islandstudio.neon.stable.utils.NItemHighlight
@@ -33,7 +31,6 @@ import java.io.*
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.ceil
-import kotlin.math.max
 
 data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
     val location: Location = Handler.locationDeserializer(waypointData.value["Location"] as String)
@@ -388,7 +385,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                 )
                 waypointDetails.add("${ChatColor.GRAY}Dimension: ${waypointDimension()}")
 
-                if (!(NServerConfigurationNew.getOptionValue("nWaypoints", "cross_dimension") as Boolean)) {
+                if (!(NServerFeatures.getOptionValue("nWaypoints", "cross_dimension") as Boolean)) {
                     waypointDetails.add("${ChatColor.GRAY}Status: ${waypointAvailability(player)}")
                 }
 
@@ -429,7 +426,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                         modifiedLocation.x = waypointBlockX + 0.5
                         modifiedLocation.z = waypointBlockZ + 0.5
 
-                        if (!(NServerConfigurationNew.getOptionValue("nWaypoints", "cross_dimension") as Boolean)) {
+                        if (!(NServerFeatures.getOptionValue("nWaypoints", "cross_dimension") as Boolean)) {
                             if (player.location.world!!.environment.toString().equals(modifiedLocation.world!!.environment.toString(), true)) {
                                 Handler.teleportToWaypoint(player, modifiedLocation, goldWaypointName,
                                     waypointBlockX.toInt(), waypointBlockY.toInt(), waypointBlockZ.toInt()

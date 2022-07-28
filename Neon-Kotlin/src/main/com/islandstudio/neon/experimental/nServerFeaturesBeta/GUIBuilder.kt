@@ -1,4 +1,4 @@
-package com.islandstudio.neon.experimental.nServerConfigurationNew
+package com.islandstudio.neon.experimental.nServerFeaturesBeta
 
 import com.islandstudio.neon.stable.utils.NItemHighlight
 import com.islandstudio.neon.stable.utils.NNamespaceKeys

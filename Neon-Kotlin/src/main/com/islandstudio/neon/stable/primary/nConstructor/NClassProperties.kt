@@ -3,7 +3,7 @@ package com.islandstudio.neon.stable.primary.nConstructor
 import com.islandstudio.neon.experimental.nBundle.NBundle
 import com.islandstudio.neon.experimental.nDurable.NDurable
 import com.islandstudio.neon.experimental.nPVP.NPVP
-import com.islandstudio.neon.experimental.nServerConfigurationNew.NServerConfigurationNew
+import com.islandstudio.neon.experimental.nServerFeaturesBeta.NServerFeatures
 import com.islandstudio.neon.stable.primary.nCommand.NCommand
 import com.islandstudio.neon.stable.primary.nExperimental.NExperimental
 import com.islandstudio.neon.stable.primary.nFolder.NFolder
@@ -18,7 +18,7 @@ object NClassProperties {
     enum class NClasses(val nClass: Class<*>) {
         /* Classes will be arranged according to the priority */
         N_FOLDER(NFolder::class.java),
-        N_SERVER_CONFIGURATION_NEW(NServerConfigurationNew.Handler::class.java),
+        N_SERVER_CONFIGURATION_NEW(NServerFeatures.Handler::class.java),
         N_SERVER_CONFIGURATION(NServerConfiguration.Handler::class.java),
         N_EXPERIMENTAL_HANDLER(NExperimental.Handler::class.java),
         N_COMMAND_COMPANION(NCommand.Companion::class.java),

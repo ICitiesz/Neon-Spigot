@@ -168,7 +168,7 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
 
         /* Get the nExperimental.json file */
         private fun getNExperimentalFile(): File {
-            return File(FolderList.SERVER_CONFIG_FOLDER.folder, "nExperimental.json")
+            return File(FolderList.NEXPERIMENTAL_FOLDER.folder, "nExperimental.json")
         }
     }
 

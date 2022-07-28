@@ -4,6 +4,7 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nProfile.NProfile
+import com.islandstudio.neon.stable.utils.NPacketProcessor
 import net.minecraft.network.chat.ChatType
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundChatPacket
@@ -183,7 +184,6 @@ object NRank {
             "'${ChatColor.GRAY}${rankName.uppercase()}${ChatColor.RED}' rank!"))
     }
 
-    /* Remove player rank */
     /**
      * Remove the player rank.
      *
@@ -225,17 +225,7 @@ object NRank {
             onlinePlayers.uniqueId
         )
 
-        val handle: Any = onlinePlayers.javaClass.getMethod("getHandle").invoke(onlinePlayers)!!
-
-        when (NConstructor.getVersion()) {
-            "1.17" -> {
-                ((handle as ServerPlayer).connection!! as ServerPlayerConnection).send(messagePacket)
-            }
-
-            "1.18" -> {
-                (handle as ServerPlayer).connection!!.send(messagePacket)
-            }
-        }
+        NPacketProcessor.sendGamePacket(onlinePlayers, messagePacket)
     }
 
     /**

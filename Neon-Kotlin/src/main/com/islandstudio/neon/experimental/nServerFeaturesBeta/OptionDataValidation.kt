@@ -1,6 +1,4 @@
-package com.islandstudio.neon.experimental.nServerConfigurationNew
-
-import kotlin.math.max
+package com.islandstudio.neon.experimental.nServerFeaturesBeta
 
 object OptionDataValidation {
     /**

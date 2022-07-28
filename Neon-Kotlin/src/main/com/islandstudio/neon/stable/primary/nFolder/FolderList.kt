@@ -6,12 +6,12 @@ import java.io.File
 enum class FolderList(val folder: File) {
     /* All the required folders will be here */
     /* Stable */
-    SERVER_CONFIG_FOLDER(File(NFolder.getDataFolder(), "${NFolder.getVersion()}/${ServerHandler.getMode()}/server_config")),
-    SERVER_DATA_FOLDER(File(NFolder.getDataFolder(), "${NFolder.getVersion()}/${ServerHandler.getMode()}/server_data")),
-    PLAYERS_FOLDER(File(SERVER_DATA_FOLDER.folder, "players")),
-    NWAYPOINTS_FOLDER(File(SERVER_DATA_FOLDER.folder, "nWaypoints")),
-    NEXPERIMENTAL_FOLDER(File(SERVER_DATA_FOLDER.folder, "nExperimental")),
+    MODE_FOLDER(File(NFolder.getDataFolder(), "${NFolder.getVersion()}/${ServerHandler.getMode()}")),
+    SERVER_CONFIG_FOLDER(File(MODE_FOLDER.folder, "nServerFeatures")),
+    NEXPERIMENTAL_FOLDER(File(MODE_FOLDER.folder, "nExperimental")),
+    NPROFILE(File(MODE_FOLDER.folder, "nProfile")),
+    NWAYPOINTS_FOLDER(File(SERVER_CONFIG_FOLDER.folder, "nWaypoints")),
 
     /* Experimental */
-    SERVER_CONFIGURATION_FOLDER_NEW(File(NEXPERIMENTAL_FOLDER.folder, "nServerConfiguration"));
+    NSERVERFEATURES_BETA_FOLDER(File(NEXPERIMENTAL_FOLDER.folder, "nServerFeaturesBeta"));
 }

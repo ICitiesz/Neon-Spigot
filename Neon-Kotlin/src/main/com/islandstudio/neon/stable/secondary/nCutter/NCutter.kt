@@ -1,14 +1,9 @@
 package com.islandstudio.neon.stable.secondary.nCutter
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.experimental.nServerConfigurationNew.NServerConfigurationNew
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
+import com.islandstudio.neon.experimental.nServerFeaturesBeta.NServerFeatures
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.block.Action
-import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.StonecuttingRecipe
 import org.bukkit.plugin.Plugin
@@ -21,7 +16,7 @@ object NCutter {
      * Initializes the nCutter.
      */
     fun run() {
-        if (!NServerConfigurationNew.getToggle("nCutter")) return
+        if (!NServerFeatures.getToggle("nCutter")) return
 
         val woodenItems: MutableList<Material?> = WoodenItems.values().map { woodenItems -> woodenItems.item.map { it } }.flatten().toMutableList()
         val woodRecipes: MutableSet<StonecuttingRecipe> = HashSet()

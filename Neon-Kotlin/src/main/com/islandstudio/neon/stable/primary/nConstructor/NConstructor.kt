@@ -1,20 +1,7 @@
 package com.islandstudio.neon.stable.primary.nConstructor
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.experimental.nBundle.NBundle
-import com.islandstudio.neon.experimental.nDurable.NDurable
-import com.islandstudio.neon.experimental.nPVP.NPVP
-import com.islandstudio.neon.experimental.nServerConfigurationNew.NServerConfigurationNew
-import com.islandstudio.neon.stable.primary.nCommand.NCommand
 import com.islandstudio.neon.stable.primary.nEvent.NEvent
-import com.islandstudio.neon.stable.primary.nExperimental.NExperimental
-import com.islandstudio.neon.stable.primary.nFolder.NFolder
-import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
-import com.islandstudio.neon.stable.secondary.nCutter.NCutter
-import com.islandstudio.neon.stable.secondary.nHarvest.NHarvest
-import com.islandstudio.neon.stable.secondary.nRank.NRank
-import com.islandstudio.neon.stable.secondary.nSmelter.NSmelter
-import com.islandstudio.neon.stable.secondary.nWaypoints.NWaypoints
 import com.islandstudio.neon.stable.utils.NItemHighlight
 import com.islandstudio.neon.stable.utils.NNamespaceKeys
 import com.islandstudio.neon.stable.utils.ServerHandler
@@ -173,7 +160,7 @@ object NConstructor {
             "${ChatColor.GOLD}|-----------------=================-----------------|"
         )
         plugin.server.consoleSender.sendMessage(
-            "${ChatColor.GOLD}|--------------== Neon v1.10-pre_3 ==---------------|"
+            "${ChatColor.GOLD}|--------------== Neon v1.10-pre_4 ==---------------|"
         )
         plugin.server.consoleSender.sendMessage(
             "${ChatColor.GOLD}|-----------------===${ChatColor.GREEN} <Started> ${ChatColor.GOLD}===-----------------|"
@@ -194,7 +181,7 @@ object NConstructor {
             "${ChatColor.GOLD}|-----------------=================-----------------|"
         )
         plugin.server.consoleSender.sendMessage(
-            "${ChatColor.GOLD}|--------------== Neon v1.10-pre_3 ==---------------|"
+            "${ChatColor.GOLD}|--------------== Neon v1.10-pre_4 ==---------------|"
         )
         plugin.server.consoleSender.sendMessage(
             "${ChatColor.GOLD}|-----------------===${ChatColor.RED} <Stopped> ${ChatColor.GOLD}===-----------------|"

@@ -5,8 +5,6 @@ import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin.getPlugin
 
 object NReflector {
-    private val plugin: Plugin = getPlugin(Neon::class.java)
-
     /**
      * Get the Minecraft namespace class
      *

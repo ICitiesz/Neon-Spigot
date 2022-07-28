@@ -1,11 +1,10 @@
 package com.islandstudio.neon.stable.primary.nCommand
 
 import com.islandstudio.neon.experimental.nEffect.NEffect
-import com.islandstudio.neon.experimental.nServerConfigurationNew.NServerConfigurationNew
+import com.islandstudio.neon.experimental.nServerFeaturesBeta.NServerFeatures
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nExperimental.NExperimental
 import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
-import com.islandstudio.neon.stable.secondary.nHarvest.NHarvest
 import com.islandstudio.neon.stable.secondary.nRank.NRank
 import com.islandstudio.neon.stable.secondary.nWaypoints.NWaypoints
 import org.bukkit.ChatColor
@@ -90,21 +89,21 @@ class NCommand: Listener, TabExecutor {
                 }
 
                 commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}The old nServerConfiguration is disabled for renovation!"))
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Please use the list of commands below to test the new nServerConfiguration:"))
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverconfignew${ChatColor.WHITE}' " +
-                        "${ChatColor.YELLOW}to open the nServerConfiguration GUI."))
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverconfignew <feature/config name>${ChatColor.WHITE}' " +
-                        "${ChatColor.YELLOW}to view toggle status for the feature/config."))
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverconfignew <feature/config name> <option name>${ChatColor.WHITE}' " +
-                        "${ChatColor.YELLOW}to view option value for the feature/config."))
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverconfignew <feature/config name> <option name> <option value>${ChatColor.WHITE}' " +
-                        "${ChatColor.YELLOW}to tweak options for the feature/config."))
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Please use the list of commands below to test the new nServerConfiguration (nServerFeatures):"))
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverfeatures${ChatColor.WHITE}' " +
+                        "${ChatColor.YELLOW}to open the nServerFeatures GUI."))
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverfeatures <feature name>${ChatColor.WHITE}' " +
+                        "${ChatColor.YELLOW}to view toggle status for the feature."))
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverfeatures <feature name> <option name>${ChatColor.WHITE}' " +
+                        "${ChatColor.YELLOW}to view option value for the feature."))
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverfeatures <feature name> <option name> <option value>${ChatColor.WHITE}' " +
+                        "${ChatColor.YELLOW}to tweak options for the feature."))
 
                 //NServerConfiguration.Handler.setCommandHandler(commander, args)
             }
 
-            Commands.SERVERCONFIGNEW.commandAlias -> {
-                NServerConfigurationNew.Handler.setCommandHandler(commander, args)
+            Commands.SERVERFEATURES.commandAlias -> {
+                NServerFeatures.Handler.setCommandHandler(commander, args)
             }
 
             Commands.REGEN.commandAlias -> {
@@ -253,8 +252,6 @@ class NCommand: Listener, TabExecutor {
 
         if (args.size == 1) return Commands.values().sorted().map { it.commandAlias }.filter { it.startsWith(args[0], true) }.toMutableList()
 
-        if (args.isEmpty()) return null
-
         when (args[0].lowercase()) {
             Commands.RANK.commandAlias -> {
                 return NRank.tabCompletion(commander, args)
@@ -268,12 +265,12 @@ class NCommand: Listener, TabExecutor {
                 return NServerConfiguration.Handler.tabCompletion(commander, args)
             }
 
-            Commands.SERVERCONFIGNEW.commandAlias -> {
-                return NServerConfigurationNew.Handler.tabCompletion(commander, args)
+            Commands.SERVERFEATURES.commandAlias -> {
+                return NServerFeatures.Handler.tabCompletion(commander, args)
             }
         }
 
-        return null
+        return mutableListOf()
     }
 
 }

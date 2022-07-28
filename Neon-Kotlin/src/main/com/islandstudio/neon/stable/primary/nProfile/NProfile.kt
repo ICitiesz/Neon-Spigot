@@ -124,7 +124,7 @@ data class NProfile(val player: Player) {
 
         /* Get player folder */
         private fun getPlayerFolder(player: Player): File {
-            return File(FolderList.PLAYERS_FOLDER.folder, "player_${player.uniqueId}")
+            return File(FolderList.NPROFILE.folder, "player_${player.uniqueId}")
         }
 
         /* Create required folders and files */

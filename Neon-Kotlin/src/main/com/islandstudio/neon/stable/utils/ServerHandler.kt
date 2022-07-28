@@ -1,19 +1,12 @@
 package com.islandstudio.neon.stable.utils
 
-import com.islandstudio.neon.experimental.nServerConfigurationNew.NServerConfigurationNew
-import com.islandstudio.neon.stable.primary.nCommand.NCommand
+import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
-import com.islandstudio.neon.stable.primary.nFolder.NFolder
 import com.islandstudio.neon.stable.primary.nProfile.NProfile
-import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
-import com.islandstudio.neon.stable.secondary.nHarvest.NHarvest
 import com.islandstudio.neon.stable.secondary.nRank.NRank
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerPlayerConnection
 import net.minecraft.world.item.crafting.Recipe
-import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Server
 import org.bukkit.entity.Player
@@ -28,31 +21,24 @@ object ServerHandler {
     /**
      * Broadcast join message to all players when a player join the server.
      *
-     * @param e PlayerJoinEvent
+     * @param player The player who join the server.
      */
-    fun broadcastJoinMessage(e: PlayerJoinEvent) {
-        val player: Player = e.player
+    fun broadcastPlayerJoinMessage(player: Player) {
         val server: Server = player.server
 
-        e.joinMessage = ""
-
-        server.broadcastMessage("${NCommand.getPluginName()} ${ChatColor.GOLD}Welcome back, ${ChatColor.GREEN}${player.name}${ChatColor.GOLD}!")
-        server.broadcastMessage("${NCommand.getPluginName()} ${ChatColor.GREEN}${server.onlinePlayers.size}${ChatColor.GOLD} of ${ChatColor.RED}${server.maxPlayers}${ChatColor.GOLD} player(s) Online!")
+        server.broadcastMessage(CommandSyntax.createSyntaxMessage("${ChatColor.GOLD}Welcome back, ${ChatColor.GREEN}${player.name}${ChatColor.GOLD}!"))
+        server.broadcastMessage(CommandSyntax.createSyntaxMessage("${ChatColor.GREEN}${server.onlinePlayers.size}${ChatColor.GOLD} of ${ChatColor.RED}${server.maxPlayers}${ChatColor.GOLD} player(s) Online!"))
     }
-
 
     /**
      * Broadcast quit message to all players when a player quit the server.
      *
-     * @param e PlayerQuitEvent
+     * @param player The player who quit the server.
      */
-    fun broadcastQuitMessage(e: PlayerQuitEvent) {
-        val player: Player = e.player
+    fun broadcastPlayerQuitMessage(player: Player) {
         val server: Server = player.server
 
-        e.quitMessage = ""
-
-        server.broadcastMessage("${NCommand.getPluginName()} ${ChatColor.GREEN}${player.name}${ChatColor.GOLD} left, ${ChatColor.GREEN}${server.onlinePlayers.size - 1}${ChatColor.GOLD} other(s) here!")
+        server.broadcastMessage(CommandSyntax.createSyntaxMessage("${ChatColor.GREEN}${player.name}${ChatColor.GOLD} left, ${ChatColor.GREEN}${server.onlinePlayers.size - 1}${ChatColor.GOLD} other(s) here!"))
     }
 
     /**
@@ -75,24 +61,23 @@ object ServerHandler {
      */
     @Suppress("UNCHECKED_CAST")
     fun updateRecipe(player: Player) {
-        val handle: Any = player.javaClass.getMethod("getHandle").invoke(player)!!
         val serverRecipes: Map<Any, Map<Any, Any>>
 
         when (NConstructor.getVersion()) {
             "1.17" -> {
-                serverRecipes = ((handle as ServerPlayer).server!!).recipeManager!!.recipes!! as Map<Any, Map<Any, Any>>
+                serverRecipes = (NPacketProcessor.getNPlayer(player).server!!).recipeManager!!.recipes!! as Map<Any, Map<Any, Any>>
 
-                (handle.connection!! as ServerPlayerConnection).send(ClientboundUpdateRecipesPacket(
+                NPacketProcessor.sendGamePacket(player, ClientboundUpdateRecipesPacket(
                     serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }.toList()!! as MutableCollection<Recipe<*>>
                 ))
             }
 
             "1.18" -> {
-                val craftingManager: Any = ((handle as ServerPlayer).server!!).javaClass.getMethod("aC").invoke(handle.server!!)!!
+                val craftingManager: Any = (NPacketProcessor.getNPlayer(player).server!!).javaClass.getMethod("aC").invoke(NPacketProcessor.getNPlayer(player).server)!!
 
                 serverRecipes = craftingManager.javaClass.getField("c").get(craftingManager)!! as Map<Any, Map<Any, Any>>
 
-                handle.connection!!.send(ClientboundUpdateRecipesPacket(
+                NPacketProcessor.sendGamePacket(player, ClientboundUpdateRecipesPacket(
                     serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }.toList()!! as MutableCollection<Recipe<*>>
                 ))
             }
@@ -115,15 +100,21 @@ object ServerHandler {
 
         @EventHandler
         private fun onPlayerJoin(e: PlayerJoinEvent) {
-            NProfile.Handler.createProfile(e.player)
+            val player: Player = e.player
+
+            NProfile.Handler.createProfile(player)
             NRank.updateTag()
-            broadcastJoinMessage(e)
+            e.joinMessage = ""
+            broadcastPlayerJoinMessage(player)
         }
 
         @EventHandler
         private fun onPlayerQuit(e: PlayerQuitEvent) {
-            NGUI.Handler.nGUIContainer.remove(e.player)
-            broadcastQuitMessage(e)
+            val player: Player = e.player
+
+            NGUI.Handler.nGUIContainer.remove(player)
+            e.quitMessage = ""
+            broadcastPlayerQuitMessage(player)
         }
 
         @EventHandler
