@@ -1,0 +1,73 @@
+{
+  "/neon rank": [
+    {
+      "syntax": "/neon rank add <target> <rankName>",
+      "description": "Used to apply rank to target player."
+    },
+    {
+      "syntax": "/neon rank remove <target>",
+      "description": "Used to remove rank from target player."
+    }
+  ],
+
+  "/neon serverconfig": [
+    {
+      "syntax": "/neon serverconfig <configName>",
+      "description": "Used to get current config value by given config name."
+    },
+    {
+      "syntax": "/neon serverconfig <configName> <newConfigValue>",
+      "description": "Used to set new config value by given config name and its new config value."
+    }
+  ],
+
+  "/neon experimental": [
+    {
+      "syntax": "/neon experimental",
+      "description": "Used to open iExperimental GUI."
+    }
+  ],
+
+  "/neon effect": [
+    {
+      "syntax": "/neon effect",
+      "description": "Used to open iEffect GUI."
+    }
+  ],
+
+  "/neon mod": [
+    {
+      "syntax": "/neon mod <toggle>",
+      "description": "Used to toggle moderator effect."
+    }
+  ],
+
+  "/neon gm": [
+    {
+      "syntax": "/neon gm <intValue>",
+      "description": "Used to change player gamemode."
+    }
+  ],
+
+  "/neon regen": [
+    {
+      "syntax": "/neon regen",
+      "description": "Used to regenerate both health and food saturation."
+    },
+    {
+      "syntax": "/neon regen health",
+      "description": "Used to regenerate health."
+    },
+    {
+      "syntax": "/neon regen food",
+      "description": "Used to regenerate food saturation."
+    }
+  ],
+
+  "/neon debug": [
+    {
+      "syntax": "/neon debug <debugName>",
+      "description": "Development usage."
+    }
+  ]
+}

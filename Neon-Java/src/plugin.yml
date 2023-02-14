@@ -1,20 +1,16 @@
 name: Neon
 author: ICities
-version: '1.9.1'
+version: '1.9.2'
 api-version: '1.14'
 depend: []
 softdepend: []
-main: com.islandstudio.neon.MainCore
+main: com.islandstudio.neon.Neon
 description: Server Tools.
 
 commands:
   neon:
     usage: /<command>
     description: Command prefix.
-
-  ldl:
-    usage: /<command>
-    description: Internal command.
 
   plugin:
     description: Null.
