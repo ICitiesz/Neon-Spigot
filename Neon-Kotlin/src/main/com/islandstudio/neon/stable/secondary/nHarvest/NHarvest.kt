@@ -1,10 +1,14 @@
 package com.islandstudio.neon.stable.secondary.nHarvest
 
 import com.islandstudio.neon.experimental.nDurable.NDurable
-import com.islandstudio.neon.experimental.nServerFeaturesBeta.NServerFeatures
+import com.islandstudio.neon.experimental.nServerFeatures.NServerFeatures
+import com.islandstudio.neon.experimental.nServerFeatures.ServerFeature
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nExperimental.NExperimental
-import org.bukkit.*
+import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.Sound
+import org.bukkit.World
 import org.bukkit.block.Block
 import org.bukkit.block.data.Ageable
 import org.bukkit.entity.Player
@@ -37,9 +41,9 @@ object NHarvest {
     }
 
     fun run() {
-        if (!NServerFeatures.getToggle("nHarvest")) return NConstructor.unRegisterEvent(EventController())
+        if (!NServerFeatures.getToggle(ServerFeature.FeatureNames.N_HARVEST)) return NConstructor.unRegisterEvent(EventController())
 
-        NConstructor.registerEvent(EventController())
+        NConstructor.registerEventProcessor(EventController())
     }
 
     /**
@@ -85,7 +89,7 @@ object NHarvest {
         if (hasItem) {
             if (heldItem == null) return
 
-            if (NDurable.disableFortuneHarvest(heldItem, player)) {
+            if (NDurable.revokeFortuneHarvest(heldItem, player)) {
                 harvest(block, heldItem, hasItem = false, player)
                 return
             }
@@ -187,7 +191,7 @@ object NHarvest {
             when (e.type) {
                 ServerLoadEvent.LoadType.STARTUP, ServerLoadEvent.LoadType.RELOAD -> {
                     NConstructor.plugin.server.onlinePlayers.parallelStream().forEach {player ->
-                        if (!NServerFeatures.getToggle("nHarvest")) return@forEach removePlayer(player)
+                        if (!NServerFeatures.getToggle(ServerFeature.FeatureNames.N_HARVEST)) return@forEach removePlayer(player)
                         addPlayer(player)
                     }
                 }
