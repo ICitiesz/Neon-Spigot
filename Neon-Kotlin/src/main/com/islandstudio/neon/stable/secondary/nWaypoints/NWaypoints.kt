@@ -3,12 +3,11 @@ package com.islandstudio.neon.stable.secondary.nWaypoints
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.experimental.nServerFeaturesBeta.NServerFeatures
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nFolder.FolderList
 import com.islandstudio.neon.stable.utils.NItemHighlight
-import com.islandstudio.neon.stable.utils.NNamespaceKeys
+import com.islandstudio.neon.stable.utils.NeonKey
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import org.bukkit.*
@@ -29,7 +28,6 @@ import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import java.io.*
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.ceil
 
 data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
@@ -354,7 +352,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             return 54
         }
 
-        override fun setItems() {
+        override fun setGUIButtons() {
             val waypoints: ArrayList<Map.Entry<String, JSONObject>> = Handler.getNWaypointsData().entries.toCollection(ArrayList())
             val waypointDetails: ArrayList<String> = ArrayList()
 
@@ -385,9 +383,10 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                 )
                 waypointDetails.add("${ChatColor.GRAY}Dimension: ${waypointDimension()}")
 
-                if (!(NServerFeatures.getOptionValue("nWaypoints", "cross_dimension") as Boolean)) {
-                    waypointDetails.add("${ChatColor.GRAY}Status: ${waypointAvailability(player)}")
-                }
+                /* TODO */
+//                if (!(NServerFeatures.getOptionValue("nWaypoints", "cross_dimension") as Boolean)) {
+//                    waypointDetails.add("${ChatColor.GRAY}Status: ${waypointAvailability(player)}")
+//                }
 
                 waypointMeta.setDisplayName("${ChatColor.GOLD}${waypointName}")
                 waypointMeta.lore = waypointDetails
@@ -402,7 +401,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
 
         }
 
-        override fun guiClickHandler(e: InventoryClickEvent) {
+        override fun setGUIClickHandler(e: InventoryClickEvent) {
             val currentItem = e.currentItem!!
             val currentItemMeta = currentItem.itemMeta!!
             val persistentDataContainer: PersistentDataContainer = currentItemMeta.persistentDataContainer
@@ -426,17 +425,18 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                         modifiedLocation.x = waypointBlockX + 0.5
                         modifiedLocation.z = waypointBlockZ + 0.5
 
-                        if (!(NServerFeatures.getOptionValue("nWaypoints", "cross_dimension") as Boolean)) {
-                            if (player.location.world!!.environment.toString().equals(modifiedLocation.world!!.environment.toString(), true)) {
-                                Handler.teleportToWaypoint(player, modifiedLocation, goldWaypointName,
-                                    waypointBlockX.toInt(), waypointBlockY.toInt(), waypointBlockZ.toInt()
-                                )
-                                return
-                            }
-
-                            player.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Cross dimension for nWaypoints has been restricted!"))
-                            return
-                        }
+                        /* TODO */
+//                        if (!(NServerFeatures.getOptionValue("nWaypoints", "cross_dimension") as Boolean)) {
+//                            if (player.location.world!!.environment.toString().equals(modifiedLocation.world!!.environment.toString(), true)) {
+//                                Handler.teleportToWaypoint(player, modifiedLocation, goldWaypointName,
+//                                    waypointBlockX.toInt(), waypointBlockY.toInt(), waypointBlockZ.toInt()
+//                                )
+//                                return
+//                            }
+//
+//                            player.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Cross dimension for nWaypoints has been restricted!"))
+//                            return
+//                        }
 
                         Handler.teleportToWaypoint(player, modifiedLocation, goldWaypointName,
                             waypointBlockX.toInt(), waypointBlockY.toInt(), waypointBlockZ.toInt()
@@ -507,7 +507,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             if (e.currentItem == null) return
 
             val nGuiConstructor: NGUIConstructor = inventoryHolder
-            nGuiConstructor.guiClickHandler(e)
+            nGuiConstructor.setGUIClickHandler(e)
         }
 
     }
@@ -530,7 +530,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             return 54
         }
 
-        override fun setItems() {
+        override fun setGUIButtons() {
             val waypoints: ArrayList<Map.Entry<String, JSONObject>> = Handler.getNWaypointsData().entries.toCollection(ArrayList())
             val waypointDetails: ArrayList<String> = ArrayList()
 
@@ -572,7 +572,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             }
         }
 
-        override fun guiClickHandler(e: InventoryClickEvent) {
+        override fun setGUIClickHandler(e: InventoryClickEvent) {
             val selectedWaypoints: MutableSet<String> = if (removalContainer.containsKey(player.uniqueId.toString())) {
                 removalContainer[player.uniqueId.toString()]!!
             } else {
@@ -581,7 +581,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
 
             val currentItem: ItemStack = e.currentItem!!
             val currentItemMeta: ItemMeta = currentItem.itemMeta!!
-            val nItemHighlight = NItemHighlight(NNamespaceKeys.NEON_BUTTON_HIGHLIGHT.key)
+            val nItemHighlight = NItemHighlight(NeonKey.NamespaceKeys.NEON_BUTTON_HIGHLIGHT.key)
             val persistentDataContainer: PersistentDataContainer = currentItemMeta.persistentDataContainer
 
             when (currentItem.type) {
@@ -774,7 +774,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             if (e.currentItem == null) return
 
             val nGuiConstructor: NGUIConstructor = inventoryHolder
-            nGuiConstructor.guiClickHandler(e)
+            nGuiConstructor.setGUIClickHandler(e)
         }
 
     }
