@@ -1,16 +1,1 @@
-{
-  "nDurable": [
-    {
-      "is_enabled": false,
-      "description": "Another way of handling the durability of the tools/weapons.",
-      "conflict": "none"
-    }
-  ],
-  "nBundle": [
-    {
-      "is_enabled": false,
-      "description": "Since the bundle is unobtainable in survival mode within Minecraft 1.17 ~ Minecraft 1.18, we made it obtainable in survival mode.",
-      "conflict": "none"
-    }
-  ]
-}
+{}
