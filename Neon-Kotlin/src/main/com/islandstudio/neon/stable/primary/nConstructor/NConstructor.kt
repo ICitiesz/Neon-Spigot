@@ -3,8 +3,7 @@ package com.islandstudio.neon.stable.primary.nConstructor
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.primary.nEvent.NEvent
 import com.islandstudio.neon.stable.utils.NItemHighlight
-import com.islandstudio.neon.stable.utils.NNamespaceKeys
-import com.islandstudio.neon.stable.utils.ServerHandler
+import com.islandstudio.neon.stable.utils.NeonKey
 import org.bukkit.ChatColor
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.event.HandlerList
@@ -34,8 +33,7 @@ object NConstructor {
 
                 /* Each initialization must be done according to priority. */
                 /* Primary Component */
-                registerEvent(NEvent()) // Event registration
-                registerEvent(ServerHandler.EventController())
+                registerEventProcessor(NEvent()) // Event registration
                 registerItemHighlight() // Item highlight registration
 
                 val nClasses = NClassProperties.NClasses.values().map { it.nClass }.toTypedArray()
@@ -119,14 +117,14 @@ object NConstructor {
     }
 
     /***
-     * Register event. This is used when the server is starting up and only if the particular feature is enabled.
+     * Register event processor. This is used when the server is starting up and only if the particular feature is enabled.
      */
-    fun registerEvent(eventListener: Listener) {
+    fun registerEventProcessor(eventProcessor: Listener) {
         HandlerList.getRegisteredListeners(plugin).forEach {
-            if (it.listener.javaClass.canonicalName == eventListener.javaClass.canonicalName) return
+            if (it.listener.javaClass.canonicalName == eventProcessor.javaClass.canonicalName) return
         }
 
-        plugin.server.pluginManager.registerEvents(eventListener, plugin)
+        plugin.server.pluginManager.registerEvents(eventProcessor, plugin)
     }
 
     /***
@@ -141,9 +139,9 @@ object NConstructor {
     }
 
     private fun registerItemHighlight() {
-        if (Enchantment.getByKey(NNamespaceKeys.NEON_BUTTON_HIGHLIGHT.key) != null) return
+        if (Enchantment.getByKey(NeonKey.NamespaceKeys.NEON_BUTTON_HIGHLIGHT.key) != null) return
 
-        val nItemHighlight = NItemHighlight(NNamespaceKeys.NEON_BUTTON_HIGHLIGHT.key)
+        val nItemHighlight = NItemHighlight(NeonKey.NamespaceKeys.NEON_BUTTON_HIGHLIGHT.key)
 
         val field: Field = Enchantment::class.java.getDeclaredField("acceptingNew")
         field.isAccessible = true
@@ -160,7 +158,7 @@ object NConstructor {
             "${ChatColor.GOLD}|-----------------=================-----------------|"
         )
         plugin.server.consoleSender.sendMessage(
-            "${ChatColor.GOLD}|--------------== Neon v1.10-pre_4 ==---------------|"
+            "${ChatColor.GOLD}|--------------== Neon v1.10-pre_5 ==---------------|"
         )
         plugin.server.consoleSender.sendMessage(
             "${ChatColor.GOLD}|-----------------===${ChatColor.GREEN} <Started> ${ChatColor.GOLD}===-----------------|"
@@ -181,7 +179,7 @@ object NConstructor {
             "${ChatColor.GOLD}|-----------------=================-----------------|"
         )
         plugin.server.consoleSender.sendMessage(
-            "${ChatColor.GOLD}|--------------== Neon v1.10-pre_4 ==---------------|"
+            "${ChatColor.GOLD}|--------------== Neon v1.10-pre_5 ==---------------|"
         )
         plugin.server.consoleSender.sendMessage(
             "${ChatColor.GOLD}|-----------------===${ChatColor.RED} <Stopped> ${ChatColor.GOLD}===-----------------|"
