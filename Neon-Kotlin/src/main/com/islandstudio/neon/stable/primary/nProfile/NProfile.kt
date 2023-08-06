@@ -2,20 +2,33 @@ package com.islandstudio.neon.stable.primary.nProfile
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nFolder.FolderList
 import com.islandstudio.neon.stable.primary.nFolder.NFolder
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import java.io.*
+import java.util.*
 
-data class NProfile(val player: Player) {
-    private val playerProfile = Handler.getProfileData(player)
+object NProfile {
+    private val playerSession: HashMap<UUID, PlayerProfile> = HashMap()
 
-    val playerName: String = playerProfile["Name"] as String
-    val playerUUID: String = playerProfile["UUID"] as String
-    val playerRank: String = (playerProfile["Rank"] as String).lowercase()
-    val playerIsMuted: Boolean = playerProfile["isMuted"] as Boolean
+    fun addPlayerSession(player: Player) {
+        //playerSession[player.uniqueId] =
+    }
+
+    fun discardPlayerSession(player: Player) {
+        playerSession.remove(player.uniqueId)
+    }
+
+    fun getPlayerSession(player: Player): PlayerProfile {
+        return playerSession[player.uniqueId]!!
+    }
 
     object Handler {
         private val classLoader: ClassLoader = NProfile::class.java.classLoader
@@ -23,32 +36,43 @@ data class NProfile(val player: Player) {
         private val jsonParser: JSONParser = JSONParser()
         private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 
-        fun createProfile(player: Player) {
-            createPlayerProfile(player)
+        /**
+         * Initialization for nProfile
+         *
+         */
+        fun run() {
+            NConstructor.registerEventProcessor(EventProcessor())
+        }
 
-            val fileReader = FileReader(getPlayerProfile(player))
-            val clientBufferedReader = BufferedReader(fileReader)
-            val clientProfileElementSize: Long = clientBufferedReader.lines().count()
+        /**
+         * Create player profile when player join the server.
+         *
+         * @param player The player who join the server.
+         */
+        fun createPlayerProfile(player: Player) {
+            val playerProfileFolder: File = getPlayerProfileFolder(player)
+            val playerProfileFile: File = getPlayerProfileFile(player)
 
-            fileReader.close()
-            clientBufferedReader.close()
+            NFolder.createNewFile(playerProfileFolder, playerProfileFile)
 
-            if (clientProfileElementSize == 0L) {
-                val clientFileOutputStream = FileOutputStream(getPlayerProfile(player))
-                val clientBufferedWriter = BufferedWriter(OutputStreamWriter(clientFileOutputStream))
+            val externalBufferedReader = playerProfileFile.bufferedReader()
+            val externalLinesCount: Long = externalBufferedReader.lines().count()
 
-                val profileElement: JSONObject = getSourceProfileElement()
+            externalBufferedReader.close()
+
+            /* Check if the file content lines is equal to 0 */
+            if (externalLinesCount == 0L) {
+                val externalBufferedWriter = playerProfileFile.bufferedWriter()
+
+                val profileElement: JSONObject = getInternalProfileElement()
 
                 profileElement.replace("Name", player.name)
                 profileElement.replace("UUID", player.uniqueId.toString())
 
-                if (player.isOp) {
-                    profileElement.replace("Rank", "OWNER")
-                }
+                if (player.isOp) profileElement.replace("Rank", "OWNER")
 
-                clientBufferedWriter.write(gson.toJson(profileElement))
-                clientBufferedWriter.close()
-                clientFileOutputStream.close()
+                externalBufferedWriter.write(gson.toJson(profileElement))
+                externalBufferedWriter.close()
 
                 return
             }
@@ -59,7 +83,7 @@ data class NProfile(val player: Player) {
         /* Set value for specify field in the player profile */
         fun setValue(player: Player, fieldName: String, value: String) {
             val playerProfileData: JSONObject = getProfileData(player)
-            val fileOutputStream = FileOutputStream(getPlayerProfile(player))
+            val fileOutputStream = FileOutputStream(getPlayerProfileFile(player))
             val bufferedWriter = BufferedWriter(OutputStreamWriter(fileOutputStream))
 
             if (playerProfileData[fieldName]!! == value) return
@@ -72,67 +96,87 @@ data class NProfile(val player: Player) {
 
         /* Get profile data */
         fun getProfileData(player: Player): JSONObject {
-            val fileReader = FileReader(getPlayerProfile(player))
+            val fileReader = FileReader(getPlayerProfileFile(player))
             val playerProfileData: JSONObject = jsonParser.parse(fileReader) as JSONObject
             fileReader.close()
 
             return playerProfileData
         }
 
-        /* Update profile element */
+        /**
+         * Update profile element if there is a profile element newly added or missing.
+         *
+         * @param player The given player.
+         */
         private fun updateProfileElement(player: Player) {
-            val fileReader = FileReader(getPlayerProfile(player))
-            val sourceProfileElement: JSONObject = getSourceProfileElement()
-            val clientProfileElement: JSONObject = jsonParser.parse(fileReader) as JSONObject
+            val playerProfileFile = getPlayerProfileFile(player)
 
-            sourceProfileElement.keys.forEach { key ->
-                if (!clientProfileElement.containsKey(key)) clientProfileElement.putIfAbsent(key, sourceProfileElement[key])
+            val internalProfileElement: JSONObject = getInternalProfileElement()
+            val externalProfileElement: JSONObject = jsonParser.parse(playerProfileFile.reader()) as JSONObject
+
+            internalProfileElement.keys.forEach { key ->
+                if (!externalProfileElement.containsKey(key)) externalProfileElement.putIfAbsent(key, internalProfileElement[key])
             }
 
-            clientProfileElement.keys.removeIf { key -> !sourceProfileElement.containsKey(key) }
+            externalProfileElement.keys.removeIf { key -> !internalProfileElement.containsKey(key) }
 
-            val clientFileOutputStream = FileOutputStream(getPlayerProfile(player))
-            val clientBufferedWriter = BufferedWriter(OutputStreamWriter(clientFileOutputStream))
+            val externalBufferedWriter = playerProfileFile.bufferedWriter()
 
-            clientBufferedWriter.write(gson.toJson(clientProfileElement))
-
-            clientBufferedWriter.close()
-            clientFileOutputStream.close()
-
-            fileReader.close()
+            externalBufferedWriter.write(gson.toJson(externalProfileElement))
+            externalBufferedWriter.close()
         }
 
-        /* Get player profile */
-        private fun getPlayerProfile(player: Player): File {
-            return File(getPlayerFolder(player), "profile_${player.uniqueId}.json")
+        /**
+         * Get player profile file.
+         *
+         * @param player The given player.
+         * @return The given player profile file.
+         */
+        private fun getPlayerProfileFile(player: Player): File {
+            return File(getPlayerProfileFolder(player), "profile_${player.uniqueId}.json")
         }
 
-        /* Get profile element from source */
-        private fun getSourceProfileElement(): JSONObject {
+        /**
+         * Get profile element from internal source.
+         *
+         * @return Internal profile elements as Json Object.
+         */
+        private fun getInternalProfileElement(): JSONObject {
             val stringBuilder: StringBuilder = StringBuilder()
-            val inputStream: InputStream = classLoader.getResourceAsStream("resources/profile_.json")!!
-            val sourceBufferedReader = BufferedReader(InputStreamReader(inputStream))
+            val inputStream: InputStream = classLoader.getResourceAsStream("resources/player_profile.json")!!
+            val internalBufferedReader = BufferedReader(InputStreamReader(inputStream))
 
-            val sourceProfileElement: Array<Any> = sourceBufferedReader.lines()!!.toArray()
+            val internalProfileElement: Array<Any> = internalBufferedReader.lines()!!.toArray()
 
-            sourceProfileElement.forEach { content ->
-                stringBuilder.append(content)
-            }
+            internalProfileElement.forEach { stringBuilder.append(it) }
 
             return jsonParser.parse(stringBuilder.toString()) as JSONObject
         }
 
-        /* Get player folder */
-        private fun getPlayerFolder(player: Player): File {
+        /**
+         * Get player profile folder
+         *
+         * @param player The given player.
+         * @return The given player profile folder.
+         */
+        private fun getPlayerProfileFolder(player: Player): File {
             return File(FolderList.NPROFILE.folder, "player_${player.uniqueId}")
         }
+    }
 
-        /* Create required folders and files */
-        private fun createPlayerProfile(player: Player) {
-            val playerFolder: File = getPlayerFolder(player)
-            val playerProfile: File = getPlayerProfile(player)
+    private class EventProcessor: Listener {
+        @EventHandler
+        private fun onPlayerJoin(e: PlayerJoinEvent) {
+            val player = e.player
 
-            NFolder.createNewFile(playerProfile, playerFolder)
+            Handler.createPlayerProfile(player)
+
+            //addPlayerSession(player)
+        }
+
+        @EventHandler
+        private fun onPlayerQuit(e: PlayerQuitEvent) {
+            //discardPlayerSession(e.player)
         }
     }
 }
