@@ -2,14 +2,12 @@ package com.islandstudio.neon.stable.secondary.nRank
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nProfile.NProfile
+import com.islandstudio.neon.stable.primary.nProfile.PlayerProfile
 import com.islandstudio.neon.stable.utils.NPacketProcessor
 import net.minecraft.network.chat.ChatType
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundChatPacket
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerPlayerConnection
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
@@ -37,7 +35,7 @@ object NRank {
      */
     fun updateTag() {
         plugin.server.onlinePlayers.forEach { target ->
-            val playerProfile = NProfile(target)
+            val playerProfile = PlayerProfile(target)
             val playerRank: String = playerProfile.playerRank
 
             if (RankList.values().none { ranks: RankList -> playerRank.equals(ranks.name.lowercase(), true) }) return
