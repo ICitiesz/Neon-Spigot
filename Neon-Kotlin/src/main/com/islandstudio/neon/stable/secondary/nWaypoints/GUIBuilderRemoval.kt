@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.secondary.nWaypoints
 
 import com.islandstudio.neon.stable.utils.NItemHighlight
-import com.islandstudio.neon.stable.utils.NNamespaceKeys
+import com.islandstudio.neon.stable.utils.NeonKey
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import org.bukkit.ChatColor
@@ -23,10 +23,10 @@ abstract class GUIBuilderRemoval(nGUI: NGUI) : NGUIConstructor(nGUI) {
     protected val removeButtonDisplayName = "${ChatColor.RED}Remove"
 
     /* Button identifier key */
-    protected val buttonIDKey: NamespacedKey = NNamespaceKeys.NEON_BUTTON.key
+    protected val buttonIDKey: NamespacedKey = NeonKey.NamespaceKeys.NEON_BUTTON.key
 
     /* Button highlight effect */
-    protected val nItemHighlight: NItemHighlight = NItemHighlight(NNamespaceKeys.NEON_BUTTON_HIGHLIGHT.key)
+    protected val nItemHighlight: NItemHighlight = NItemHighlight(NeonKey.NamespaceKeys.NEON_BUTTON_HIGHLIGHT.key)
 
     fun addGUIButtons() {
         /* Button lore */
