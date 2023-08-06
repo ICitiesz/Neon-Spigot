@@ -1,608 +1,1075 @@
 package com.islandstudio.neon.experimental.nDurable
 
+import com.islandstudio.neon.experimental.nEffect.NEffect
+import com.islandstudio.neon.experimental.nServerFeatures.NServerFeatures
+import com.islandstudio.neon.experimental.nServerFeatures.ServerFeature
+import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
+import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
-import com.islandstudio.neon.stable.primary.nExperimental.NExperimental
-import com.islandstudio.neon.stable.utils.NNamespaceKeys
 import com.islandstudio.neon.stable.utils.NPacketProcessor
+import com.islandstudio.neon.stable.utils.NReflector
+import com.islandstudio.neon.stable.utils.NeonKey
+import com.islandstudio.neon.stable.utils.ObjectSerializer
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket
-import org.bukkit.ChatColor
-import org.bukkit.GameMode
-import org.bukkit.NamespacedKey
-import org.bukkit.entity.Creeper
-import org.bukkit.entity.Player
-import org.bukkit.entity.Sheep
-import org.bukkit.event.Event
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.inventory.AbstractContainerMenu
+import org.bukkit.*
+import org.bukkit.block.Block
+import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
-import org.bukkit.event.block.BlockDamageEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.entity.EntityShootBowEvent
+import org.bukkit.event.entity.ItemSpawnEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
+import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.inventory.PrepareAnvilEvent
+import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.*
+import org.bukkit.event.world.LootGenerateEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
-import org.jetbrains.kotlin.utils.addToStdlib.applyIf
+import org.jetbrains.kotlin.utils.addToStdlib.ifFalse
+import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 import java.util.*
-import kotlin.collections.ArrayList
 
 object NDurable {
-    private var isInstantBreak: Boolean = false
-    private val isEnabled: () -> Boolean = {
-        var tempBool = false
+    private var isEnabled = false
 
-        NExperimental.Handler.getClientElement().forEach {
-            val nExperimental = NExperimental(it)
+    private val plugin = NConstructor.plugin
 
-            if (!nExperimental.experimentalName.equals("nDurable", true)) return@forEach
+    private var showItemDurability = true
+    private var isFortuneHarvestRestricted = false
 
-            if (!nExperimental.isEnabled) return@forEach
+    object Handler: CommandHandler {
+        /**
+         * Initialization for nDurable.
+         *
+         */
+        fun run() {
+            isEnabled = NServerFeatures.getToggle(ServerFeature.FeatureNames.N_DURABLE)
 
-            tempBool = true
+            if (!isEnabled) {
+                toggleDamageProperty(isEnabled)
+
+                return NConstructor.unRegisterEvent(EventProcessor())
+            }
+
+            toggleDamageProperty(isEnabled)
+            isFortuneHarvestRestricted = true
+            showItemDurability = NServerFeatures.getOptionValue(ServerFeature.FeatureNames.N_DURABLE.featureName, "showItemDurability") as Boolean
+
+            NConstructor.registerEventProcessor(EventProcessor())
         }
 
-        tempBool
+        /**
+         * Apply damage property to the tool/weapon.
+         *
+         * @param itemStack The tool/weapon.
+         * @param damagePerformed The damage that have done to the tool/weapon.
+         * @return The tool/weapon with damage property applied.
+         */
+        fun applyDamageProperty(itemStack: ItemStack, damagePerformed: Int): ItemStack {
+            if (!isItemMatch(itemStack)) return itemStack
+
+            val itemMaxDamage = itemStack.type.maxDurability
+            val damageableItemMeta = itemStack.itemMeta as Damageable
+            val itemDamage = damageableItemMeta.damage
+            var finalItemDamage: Int = if (damagePerformed == itemMaxDamage.toInt() || itemDamage > itemMaxDamage.toInt()) itemMaxDamage.toInt()
+            else itemDamage + damagePerformed
+
+            isItemDamaged(finalItemDamage, itemMaxDamage.toInt()).ifTrue {
+                finalItemDamage = itemMaxDamage.toInt()
+                damageableItemMeta.damage = itemMaxDamage.toInt()
+            }
+
+            var damagePropertyContainer: HashMap<String, Any> = hashMapOf(NeonKey.getNeonKeyNameWithNamespace(
+                NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE) to finalItemDamage)
+
+            if (NeonKey.hasNeonKey(NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItemMeta)) {
+                damagePropertyContainer = getDamageProperty(damageableItemMeta)
+
+                damagePropertyContainer[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] = finalItemDamage
+            }
+
+            NeonKey.updateNeonKey(
+                ObjectSerializer.serializeObjectEncoded(damagePropertyContainer),
+                NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItemMeta)
+
+            itemStack.itemMeta = damageableItemMeta
+
+            showDamageProperty(itemStack)
+            return itemStack
+        }
+
+        /**
+         * Apply damage property to tool/weapon when player getting it from /give command
+         * or from creative inventory.
+         *
+         * @param nPlayer The nPlayer (Player object used by packet).
+         * @param rawSlotIndex The slot index in raw for the inventory.
+         */
+        fun applyDamagePropertyOnGive(nPlayer: ServerPlayer, rawSlotIndex: Int) {
+            if (!isEnabled) return
+
+            /* Getting the inventory view from player that received the tool/weapon
+            * from /give command or getting from creative inventory */
+            /* TODO: 1.17, 1.18 mapping (bV) */
+            val inventoryView = (nPlayer.javaClass.superclass.getField("bV").get(nPlayer)
+                    as AbstractContainerMenu).bukkitView
+
+            /* Get and check the inventory type. */
+            inventoryView.getInventory(rawSlotIndex)?.let {
+                if (it.type != InventoryType.PLAYER) return
+            } ?: return
+
+            val gaveItem = inventoryView.getItem(rawSlotIndex) ?: return
+
+            applyDamageProperty(gaveItem, 0)
+        }
+
+        /**
+         * Apply damage property to the tool/weapon when player trading with Tool Smith/Weapon Smith Villager.
+         *
+         * @param villager The villager.
+         */
+        fun applyDamagePropertyOnTrading(villager: Entity) {
+            if (villager !is Villager) return
+
+            /* Villager profession check */
+            if (!(villager.profession == Villager.Profession.TOOLSMITH || villager.profession == Villager.Profession.WEAPONSMITH)) return
+
+            villager.recipes.forEach {
+                val merchantRecipeField = it.javaClass.getDeclaredField("handle")
+                merchantRecipeField.isAccessible = true
+
+                val merchantRecipe = merchantRecipeField.get(it)
+
+                /* Damage property for trade offer ingredient */
+                it.ingredients.forEach InnerFE@ { ingredient ->
+                    if (!isItemMatch(ingredient)) return@InnerFE
+
+                    /* TODO: 1.17, 1.18 mapping (c) */
+                    val originalIngredient = merchantRecipe.javaClass.getDeclaredField("c")
+                    originalIngredient.isAccessible = true
+
+                    val newIngredient = if (isEnabled) applyDamageProperty(ingredient, 0)
+                    else hideDamageProperty(ingredient)
+
+                    val baseItemStack = NReflector.getCraftBukkitClass("inventory.CraftItemStack")
+                        .getMethod("asNMSCopy", ItemStack::class.java).invoke(null, newIngredient)
+
+                    originalIngredient.set(merchantRecipe, baseItemStack)
+                }
+
+                /* Damage property for trade offer result */
+                /* TODO: 1.17, 1.18 mapping (c) */
+                val originalResult = merchantRecipe.javaClass.getDeclaredField("c")
+                originalResult.isAccessible = true
+
+                val newResult = if (isEnabled) applyDamageProperty(it.result, 0)
+                else hideDamageProperty(it.result)
+
+                val baseItemStack = NReflector.getCraftBukkitClass("inventory.CraftItemStack")
+                    .getMethod("asNMSCopy", ItemStack::class.java).invoke(null, newResult)
+
+                originalResult.set(merchantRecipe, baseItemStack)
+            }
+        }
+
+        /**
+         * Remove damage property from the tool/weapon that have applied the damage property.
+         *
+         * @param damageableItem The tool/weapon.
+         */
+        private fun removeDamageProperty(damageableItem: ItemStack) {
+            if (!isItemMatch(damageableItem)) return
+
+            hideDamageProperty(damageableItem)
+
+            NeonKey.removeNeonKey(NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItem)
+        }
+
+        /**
+         * Get damage property that already applied to the tool/weapon.
+         *
+         * @param damageableItemMeta The item meta for the tool/weapon.
+         * @return The damage property.
+         */
+        fun getDamageProperty(damageableItemMeta: Damageable): HashMap<String, Any> {
+            if (!NeonKey.hasNeonKey(NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItemMeta)) {
+                return hashMapOf()
+            }
+
+            @Suppress("UNCHECKED_CAST")
+            return ObjectSerializer.deserializeObjectEncoded(
+                NeonKey.getNeonKeyValue(NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItemMeta) as String)
+                    as HashMap<String, Any>
+        }
+
+        override fun setCommandHandler(commander: Player, args: Array<out String>) {
+            commander.isOp.ifFalse {
+                commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
+                return
+            }
+
+            when (args.size) {
+                2 -> {
+                    args[1].equals("removeDamageProperty", true).ifFalse {
+                        commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
+                        return
+                    }
+
+                    val damageableItem = commander.inventory.itemInMainHand
+
+                    (damageableItem.type == Material.AIR).ifTrue {
+                        commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}No tool/weapon has been selected by your main hand!"))
+                        return
+                    }
+
+                    isItemMatch(damageableItem).ifFalse {
+                        commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}Invalid tool/weapon!"))
+                        return
+                    }
+
+                    removeDamageProperty(damageableItem)
+                    commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.GREEN}Damage property for " +
+                            "${ChatColor.GOLD}${getDamageableItemName(damageableItem)}${ChatColor.GREEN} has been removed!"))
+                }
+
+                3 -> {
+                    args[1].equals("removeDamageProperty", true).ifFalse {
+                        commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
+                        return
+                    }
+
+                    val targetPlayerName = args[2]
+
+                    plugin.server.onlinePlayers.find { it.name == targetPlayerName }?.let {
+                        it.inventory.contents.filterNotNull().filter { contentItem -> isItemMatch(contentItem) }
+                            .forEach { damageableItem ->
+                                removeDamageProperty(damageableItem)
+                            }
+                    } ?: commander.sendMessage(CommandSyntax.createSyntaxMessage(
+                        "${ChatColor.YELLOW}No such player as ${ChatColor.GRAY}'${ChatColor.WHITE}" +
+                                "${targetPlayerName}${ChatColor.GRAY}'${ChatColor.YELLOW}!"))
+
+                    commander.sendMessage(CommandSyntax.createSyntaxMessage(
+                        "${ChatColor.GREEN}Damage property for tool(s)/weapon(s) in ${ChatColor.GOLD}" +
+                                "${targetPlayerName}${ChatColor.GREEN}'s inventory has been validated and removed!"))
+                }
+
+                else -> {
+                    commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
+                    return
+                }
+            }
+        }
+
+        override fun tabCompletion(commander: Player, args: Array<out String>): MutableList<String> {
+            if (!commander.isOp) return super.tabCompletion(commander, args)
+
+            when (args.size) {
+                2 -> {
+                    return listOf("removeDamageProperty").filter { it.startsWith(args[1], true) }.toMutableList()
+                }
+
+                3 -> {
+                    if (!args[1].equals("removeDamageProperty", true)) return super.tabCompletion(commander, args)
+
+                    return plugin.server.onlinePlayers.parallelStream().map { targetPlayer -> targetPlayer.name }
+                        .toList().filter { it.startsWith(args[2]) }.toMutableList()
+                }
+            }
+
+            return super.tabCompletion(commander, args)
+        }
     }
 
-    private val damagedTag = "${ChatColor.RED}DAMAGED"
+    fun isEnabled() = this.isEnabled
 
-    object Handler {
-        fun run() {
-            if (!isEnabled()) return NConstructor.unRegisterEvent(EventController())
+    /**
+     * Toggle damage property for player and villager.
+     *
+     * @param isEnabled The toggle status of nDurable.
+     * @param player The specific player.
+     */
+    fun toggleDamageProperty(isEnabled: Boolean, player: Player? = null) {
+        if (player != null) {
+            player.inventory.contents.filterNotNull()
+                .filter { contentItem -> contentItem.itemMeta is Damageable }
+                .filter { damageableItem -> isItemMatch(damageableItem) }.forEach innerFE@ { damageableItem ->
+                    isEnabled.ifTrue {
+                        Handler.applyDamageProperty(damageableItem, 0)
 
-            NConstructor.registerEvent(EventController())
+                        return@innerFE
+                    }
+
+                    hideDamageProperty(damageableItem)
+                }
+
+            return
+        }
+        /* Toggle damage property display for all online players if no player specify  */
+        plugin.server.onlinePlayers.forEach { onlinePlayer ->
+            onlinePlayer.inventory.contents.filterNotNull()
+                .filter { contentItem -> contentItem.itemMeta is Damageable }
+                .filter { damageableItem -> isItemMatch(damageableItem) }.forEach innerFE@ { damageableItem ->
+                    isEnabled.ifTrue {
+                        Handler.applyDamageProperty(damageableItem, 0)
+
+                        return@innerFE
+                    }
+
+                    hideDamageProperty(damageableItem)
+                }
+        }
+
+        isEnabled.ifFalse {
+            /* Hide damage property display from all tool smith villager & weapon smith villager */
+            plugin.server.worlds.forEach {
+                it.entities.parallelStream()
+                    .filter { entity -> entity is Villager }
+                    .filter { entity -> (entity as Villager).profession == Villager.Profession.TOOLSMITH
+                            || entity.profession == Villager.Profession.WEAPONSMITH }.forEach { entity ->
+                        Handler.applyDamagePropertyOnTrading(entity as Villager)
+                    }
+            }
         }
     }
 
     /**
-     * Disable fortune harvest performed by nHarvest if the tool/weapon has been damaged.
+     * Once damage property applied or updated, it will show as Lore within the tool tip of the tool/weapon.
+     *
+     * @param itemStack The tool/weapon.
+     */
+    private fun showDamageProperty(itemStack: ItemStack) {
+        if (!isItemMatch(itemStack)) return
+
+        val damageableItemMeta = itemStack.itemMeta as Damageable
+        val damageProperty: HashMap<String, Any> = Handler.getDamageProperty(damageableItemMeta)
+
+        if (damageProperty.isEmpty()) return
+
+        /* Check and get damage detail of the tool/weapon. */
+        val itemDamage = damageProperty.entries.find { it.key == NeonKey.getNeonKeyNameWithNamespace(
+            NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE) }?.value ?: return
+
+        val itemMaxDurability = itemStack.type.maxDurability
+        val damagePropertyDisplay: MutableList<String> = if (damageableItemMeta.hasLore()) damageableItemMeta.lore!! else mutableListOf()
+
+        val damagedTag = "${ChatColor.DARK_RED}DAMAGED"
+
+        /* Add new line as separator */
+        if (damagePropertyDisplay.isEmpty() || damagePropertyDisplay.first() != "") {
+            damagePropertyDisplay.add(0, "")
+        }
+
+        /* Showing item durability as percentage if the 'showItemDurability' option is true */
+        showItemDurability.ifTrue {
+            damagePropertyDisplay.find { it == damagedTag }?.let {
+                damagePropertyDisplay.removeAt(damagePropertyDisplay.indexOf(it))
+            }
+
+            val currentItemDurability = itemMaxDurability - (itemDamage as Int)
+            /* Percentage format: #.##% */
+            val percentageFormat: String = String.format("%.2f",
+                (currentItemDurability.toDouble() / itemMaxDurability.toDouble()) * 100)
+
+            when  {
+                percentageFormat.toDouble() == 100.0 -> {
+                    damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
+                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ChatColor.DARK_GREEN}${percentageFormat}%"
+                        return@ifTrue
+                    }
+
+                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ChatColor.DARK_GREEN}${percentageFormat}%")
+                }
+
+                percentageFormat.toDouble() in 75.0..99.99 -> {
+                    damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
+                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ChatColor.GREEN}${percentageFormat}%"
+                        return@ifTrue
+                    }
+
+                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ChatColor.GREEN}${percentageFormat}%")
+                }
+
+                percentageFormat.toDouble() in 50.0 .. 74.99 -> {
+                    damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
+                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ChatColor.YELLOW}${percentageFormat}%"
+                        return@ifTrue
+                    }
+
+                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ChatColor.YELLOW}${percentageFormat}%")
+                }
+
+                percentageFormat.toDouble() in 25.0 .. 49.99 -> {
+                    damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
+                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ChatColor.GOLD}${percentageFormat}%"
+                        return@ifTrue
+                    }
+
+                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ChatColor.GOLD}${percentageFormat}%")
+                }
+
+                (percentageFormat.toDouble() > 0.0 && percentageFormat.toDouble() <= 24.99) -> {
+                    damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
+                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ChatColor.RED}${percentageFormat}%"
+                        return@ifTrue
+                    }
+
+                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ChatColor.RED}${percentageFormat}%")
+                }
+
+                percentageFormat.toDouble() == 0.0 -> {
+                    damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
+                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ChatColor.DARK_RED}0% ${ChatColor.GRAY}| ${ChatColor.DARK_RED}DAMAGED"
+                        return@ifTrue
+                    }
+
+                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ChatColor.DARK_RED}0% ${ChatColor.GRAY}| $damagedTag")
+                }
+
+                else -> {}
+            }
+        }
+
+        /* Hide item durability as percentage if the 'showItemDurability' option is false */
+        showItemDurability.ifFalse {
+            damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
+                damagePropertyDisplay.removeAt(damagePropertyDisplay.indexOf(it))
+            }
+        }
+
+        /* Show 'DAMAGED' tag if the tool/weapon is broken */
+        isItemDamaged(itemDamage as Int, itemMaxDurability.toInt()).ifTrue {
+            if (showItemDurability) return@ifTrue
+
+            if (damagePropertyDisplay.any {it == damagedTag }) return@ifTrue
+
+            damagePropertyDisplay.add(damagedTag)
+        }
+
+        /* Remove 'DAMAGED' tag after the tool/weapon being repaired */
+        isItemDamaged(itemDamage, itemMaxDurability.toInt()).ifFalse {
+            if (showItemDurability) return@ifFalse
+
+            damagePropertyDisplay.removeFirst()
+
+            damagePropertyDisplay.find {it == damagedTag }?.let {
+                damagePropertyDisplay.removeAt(damagePropertyDisplay.indexOf(it))
+            }
+        }
+
+        damageableItemMeta.lore = damagePropertyDisplay
+        itemStack.itemMeta = damageableItemMeta
+    }
+
+    /**
+     * Hide damage property display from the tool/weapon.
+     *
+     * @param itemStack The tool/weapon.
+     * @return The hidden damage property display of tool/weapon.
+     */
+    private fun hideDamageProperty(itemStack: ItemStack): ItemStack {
+        if (!isItemMatch(itemStack)) return itemStack
+
+        val damageableItemMeta = itemStack.itemMeta as Damageable
+
+        val damageProperty: MutableList<String> = if (damageableItemMeta.hasLore()) damageableItemMeta.lore!! else return itemStack
+
+        damageProperty.removeAt(0)
+
+        damageProperty.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
+            damageProperty.remove(it)
+        }
+
+        damageableItemMeta.lore = damageProperty
+        itemStack.itemMeta = damageableItemMeta
+
+        return itemStack
+    }
+
+    /**
+     * Cancel fortune harvest performed by nHarvest if the tool/weapon has been damaged.
      *
      * @param heldItem Tools/Weapon.
      * @param player The player who perform the harvest.
      * @return
      */
-    fun disableFortuneHarvest(heldItem: ItemStack, player: Player): Boolean {
-        if (!isEnabled()) return false
+    fun revokeFortuneHarvest(heldItem: ItemStack, player: Player): Boolean {
+        if (!isFortuneHarvestRestricted) return false
 
         if (!isItemMatch(heldItem)) return false
 
-        val itemMetaDamageable: Damageable = heldItem.itemMeta?.let { it as Damageable } ?: return false
+        val heldItemItemMeta = heldItem.itemMeta as Damageable
 
-        if (!isItemDamaged(itemMetaDamageable.damage, heldItem.type.maxDurability.toInt())) return false
+        Handler.getDamageProperty(heldItemItemMeta).run {
+            this.isNotEmpty().ifTrue {
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                        heldItem.type.maxDurability.toInt())) return false
+            }
 
-        if (!hasDamagedItemKey(itemMetaDamageable)) {
-            player.server.pluginManager.callEvent(PlayerItemDamageEvent(player, heldItem, itemMetaDamageable.damage))
+            if (!isItemDamaged(heldItemItemMeta.damage, heldItem.type.maxDurability.toInt())) return false
+            Handler.applyDamageProperty(heldItem, 0)
         }
 
-        if (player.gameMode == GameMode.CREATIVE) return false
-
-        return true
+        return player.gameMode != GameMode.CREATIVE
     }
 
     /**
-     * Disable item being broken when the durability is 0 or less than 0.
+     * Get the display name of the tool/weapon.
      *
-     * @param e PlayerItemDamageEvent
+     * @param damageableItem The tool/weapon.
+     * @return The display name of the tool/weapon.
      */
-    private fun disableItemBroken(e: PlayerItemDamageEvent) {
-        val item = e.item
+    fun getDamageableItemName(damageableItem: ItemStack): String {
+        val damageableItemMeta = damageableItem.itemMeta ?: return ""
 
-        if (!isItemMatch(item)) return
+        if (damageableItemMeta.hasDisplayName()) return "${ChatColor.ITALIC}${damageableItemMeta.displayName}"
 
-        val itemMetaDamageable: Damageable = item.itemMeta as Damageable
-        val finalDamage: Int = itemMetaDamageable.damage + e.damage
-        val maxDurability: Int = item.type.maxDurability.toInt()
+        val damageableItemName = damageableItem.type.name
 
-        if (!isItemDamaged(finalDamage, maxDurability)) return
+        damageableItemName.contains("_").ifTrue {
+            var tempDamageableItemName = ""
 
-        e.isCancelled = true
+            damageableItemName.split("_").forEach {
+                tempDamageableItemName += it.lowercase().replaceFirstChar { splitName ->
+                    if (splitName.isLowerCase()) {
+                        splitName.titlecase(Locale.getDefault())
+                    } else {
+                        splitName.toString()
+                    }
+                }.plus(" ")
+            }
 
-        itemMetaDamageable.damage = maxDurability
+             return tempDamageableItemName.trimEnd()
+        }
 
-        item.itemMeta = addDamageTag(itemMetaDamageable)
+        return damageableItemName.lowercase().replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(Locale.getDefault())
+
+            else it.toString()
+        }
     }
 
     /**
-     * Disable the block breaking if the tool/weapon has been damaged.
+     * Revoke alternative use when using certain damaged tool.
      *
-     * @param e BlockBreakEvent
+     * @param player The player who using the damaged tool.
+     * @param damageableItem The damaged tool.
+     * @param useAction Use action like Left/Right-Clicking on Air/Block.
+     * @param useOnBlock The target block where use action on.
+     * @return True if it can be revoked, else false
      */
-    private fun disableBlockBreaking(e: BlockBreakEvent) {
-        val player: Player = e.player
-        val item: ItemStack = player.inventory.itemInMainHand
+    fun revokeAlternativeUse(player: Player, damageableItem: ItemStack, useAction: Action, useOnBlock: Block?): Boolean {
+        if (!isItemMatch(damageableItem)) return false
 
-        if (!isItemMatch(item)) return
+        val damageableItemMeta = damageableItem.itemMeta as Damageable
 
-        val itemMetaDamageable: Damageable = item.itemMeta as Damageable
+        Handler.getDamageProperty(damageableItemMeta).run {
+            this.isNotEmpty().ifTrue {
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                        damageableItem.type.maxDurability.toInt())) return false
+            }
 
-        if (!isItemDamaged(itemMetaDamageable.damage, item.type.maxDurability.toInt())) return
-
-        if (!hasDamagedItemKey(itemMetaDamageable)) {
-            player.server.pluginManager.callEvent(PlayerItemDamageEvent(player, item, itemMetaDamageable.damage))
-        }
-
-        if (isInstantBreak && !isItemMatch(item, NTools.SHEARS) || player.gameMode == GameMode.CREATIVE) {
-            isInstantBreak = false
-            return
-        }
-
-        e.isCancelled = true
-
-        notifyDamage(player, item)
-    }
-
-    /**
-     * Disable alternative use of the tool/weapon such as wood stripping, copper deoxidization, fishing
-     * if the tool/weapon has been damaged.
-     *
-     * @param e PlayerInteractEvent
-     */
-    private fun disableAlternativeUse(e: PlayerInteractEvent) {
-        val player = e.player
-        val item: ItemStack = player.inventory.itemInMainHand
-
-        if (!isItemMatch(item)) return
-
-        val itemMetaDamageable: Damageable = item.itemMeta as Damageable
-
-        if (!isItemDamaged(itemMetaDamageable.damage, item.type.maxDurability.toInt())) return
-
-        if (!hasDamagedItemKey(itemMetaDamageable)) {
-            player.server.pluginManager.callEvent(PlayerItemDamageEvent(player, item, itemMetaDamageable.damage))
+            if (!isItemDamaged(damageableItemMeta.damage, damageableItem.type.maxDurability.toInt())) return false
+            Handler.applyDamageProperty(damageableItem, 0)
         }
 
         when {
-            /* Axe usage */
-            isItemMatch(item, NTools.AXE) -> {
-                if (e.action != Action.RIGHT_CLICK_BLOCK) return
+            /* Axe usages */
+            isItemMatch(damageableItem, DamageableItems.Items.AXE) -> {
+                if (useAction != Action.RIGHT_CLICK_BLOCK) return false
 
-                e.clickedBlock?.let {clickBlock ->
-                    val clickedBlockName: String = clickBlock.type.name
+                useOnBlock?.let { block ->
+                    val blockName = block.type.name
 
-                    NBlocks.values().forEach { nBlock ->
-                        if (!clickedBlockName.contains(nBlock.blockName, true)) return@forEach
+                    if (blockName.startsWith("stripped_", true)) return false
 
-                        if (clickedBlockName.contains("stripped_", true)) return
+                    DamageableItems.Blocks.values().filter {
+                            !(it == DamageableItems.Blocks.PUMPKIN
+                            || it == DamageableItems.Blocks.COMMAND_BLOCK
+                            || it == DamageableItems.Blocks.FENCE
+                            || it == DamageableItems.Blocks.ROOTED_DIRT
+                            || it == DamageableItems.Blocks.GRASS_BLOCK
+                            || it == DamageableItems.Blocks.DIRT_BLOCK
+                            || it == DamageableItems.Blocks.DIRT_PATH
+                            || it == DamageableItems.Blocks.COARSE_DIRT) }.find {
+                        blockName.contains(it.blockName, true)
+                    }?.let InnerLet@ { return@let } ?: return false
+                } ?: return false
+            }
 
-                        if (player.gameMode == GameMode.CREATIVE) return
+            /* Land tilling */
+            isItemMatch(damageableItem, DamageableItems.Items.HOE) -> {
+                if (useAction != Action.RIGHT_CLICK_BLOCK) return false
 
-                        e.isCancelled = true
+                useOnBlock?.let { block ->
+                    val blockName = block.type.name
 
-                        notifyDamage(player, item)
+                    DamageableItems.Blocks.values().filter {
+                        it == DamageableItems.Blocks.ROOTED_DIRT
+                            || it == DamageableItems.Blocks.GRASS_BLOCK
+                            || it == DamageableItems.Blocks.DIRT_BLOCK
+                            || it == DamageableItems.Blocks.DIRT_PATH
+                            || it == DamageableItems.Blocks.COARSE_DIRT }.find {
+                        blockName.equals(it.blockName, true)
+                    }?.let InnerLet@ { return@let } ?: return false
+                } ?: return false
+            }
+
+            /* Fishing */
+            isItemMatch(damageableItem, DamageableItems.Items.FISHING_ROD) -> {
+                if (!(useAction == Action.RIGHT_CLICK_AIR || useAction == Action.RIGHT_CLICK_BLOCK)) return false
+            }
+
+            /* Pumpkin carving */
+            isItemMatch(damageableItem, DamageableItems.Items.SHEARS) -> {
+                if (useAction != Action.RIGHT_CLICK_BLOCK) return false
+
+                useOnBlock?.let {
+                    if (!it.type.name.equals(DamageableItems.Blocks.PUMPKIN.blockName, true)) return false
+                } ?: return false
+            }
+
+            /* Ignition on block */
+            isItemMatch(damageableItem, DamageableItems.Items.FLINT_AND_STEEL) -> {
+                if (useAction != Action.RIGHT_CLICK_BLOCK) return false
+
+                useOnBlock?.let { block ->
+                    val isInteratable = block.type.isInteractable
+
+                    if (!isInteratable) return@let
+
+                    when {
+                        block.type.name.contains(DamageableItems.Blocks.COMMAND_BLOCK.name, true) -> {
+                            return@let
+                        }
+
+                        (block.type.name.contains(DamageableItems.Blocks.FENCE.name, true)
+                                || block.type.name.contains(DamageableItems.Blocks.PUMPKIN.name, true)) && !player.isSneaking -> {
+                            return@let
+                        }
+
+                        !block.type.name.contains(DamageableItems.Blocks.COMMAND_BLOCK.name, true) && !player.isSneaking -> {
+                            return false
+                        }
+                    }
+                } ?: return false
+            }
+
+            /* Crossbow shooting */
+            isItemMatch(damageableItem, DamageableItems.Items.CROSSBOW) -> {
+                useAction.run {
+                    when (this) {
+                        Action.RIGHT_CLICK_AIR -> { return@run }
+
+                        Action.RIGHT_CLICK_BLOCK -> {
+                            useOnBlock?.let { block ->
+                                val isInteratable = block.type.isInteractable
+
+                                if (!isInteratable) return@let
+
+                                when {
+                                    block.type.name.contains(DamageableItems.Blocks.COMMAND_BLOCK.name, true) -> {
+                                        return@let
+                                    }
+
+                                    (block.type.name.contains(DamageableItems.Blocks.FENCE.name, true)
+                                            || block.type.name.contains(DamageableItems.Blocks.PUMPKIN.name, true)) && !player.isSneaking -> {
+                                        return@let
+                                    }
+
+                                    !block.type.name.contains(DamageableItems.Blocks.COMMAND_BLOCK.name, true) && !player.isSneaking -> {
+                                        return false
+                                    }
+                                }
+                            } ?: return false
+                        }
+
+                        else -> { return false }
                     }
                 }
             }
 
-            /* Fishing */
-            isItemMatch(item, NTools.FISHING_ROD) -> {
-                if (e.action == Action.RIGHT_CLICK_AIR || e.action == Action.RIGHT_CLICK_BLOCK) {
-                    if (player.gameMode == GameMode.CREATIVE) return
-
-                    e.isCancelled = true
-
-                    notifyDamage(player, item)
-                }
-            }
-
-            /* Ignition on block */
-            isItemMatch(item, NTools.FLINT_AND_STEEL) -> {
-                if (e.action != Action.RIGHT_CLICK_BLOCK) return
-
-                if (player.gameMode == GameMode.CREATIVE) return
-
-                e.isCancelled = true
-
-                notifyDamage(player, item)
-            }
-        }
-    }
-
-    /**
-     * Disable creeper ignition that cause by the Flint and Steel.
-     *
-     * @param e PlayerInteractEntityEvent
-     */
-    private fun disableCreeperIgnition(e: PlayerInteractEntityEvent) {
-        val player = e.player
-
-        if (e.rightClicked !is Creeper) return
-
-        val item: ItemStack = player.inventory.itemInMainHand
-
-        if (!isItemMatch(item, NTools.FLINT_AND_STEEL)) return
-
-        val itemMetaDamageable: Damageable = item.itemMeta as Damageable
-
-        if (!isItemDamaged(itemMetaDamageable.damage, item.type.maxDurability.toInt())) return
-
-        if (!hasDamagedItemKey(itemMetaDamageable)) {
-            player.server.pluginManager.callEvent(PlayerItemDamageEvent(player, item, itemMetaDamageable.damage))
-        }
-
-        e.isCancelled = true
-
-        notifyDamage(player, item)
-    }
-
-    /**
-     * Disable attack damage to the entity if the tool/weapon has been damaged.
-     *
-     * @param e EntityDamageByEntityEvent
-     */
-    private fun disableAttackDamage(e: EntityDamageByEntityEvent) {
-        if (e.damager !is Player) return
-
-        val player = e.damager as Player
-        val item: ItemStack = player.inventory.itemInMainHand
-
-        if (!isItemMatch(item)) return
-
-        val itemMetaDamageable: Damageable = item.itemMeta as Damageable
-
-        if (!isItemDamaged(itemMetaDamageable.damage, item.type.maxDurability.toInt())) return
-
-        if (!hasDamagedItemKey(itemMetaDamageable)) {
-            player.server.pluginManager.callEvent(PlayerItemDamageEvent(player, item, itemMetaDamageable.damage))
-        }
-
-        if (player.gameMode == GameMode.CREATIVE) return
-
-        e.isCancelled = true
-
-        notifyDamage(player, item)
-    }
-
-    /**
-     * Disable wool shearing if the tool/weapon has been damaged.
-     *
-     * @param e PlayerShearEntityEvent
-     */
-    private fun disableWoolShearing(e: PlayerShearEntityEvent) {
-        val player = e.player
-
-        val item: ItemStack = player.inventory.itemInMainHand
-
-        if (!isItemMatch(item)) return
-
-        val itemMetaDamageable: Damageable = item.itemMeta as Damageable
-
-        if (!isItemDamaged(itemMetaDamageable.damage, item.type.maxDurability.toInt())) return
-
-        if (!hasDamagedItemKey(itemMetaDamageable)) {
-            player.server.pluginManager.callEvent(PlayerItemDamageEvent(player, item, itemMetaDamageable.damage))
-        }
-
-        if (player.gameMode == GameMode.CREATIVE) return
-
-        if (e.entity !is Sheep) return
-
-        e.isCancelled = true
-
-        notifyDamage(player, item)
-    }
-
-    /**
-     * Disable bow shooting if it has been damaged.
-     *
-     * @param e EntityShootBowEvent
-     */
-    private fun disableBowShooting(e: EntityShootBowEvent) {
-        val player = if (e.entity is Player) e.entity as Player else return
-
-        val item: ItemStack = e.bow as ItemStack
-
-        if (!isItemMatch(item)) return
-
-        val itemMetaDamageable: Damageable = item.itemMeta as Damageable
-
-        if (!isItemDamaged(itemMetaDamageable.damage, item.type.maxDurability.toInt())) return
-
-        if (!hasDamagedItemKey(itemMetaDamageable)) {
-            player.server.pluginManager.callEvent(PlayerItemDamageEvent(player, item, itemMetaDamageable.damage))
-        }
-
-        if (player.gameMode == GameMode.CREATIVE) return
-
-        if (!item.type.name.equals(NWeapons.BOW.weaponName, true)) return
-
-        e.projectile.remove()
-
-        notifyDamage(player, item)
-    }
-
-    /**
-     * Disable crossbow shooting if it has been damaged.
-     *
-     * @param e PlayerInteractEvent
-     */
-    private fun disableCrossBowShooting(e: PlayerInteractEvent) {
-        if (e.action == Action.RIGHT_CLICK_AIR || e.action == Action.RIGHT_CLICK_BLOCK) {
-            if (!e.hasItem()) return
-
-            val player = e.player
-            val item = e.item!!
-
-            if (!isItemMatch(item, nWeapons = NWeapons.CROSSBOW)) return
-
-            val itemMetaDamageable: Damageable = item.itemMeta?.let { it as Damageable } ?: return
-
-            if (!isItemDamaged(itemMetaDamageable.damage, item.type.maxDurability.toInt())) return
-
-            if (!hasDamagedItemKey(itemMetaDamageable)) {
-                player.server.pluginManager.callEvent(PlayerItemDamageEvent(player, item, itemMetaDamageable.damage))
-            }
-
-            e.setUseItemInHand(Event.Result.DENY)
-
-            notifyDamage(player, item)
-        }
-    }
-
-    /**
-     * Add "neon_damaged_item" key and "DAMAGED" tag to the tool/weapon lore.
-     *
-     * @param itemMeta Item meta from the item
-     * @return Item meta with "neon_damaged_item" key and "DAMAGED" tag.
-     */
-    private fun addDamageTag(itemMeta: ItemMeta): ItemMeta {
-        if (hasDamagedItemKey(itemMeta)) return itemMeta
-
-        itemMeta.persistentDataContainer.set(NNamespaceKeys.NEON_DAMAGED_ITEM.key, PersistentDataType.STRING, "true")
-
-        itemMeta.lore?.let { lore ->
-            lore.applyIf(!lore.contains(damagedTag)) {
-                this.add(damagedTag)
-                this
-            }
-        } ?: run {
-            itemMeta.lore = ArrayList<String>().apply {
-                this.add(damagedTag)
+            /* Right-clicking on specific block with other damaged tool/weapon */
+            isItemMatch(damageableItem) -> {
+                return false
             }
         }
 
-        return itemMeta
+        if (player.gameMode == GameMode.CREATIVE) return false
+
+        alertItemDamaged(player, damageableItem)
+        return true
     }
 
     /**
-     * Notify damage to the player through the action title bar.
+     * Revoke creeper ignition when using damaged Flint & Steel to ignite creeper.
      *
-     * @param player The player who using the tool/weapon.
-     * @param item The tool/weapon.
+     * @param player The player who perform the ignition.
+     * @param creeper Creeper Aww man.
+     * @return True if it can be revoked, else false.
      */
-    private fun notifyDamage(player: Player, item: ItemStack) {
-        val itemMeta: ItemMeta = item.itemMeta!!
+    fun revokeCreeperIgnition(player: Player, creeper: Entity): Boolean {
+        if (creeper !is Creeper) return false
 
-        val warning = if (itemMeta.hasDisplayName()) {
-            "${ChatColor.YELLOW}${ChatColor.ITALIC}${itemMeta.displayName} ${ChatColor.RESET}${ChatColor.RED}has been damaged!"
-        } else {
-            val itemName = item.type.name
-
-            val itemNameTrimmed: String = if (itemName.contains("_")) {
-                var tempStr = ""
-
-                itemName.split("_").forEach { str ->
-                    tempStr += str.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }.plus(" ")
+        val lighter = when {
+                player.inventory.itemInMainHand.type == Material.FLINT_AND_STEEL -> {
+                    player.inventory.itemInMainHand
                 }
 
-                tempStr.trimEnd()
-            } else itemName.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-
-            "${ChatColor.YELLOW}${itemNameTrimmed} ${ChatColor.RED}has been damaged!"
+                player.inventory.itemInOffHand.type == Material.FLINT_AND_STEEL -> {
+                    player.inventory.itemInOffHand
+                }
+            else -> {
+                return false
+            }
         }
+
+        if (!isItemMatch(lighter)) return false
+
+        val damageableItemMeta = lighter.itemMeta as Damageable
+
+        Handler.getDamageProperty(damageableItemMeta).run {
+            this.isNotEmpty().ifTrue {
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                        lighter.type.maxDurability.toInt())) return false
+            }
+
+            if (!isItemDamaged(damageableItemMeta.damage, lighter.type.maxDurability.toInt())) return false
+            Handler.applyDamageProperty(lighter, 0)
+        }
+
+        if (player.gameMode == GameMode.CREATIVE) return false
+
+        alertItemDamaged(player, lighter)
+        return true
+    }
+
+    /**
+     * Revoke any attack action if the current using tool/weapon has been damaged.
+     *
+     * @param attacker The player who attack any other entity using damaged tool/weapon.
+     * @return True if it can be revoked, else false
+     */
+    fun revokeAttack(attacker: Entity): Boolean {
+        if (attacker !is Player) return false
+
+        val damageableItem: ItemStack = attacker.inventory.itemInMainHand
+
+        if (!isItemMatch(damageableItem)) return false
+
+        if (isItemMatch(damageableItem, DamageableItems.Items.FISHING_ROD)
+            || isItemMatch(damageableItem, DamageableItems.Items.FLINT_AND_STEEL)
+            || isItemMatch(damageableItem, DamageableItems.Items.SHEARS)
+            || isItemMatch(damageableItem, DamageableItems.Items.CROSSBOW)
+            || isItemMatch(damageableItem, DamageableItems.Items.BOW)) {
+            return false
+        }
+
+        val damageableItemMeta = damageableItem.itemMeta as Damageable
+
+        Handler.getDamageProperty(damageableItemMeta).run {
+            this.isNotEmpty().ifTrue {
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                        damageableItem.type.maxDurability.toInt())) return false
+            }
+
+            if (!isItemDamaged(damageableItemMeta.damage, damageableItem.type.maxDurability.toInt())) return false
+            Handler.applyDamageProperty(damageableItem, 0)
+        }
+
+        if (attacker.gameMode == GameMode.CREATIVE) return false
+
+        alertItemDamaged(attacker, damageableItem)
+        return true
+    }
+
+    /**
+     * Revoke wool shearing action by player if the Shears has been damaged.
+     *
+     * @param player The player who perform wool shearing.
+     * @param shears The Shears.
+     * @return True if it can be revoked, else false.
+     */
+    fun revokeWoolShearing(player: Player, shears: ItemStack): Boolean {
+        if (!isItemMatch(shears, DamageableItems.Items.SHEARS)) return false
+
+        val shearsItemMeta = shears.itemMeta as Damageable
+
+        Handler.getDamageProperty(shearsItemMeta).run {
+            this.isNotEmpty().ifTrue {
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                        shears.type.maxDurability.toInt())) return false
+            }
+
+            if (!isItemDamaged(shearsItemMeta.damage, shears.type.maxDurability.toInt())) return false
+            Handler.applyDamageProperty(shears, 0)
+        }
+
+        if (player.gameMode == GameMode.CREATIVE) return false
+
+        alertItemDamaged(player, shears)
+        return true
+    }
+
+
+    /**
+     * Revoke bow shooting by player if the Bow has been damaged.
+     *
+     * @param shooter The player who perform the Bow shooting.
+     * @param bow The Bow.
+     * @return True if it can be revoked, else false.
+     */
+    fun revokeBowShooting(shooter: Entity, bow: ItemStack): Boolean {
+        if (!(isItemMatch(bow, DamageableItems.Items.BOW) || isItemMatch(bow, DamageableItems.Items.CROSSBOW))) return false
+
+        if (shooter !is Player) return false
+
+        val bowItemMeta = bow.itemMeta as Damageable
+
+        Handler.getDamageProperty(bowItemMeta).run {
+            this.isNotEmpty().ifTrue {
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                        bow.type.maxDurability.toInt())) return false
+            }
+
+            if (!isItemDamaged(bowItemMeta.damage, bow.type.maxDurability.toInt())) return false
+            Handler.applyDamageProperty(bow, 0)
+        }
+
+        if (shooter.gameMode == GameMode.CREATIVE) return false
+
+        alertItemDamaged(shooter, bow)
+        return true
+    }
+
+    /**
+     * Alert player that the current tool/weapon has been damaged.
+     *
+     * @param player The player who using the damaged tool/weapon.
+     * @param damagedItem The damaged tool/weapon.
+     */
+    private fun alertItemDamaged(player: Player, damagedItem: ItemStack) {
+        val alertMsg = "${ChatColor.GOLD}${getDamageableItemName(damagedItem)} " +
+                "${ChatColor.RED}has been damaged!"
 
         val actionTitlePacket = ClientboundSetActionBarTextPacket(
-            Component.Serializer.fromJson("{\"text\":\"${warning}\"}")
+            Component.Serializer.fromJson("{\"text\":\"${alertMsg}\"}")
         )
 
         NPacketProcessor.sendGamePacket(player, actionTitlePacket)
     }
 
     /**
-     * Match the given item with nTools and nWeapons.
+     * Match the given item with DamageableItems
      *
-     * @param item The given item.
-     * @param nTools The specific item from nTools.
-     * @param nWeapons The specific item from nWeapons.
-     * @return bool True if the given item is match with nTools and nWeapons else false.
+     * @param itemToMatch The given item to match.
+     * @param referenceItem The specific item as reference to match if available.
+     * @return True if the given item is match with DamageableItems else false.
      */
-    private fun isItemMatch(item: ItemStack, nTools: NTools? = null, nWeapons: NWeapons? = null): Boolean {
-        val itemName = item.type.name
+    private fun isItemMatch(itemToMatch: ItemStack, referenceItem: DamageableItems.Items? = null): Boolean {
+        val itemName = itemToMatch.type.name
 
-        when {
-            nTools == null && nWeapons == null -> {
-                NTools.values().forEach { nTool ->
-                    if (!itemName.contains(nTool.toolName, true)) return@forEach
-
-                    return true
-                }
-
-                NWeapons.values().forEach { nWeapon ->
-                    if (!itemName.contains(nWeapon.weaponName, true)) return@forEach
-
-                    if (itemName.contains(NWeapons.BOW.weaponName, true) || itemName.contains(NWeapons.CROSSBOW.weaponName, true)) {
-                        if (itemName.length != nWeapon.weaponName.length) return@forEach
-                    }
-
-                    return true
-                }
-            }
-
-            nTools != null -> {
-                if (!itemName.contains(nTools.toolName, true)) return false
-
-                return true
-            }
-
-            nWeapons != null -> {
-                if (!itemName.contains(nWeapons.weaponName, true)) return false
-
-                if (itemName.contains(NWeapons.BOW.weaponName, true) || itemName.contains(NWeapons.CROSSBOW.weaponName, true)) {
-                    if (itemName.length != nWeapons.weaponName.length) return false
-                }
-
-                return true
-            }
+        if (referenceItem == null) {
+            return DamageableItems.Items.values().any { itemName.contains(it.itemName, true) }
         }
 
-        return false
+        if (!itemName.contains(referenceItem.itemName, true)) return false
+
+        if (!(referenceItem == DamageableItems.Items.BOW || referenceItem == DamageableItems.Items.CROSSBOW)) return true
+
+        return itemName.length == referenceItem.itemName.length
     }
 
     /**
      * Check if the given item durability is less than the item max durability.
      *
-     * @param itemCurrentDurability The current durability of the given item.
+     * @param itemDamageCount The current durability of the given item.
      * @param itemMaxDurability The max durability of the given item.
-     * @return bool True if the given item durability is less than the item max durability else false.
+     * @return True if the given item durability is less than the item max durability else false.
      */
-    private fun isItemDamaged(itemCurrentDurability: Int, itemMaxDurability: Int): Boolean {
-        if (itemCurrentDurability < itemMaxDurability) return false
+    private fun isItemDamaged(itemDamageCount: Int, itemMaxDurability: Int): Boolean = itemDamageCount >= itemMaxDurability
 
-        return true
+    /**
+     * Recover tool/weapon durability either by repair it from Anvil or from Mending enchantment.
+     *
+     * @param damagedItem The damaged tool/weapon.
+     * @param recoverFromMending The repair amount from the Mending enchantment.
+     * @return The item meta with updated damaged property after being repaired.
+     */
+    fun recoverItemDurability(damagedItem: ItemStack, recoverFromMending: Int = 0): ItemMeta {
+        if (!isItemMatch(damagedItem)) return damagedItem.itemMeta!!
+
+        Handler.applyDamageProperty(damagedItem, recoverFromMending)
+
+        return damagedItem.itemMeta!!
     }
 
     /**
-     * Check if the given item has the "neon_damaged_item" key.
+     * Revoke any block breaking action if the current using tool/weapon has been damaged.
      *
-     * @param itemMeta The given item meta.
-     * @return bool True if the given item has the "neon_damaged_item" key else false.
+     * @param player The player who perform block breaking.
+     * @param brokenBlock The target broken block.
+     * @return True if it can be revoked, else false.
      */
-    private fun hasDamagedItemKey(itemMeta: ItemMeta): Boolean {
-        val damagedItemKey: NamespacedKey = NNamespaceKeys.NEON_DAMAGED_ITEM.key
+    fun revokeBlockBreaking(player: Player, brokenBlock: Block): Boolean {
+        val damageableItem = player.inventory.itemInMainHand
 
-        if (!itemMeta.persistentDataContainer.has(damagedItemKey, PersistentDataType.STRING)
-            && itemMeta.persistentDataContainer[damagedItemKey, PersistentDataType.STRING] != "true") return false
+        if (!isItemMatch(damageableItem)) return false
 
-        return true
-    }
+        if (isItemMatch(damageableItem, DamageableItems.Items.FISHING_ROD)
+            || isItemMatch(damageableItem, DamageableItems.Items.FLINT_AND_STEEL)
+            || isItemMatch(damageableItem, DamageableItems.Items.CROSSBOW)
+            || isItemMatch(damageableItem, DamageableItems.Items.BOW)) {
+            return false
+        }
 
-    /**
-     * Repair the tool/weapon if it has the "DAMAGED" tag and the durability == 0. It also remove the "DAMAGED" tag from the item.
-     *
-     * @param item The tool/weapon.
-     * @param repairAmount The repair amount. (Only required if the tool/weapon fixed by using Mending enchantment)
-     */
-    private fun repairItem(item: ItemStack, repairAmount: Int = 0): ItemStack {
-        val itemMetaDamageable: Damageable = item.itemMeta?.let { it as Damageable } ?: return item
+        val damageableItemMeta = damageableItem.itemMeta as Damageable
 
-        if (!isItemMatch(item)) return item
-
-        /* Final repair only use in repairing item by Mending. */
-        val finalRepair = itemMetaDamageable.damage - repairAmount
-
-        /* Check if damaged for the repair result. */
-        if (isItemDamaged(finalRepair, (item.type.maxDurability.toInt()))) return item
-
-        item.itemMeta = removeDamageTag(itemMetaDamageable)
-
-        return item
-    }
-
-    /**
-     * Remove "neon_damaged_item" key and "DAMAGED" tag from the tool/weapon lore.
-     *
-     * @param itemMeta
-     * @return Item meta without "neon_damaged_item" key and "DAMAGED" tag.
-     */
-    private fun removeDamageTag(itemMeta: ItemMeta): ItemMeta {
-        if (!hasDamagedItemKey(itemMeta)) return itemMeta
-
-        itemMeta.persistentDataContainer.remove(NNamespaceKeys.NEON_DAMAGED_ITEM.key)
-
-        itemMeta.lore?.let {lore ->
-            lore.applyIf(lore.contains(damagedTag)) {
-                this.remove(damagedTag)
-                this
+        Handler.getDamageProperty(damageableItemMeta).run {
+            this.isNotEmpty().ifTrue {
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                        damageableItem.type.maxDurability.toInt())) return false
             }
-        }.also { itemMeta.lore = it }
 
-        return itemMeta
+            if (!isItemDamaged(damageableItemMeta.damage, damageableItem.type.maxDurability.toInt())) return false
+            Handler.applyDamageProperty(damageableItem, 0)
+        }
+
+        val isInstantBreakBlock = (brokenBlock.javaClass.getMethod("getBreakSpeed", Player::class.java)
+            .invoke(brokenBlock, player) as Float) >= 1.0f
+
+        if (isInstantBreakBlock && !isItemMatch(damageableItem, DamageableItems.Items.SHEARS) || player.gameMode == GameMode.CREATIVE) {
+            return false
+        }
+
+        alertItemDamaged(player, damageableItem)
+        return true
     }
 
-    private class EventController: Listener {
+    private class EventProcessor: Listener {
         @EventHandler
         private fun onItemDamage(e: PlayerItemDamageEvent) {
-            disableItemBroken(e)
+            val item = e.item
+            val itemDamage = e.damage
+
+            isItemDamaged((item.itemMeta as Damageable).damage + itemDamage,
+                item.type.maxDurability.toInt()).ifTrue {
+                    val player = e.player
+
+                    player.world.playSound(player.location, Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f)
+
+                    e.isCancelled = true
+                }
+
+            Handler.applyDamageProperty(item, itemDamage)
         }
 
         @EventHandler
         private fun onBlockBreak(e: BlockBreakEvent) {
-            disableBlockBreaking(e)
+            if (revokeBlockBreaking(e.player, e.block)) e.isCancelled = true
         }
 
         @EventHandler
         private fun onPlayerInteract(e: PlayerInteractEvent) {
-            disableAlternativeUse(e)
-            disableCrossBowShooting(e)
+            e.item?.let {
+                if (revokeAlternativeUse(e.player, it, e.action, e.clickedBlock)) e.isCancelled = true
+            }
         }
 
         @EventHandler
-        private fun onPlayerInteractEntity(e: PlayerInteractEntityEvent) {
-            disableCreeperIgnition(e)
+        private fun onPlayerInteractOnEntity(e: PlayerInteractEntityEvent) {
+            if (revokeCreeperIgnition(e.player, e.rightClicked)) e.isCancelled = true
+
+            Handler.applyDamagePropertyOnTrading(e.rightClicked)
         }
 
         @EventHandler
         private fun onEntityDamageByEntity(e: EntityDamageByEntityEvent) {
-            disableAttackDamage(e)
+            if (revokeAttack(e.damager)) e.isCancelled = true
         }
 
         @EventHandler
         private fun onWoolShear(e: PlayerShearEntityEvent) {
-            disableWoolShearing(e)
+            if (revokeWoolShearing(e.player, e.item)) e.isCancelled = true
         }
 
         @EventHandler
         private fun onBowShooting(e: EntityShootBowEvent) {
-            disableBowShooting(e)
+            if (revokeBowShooting(e.entity, e.bow!!)) {
+                e.isCancelled = true
+                (e.entity as Player).updateInventory()
+            }
         }
 
         @EventHandler
-        private fun onPrepareAnvil(e: PrepareAnvilEvent) {
-            e.result = e.result?.let { result -> repairItem(result) }
+        private fun onRepairByAnvil(e: PrepareAnvilEvent) {
+            e.result?.let {
+                if (it.type == Material.AIR) return
+                recoverItemDurability(it)
+            }
         }
 
         @EventHandler
-        private fun onItemMending(e: PlayerItemMendEvent) {
-            e.item.itemMeta = repairItem(e.item, e.repairAmount).itemMeta
+        private fun onRepairByMending(e: PlayerItemMendEvent) {
+            recoverItemDurability(e.item, -e.repairAmount)
         }
 
         @EventHandler
-        private fun onBlockDamage(e: BlockDamageEvent) {
-            isInstantBreak = e.instaBreak
+        private fun onCraftingItem(e: PrepareItemCraftEvent) {
+            val craftItem = e.view.getItem(0)?.let {
+                if (it.type == Material.AIR) return
+                it
+            } ?: return
+
+            e.isRepair.ifTrue {
+                recoverItemDurability(craftItem)
+                return
+            }
+
+            Handler.applyDamageProperty(craftItem, 0)
+        }
+
+        @EventHandler
+        private fun onItemPickup(e: EntityPickupItemEvent) {
+            if (e.entityType != EntityType.PLAYER) return
+
+            Handler.applyDamageProperty(e.item.itemStack, 0)
+        }
+
+        @EventHandler
+        private fun onItemSpawn(e: ItemSpawnEvent) {
+            Handler.applyDamageProperty(e.entity.itemStack, 0)
+        }
+
+        @EventHandler
+        private fun onChestLootGenerate(e: LootGenerateEvent) {
+            if (!e.lootTable.key.toString().startsWith("minecraft:chests")) return
+
+            e.setLoot(e.loot.fold(mutableListOf<ItemStack>()) { newChestLoot, itemStack ->
+                Handler.applyDamageProperty(itemStack, 0)
+                newChestLoot.add(itemStack)
+                newChestLoot
+            })
         }
 
         @EventHandler
         private fun onInventoryOpen(e: InventoryOpenEvent) {
-//            val inventory: Inventory = e.inventory
-//
-//            //println(inventory.type)
-//            //println(inventory is PlayerInventory)
-//
-//            inventory.contents.forEach {
-//                if (it == null) return@forEach
-//
-//                val item: Material = it.type
-//                val itemName: String = it.type.name
-//
-//                when {
-//                    itemName.contains("_PICKAXE") || itemName.contains("_AXE")
-//                            || itemName.contains("_SHOVEL") || itemName.contains("_SWORD")
-//                            || itemName.contains("_HOE") -> {
-//                        val itemMeta: Damageable = (it.itemMeta as Damageable?)!!
-//
-//                        itemMeta.damage = item.maxDurability - 1
-//                        itemMeta.lore = listOf("${ChatColor.RED}BROKEN")
-//
-//                        it.itemMeta = itemMeta
-//                    }
-//                }
-//
-//                //(e.player as Player).updateInventory()
-//            }
+            if (e.view.title == NEffect.inventoryName) return
+
+            e.inventory.contents.filterNotNull().forEach {
+                Handler.applyDamageProperty(it, 0)
+            }
         }
     }
 }
