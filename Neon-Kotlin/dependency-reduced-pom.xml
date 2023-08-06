@@ -88,6 +88,45 @@
   </repositories>
   <dependencies>
     <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-maven-plugin</artifactId>
+      <version>1.8.10</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>maven-core</artifactId>
+          <groupId>org.apache.maven</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>maven-plugin-api</artifactId>
+          <groupId>org.apache.maven</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>maven-plugin-annotations</artifactId>
+          <groupId>org.apache.maven.plugin-tools</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>kotlin-compiler</artifactId>
+          <groupId>org.jetbrains.kotlin</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>kotlin-scripting-compiler</artifactId>
+          <groupId>org.jetbrains.kotlin</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlinx</groupId>
+      <artifactId>kotlinx-coroutines-core</artifactId>
+      <version>1.7.1</version>
+      <type>pom</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
       <version>1.17.1-R0.1-SNAPSHOT</version>
@@ -217,42 +256,10 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-maven-plugin</artifactId>
-      <version>1.7.10</version>
-      <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>maven-core</artifactId>
-          <groupId>org.apache.maven</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>maven-plugin-api</artifactId>
-          <groupId>org.apache.maven</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>maven-plugin-annotations</artifactId>
-          <groupId>org.apache.maven.plugin-tools</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>kotlin-compiler</artifactId>
-          <groupId>org.jetbrains.kotlin</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>kotlin-scripting-compiler</artifactId>
-          <groupId>org.jetbrains.kotlin</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <groupId>org.apache.maven.plugins</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
   </dependencies>
   <properties>
     <maven.compiler.target>16</maven.compiler.target>
-    <kotlin.version>1.7.10</kotlin.version>
+    <kotlin.version>1.8.10</kotlin.version>
     <maven.compiler.source>16</maven.compiler.source>
     <kotlin.compiler.jvmTarget>16</kotlin.compiler.jvmTarget>
   </properties>
