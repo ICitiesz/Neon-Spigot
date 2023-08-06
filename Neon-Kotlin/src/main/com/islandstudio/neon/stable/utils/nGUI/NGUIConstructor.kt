@@ -1,25 +1,21 @@
 package com.islandstudio.neon.stable.utils.nGUI
 
-import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
-import org.bukkit.plugin.Plugin
-import org.bukkit.plugin.java.JavaPlugin.getPlugin
 
 abstract class NGUIConstructor(protected val nGUI: NGUI): InventoryHolder {
-    private val plugin: Plugin = getPlugin(Neon::class.java)
-
     private lateinit var inventory: Inventory
 
     abstract fun getGUIName(): String
     abstract fun getGUISlots(): Int
-    abstract fun setItems()
-    abstract fun guiClickHandler(e: InventoryClickEvent)
+    abstract fun setGUIButtons()
+    abstract fun setGUIClickHandler(e: InventoryClickEvent)
 
     fun openGUI() {
-        inventory = plugin.server.createInventory(this, getGUISlots(), getGUIName())
-        this.setItems()
+        inventory = NConstructor.plugin.server.createInventory(this, getGUISlots(), getGUIName())
+        this.setGUIButtons()
         nGUI.getGUIOwner().openInventory(inventory)
     }
 
