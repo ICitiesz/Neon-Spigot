@@ -1,10 +1,10 @@
 package com.islandstudio.neon.stable.primary.nCommand
 
+import com.islandstudio.neon.experimental.nDurable.NDurable
 import com.islandstudio.neon.experimental.nEffect.NEffect
-import com.islandstudio.neon.experimental.nServerFeaturesBeta.NServerFeatures
+import com.islandstudio.neon.experimental.nServerFeatures.NServerFeatures
+import com.islandstudio.neon.stable.primary.nCommand.nCommandList.NCommandList
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
-import com.islandstudio.neon.stable.primary.nExperimental.NExperimental
-import com.islandstudio.neon.stable.primary.nServerConfiguration.NServerConfiguration
 import com.islandstudio.neon.stable.secondary.nRank.NRank
 import com.islandstudio.neon.stable.secondary.nWaypoints.NWaypoints
 import org.bukkit.ChatColor
@@ -16,8 +16,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 
-class NCommand: Listener, TabExecutor {
-
+class NCommand: Commands(), Listener, TabExecutor {
     companion object {
         var isModerating: Boolean = false
 
@@ -27,6 +26,8 @@ class NCommand: Listener, TabExecutor {
 
         fun run() {
             (plugin.server.getPluginCommand(COMMAND_PREFIX))?.setExecutor(NCommand())
+
+            NCommandList.Handler.run()
         }
 
         /**
@@ -50,63 +51,46 @@ class NCommand: Listener, TabExecutor {
         if (!cmd.name.equals(COMMAND_PREFIX, true)) return true
 
         if (args.isEmpty()) {
-            commander.sendMessage(CommandSyntax.createSyntaxMessage(
-                "${ChatColor.YELLOW}Please type '/neon help <pageNumber>' to show all the available commands!"))
+            if (commander.isSleeping) {
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Unable to display command list while sleeping!"))
+                return true
+            }
+
+            NCommandList.displayCommandUI(commander, NCommandList.getCommandListBook(commander), NCommandList.CommandUITypes.COMMAND_LIST, null)
             return true
         }
 
         when (args[0].lowercase()) {
-            Commands.RANK.commandAlias -> {
+            CommandAlias.RANK.aliasName -> {
                 NRank.setCommandHandler(commander, args, pluginName)
                 return true
             }
 
-            Commands.WAYPOINTS.commandAlias -> {
+            CommandAlias.WAYPOINTS.aliasName -> {
                 NWaypoints.Handler.setCommandHandler(commander, args)
                 return true
             }
 
-            Commands.DEBUG.commandAlias -> {
+//            CommandAlias.NFIREWORKS.aliasName -> {
+//                NFireworks.Handler.setCommandHandler(commander, args)
+//                return true
+//            }
+
+            CommandAlias.DEBUG.aliasName -> {
                 if (!commander.isOp) {
                     commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
                     return true
                 }
 
-//                NDisguise.test(comm
-//                ander)
-//                NDisguise.testPacket(commander)
-
-                //commander.sendMessage(CommandSyntax.createSyntaxMessage("There is nothing here :D"))
-
-
+                commander.sendMessage(CommandSyntax.createSyntaxMessage("There is nothing here :D"))
                 return true
             }
 
-            Commands.SERVERCONFIG.commandAlias -> {
-                if (!commander.isOp) {
-                    commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
-                    return true
-                }
-
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.RED}The old nServerConfiguration is disabled for renovation!"))
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Please use the list of commands below to test the new nServerConfiguration (nServerFeatures):"))
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverfeatures${ChatColor.WHITE}' " +
-                        "${ChatColor.YELLOW}to open the nServerFeatures GUI."))
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverfeatures <feature name>${ChatColor.WHITE}' " +
-                        "${ChatColor.YELLOW}to view toggle status for the feature."))
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverfeatures <feature name> <option name>${ChatColor.WHITE}' " +
-                        "${ChatColor.YELLOW}to view option value for the feature."))
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.WHITE}'${ChatColor.GREEN}/neon serverfeatures <feature name> <option name> <option value>${ChatColor.WHITE}' " +
-                        "${ChatColor.YELLOW}to tweak options for the feature."))
-
-                //NServerConfiguration.Handler.setCommandHandler(commander, args)
-            }
-
-            Commands.SERVERFEATURES.commandAlias -> {
+            CommandAlias.SERVERFEATURES.aliasName -> {
                 NServerFeatures.Handler.setCommandHandler(commander, args)
             }
 
-            Commands.REGEN.commandAlias -> {
+            CommandAlias.REGEN.aliasName -> {
                 if (!commander.isOp) {
                     commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
                     return true
@@ -125,7 +109,7 @@ class NCommand: Listener, TabExecutor {
                 return true
             }
 
-            Commands.GM.commandAlias -> {
+            CommandAlias.GM.aliasName -> {
                 if (!commander.isOp) {
                     commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
                     return true
@@ -164,7 +148,7 @@ class NCommand: Listener, TabExecutor {
                 }
             }
 
-            Commands.MOD.commandAlias -> {
+            CommandAlias.MOD.aliasName -> {
                 if (!commander.isOp) {
                     commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
                     return true
@@ -221,12 +205,12 @@ class NCommand: Listener, TabExecutor {
 
             }
 
-            Commands.EFS.commandAlias -> {
+            CommandAlias.EFFECT.aliasName -> {
                 NEffect.setCommandHandler(commander)
             }
 
-            Commands.EXPERIMENTAL.commandAlias -> {
-                NExperimental.Handler.setCommandHandler(commander, args)
+            CommandAlias.DURABILITY.aliasName -> {
+                NDurable.Handler.setCommandHandler(commander, args)
             }
 
             else -> {
@@ -250,23 +234,27 @@ class NCommand: Listener, TabExecutor {
 
         val commander: Player = sender
 
-        if (args.size == 1) return Commands.values().sorted().map { it.commandAlias }.filter { it.startsWith(args[0], true) }.toMutableList()
+        if (args.size == 1) return CommandAlias.values().sorted().map { it.aliasName }.filter { it.startsWith(args[0], true) }.toMutableList()
 
         when (args[0].lowercase()) {
-            Commands.RANK.commandAlias -> {
+            CommandAlias.RANK.aliasName -> {
                 return NRank.tabCompletion(commander, args)
             }
 
-            Commands.WAYPOINTS.commandAlias -> {
+            CommandAlias.WAYPOINTS.aliasName -> {
                 return NWaypoints.Handler.tabCompletion(commander, args)
             }
 
-            Commands.SERVERCONFIG.commandAlias -> {
-                return NServerConfiguration.Handler.tabCompletion(commander, args)
+            CommandAlias.SERVERFEATURES.aliasName -> {
+                return NServerFeatures.Handler.tabCompletion(commander, args)
             }
 
-            Commands.SERVERFEATURES.commandAlias -> {
-                return NServerFeatures.Handler.tabCompletion(commander, args)
+//            CommandAlias.NFIREWORKS.aliasName -> {
+//                return NFireworks.Handler.tabCompletion(commander, args)
+//            }
+
+            CommandAlias.DURABILITY.aliasName -> {
+                return NDurable.Handler.tabCompletion(commander, args)
             }
         }
 
