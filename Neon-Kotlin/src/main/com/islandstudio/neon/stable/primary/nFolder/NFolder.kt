@@ -23,12 +23,12 @@ object NFolder {
     }
 
     /**
-     * Create new file by given file object.
+     * Create new file.
      *
-     * @param file The file need to create.
      * @param requiredFolder The folder that contain the file.
+     * @param file The file need to create.
      */
-    fun createNewFile(file: File, requiredFolder: File) {
+    fun createNewFile(requiredFolder: File, file: File) {
         if (!requiredFolder.exists()) requiredFolder.mkdirs()
 
         if (file.exists()) return
