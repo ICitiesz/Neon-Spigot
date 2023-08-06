@@ -6,7 +6,7 @@ import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nFolder.FolderList
 import com.islandstudio.neon.stable.utils.NItemHighlight
-import com.islandstudio.neon.stable.utils.NNamespaceKeys
+import com.islandstudio.neon.stable.utils.NeonKey
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import org.bukkit.ChatColor
@@ -26,7 +26,6 @@ import org.json.simple.JSONArray
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import java.io.*
-import kotlin.collections.ArrayList
 import kotlin.math.ceil
 
 data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
@@ -69,7 +68,7 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
 
             updateElement()
 
-            NConstructor.registerEvent(EventController())
+            NConstructor.registerEventProcessor(EventController())
         }
 
         /* Save the nExperiment config */
@@ -188,7 +187,7 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
         }
 
         @Suppress("UNCHECKED_CAST")
-        override fun setItems() {
+        override fun setGUIButtons() {
             if (sourceElement.size == 0) return
 
             maxPage = ceil((sourceElement.size.toDouble() / maxItemPerPage.toDouble())).toInt()
@@ -214,7 +213,7 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
                 /* Is enabled? */
                 if (nExperimentalClient.isEnabled) {
                     experimentalDetails.add("${ChatColor.GRAY}Status: ${ChatColor.GREEN}Enabled!")
-                    experimentFeatureMeta.addEnchant(NItemHighlight(NNamespaceKeys.NEON_BUTTON_HIGHLIGHT.key), 0, true)
+                    experimentFeatureMeta.addEnchant(NItemHighlight(NeonKey.NamespaceKeys.NEON_BUTTON_HIGHLIGHT.key), 0, true)
                 } else {
                     experimentalDetails.add("${ChatColor.GRAY}Status: ${ChatColor.RED}Disabled!")
                 }
@@ -268,7 +267,7 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
 
         /* Click handler for nExperiment GUI */
         @Suppress("UNCHECKED_CAST")
-        override fun guiClickHandler(e: InventoryClickEvent) {
+        override fun setGUIClickHandler(e: InventoryClickEvent) {
             val clickedItem: ItemStack = e.currentItem!!
             val clickedItemMeta: ItemMeta = clickedItem.itemMeta!!
             val persistentDataContainer: PersistentDataContainer = clickedItemMeta.persistentDataContainer
@@ -372,7 +371,7 @@ data class NExperimental(private val experimentalData: Map.Entry<Any?, Any?>) {
             if (e.currentItem == null) return
 
             val nGUIConstructor: NGUIConstructor = inventoryHolder
-            nGUIConstructor.guiClickHandler(e)
+            nGUIConstructor.setGUIClickHandler(e)
         }
 
     }
