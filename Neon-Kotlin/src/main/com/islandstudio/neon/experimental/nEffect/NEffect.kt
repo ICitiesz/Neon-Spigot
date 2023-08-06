@@ -2,7 +2,7 @@ package com.islandstudio.neon.experimental.nEffect
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
-import com.islandstudio.neon.stable.primary.nProfile.NProfile
+import com.islandstudio.neon.stable.primary.nProfile.PlayerProfile
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -22,7 +22,7 @@ object NEffect: Listener {
     private val plugin: Plugin = getPlugin(Neon::class.java)
 
     /* Inventory name */
-    private val inventoryName: String = "${ChatColor.GREEN}nEffect"
+    val inventoryName: String = "${ChatColor.GREEN}nEffect"
 
     /* Button names */
     val EFFECT_1: String = "${ChatColor.GREEN}Haste I"
@@ -87,9 +87,9 @@ object NEffect: Listener {
     }
 
     fun setCommandHandler(commander: Player) {
-        val nProfile = NProfile(commander)
+        val playerProfile = PlayerProfile(commander)
 
-        if (commander.isOp || nProfile.playerRank.equals("OWNER", true) || nProfile.playerRank.equals("VIP_PLUS", true)) {
+        if (commander.isOp || playerProfile.playerRank.equals("OWNER", true) || playerProfile.playerRank.equals("VIP_PLUS", true)) {
             if (commander.isSleeping) {
                 commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}You can't use nEffect while sleeping!"))
                 return
