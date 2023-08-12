@@ -41,25 +41,3 @@ nDurable:
     description: 'Show/hide tool/weapon durability.'
     dataType: 'Boolean'
     dataRange: null
-
-featureName6:
-  level:
-    description: "Test feature6 description"
-    dataType: 'Integer'
-    dataRange:
-      minValue: 1
-      maxValue: 10
-
-featureName7:
-  level:
-    description: "Test feature7 description"
-    dataType: 'Boolean'
-    dataRange: null
-
-featureName8:
-  level:
-    description: "Test feature8 description"
-    dataType: 'Double'
-    dataRange:
-      minValue: 1.0
-      maxValue: 9.9

@@ -1,4 +1,4 @@
-package com.islandstudio.neon.experimental.nServerFeatures
+package com.islandstudio.neon.stable.primary.nServerFeatures
 
 object OptionValueValidation {
     enum class DataTypes(val dataType: String) {
