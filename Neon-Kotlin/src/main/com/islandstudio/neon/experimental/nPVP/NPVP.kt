@@ -1,8 +1,8 @@
 package com.islandstudio.neon.experimental.nPVP
 
-import com.islandstudio.neon.experimental.nServerFeatures.NServerFeatures
-import com.islandstudio.neon.experimental.nServerFeatures.ServerFeature
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
+import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
+import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
 
 object NPVP {
     private val serverWorlds = NConstructor.plugin.server.worlds
