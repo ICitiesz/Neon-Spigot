@@ -25,3 +25,4 @@ This plugin may or may not compatible with other plugins.
 - Special Source: https://github.com/md-5/SpecialSource
 - Spigot/Spigot API built by BuildTools: https://www.spigotmc.org/wiki/buildtools/
 - Kotlin Maven Plugin: https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-maven-plugin
+- Kotlin Coroutine Core: https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
