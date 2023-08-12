@@ -1,8 +1,9 @@
 package com.islandstudio.neon.stable.utils
 
-import com.islandstudio.neon.experimental.nDurable.NDurable
 import com.islandstudio.neon.stable.primary.nCommand.nCommandList.NCommandList
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
+import com.islandstudio.neon.stable.secondary.nBundle.NBundle
+import com.islandstudio.neon.stable.secondary.nDurable.NDurable
 import io.netty.channel.Channel
 import io.netty.channel.ChannelDuplexHandler
 import io.netty.channel.ChannelHandlerContext
@@ -77,6 +78,7 @@ object NPacketProcessor {
                 when (gamePacket) {
                     is ClientboundContainerSetSlotPacket -> {
                         NDurable.Handler.applyDamagePropertyOnGive(nPlayer, gamePacket.slot)
+                        NBundle.discoverBundleRecipe(nPlayer.bukkitEntity, gamePacket.slot)
                     }
                 }
 
