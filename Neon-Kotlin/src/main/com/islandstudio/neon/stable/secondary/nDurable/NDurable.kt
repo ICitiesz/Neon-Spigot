@@ -1,11 +1,11 @@
-package com.islandstudio.neon.experimental.nDurable
+package com.islandstudio.neon.stable.secondary.nDurable
 
 import com.islandstudio.neon.experimental.nEffect.NEffect
-import com.islandstudio.neon.experimental.nServerFeatures.NServerFeatures
-import com.islandstudio.neon.experimental.nServerFeatures.ServerFeature
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
+import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
+import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
 import com.islandstudio.neon.stable.utils.NPacketProcessor
 import com.islandstudio.neon.stable.utils.NReflector
 import com.islandstudio.neon.stable.utils.NeonKey
@@ -40,9 +40,9 @@ import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 import java.util.*
 
 object NDurable {
-    private var isEnabled = false
-
     private val plugin = NConstructor.plugin
+
+    private var isEnabled = false
 
     private var showItemDurability = true
     private var isFortuneHarvestRestricted = false
@@ -292,7 +292,7 @@ object NDurable {
         }
     }
 
-    fun isEnabled() = this.isEnabled
+    fun isEnabled() = isEnabled
 
     /**
      * Toggle damage property for player and villager.
@@ -364,7 +364,7 @@ object NDurable {
         val itemMaxDurability = itemStack.type.maxDurability
         val damagePropertyDisplay: MutableList<String> = if (damageableItemMeta.hasLore()) damageableItemMeta.lore!! else mutableListOf()
 
-        val damagedTag = "${ChatColor.DARK_RED}DAMAGED"
+        val damagedTag = "${net.md_5.bungee.api.ChatColor.of("#ab0000")}DAMAGED"
 
         /* Add new line as separator */
         if (damagePropertyDisplay.isEmpty() || damagePropertyDisplay.first() != "") {
@@ -384,57 +384,69 @@ object NDurable {
 
             when  {
                 percentageFormat.toDouble() == 100.0 -> {
+                    val DARK_GREEN_COLOR = net.md_5.bungee.api.ChatColor.of("#00ba19")
+
                     damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
-                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ChatColor.DARK_GREEN}${percentageFormat}%"
+                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${DARK_GREEN_COLOR}${percentageFormat}%"
                         return@ifTrue
                     }
 
-                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ChatColor.DARK_GREEN}${percentageFormat}%")
+                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${DARK_GREEN_COLOR}${percentageFormat}%")
                 }
 
                 percentageFormat.toDouble() in 75.0..99.99 -> {
+                    val LIGHT_GREEN_COLOR = net.md_5.bungee.api.ChatColor.of("#5bff14")
+
                     damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
-                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ChatColor.GREEN}${percentageFormat}%"
+                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${LIGHT_GREEN_COLOR}${percentageFormat}%"
                         return@ifTrue
                     }
 
-                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ChatColor.GREEN}${percentageFormat}%")
+                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${LIGHT_GREEN_COLOR}${percentageFormat}%")
                 }
 
                 percentageFormat.toDouble() in 50.0 .. 74.99 -> {
+                    val YELLOW_COLOR = net.md_5.bungee.api.ChatColor.of("#ddff00")
+
                     damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
-                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ChatColor.YELLOW}${percentageFormat}%"
+                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${YELLOW_COLOR}${percentageFormat}%"
                         return@ifTrue
                     }
 
-                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ChatColor.YELLOW}${percentageFormat}%")
+                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${YELLOW_COLOR}${percentageFormat}%")
                 }
 
                 percentageFormat.toDouble() in 25.0 .. 49.99 -> {
+                    val ORANGE_COLOR = net.md_5.bungee.api.ChatColor.of("#ffbb00")
+
                     damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
-                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ChatColor.GOLD}${percentageFormat}%"
+                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ORANGE_COLOR}${percentageFormat}%"
                         return@ifTrue
                     }
 
-                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ChatColor.GOLD}${percentageFormat}%")
+                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ORANGE_COLOR}${percentageFormat}%")
                 }
 
                 (percentageFormat.toDouble() > 0.0 && percentageFormat.toDouble() <= 24.99) -> {
+                    val LIGHT_RED_COLOR = net.md_5.bungee.api.ChatColor.of("#ff4538")
+
                     damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
-                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ChatColor.RED}${percentageFormat}%"
+                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${LIGHT_RED_COLOR}${percentageFormat}%"
                         return@ifTrue
                     }
 
-                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ChatColor.RED}${percentageFormat}%")
+                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${LIGHT_RED_COLOR}${percentageFormat}%")
                 }
 
                 percentageFormat.toDouble() == 0.0 -> {
+                    val DARK_RED_COLOR = net.md_5.bungee.api.ChatColor.of("#ab0000")
+
                     damagePropertyDisplay.find { it.contains("${ChatColor.GRAY}Durability:") }?.let {
-                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${ChatColor.DARK_RED}0% ${ChatColor.GRAY}| ${ChatColor.DARK_RED}DAMAGED"
+                        damagePropertyDisplay[damagePropertyDisplay.indexOf(it)] = "${ChatColor.GRAY}Durability: ${DARK_RED_COLOR}0% ${ChatColor.GRAY}| $damagedTag"
                         return@ifTrue
                     }
 
-                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${ChatColor.DARK_RED}0% ${ChatColor.GRAY}| $damagedTag")
+                    damagePropertyDisplay.add("${ChatColor.GRAY}Durability: ${DARK_RED_COLOR}0% ${ChatColor.GRAY}| $damagedTag")
                 }
 
                 else -> {}
@@ -514,7 +526,8 @@ object NDurable {
         Handler.getDamageProperty(heldItemItemMeta).run {
             this.isNotEmpty().ifTrue {
                 if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
-                        heldItem.type.maxDurability.toInt())) return false
+                        heldItem.type.maxDurability.toInt())
+                ) return false
             }
 
             if (!isItemDamaged(heldItemItemMeta.damage, heldItem.type.maxDurability.toInt())) return false
@@ -577,7 +590,8 @@ object NDurable {
         Handler.getDamageProperty(damageableItemMeta).run {
             this.isNotEmpty().ifTrue {
                 if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
-                        damageableItem.type.maxDurability.toInt())) return false
+                        damageableItem.type.maxDurability.toInt())
+                ) return false
             }
 
             if (!isItemDamaged(damageableItemMeta.damage, damageableItem.type.maxDurability.toInt())) return false
@@ -620,7 +634,8 @@ object NDurable {
                             || it == DamageableItems.Blocks.GRASS_BLOCK
                             || it == DamageableItems.Blocks.DIRT_BLOCK
                             || it == DamageableItems.Blocks.DIRT_PATH
-                            || it == DamageableItems.Blocks.COARSE_DIRT }.find {
+                            || it == DamageableItems.Blocks.COARSE_DIRT
+                    }.find {
                         blockName.equals(it.blockName, true)
                     }?.let InnerLet@ { return@let } ?: return false
                 } ?: return false
@@ -742,7 +757,8 @@ object NDurable {
         Handler.getDamageProperty(damageableItemMeta).run {
             this.isNotEmpty().ifTrue {
                 if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
-                        lighter.type.maxDurability.toInt())) return false
+                        lighter.type.maxDurability.toInt())
+                ) return false
             }
 
             if (!isItemDamaged(damageableItemMeta.damage, lighter.type.maxDurability.toInt())) return false
@@ -772,7 +788,8 @@ object NDurable {
             || isItemMatch(damageableItem, DamageableItems.Items.FLINT_AND_STEEL)
             || isItemMatch(damageableItem, DamageableItems.Items.SHEARS)
             || isItemMatch(damageableItem, DamageableItems.Items.CROSSBOW)
-            || isItemMatch(damageableItem, DamageableItems.Items.BOW)) {
+            || isItemMatch(damageableItem, DamageableItems.Items.BOW)
+        ) {
             return false
         }
 
@@ -781,7 +798,8 @@ object NDurable {
         Handler.getDamageProperty(damageableItemMeta).run {
             this.isNotEmpty().ifTrue {
                 if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
-                        damageableItem.type.maxDurability.toInt())) return false
+                        damageableItem.type.maxDurability.toInt())
+                ) return false
             }
 
             if (!isItemDamaged(damageableItemMeta.damage, damageableItem.type.maxDurability.toInt())) return false
@@ -809,7 +827,8 @@ object NDurable {
         Handler.getDamageProperty(shearsItemMeta).run {
             this.isNotEmpty().ifTrue {
                 if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
-                        shears.type.maxDurability.toInt())) return false
+                        shears.type.maxDurability.toInt())
+                ) return false
             }
 
             if (!isItemDamaged(shearsItemMeta.damage, shears.type.maxDurability.toInt())) return false
@@ -840,7 +859,8 @@ object NDurable {
         Handler.getDamageProperty(bowItemMeta).run {
             this.isNotEmpty().ifTrue {
                 if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
-                        bow.type.maxDurability.toInt())) return false
+                        bow.type.maxDurability.toInt())
+                ) return false
             }
 
             if (!isItemDamaged(bowItemMeta.damage, bow.type.maxDurability.toInt())) return false
@@ -930,7 +950,8 @@ object NDurable {
         if (isItemMatch(damageableItem, DamageableItems.Items.FISHING_ROD)
             || isItemMatch(damageableItem, DamageableItems.Items.FLINT_AND_STEEL)
             || isItemMatch(damageableItem, DamageableItems.Items.CROSSBOW)
-            || isItemMatch(damageableItem, DamageableItems.Items.BOW)) {
+            || isItemMatch(damageableItem, DamageableItems.Items.BOW)
+        ) {
             return false
         }
 
@@ -939,7 +960,8 @@ object NDurable {
         Handler.getDamageProperty(damageableItemMeta).run {
             this.isNotEmpty().ifTrue {
                 if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
-                        damageableItem.type.maxDurability.toInt())) return false
+                        damageableItem.type.maxDurability.toInt())
+                ) return false
             }
 
             if (!isItemDamaged(damageableItemMeta.damage, damageableItem.type.maxDurability.toInt())) return false
@@ -962,6 +984,8 @@ object NDurable {
         private fun onItemDamage(e: PlayerItemDamageEvent) {
             val item = e.item
             val itemDamage = e.damage
+
+            if (!isItemMatch(item)) return
 
             isItemDamaged((item.itemMeta as Damageable).damage + itemDamage,
                 item.type.maxDurability.toInt()).ifTrue {
