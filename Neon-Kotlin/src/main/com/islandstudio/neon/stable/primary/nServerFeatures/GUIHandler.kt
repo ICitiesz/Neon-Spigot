@@ -1,4 +1,4 @@
-package com.islandstudio.neon.experimental.nServerFeatures
+package com.islandstudio.neon.stable.primary.nServerFeatures
 
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
-import java.util.LinkedList
+import java.util.*
 import kotlin.math.ceil
 
 open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI) {
@@ -206,6 +206,8 @@ open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI) {
                 NConstructor.plugin.server.onlinePlayers.forEach { onlinePlayer ->
                     if (!onlinePlayer.isOp) return@forEach
 
+                    if (onlinePlayer == player) return@forEach
+
                     onlinePlayer.sendMessage("${ChatColor.GOLD}${player.name}${ChatColor.YELLOW} has made changes to the nServerFeatures.")
                 }
 
@@ -220,7 +222,7 @@ open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI) {
                     previousButtonDisplayName -> {
                         if (pageIndex == 0) return
 
-                        NServerFeatures.isNavigating= true
+                        NServerFeatures.isNavigating = true
                         pageIndex--
                         super.openGUI()
                     }
@@ -228,7 +230,7 @@ open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI) {
                     nextButtonDisplayName -> {
                         if ((itemIndex + 1) >= serverFeatureNames.size) return
 
-                        NServerFeatures.isNavigating= true
+                        NServerFeatures.isNavigating = true
                         pageIndex++
                         super.openGUI()
                     }
