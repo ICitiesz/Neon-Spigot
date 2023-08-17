@@ -6,6 +6,8 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nFolder.FolderList
+import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
+import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
 import com.islandstudio.neon.stable.utils.NItemHighlight
 import com.islandstudio.neon.stable.utils.NeonKey
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
@@ -58,6 +60,8 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
 
         private val classLoader: ClassLoader = NWaypoints::class.java.classLoader
 
+        var canCrossDimension = false
+
         private val jsonParser: JSONParser = JSONParser()
         private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 
@@ -92,6 +96,8 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                 clientBufferedWriter.close()
                 clientFileOutputStream.close()
             }
+
+            canCrossDimension = NServerFeatures.getOptionValue(ServerFeature.FeatureNames.N_WAYPOINTS.featureName, "crossDimension") as Boolean
         }
 
         /**
@@ -383,10 +389,9 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                 )
                 waypointDetails.add("${ChatColor.GRAY}Dimension: ${waypointDimension()}")
 
-                /* TODO */
-//                if (!(NServerFeatures.getOptionValue("nWaypoints", "cross_dimension") as Boolean)) {
-//                    waypointDetails.add("${ChatColor.GRAY}Status: ${waypointAvailability(player)}")
-//                }
+                if (!Handler.canCrossDimension) {
+                    waypointDetails.add("${ChatColor.GRAY}Status: ${waypointAvailability(player)}")
+                }
 
                 waypointMeta.setDisplayName("${ChatColor.GOLD}${waypointName}")
                 waypointMeta.lore = waypointDetails
@@ -425,18 +430,17 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                         modifiedLocation.x = waypointBlockX + 0.5
                         modifiedLocation.z = waypointBlockZ + 0.5
 
-                        /* TODO */
-//                        if (!(NServerFeatures.getOptionValue("nWaypoints", "cross_dimension") as Boolean)) {
-//                            if (player.location.world!!.environment.toString().equals(modifiedLocation.world!!.environment.toString(), true)) {
-//                                Handler.teleportToWaypoint(player, modifiedLocation, goldWaypointName,
-//                                    waypointBlockX.toInt(), waypointBlockY.toInt(), waypointBlockZ.toInt()
-//                                )
-//                                return
-//                            }
-//
-//                            player.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Cross dimension for nWaypoints has been restricted!"))
-//                            return
-//                        }
+                        if (!Handler.canCrossDimension) {
+                            if (player.location.world!!.environment.toString().equals(modifiedLocation.world!!.environment.toString(), true)) {
+                                Handler.teleportToWaypoint(player, modifiedLocation, goldWaypointName,
+                                    waypointBlockX.toInt(), waypointBlockY.toInt(), waypointBlockZ.toInt()
+                                )
+                                return
+                            }
+
+                            player.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Cross dimension for nWaypoints has been restricted!"))
+                            return
+                        }
 
                         Handler.teleportToWaypoint(player, modifiedLocation, goldWaypointName,
                             waypointBlockX.toInt(), waypointBlockY.toInt(), waypointBlockZ.toInt()
