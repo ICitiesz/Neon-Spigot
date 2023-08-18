@@ -158,7 +158,7 @@ object NConstructor {
             "${ChatColor.GOLD}|-----------------=================-----------------|"
         )
         plugin.server.consoleSender.sendMessage(
-            "${ChatColor.GOLD}|--------------== Neon v1.10-rc_2 ==---------------|"
+            "${ChatColor.GOLD}|--------------== Neon v1.10 ==---------------|"
         )
         plugin.server.consoleSender.sendMessage(
             "${ChatColor.GOLD}|-----------------===${ChatColor.GREEN} <Started> ${ChatColor.GOLD}===-----------------|"
