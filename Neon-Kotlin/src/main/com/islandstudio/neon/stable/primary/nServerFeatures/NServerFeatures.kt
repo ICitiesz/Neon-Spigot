@@ -1,4 +1,4 @@
-package com.islandstudio.neon.experimental.nServerFeatures
+package com.islandstudio.neon.stable.primary.nServerFeatures
 
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
@@ -34,9 +34,6 @@ object NServerFeatures {
     val experimentalTag = "${ChatColor.WHITE}${ChatColor.BOLD}[${ChatColor.YELLOW}${ChatColor.BOLD}" +
             "Exp${ChatColor.WHITE}${ChatColor.BOLD}] "
     var isNavigating = false
-
-    /* TODO > Valid feature names which let dummy data bypass the validation process. Will be removed in the next preview update. */
-    private val validFeatureNames = listOf("nWaypoints", "featureName6", "nBundle", "nDurable", "featureName7", "featureName8")
 
     fun getServerFeatureNames(sortingType: GUIBuilder.SortingType, sortingOrder: GUIBuilder.SortingOrder): List<String> {
         val serverFeatureNames: ArrayList<String> = Handler.getLoadedEditableServerFeatures().keys.toMutableList() as ArrayList<String>
@@ -232,7 +229,7 @@ object NServerFeatures {
 
                     val isEnabled: String = if (getEditableToggle(featureName)) "${ChatColor.GREEN}enabled" else "${ChatColor.RED}disabled"
 
-                    val valueMessage: String = if (isExperimental(featureName)) CommandSyntax.createSyntaxMessage("${experimentalTag}${ChatColor.GOLD}${featureName} ${ChatColor.YELLOW}" +
+                    val valueMessage: String = if (isExperimental(featureName)) CommandSyntax.createSyntaxMessage("$experimentalTag${ChatColor.GOLD}${featureName} ${ChatColor.YELLOW}" +
                             "is currently ${isEnabled}${ChatColor.YELLOW}!") else CommandSyntax.createSyntaxMessage("${ChatColor.GOLD}${featureName} ${ChatColor.YELLOW}" +
                             "is currently ${isEnabled}${ChatColor.YELLOW}!")
 
@@ -254,12 +251,12 @@ object NServerFeatures {
                     /* Check and get option name, if null will be sending a reminder message that the given option name is not exists. */
                     val optionName: String = optionNames.firstOrNull { it.equals(featureOptionField, true) } ?: return if (isExperimental(featureName))
                         commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no option as ${ChatColor.WHITE}'" +
-                                "${ChatColor.GRAY}${featureOptionField}${ChatColor.WHITE}' ${ChatColor.YELLOW}for ${experimentalTag}${ChatColor.GOLD}${featureName}${ChatColor.YELLOW}!"))
+                                "${ChatColor.GRAY}${featureOptionField}${ChatColor.WHITE}' ${ChatColor.YELLOW}for $experimentalTag${ChatColor.GOLD}${featureName}${ChatColor.YELLOW}!"))
                     else
                         commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no option as ${ChatColor.WHITE}'" +
                                 "${ChatColor.GRAY}${featureOptionField}${ChatColor.WHITE}' ${ChatColor.YELLOW}for ${ChatColor.GOLD}${featureName}${ChatColor.YELLOW}!"))
 
-                    val valueMessage: String = if (isExperimental(featureName)) CommandSyntax.createSyntaxMessage("${experimentalTag}${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
+                    val valueMessage: String = if (isExperimental(featureName)) CommandSyntax.createSyntaxMessage("$experimentalTag${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
                             "${ChatColor.GOLD}${optionName} ${ChatColor.YELLOW}is currently set to${ChatColor.WHITE}: ")
                     else CommandSyntax.createSyntaxMessage("${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
                             "${ChatColor.GOLD}${optionName} ${ChatColor.YELLOW}is currently set to${ChatColor.WHITE}: ")
@@ -295,51 +292,30 @@ object NServerFeatures {
                     /* Check and get option name, if null will be sending a reminder message that the given option name is not exists. */
                     val optionName: String = optionNames.firstOrNull { it.equals(featureOptionField, true) } ?: return if (isExperimental(featureName))
                         commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no option as ${ChatColor.WHITE}'" +
-                            "${ChatColor.GRAY}${featureOptionField}${ChatColor.WHITE}' ${ChatColor.YELLOW}for ${experimentalTag}${ChatColor.GOLD}${featureName}${ChatColor.YELLOW}!"))
+                            "${ChatColor.GRAY}${featureOptionField}${ChatColor.WHITE}' ${ChatColor.YELLOW}for $experimentalTag${ChatColor.GOLD}${featureName}${ChatColor.YELLOW}!"))
                     else
                         commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Sorry, there are no option as ${ChatColor.WHITE}'" +
                                 "${ChatColor.GRAY}${featureOptionField}${ChatColor.WHITE}' ${ChatColor.YELLOW}for ${ChatColor.GOLD}${featureName}${ChatColor.YELLOW}!"))
 
                     /* Preset messages */
-                    val errorMessage: String = if (isExperimental(featureName)) CommandSyntax.createSyntaxMessage("${ChatColor.RED}Invalid data type or data range! ${experimentalTag}${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
+                    val errorMessage: String = if (isExperimental(featureName)) CommandSyntax.createSyntaxMessage("${ChatColor.RED}Invalid data type or data range! $experimentalTag${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
                             "${ChatColor.GOLD}${optionName} ${ChatColor.YELLOW}is required${ChatColor.WHITE}: ") else CommandSyntax.createSyntaxMessage("${ChatColor.RED}Invalid data type or data range! ${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
                             "${ChatColor.GOLD}${optionName} ${ChatColor.YELLOW}is required${ChatColor.WHITE}: ")
 
                     val reloadMessage: String = CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}Please reload the server to apply the effects!")
 
-                    val modifiedMessage: String = if (isExperimental(featureName)) CommandSyntax.createSyntaxMessage("${experimentalTag}${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
+                    val modifiedMessage: String = if (isExperimental(featureName)) CommandSyntax.createSyntaxMessage("$experimentalTag${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
                             "${ChatColor.GOLD}${optionName} ${ChatColor.YELLOW}has been set to${ChatColor.WHITE}: ") else CommandSyntax.createSyntaxMessage("${ChatColor.GOLD}${featureName}${ChatColor.GRAY}: " +
                             "${ChatColor.GOLD}${optionName} ${ChatColor.YELLOW}has been set to${ChatColor.WHITE}: ")
 
-                    /* TODO */
-                    val optionDataType = if (featureName in validFeatureNames) getOptionDataType(featureName, optionName) else "Object"
+                    val optionDataType = getOptionDataType(featureName, optionName)
 
                     /* Data type verification */
                     val newOptionValue: Any = if (featureOptionValueField.equals("default", true)) {
                             internalServerFeature[featureName]!!.options!![optionName]!!.optionValue
                         } else {
-                            /* TODO */
-                            if (featureName in validFeatureNames) {
-                                OptionValueValidation.isDataTypeValid(optionDataType, featureOptionValueField)
-                                    ?: return commander.sendMessage("${errorMessage}${ChatColor.GREEN}${optionDataType} value")
-                            } else {
-                                featureOptionValueField
-                            }
-                    }
-
-                    /* TODO > This section will let dummy data bypass the validation process */
-                    if (featureName !in validFeatureNames) {
-                        setOptionValue(featureName, optionName, newOptionValue)
-
-                        commander.sendMessage("${modifiedMessage}${ChatColor.GREEN}$newOptionValue")
-
-                        NConstructor.plugin.server.onlinePlayers.forEach { onlinePlayer ->
-                            if (!onlinePlayer.isOp) return@forEach
-
-                            onlinePlayer.sendMessage("${ChatColor.GOLD}${commander.name}${ChatColor.YELLOW} has made changes to the nServerFeatures.")
-                        }
-
-                        return commander.sendMessage(reloadMessage)
+                        OptionValueValidation.isDataTypeValid(optionDataType, featureOptionValueField)
+                            ?: return commander.sendMessage("${errorMessage}${ChatColor.GREEN}${optionDataType} value")
                     }
 
                     if (optionDataType.equals(OptionValueValidation.DataTypes.BOOLEAN.dataType, true)) {
@@ -351,13 +327,17 @@ object NServerFeatures {
 
                         setOptionValue(featureName, optionName, newOptionValue)
 
+                        commander.sendMessage(reloadMessage)
+
                         NConstructor.plugin.server.onlinePlayers.forEach { onlinePlayer ->
                             if (!onlinePlayer.isOp) return@forEach
+
+                            if (onlinePlayer == commander) return@forEach
 
                             onlinePlayer.sendMessage("${ChatColor.GOLD}${commander.name}${ChatColor.YELLOW} has made changes to the nServerFeatures.")
                         }
 
-                        return commander.sendMessage(reloadMessage)
+                        return
                     }
 
                     val optionDataRange = getOptionDataRange(featureName, optionName)
@@ -377,6 +357,14 @@ object NServerFeatures {
 
                     commander.sendMessage("${modifiedMessage}${ChatColor.GREEN}$newOptionValue")
                     commander.sendMessage(reloadMessage)
+
+                    NConstructor.plugin.server.onlinePlayers.forEach { onlinePlayer ->
+                        if (!onlinePlayer.isOp) return@forEach
+
+                        if (onlinePlayer == commander) return@forEach
+
+                        onlinePlayer.sendMessage("${ChatColor.GOLD}${commander.name}${ChatColor.YELLOW} has made changes to the nServerFeatures.")
+                    }
                 }
 
                 else -> {
@@ -509,8 +497,6 @@ object NServerFeatures {
                  * If it is, the default value will remain */
                 if (externalServerFeature.options == null) return@forEach
 
-                if (updatedServerFeatureName !in validFeatureNames) return@forEach
-
                 /* Stage 4: Check if the options in 'updatedServerFeatures' exist in 'externalServerFeatures'
                  * If not exist, the default value will remain */
                 updatedServerFeature.option!!.getValues(false).forEach updatedServerFeatureOptions@{ options ->
@@ -535,7 +521,12 @@ object NServerFeatures {
 
                     /* Stage 6: Check if the data range of option value valid as default
                      * If not valid, the default value will remain */
-                    if (!OptionValueValidation.isDataRangeValid(externalFeatureOptionValue, optionProperty.optionDataType, optionProperty.optionDataRange)) {
+                    if (!OptionValueValidation.isDataRangeValid(
+                            externalFeatureOptionValue,
+                            optionProperty.optionDataType,
+                            optionProperty.optionDataRange
+                        )
+                    ) {
                         return@updatedServerFeatureOptions
                     }
 

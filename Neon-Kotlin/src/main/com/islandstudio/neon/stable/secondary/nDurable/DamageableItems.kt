@@ -1,4 +1,4 @@
-package com.islandstudio.neon.experimental.nDurable
+package com.islandstudio.neon.stable.secondary.nDurable
 
 object DamageableItems {
     enum class Items(val itemName: String) {

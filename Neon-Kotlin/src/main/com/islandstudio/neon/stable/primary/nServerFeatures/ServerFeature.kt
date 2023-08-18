@@ -1,4 +1,4 @@
-package com.islandstudio.neon.experimental.nServerFeatures
+package com.islandstudio.neon.stable.primary.nServerFeatures
 
 import org.simpleyaml.configuration.ConfigurationSection
 import org.simpleyaml.configuration.file.YamlFile
@@ -78,7 +78,7 @@ class ServerFeature {
     }
 
     data class Feature(private val serverFeatures: Any) {
-        lateinit var serverFeatureDetails: ConfigurationSection
+        private lateinit var serverFeatureDetails: ConfigurationSection
 
         val name: String?
         val description: String?

@@ -1,10 +1,9 @@
 package com.islandstudio.neon.stable.secondary.nHarvest
 
-import com.islandstudio.neon.experimental.nDurable.NDurable
-import com.islandstudio.neon.experimental.nServerFeatures.NServerFeatures
-import com.islandstudio.neon.experimental.nServerFeatures.ServerFeature
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
-import com.islandstudio.neon.stable.primary.nExperimental.NExperimental
+import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
+import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
+import com.islandstudio.neon.stable.secondary.nDurable.NDurable
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -16,59 +15,20 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.event.server.ServerLoadEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 
 object NHarvest {
-    private val players: MutableSet<Player> = HashSet()
-    private val isNDurableOn: () -> Boolean = {
-        var tempBool = false
+    private var isEnabled = false
 
-        NExperimental.Handler.getClientElement().forEach {
-            val nExperimental = NExperimental(it)
+    object Handler {
+        fun run() {
+            isEnabled = NServerFeatures.getToggle(ServerFeature.FeatureNames.N_HARVEST)
 
-            if (!nExperimental.experimentalName.equals("nDurable", true)) return@forEach
+            if (!isEnabled) return NConstructor.unRegisterEvent(EventProcessor())
 
-            if (!nExperimental.isEnabled) return@forEach
-
-            tempBool = true
+            NConstructor.registerEventProcessor(EventProcessor())
         }
-
-        tempBool
-    }
-
-    fun run() {
-        if (!NServerFeatures.getToggle(ServerFeature.FeatureNames.N_HARVEST)) return NConstructor.unRegisterEvent(EventController())
-
-        NConstructor.registerEventProcessor(EventController())
-    }
-
-    /**
-     * Add player to the set of players that can harvest
-     *
-     * @param player Player to add. (Player)
-     */
-    fun addPlayer(player: Player) {
-        if (players.contains(player)) return
-
-        players.add(player)
-    }
-
-    /**
-     * Remove player from the set of players that can harvest
-     *
-     * @param player Player to remove. (Player)
-     */
-    fun removePlayer(player: Player?) {
-        if (player == null) {
-            players.clear()
-            return
-        }
-
-        players.remove(player)
     }
 
     /**
@@ -111,9 +71,7 @@ object NHarvest {
                         dropsAmount += it.amount
                     }
 
-                    else -> {
-                        return
-                    }
+                    else -> { return }
                 }
             }
         } else {
@@ -134,9 +92,7 @@ object NHarvest {
                         dropsAmount += it.amount
                     }
 
-                    else -> {
-                        return
-                    }
+                    else -> { return }
                 }
             }
         }
@@ -149,9 +105,7 @@ object NHarvest {
                     world.dropItemNaturally(location, unplantable!!)
                 }
 
-                else -> {
-                    return
-                }
+                else -> { return }
             }
         }
 
@@ -162,47 +116,21 @@ object NHarvest {
                 Material.POTATO,
                 Material.BEETROOT_SEEDS,
                 Material.NETHER_WART -> {
-                    if ((dropsAmount - 1) > 0) {
-                        plantable!!.amount = dropsAmount - 1
-                        world.dropItemNaturally(location, plantable!!)
-                    }
+                    if ((dropsAmount - 1) <= 0) return
+
+                    plantable!!.amount = dropsAmount - 1
+                    world.dropItemNaturally(location, plantable!!)
                 }
 
-                else -> {
-                    return
-                }
+                else -> { return }
             }
         }
     }
 
-    private class EventController: Listener {
-        @EventHandler
-        private fun onPlayerJoin(e: PlayerJoinEvent) {
-            addPlayer(e.player)
-        }
-
-        @EventHandler
-        private fun onPlayerQuit(e: PlayerQuitEvent) {
-            removePlayer(e.player)
-        }
-
-        @EventHandler
-        private fun onServerLoad(e: ServerLoadEvent) {
-            when (e.type) {
-                ServerLoadEvent.LoadType.STARTUP, ServerLoadEvent.LoadType.RELOAD -> {
-                    NConstructor.plugin.server.onlinePlayers.parallelStream().forEach {player ->
-                        if (!NServerFeatures.getToggle(ServerFeature.FeatureNames.N_HARVEST)) return@forEach removePlayer(player)
-                        addPlayer(player)
-                    }
-                }
-            }
-        }
-
+    private class EventProcessor: Listener {
         @EventHandler
         private fun onPlayerInteract(e: PlayerInteractEvent) {
             val player: Player = e.player
-
-            if (!players.contains(player)) return
 
             val block = e.clickedBlock
             val heldItem = e.item
@@ -223,18 +151,15 @@ object NHarvest {
                 Material.NETHER_WART -> {
                     ageable = block.blockData as Ageable
 
-                    if (ageable.age == ageable.maximumAge) {
-                        harvest(block, heldItem, e.hasItem(), player)
-                        block.world.playSound(block.location.add(0.5, 0.0, 0.5), Sound.ITEM_CROP_PLANT, 1f, 1f)
-                        ageable.age = 0
-                        block.blockData = ageable
-                    }
+                    if (ageable.age != ageable.maximumAge) return
 
+                    harvest(block, heldItem, e.hasItem(), player)
+                    block.world.playSound(block.location.add(0.5, 0.0, 0.5), Sound.ITEM_CROP_PLANT, 1f, 1f)
+                    ageable.age = 0
+                    block.blockData = ageable
                 }
 
-                else -> {
-                    return
-                }
+                else -> { return }
             }
         }
     }

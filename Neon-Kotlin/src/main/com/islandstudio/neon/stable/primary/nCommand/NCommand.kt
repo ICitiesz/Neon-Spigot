@@ -1,10 +1,10 @@
 package com.islandstudio.neon.stable.primary.nCommand
 
-import com.islandstudio.neon.experimental.nDurable.NDurable
 import com.islandstudio.neon.experimental.nEffect.NEffect
-import com.islandstudio.neon.experimental.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nCommand.nCommandList.NCommandList
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
+import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
+import com.islandstudio.neon.stable.secondary.nDurable.NDurable
 import com.islandstudio.neon.stable.secondary.nRank.NRank
 import com.islandstudio.neon.stable.secondary.nWaypoints.NWaypoints
 import org.bukkit.ChatColor

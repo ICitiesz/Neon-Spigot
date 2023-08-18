@@ -1,4 +1,4 @@
-package com.islandstudio.neon.experimental.nServerFeatures
+package com.islandstudio.neon.stable.primary.nServerFeatures
 
 class ServerFeatureProperty {
 //    data class PropertyParent(private val propertyParent: Map.Entry<String, Any>) {
