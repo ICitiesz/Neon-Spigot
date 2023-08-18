@@ -1,0 +1,69 @@
+nHarvest:
+  isExperimental: false
+  description: 'Makes harvesting crops much easier!'
+  isEnabled: false
+  command: ''
+  options: {}
+
+nCutter:
+  isExperimental: false
+  description: 'Enables stonecutter to craft some of the wood items with fewer ingredients.'
+  isEnabled: false
+  command: ''
+  options: {}
+
+nSmelter:
+  isExperimental: false
+  description: 'Enables blast furnace to smelt some of the smeltable items that only the furnace can smelt.'
+  isEnabled: false
+  command: ''
+  options: {}
+
+nPVP:
+  isExperimental: false
+  description: 'Enables or disables PvP in the server.'
+  isEnabled: false
+  command: ''
+  options: {}
+
+nWaypoints:
+  isExperimental: false
+  description: 'Enables to save waypoints, remove waypoints and teleport to waypoint in the server.'
+  isEnabled: false
+  command: '/neon waypoints'
+  options:
+    # Enable cross dimension teleportation. Default: false
+    crossDimension: false
+
+nDurable:
+  isExperimental: false
+  description: 'Another way of handling the durability of the tools/weapons.'
+  isEnabled: false
+  command: ''
+  options:
+    # Show/hide item durability. Default: true
+    showItemDurability: true
+
+nBundle:
+  isExperimental: false
+  description: 'Since the bundle is unobtainable in survival mode within Minecraft 1.17 ~ Minecraft 1.18, we made it obtainable in survival mode.'
+  isEnabled: false
+  command: ''
+  options:
+    # How frequent Bundle can generate in loot chests. Default: 0.17 [Min: 0.001, Max : 1.0]
+    bundleGenerateChance: 0.17
+    # How many Bundle you can buy from Tannery Villager per stock. Default: 12 [Min: 1, Max: 64]
+    bundleMaxBuy: 12
+    # How much (emeralds) per Bundle. Default: 5 [Min: 1, Max: 64]
+    bundlePrice: 5
+    # How much price will be multiplied when Bundle in demand. Default: 0.2 [Min: 0.1, Max: 1.0]
+    bundlePriceMultiplier: 0.2
+    # How much xp will villager get per trade. Default 5 [Min: 1, Max: 64]
+    villagerExperience: 5
+
+nFireworks:
+  isExperimental: true
+  description: 'Create custom firework pattern by using imported images.'
+  isEnabled: false
+  command: ''
+  options: {}

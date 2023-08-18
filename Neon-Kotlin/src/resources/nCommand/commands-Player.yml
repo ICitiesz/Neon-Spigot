@@ -1,0 +1,11 @@
+waypoints:
+  withPrefix: '/neon waypoints'
+  usages:
+    - syntax: '/neon waypoints'
+      description: 'Used to open iWaypoints Main GUI.'
+    - syntax: '/neon waypoints add <waypointName>'
+      description: 'Used to add waypoint.'
+    - syntax: '/neon waypoints remove'
+      description: 'Used to open iWaypoints Removal GUI to remove multiple waypoints.'
+    - syntax: '/neon waypoints remove <waypointName>'
+      description: 'Used to remove single waypoint.'

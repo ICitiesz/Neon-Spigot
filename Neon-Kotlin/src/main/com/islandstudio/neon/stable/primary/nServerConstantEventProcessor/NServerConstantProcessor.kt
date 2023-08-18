@@ -1,11 +1,13 @@
-package com.islandstudio.neon.stable.utils
+package com.islandstudio.neon.stable.primary.nServerConstantEventProcessor
 
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
-import com.islandstudio.neon.stable.primary.nProfile.NProfile
+import com.islandstudio.neon.stable.secondary.nDurable.NDurable
 import com.islandstudio.neon.stable.secondary.nRank.NRank
+import com.islandstudio.neon.stable.utils.NPacketProcessor
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.crafting.Recipe
 import org.bukkit.ChatColor
 import org.bukkit.Server
@@ -15,9 +17,18 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.server.ServerCommandEvent
 import org.bukkit.event.server.ServerLoadEvent
 
-object ServerHandler {
+object NServerConstantProcessor {
+    object Handler {
+        /**
+         * Initialization for nServerConstantProcessor
+         *
+         */
+        fun run() = NConstructor.registerEventProcessor(EventProcessor())
+    }
+
     /**
      * Broadcast join message to all players when a player join the server.
      *
@@ -60,41 +71,53 @@ object ServerHandler {
      * @param player The player to update the recipes for. (Player)
      */
     @Suppress("UNCHECKED_CAST")
-    fun updateRecipe(player: Player) {
+    private fun updateRecipe(player: Player) {
+        val nPlayer = NPacketProcessor.getNPlayer(player)
         val serverRecipes: Map<Any, Map<Any, Any>>
 
         when (NConstructor.getVersion()) {
             "1.17" -> {
-                serverRecipes = (NPacketProcessor.getNPlayer(player).server!!).recipeManager!!.recipes!! as Map<Any, Map<Any, Any>>
+                serverRecipes = (nPlayer.server!!).recipeManager!!.recipes!! as Map<Any, Map<Any, Any>>
 
-                NPacketProcessor.sendGamePacket(player, ClientboundUpdateRecipesPacket(
-                    serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }.toList()!! as MutableCollection<Recipe<*>>
-                ))
+                NPacketProcessor.sendGamePacket(
+                    player, ClientboundUpdateRecipesPacket(
+                        serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }
+                            .toList()!! as MutableCollection<Recipe<*>>
+                    )
+                )
             }
 
             "1.18" -> {
-                val craftingManager: Any = (NPacketProcessor.getNPlayer(player).server!!).javaClass.getMethod("aC").invoke(NPacketProcessor.getNPlayer(player).server)!!
+                val craftingManager: Any = (nPlayer.server!!).javaClass.getMethod("aC").invoke(
+                    nPlayer.server)!!
 
                 serverRecipes = craftingManager.javaClass.getField("c").get(craftingManager)!! as Map<Any, Map<Any, Any>>
 
-                NPacketProcessor.sendGamePacket(player, ClientboundUpdateRecipesPacket(
-                    serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }.toList()!! as MutableCollection<Recipe<*>>
-                ))
+                NPacketProcessor.sendGamePacket(
+                    player, ClientboundUpdateRecipesPacket(
+                        serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }
+                            .toList()!! as MutableCollection<Recipe<*>>
+                    )
+                )
             }
         }
+
+        /* Recipe book update */
+        val playerRecipeBook = nPlayer.javaClass.getMethod("E").invoke(nPlayer)
+
+        playerRecipeBook.javaClass.getMethod("a", ServerPlayer::class.java).invoke(playerRecipeBook, nPlayer)
+
+
     }
 
-    class EventController: Listener {
+    private class EventProcessor: Listener {
         @EventHandler
         private fun onServerLoad(e: ServerLoadEvent) {
-            when (e.type) {
-                ServerLoadEvent.LoadType.STARTUP, ServerLoadEvent.LoadType.RELOAD -> {
-                    NConstructor.plugin.server.onlinePlayers.parallelStream().forEach {player ->
-                        updateRecipe(player)
+            if (!(e.type == ServerLoadEvent.LoadType.STARTUP || e.type == ServerLoadEvent.LoadType.RELOAD)) return
 
-                        player.closeInventory()
-                    }
-                }
+            NConstructor.plugin.server.onlinePlayers.parallelStream().forEach {player ->
+                updateRecipe(player)
+                NPacketProcessor.reloadGamePacketListener(player)
             }
         }
 
@@ -102,8 +125,9 @@ object ServerHandler {
         private fun onPlayerJoin(e: PlayerJoinEvent) {
             val player: Player = e.player
 
-            NProfile.Handler.createProfile(player)
+            NPacketProcessor.addGamePacketListener(player)
             NRank.updateTag()
+            NDurable.toggleDamageProperty(NDurable.isEnabled(), player)
             e.joinMessage = ""
             broadcastPlayerJoinMessage(player)
         }
@@ -112,6 +136,7 @@ object ServerHandler {
         private fun onPlayerQuit(e: PlayerQuitEvent) {
             val player: Player = e.player
 
+            NPacketProcessor.removeGamePacketListener(player)
             NGUI.Handler.nGUIContainer.remove(player)
             e.quitMessage = ""
             broadcastPlayerQuitMessage(player)
@@ -121,6 +146,15 @@ object ServerHandler {
         private fun onPlayerChat(e: AsyncPlayerChatEvent) {
             e.isCancelled = true
             NRank.sendMessage(e.player, e.message)
+        }
+
+        @EventHandler
+        private fun onServerCommandSend(e: ServerCommandEvent) {
+            if (e.sender is Player) { if (!e.sender.isOp) return }
+
+            if (!(e.command.equals("rl", true) || e.command.equals("reload", true))) return
+
+            NConstructor.plugin.server.onlinePlayers.parallelStream().forEach { it.closeInventory() }
         }
     }
 }

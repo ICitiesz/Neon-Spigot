@@ -1,7 +1,6 @@
 package com.islandstudio.neon.experimental.nRepair
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.primary.nExperimental.NExperimental
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -21,14 +20,6 @@ object NRepair {
     private val plugin: Plugin = getPlugin(Neon::class.java)
 
     fun run() {
-        NExperimental.Handler.getClientElement().forEach {
-            val nExperimental = NExperimental(it)
-
-            if (!nExperimental.experimentalName.equals("nRepair", true)) return@forEach
-
-            if (!nExperimental.isEnabled) return
-        }
-
         /* 1) Get item to repair
         *  2) Get item durability
         */

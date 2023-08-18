@@ -1,0 +1,61 @@
+rank:
+  withPrefix: '/neon rank'
+  usages:
+    - syntax: '/neon rank add <target> <rankName>'
+      description: 'Used to apply rank to target player.'
+    - syntax: '/neon rank remove <target>'
+      description: 'Used to remove rank from target player.'
+
+serverfeatures:
+  withPrefix: '/neon serverfeatures'
+  usages:
+    - syntax: '/neon serverfeatures'
+      description: 'Used to open nServerFeatures GUI.'
+    - syntax: '/neon serverfeatures <featureName>'
+      description: 'Used to check toggle status for specific server feature.'
+    - syntax: '/neon serverfeatures <featureName> <optionName>'
+      description: 'Used to check option value for specific server feature.'
+    - syntax: '/neon serverfeatures <featureName> <optionName> <optionValue>'
+      description: 'Used to modify option value for specific server feature.'
+
+effect:
+  withPrefix: '/neon effect'
+  usages:
+    - syntax: '/neon effect'
+      description: 'Used to open nEffect GUI.'
+
+mod:
+  withPrefix: '/neon mod'
+  usages:
+    - syntax: '/neon mod <toggle>'
+      description: 'Used to toggle moderator mode.'
+
+gm:
+  withPrefix: '/neon gm'
+  usages:
+    - syntax: '/neon gm <intValue>'
+      description: 'Used to change player game mode.'
+
+regen:
+  withPrefix: '/neon regen'
+  usages:
+    - syntax: '/neon regen'
+      description: 'Used to regenerate both health and food saturation.'
+    - syntax: '/neon regen health'
+      description: 'Used to regenerate health.'
+    - syntax: '/neon regen food'
+      description: 'Used to regenerate food saturation.'
+
+debug:
+  withPrefix: '/neon debug'
+  usages:
+    - syntax: '/neon debug <value>'
+      description: 'Diagnostic/development usage.'
+
+durability:
+  withPrefix: '/neon durability'
+  usages:
+    - syntax: '/neon durability removeDamageProperty'
+      description: 'Remove damage property for item in main hand that set by nDurable.'
+    - syntax: '/neon durability removeDamageProperty <playerName>'
+      description: 'Remove damage property for item in target player inventory that set by nDurable.'

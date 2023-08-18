@@ -1,7 +1,8 @@
 package com.islandstudio.neon.stable.secondary.nSmelter
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.experimental.nServerFeaturesBeta.NServerFeatures
+import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
+import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.BlastingRecipe
@@ -18,7 +19,7 @@ object NSmelter {
      * Initializes the nSmelter.
      */
     fun run() {
-        if (!NServerFeatures.getToggle("nCutter")) return
+        if (!NServerFeatures.getToggle(ServerFeature.FeatureNames.N_SMELTER)) return
 
         getSmeltableItems().keys.forEach { key ->
             var furnaceRecipe: FurnaceRecipe? = null
