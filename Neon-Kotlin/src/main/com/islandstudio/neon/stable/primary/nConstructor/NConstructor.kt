@@ -15,12 +15,13 @@ import java.lang.reflect.Field
 object NConstructor {
     val plugin: Plugin = getPlugin(Neon::class.java)
 
+    private const val NEON_VERSION: String = "|-------------== Neon v1.10.1-pre_1 ==--------------|"
     private val rawVersion: String = plugin.server.bukkitVersion.split("-")[0]
     private val version: String = rawVersion.split(".")[0] + "." + rawVersion.split(".")[1]
 
     fun constructPlugin() {
         when (version) {
-            "1.17", "1.18" -> {
+            "1.17", "1.18", "1.19", "1.20" -> {
                 plugin.server.consoleSender.sendMessage(
                     "${ChatColor.GRAY}[Neon] ${ChatColor.YELLOW}Detected Minecraft ${ChatColor.GREEN}$rawVersion${ChatColor.YELLOW}!"
                 )
@@ -98,7 +99,7 @@ object NConstructor {
             }
 
             else -> {
-                val supportedVersion = "1.17.X ~ 1.18.X"
+                val supportedVersion = "1.17.X ~ 1.20.X"
 
                 plugin.server.consoleSender.sendMessage(
                     "${ChatColor.GRAY}[Neon] ${ChatColor.RED}Incompatible Minecraft version! Please check for the latest version of Neon plugin!"
@@ -158,7 +159,7 @@ object NConstructor {
             "${ChatColor.GOLD}|-----------------=================-----------------|"
         )
         plugin.server.consoleSender.sendMessage(
-            "${ChatColor.GOLD}|--------------== Neon v1.10 ==---------------|"
+            "${ChatColor.GOLD}$NEON_VERSION"
         )
         plugin.server.consoleSender.sendMessage(
             "${ChatColor.GOLD}|-----------------===${ChatColor.GREEN} <Started> ${ChatColor.GOLD}===-----------------|"
@@ -179,7 +180,7 @@ object NConstructor {
             "${ChatColor.GOLD}|-----------------=================-----------------|"
         )
         plugin.server.consoleSender.sendMessage(
-            "${ChatColor.GOLD}|--------------== Neon v1.10-rc_2 ==---------------|"
+            "${ChatColor.GOLD}$NEON_VERSION"
         )
         plugin.server.consoleSender.sendMessage(
             "${ChatColor.GOLD}|-----------------===${ChatColor.RED} <Stopped> ${ChatColor.GOLD}===-----------------|"
