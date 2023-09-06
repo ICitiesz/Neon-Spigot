@@ -1,74 +1,42 @@
 package com.islandstudio.neon.stable.secondary.nCutter
 
+import com.islandstudio.neon.stable.core.RecipeRegistry
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
-import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.RecipeChoice
 import org.bukkit.inventory.StonecuttingRecipe
 import org.bukkit.plugin.Plugin
 
-object NCutter {
+class NCutter: RecipeRegistry {
     private val plugin: Plugin = NConstructor.plugin
 
-    /**
-     * Initializes the nCutter.
-     */
-    fun run() {
-        if (!NServerFeatures.getToggle(ServerFeature.FeatureNames.N_CUTTER)) return
+    object Handler {
+        /**
+         * Initializes the nCutter.
+         */
+        fun run() {
+            if (!NServerFeatures.getToggle(ServerFeature.FeatureNames.N_CUTTER)) return
 
-        val woodenItems: MutableList<Material?> = WoodenItems.values().map { woodenItems -> woodenItems.item.map { it } }.flatten().toMutableList()
-        val woodRecipes: MutableSet<StonecuttingRecipe> = HashSet()
+            NCutter().registerRecipe()
+        }
+    }
 
-        WoodPlanks.values().forEach { woodPlank: WoodPlanks? ->
-            var result: ItemStack
-            var namespacedKey: NamespacedKey
-            var stoneCuttingRecipe: StonecuttingRecipe
+    override fun registerRecipe() {
+        val filteredRecipes = filterRecipe("NCUTTER")
 
-            if (woodPlank == null) return@forEach
+        if (filteredRecipes.isEmpty()) return
 
-            woodenItems.forEach inner@{ item: Material? ->
-                if (item == null) return@inner
+        filteredRecipes.values.forEach { nRecipe ->
+            lateinit var stoneCuttingRecipe: StonecuttingRecipe
 
-                result = ItemStack(item)
-                namespacedKey = NamespacedKey(plugin, "neon_${result.type.name.lowercase()}")
+            val namespaceKey = nRecipe.key
+            val result = ItemStack(nRecipe.result.bukkitMaterial!!, nRecipe.resultAmount)
+            val ingredients = RecipeChoice.MaterialChoice(nRecipe.ingredients.map { it.bukkitMaterial })
 
-                if (woodPlank.type!!.name.split("_")[0].equals(item.name.split("_")[0], true)) {
-                    if (item.name.endsWith("SLAB")) {
-                        result = ItemStack(item, 2)
-                    }
+            stoneCuttingRecipe = StonecuttingRecipe(namespaceKey, result, ingredients)
 
-                    stoneCuttingRecipe = StonecuttingRecipe(
-                        namespacedKey,
-                        result,
-                        woodPlank.type
-                    )
-
-                    plugin.server.addRecipe(stoneCuttingRecipe)
-                }
-            }
-
-            val stick: Material = Material.getMaterial("STICK")!!
-            val ladder: Material = Material.getMaterial("LADDER")!!
-            val bowl: Material = Material.getMaterial("BOWL")!!
-
-            /* Stick recipe */
-            result = ItemStack(stick,2)
-            namespacedKey = NamespacedKey(plugin, "${woodPlank.name.lowercase()}_stick")
-            stoneCuttingRecipe = StonecuttingRecipe(namespacedKey, result, woodPlank.type!!)
-            plugin.server.addRecipe(stoneCuttingRecipe)
-
-            /* Ladder recipe */
-            result = ItemStack(ladder)
-            namespacedKey = NamespacedKey(plugin, "${woodPlank.name.lowercase()}_ladder")
-            stoneCuttingRecipe = StonecuttingRecipe(namespacedKey, result, woodPlank.type)
-            plugin.server.addRecipe(stoneCuttingRecipe)
-
-            /* Bowl recipe */
-            result = ItemStack(bowl, 2)
-            namespacedKey = NamespacedKey(plugin, "${woodPlank.name.lowercase()}_bowl")
-            stoneCuttingRecipe = StonecuttingRecipe(namespacedKey, result, woodPlank.type)
             plugin.server.addRecipe(stoneCuttingRecipe)
         }
     }
