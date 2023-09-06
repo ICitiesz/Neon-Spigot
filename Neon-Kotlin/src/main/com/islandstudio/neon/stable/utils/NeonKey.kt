@@ -5,6 +5,7 @@ import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
+import org.jetbrains.kotlin.konan.properties.Properties
 
 object NeonKey {
     enum class NamespaceKeys(val key: NamespacedKey) {
@@ -17,6 +18,14 @@ object NeonKey {
         /* nDurable Properties */
         NEON_N_DURABLE(NamespacedKey(NConstructor.plugin, "neon_n_durable")),
         NEON_N_DURABLE_DAMAGE(NamespacedKey(NConstructor.plugin, "neon_n_durable_damage")),
+    }
+
+    private val neonKeyProperties: Properties = Properties()
+
+    object Handler {
+        fun run() {
+            neonKeyProperties.load(this.javaClass.classLoader.getResourceAsStream("resources/NeonKeys.properties"))
+        }
     }
 
     fun hasNeonKey(neonKey: NamespaceKeys, keyDataType: PersistentDataType<*, *>, itemMeta: ItemMeta): Boolean {
@@ -59,5 +68,9 @@ object NeonKey {
 
     fun getNeonKeyNameWithNamespace(neonKey: NamespaceKeys): String {
         return "${neonKey.key.namespace}:${neonKey.key.key}"
+    }
+
+    fun fromProperty(keyName: String): NamespacedKey {
+        return NamespacedKey(NConstructor.plugin, neonKeyProperties.getProperty(keyName))
     }
 }
