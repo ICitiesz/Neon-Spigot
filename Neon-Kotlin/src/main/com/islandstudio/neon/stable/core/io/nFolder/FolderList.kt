@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.primary.nFolder
+package com.islandstudio.neon.stable.core.io.nFolder
 
 import com.islandstudio.neon.stable.primary.nServerConstantEventProcessor.NServerConstantProcessor
 import java.io.File

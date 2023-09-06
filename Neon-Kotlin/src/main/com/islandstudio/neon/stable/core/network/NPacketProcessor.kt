@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.utils
+package com.islandstudio.neon.stable.core.network
 
 import com.islandstudio.neon.stable.primary.nCommand.nCommandList.NCommandList
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
@@ -13,7 +13,7 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerPlayerConnection
+import net.minecraft.server.network.ServerGamePacketListenerImpl
 import org.bukkit.World
 import org.bukkit.entity.Player
 
@@ -47,11 +47,15 @@ object NPacketProcessor {
 
         when (NConstructor.getVersion()) {
             "1.17" -> {
-                (nPlayer.connection!! as ServerPlayerConnection).send(gamePacket)
+                nPlayer.connection!!.javaClass.getMethod("sendPacket", Packet::class.java).invoke(nPlayer.connection!!, gamePacket)
             }
 
-            "1.18" -> {
+            "1.18", "1.19" -> {
                 nPlayer.connection!!.send(gamePacket)
+            }
+
+            "1.20" -> {
+                (nPlayer.javaClass.getField("c").get(nPlayer) as ServerGamePacketListenerImpl).send(gamePacket)
             }
         }
     }
@@ -133,14 +137,31 @@ object NPacketProcessor {
      * @return
      */
     private fun getChannel(player: Player): Channel? {
-        val networkManager = getNPlayer(player).connection.connection
-
         when (NConstructor.getVersion()) {
             "1.17" -> {
+                val serverPlayerConnection = getNPlayer(player).connection
+                val networkManager = serverPlayerConnection.javaClass.getField("a").get(serverPlayerConnection)
                 return networkManager.javaClass.getField("k").get(networkManager) as Channel
             }
 
             "1.18" -> {
+                val serverPlayerConnection = getNPlayer(player).connection
+                val networkManager = serverPlayerConnection.javaClass.getField("a").get(serverPlayerConnection)
+                return networkManager.javaClass.getField("m").get(networkManager) as Channel
+            }
+
+            "1.19" -> {
+                // TODO: Pending to check
+            }
+
+            "1.20" -> {
+                val serverPlayerConnection = getNPlayer(player).javaClass.getField("c").get(getNPlayer(player))
+                val networkManagerField = serverPlayerConnection.javaClass.getDeclaredField("h")
+
+                networkManagerField.isAccessible = true
+
+                val networkManager = networkManagerField.get(serverPlayerConnection)
+
                 return networkManager.javaClass.getField("m").get(networkManager) as Channel
             }
         }
