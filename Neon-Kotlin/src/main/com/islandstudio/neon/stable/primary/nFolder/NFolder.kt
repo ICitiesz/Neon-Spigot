@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.io.nFolder
+package com.islandstudio.neon.stable.primary.nFolder
 
 import com.islandstudio.neon.Neon
 import org.bukkit.plugin.Plugin
