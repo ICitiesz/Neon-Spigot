@@ -14,7 +14,6 @@ import org.bukkit.Server
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.server.ServerCommandEvent
@@ -100,14 +99,39 @@ object NServerConstantProcessor {
                     )
                 )
             }
+
+            "1.19", "1.20" -> {
+                val mcServer = nPlayer.javaClass.getField("d").get(nPlayer)
+
+                val craftingManager: Any = mcServer.javaClass.getMethod("aE").invoke(
+                    mcServer)!!
+
+                serverRecipes = craftingManager.javaClass.getField("c").get(craftingManager)!! as Map<Any, Map<Any, Any>>
+
+                NPacketProcessor.sendGamePacket(
+                    player, ClientboundUpdateRecipesPacket(
+                        serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }
+                            .toList()!! as MutableCollection<Recipe<*>>
+                    )
+                )
+            }
         }
 
         /* Recipe book update */
-        val playerRecipeBook = nPlayer.javaClass.getMethod("E").invoke(nPlayer)
+        lateinit var playerRecipeBook: Any
 
+        when (NConstructor.getVersion()) {
+            "1.17" -> {
+                playerRecipeBook = nPlayer.javaClass.getMethod("getRecipeBook").invoke(nPlayer)
+            }
+
+            "1.18", "1.19", "1.20" -> {
+                playerRecipeBook = nPlayer.javaClass.getMethod("E").invoke(nPlayer)
+            }
+        }
+
+        // TODO => 1.17, 1.18, 1.19, 1.20 Mapping ('a')
         playerRecipeBook.javaClass.getMethod("a", ServerPlayer::class.java).invoke(playerRecipeBook, nPlayer)
-
-
     }
 
     private class EventProcessor: Listener {
@@ -140,12 +164,6 @@ object NServerConstantProcessor {
             NGUI.Handler.nGUIContainer.remove(player)
             e.quitMessage = ""
             broadcastPlayerQuitMessage(player)
-        }
-
-        @EventHandler
-        private fun onPlayerChat(e: AsyncPlayerChatEvent) {
-            e.isCancelled = true
-            NRank.sendMessage(e.player, e.message)
         }
 
         @EventHandler
