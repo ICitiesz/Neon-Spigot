@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.secondary.nCutter
 
-import com.islandstudio.neon.stable.core.RecipeRegistry
+import com.islandstudio.neon.stable.core.recipe.RecipeRegistry
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
