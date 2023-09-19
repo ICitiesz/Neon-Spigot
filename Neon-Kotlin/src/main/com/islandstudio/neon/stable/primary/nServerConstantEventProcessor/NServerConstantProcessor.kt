@@ -1,11 +1,12 @@
 package com.islandstudio.neon.stable.primary.nServerConstantEventProcessor
 
+import com.islandstudio.neon.stable.core.network.NPacketProcessor
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.secondary.nDurable.NDurable
 import com.islandstudio.neon.stable.secondary.nRank.NRank
-import com.islandstudio.neon.stable.utils.NPacketProcessor
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
+import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.crafting.Recipe
@@ -74,64 +75,23 @@ object NServerConstantProcessor {
         val nPlayer = NPacketProcessor.getNPlayer(player)
         val serverRecipes: Map<Any, Map<Any, Any>>
 
-        when (NConstructor.getVersion()) {
-            "1.17" -> {
-                serverRecipes = (nPlayer.server!!).recipeManager!!.recipes!! as Map<Any, Map<Any, Any>>
+        val mcServer = nPlayer.javaClass.getField(NMSRemapped.Mapping.NMS_MC_SERVER.remapped).get(nPlayer)
+        val craftingManager: Any = mcServer.javaClass.getMethod(NMSRemapped.Mapping.NMS_CRAFTING_MANAGER.remapped).invoke(
+            mcServer)!!
 
-                NPacketProcessor.sendGamePacket(
-                    player, ClientboundUpdateRecipesPacket(
-                        serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }
-                            .toList()!! as MutableCollection<Recipe<*>>
-                    )
-                )
-            }
+        serverRecipes = craftingManager.javaClass.getField(NMSRemapped.Mapping.NMS_SERVER_RECIPES.remapped).get(craftingManager)!! as Map<Any, Map<Any, Any>>
 
-            "1.18" -> {
-                val craftingManager: Any = (nPlayer.server!!).javaClass.getMethod("aC").invoke(
-                    nPlayer.server)!!
-
-                serverRecipes = craftingManager.javaClass.getField("c").get(craftingManager)!! as Map<Any, Map<Any, Any>>
-
-                NPacketProcessor.sendGamePacket(
-                    player, ClientboundUpdateRecipesPacket(
-                        serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }
-                            .toList()!! as MutableCollection<Recipe<*>>
-                    )
-                )
-            }
-
-            "1.19", "1.20" -> {
-                val mcServer = nPlayer.javaClass.getField("d").get(nPlayer)
-
-                val craftingManager: Any = mcServer.javaClass.getMethod("aE").invoke(
-                    mcServer)!!
-
-                serverRecipes = craftingManager.javaClass.getField("c").get(craftingManager)!! as Map<Any, Map<Any, Any>>
-
-                NPacketProcessor.sendGamePacket(
-                    player, ClientboundUpdateRecipesPacket(
-                        serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }
-                            .toList()!! as MutableCollection<Recipe<*>>
-                    )
-                )
-            }
-        }
+        NPacketProcessor.sendGamePacket(
+            player, ClientboundUpdateRecipesPacket(
+                serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }
+                    .toList()!! as MutableCollection<Recipe<*>>
+            )
+        )
 
         /* Recipe book update */
-        lateinit var playerRecipeBook: Any
+        val playerRecipeBook: Any = nPlayer.javaClass.getMethod(NMSRemapped.Mapping.NMS_PLAYER_RECIPE_BOOK.remapped).invoke(nPlayer)
 
-        when (NConstructor.getVersion()) {
-            "1.17" -> {
-                playerRecipeBook = nPlayer.javaClass.getMethod("getRecipeBook").invoke(nPlayer)
-            }
-
-            "1.18", "1.19", "1.20" -> {
-                playerRecipeBook = nPlayer.javaClass.getMethod("E").invoke(nPlayer)
-            }
-        }
-
-        // TODO => 1.17, 1.18, 1.19, 1.20 Mapping ('a')
-        playerRecipeBook.javaClass.getMethod("a", ServerPlayer::class.java).invoke(playerRecipeBook, nPlayer)
+        playerRecipeBook.javaClass.getMethod(NMSRemapped.Mapping.NMS_INIT_RECIPE_BOOK.remapped, ServerPlayer::class.java).invoke(playerRecipeBook, nPlayer)
     }
 
     private class EventProcessor: Listener {
