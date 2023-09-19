@@ -1,10 +1,11 @@
 package com.islandstudio.neon.stable.primary.nCommand.nCommandList
 
+import com.islandstudio.neon.stable.core.network.NPacketProcessor
 import com.islandstudio.neon.stable.primary.nCommand.Commands
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.utils.NIdGenerator
-import com.islandstudio.neon.stable.utils.NPacketProcessor
 import com.islandstudio.neon.stable.utils.NeonKey
+import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
 import net.md_5.bungee.api.chat.BaseComponent
 import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.HoverEvent
@@ -477,19 +478,9 @@ object NCommandList {
      * @param nPlayer Minecraft player who clicked the button
      */
     fun navigateCommandUI(buttonState: Int, nPlayer: ServerPlayer) {
-        var player: Player? = null
+        val player: Player = nPlayer.javaClass.getMethod(NMSRemapped.Mapping.NMS_GET_BUKKIT_ENTITY.remapped).invoke(nPlayer) as Player
 
-        when (NConstructor.getVersion()) {
-            "1.17" -> {
-                player = nPlayer.javaClass.superclass.getMethod("getBukkitEntity").invoke(nPlayer) as Player
-            }
-
-            "1.18" -> {
-                player = nPlayer.bukkitEntity.player!!
-            }
-        }
-
-        if (hasCommandUISession(player!!) == null) return
+        if (hasCommandUISession(player) == null) return
 
         val commandUISession = addOrGetCommandUISession(player)
 
@@ -530,8 +521,7 @@ object NCommandList {
     private fun getOpenedUIWindow(player: Player): AbstractContainerMenu? {
         val nPlayer = NPacketProcessor.getNPlayer(player)
 
-        /* TODO: 1.17, 1.18 mapping (bV) */
-        val openedUI = nPlayer.javaClass.superclass.getField("bV")[nPlayer] as AbstractContainerMenu
+        val openedUI = nPlayer.javaClass.superclass.getField(NMSRemapped.Mapping.NMS_CONTAINER_BASE.remapped)[nPlayer] as AbstractContainerMenu
         val uiView = openedUI.bukkitView
 
         if (uiView.type != InventoryType.LECTERN) return null
