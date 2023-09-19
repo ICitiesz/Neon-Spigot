@@ -1,15 +1,16 @@
 package com.islandstudio.neon.stable.secondary.nDurable
 
 import com.islandstudio.neon.experimental.nEffect.NEffect
+import com.islandstudio.neon.stable.core.network.NPacketProcessor
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
-import com.islandstudio.neon.stable.utils.NPacketProcessor
-import com.islandstudio.neon.stable.utils.NReflector
 import com.islandstudio.neon.stable.utils.NeonKey
 import com.islandstudio.neon.stable.utils.ObjectSerializer
+import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
+import com.islandstudio.neon.stable.utils.reflection.NReflector
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket
 import net.minecraft.server.level.ServerPlayer
@@ -31,6 +32,7 @@ import org.bukkit.event.inventory.PrepareAnvilEvent
 import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.*
 import org.bukkit.event.world.LootGenerateEvent
+import org.bukkit.inventory.InventoryView
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
@@ -120,8 +122,7 @@ object NDurable {
 
             /* Getting the inventory view from player that received the tool/weapon
             * from /give command or getting from creative inventory */
-            /* TODO: 1.17, 1.18 mapping (bV) */
-            val inventoryView = (nPlayer.javaClass.superclass.getField("bV").get(nPlayer)
+            val inventoryView: InventoryView = (nPlayer.javaClass.superclass.getField(NMSRemapped.Mapping.NMS_PLAYER_CONTAINER.remapped).get(nPlayer)
                     as AbstractContainerMenu).bukkitView
 
             /* Get and check the inventory type. */
@@ -145,6 +146,9 @@ object NDurable {
             /* Villager profession check */
             if (!(villager.profession == Villager.Profession.TOOLSMITH || villager.profession == Villager.Profession.WEAPONSMITH)) return
 
+            /* NMS Remapped */
+            val merchantRecipeResultNMS = NMSRemapped.Mapping.NMS_MERCHANT_RECIPE_RESULT.remapped
+
             villager.recipes.forEach {
                 val merchantRecipeField = it.javaClass.getDeclaredField("handle")
                 merchantRecipeField.isAccessible = true
@@ -155,8 +159,7 @@ object NDurable {
                 it.ingredients.forEach InnerFE@ { ingredient ->
                     if (!isItemMatch(ingredient)) return@InnerFE
 
-                    /* TODO: 1.17, 1.18 mapping (c) */
-                    val originalIngredient = merchantRecipe.javaClass.getDeclaredField("c")
+                    val originalIngredient = merchantRecipe.javaClass.getDeclaredField(merchantRecipeResultNMS)
                     originalIngredient.isAccessible = true
 
                     val newIngredient = if (isEnabled) applyDamageProperty(ingredient, 0)
@@ -169,8 +172,7 @@ object NDurable {
                 }
 
                 /* Damage property for trade offer result */
-                /* TODO: 1.17, 1.18 mapping (c) */
-                val originalResult = merchantRecipe.javaClass.getDeclaredField("c")
+                val originalResult = merchantRecipe.javaClass.getDeclaredField(merchantRecipeResultNMS)
                 originalResult.isAccessible = true
 
                 val newResult = if (isEnabled) applyDamageProperty(it.result, 0)
