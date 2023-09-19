@@ -1,10 +1,13 @@
 package com.islandstudio.neon.stable.secondary.nBundle
 
+import com.islandstudio.neon.stable.core.network.NPacketProcessor
+import com.islandstudio.neon.stable.core.recipe.NRecipes
+import com.islandstudio.neon.stable.core.recipe.RecipeRegistry
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
-import com.islandstudio.neon.stable.utils.NPacketProcessor
 import com.islandstudio.neon.stable.utils.NeonKey
+import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
 import net.minecraft.world.inventory.AbstractContainerMenu
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -16,13 +19,14 @@ import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.server.ServerLoadEvent
 import org.bukkit.event.world.LootGenerateEvent
+import org.bukkit.inventory.InventoryView
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.MerchantRecipe
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.loot.LootTable
 import org.jetbrains.kotlin.utils.addToStdlib.ifFalse
 
-object NBundle {
+object NBundle: RecipeRegistry {
     /* Default Bundle trade values */
     private var bundleGenerateChance = 0.17
     private var bundleMaxBuy = 12
@@ -61,7 +65,7 @@ object NBundle {
 
             NConstructor.registerEventProcessor(EventProcessor())
 
-            addBundleCraftingRecipe()
+            registerRecipe()
         }
     }
 
@@ -88,17 +92,20 @@ object NBundle {
         return loot
     }
 
-    /**
-     * Add bundle crafting recipe to the server.
-     *
-     */
-    private fun addBundleCraftingRecipe() {
-        val shapedRecipe = ShapedRecipe(NeonKey.NamespaceKeys.NEON_BUNDLE.key, ItemStack(Material.BUNDLE))
+    override fun registerRecipe() {
+        val filteredRecipe: HashMap<String, NRecipes> = filterRecipe("NBUNDLE")
 
-        shapedRecipe.shape("SRS", "R R", "RRR")
-        shapedRecipe.setIngredient('S', Material.STRING)
-        shapedRecipe.setIngredient('R', Material.RABBIT_HIDE)
-        plugin.server.addRecipe(shapedRecipe)
+        if (filteredRecipe.isEmpty()) return
+
+        plugin.server.addRecipe(filteredRecipe.values.first().run {
+            val bundleRecipe = ShapedRecipe(this.key, ItemStack(this.result.bukkitMaterial!!))
+
+            bundleRecipe.shape("SRS", "R R", "RRR")
+            bundleRecipe.setIngredient('S', this.ingredients.find { it.name.startsWith("S") }!!
+                .bukkitMaterial!!)
+            bundleRecipe.setIngredient('R', this.ingredients.find { it.name.startsWith("R") }!!
+                .bukkitMaterial!!)
+        })
     }
 
     /**
@@ -110,15 +117,16 @@ object NBundle {
     fun discoverBundleRecipe(player: Player, rawSlotIndex: Int? = null) {
         if (!isEnabled) return
 
-        if (player.hasDiscoveredRecipe(NeonKey.NamespaceKeys.NEON_BUNDLE.key)) return
+        val bundleNamespaceKey = NeonKey.fromProperty("nBundle.recipe.bundle.key")
+
+        if (player.hasDiscoveredRecipe(bundleNamespaceKey)) return
 
         val nPlayer = NPacketProcessor.getNPlayer(player)
 
         rawSlotIndex?.let {
-            /* Getting the inventory view from player that received ingredients
-            * from /give command or getting from creative inventory */
-            /* TODO: 1.17, 1.18 mapping (bV) */
-            val inventoryView = (nPlayer.javaClass.superclass.getField("bV").get(nPlayer)
+            val playerContainerNMS = NMSRemapped.Mapping.NMS_PLAYER_CONTAINER.remapped
+
+            val inventoryView: InventoryView = (nPlayer.javaClass.getField(playerContainerNMS).get(nPlayer)
                     as AbstractContainerMenu).bukkitView
 
             /* Get and check the inventory type. */
@@ -131,7 +139,7 @@ object NBundle {
             if (!(gaveItem.type == Material.RABBIT_HIDE || gaveItem.type == Material.BUNDLE)) return
 
             plugin.server.scheduler.runTask(plugin, Runnable {
-                player.discoverRecipe(NeonKey.NamespaceKeys.NEON_BUNDLE.key)
+                player.discoverRecipe(bundleNamespaceKey)
             })
 
             return
@@ -140,7 +148,7 @@ object NBundle {
         player.inventory.contents.filterNotNull().any { itemStack ->
             itemStack.type == Material.RABBIT_HIDE || itemStack.type == Material.BUNDLE }.ifFalse { return }
 
-        player.discoverRecipe(NeonKey.NamespaceKeys.NEON_BUNDLE.key)
+        player.discoverRecipe(bundleNamespaceKey)
     }
 
     /**
