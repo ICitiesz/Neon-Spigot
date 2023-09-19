@@ -1,9 +1,10 @@
-package com.islandstudio.neon.stable.utils
+package com.islandstudio.neon.stable.core.network
 
 import com.islandstudio.neon.stable.primary.nCommand.nCommandList.NCommandList
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.secondary.nBundle.NBundle
 import com.islandstudio.neon.stable.secondary.nDurable.NDurable
+import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
 import io.netty.channel.Channel
 import io.netty.channel.ChannelDuplexHandler
 import io.netty.channel.ChannelHandlerContext
@@ -13,9 +14,9 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerPlayerConnection
 import org.bukkit.World
 import org.bukkit.entity.Player
+import java.lang.reflect.Field
 
 object NPacketProcessor {
     private val plugin = NConstructor.plugin
@@ -45,15 +46,9 @@ object NPacketProcessor {
     fun sendGamePacket(player: Player, gamePacket: Packet<*>) {
         val nPlayer = getNPlayer(player)
 
-        when (NConstructor.getVersion()) {
-            "1.17" -> {
-                (nPlayer.connection!! as ServerPlayerConnection).send(gamePacket)
-            }
+        val playerConnection = nPlayer.javaClass.getField(NMSRemapped.Mapping.NMS_PLAYER_CONNECTION.remapped).get(nPlayer)
 
-            "1.18" -> {
-                nPlayer.connection!!.send(gamePacket)
-            }
-        }
+        playerConnection.javaClass.getMethod(NMSRemapped.Mapping.NMS_SEND_PACKET.remapped, Packet::class.java).invoke(playerConnection, gamePacket)
     }
 
     /**
@@ -77,8 +72,11 @@ object NPacketProcessor {
             override fun write(ctx: ChannelHandlerContext?, gamePacket: Any?, cPromise: ChannelPromise?) {
                 when (gamePacket) {
                     is ClientboundContainerSetSlotPacket -> {
+                        val bukkitPlayer = nPlayer.javaClass.getMethod(NMSRemapped.Mapping.NMS_GET_BUKKIT_ENTITY.remapped)
+                            .invoke(nPlayer) as Player
+
                         NDurable.Handler.applyDamagePropertyOnGive(nPlayer, gamePacket.slot)
-                        NBundle.discoverBundleRecipe(nPlayer.bukkitEntity, gamePacket.slot)
+                        NBundle.discoverBundleRecipe(bukkitPlayer, gamePacket.slot)
                     }
                 }
 
@@ -95,7 +93,7 @@ object NPacketProcessor {
      * @param player The target player who joins the server.
      */
     fun addGamePacketListener(player: Player) {
-        val channel = getChannel(player)!!
+        val channel = getChannel(player)
 
         channel.pipeline().addBefore("packet_handler", player.name, getChannelHandler(getNPlayer(player)))
     }
@@ -106,7 +104,7 @@ object NPacketProcessor {
      * @param player The target player who leaves the server
      */
     fun removeGamePacketListener(player: Player) {
-        val channel = getChannel(player) ?: return
+        val channel = getChannel(player)
 
         channel.eventLoop().submit {
             channel.pipeline().remove(player.name)
@@ -119,7 +117,7 @@ object NPacketProcessor {
      * @param player The target player
      */
     fun reloadGamePacketListener(player: Player) {
-        val channel = getChannel(player) ?: return
+        val channel = getChannel(player)
 
         channel.eventLoop().submit {
             channel.pipeline().replace(player.name, player.name, getChannelHandler(getNPlayer(player)))
@@ -132,19 +130,16 @@ object NPacketProcessor {
      * @param player
      * @return
      */
-    private fun getChannel(player: Player): Channel? {
-        val networkManager = getNPlayer(player).connection.connection
+    private fun getChannel(player: Player): Channel {
+        val nPlayer = getNPlayer(player)
 
-        when (NConstructor.getVersion()) {
-            "1.17" -> {
-                return networkManager.javaClass.getField("k").get(networkManager) as Channel
-            }
+        val playerConnection = nPlayer.javaClass.getField(NMSRemapped.Mapping.NMS_PLAYER_CONNECTION.remapped).get(nPlayer)
 
-            "1.18" -> {
-                return networkManager.javaClass.getField("m").get(networkManager) as Channel
-            }
-        }
+        val networkManagerField: Field = playerConnection.javaClass.getDeclaredField(NMSRemapped.Mapping.NMS_NETWORK_MANAGER.remapped)
+        networkManagerField.isAccessible = true
 
-        return null
+        val networkManager = networkManagerField.get(playerConnection)
+
+        return networkManager.javaClass.getField(NMSRemapped.Mapping.NMS_CHANNEL.remapped).get(networkManager) as Channel
     }
 }
