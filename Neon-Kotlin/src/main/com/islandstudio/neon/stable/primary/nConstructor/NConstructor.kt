@@ -19,103 +19,108 @@ object NConstructor {
     private val rawVersion: String = plugin.server.bukkitVersion.split("-")[0]
     private val version: String = rawVersion.split(".")[0] + "." + rawVersion.split(".")[1]
 
+    private val supportedVersion = listOf("1.17", "1.18", "1.19", "1.20")
+
     fun constructPlugin() {
-        when (version) {
-            "1.17", "1.18", "1.19", "1.20" -> {
-                plugin.server.consoleSender.sendMessage(
-                    "${ChatColor.GRAY}[Neon] ${ChatColor.YELLOW}Detected Minecraft ${ChatColor.GREEN}$rawVersion${ChatColor.YELLOW}!"
-                )
+        version.run {
+            if (this in supportedVersion) {
+                if ((rawVersion == "1.20" || rawVersion == "1.20.1")) return@run
 
-                Thread.sleep(1000)
+                return@run
+            }
 
-                plugin.server.consoleSender.sendMessage(
-                    "${ChatColor.GRAY}[Neon] ${ChatColor.YELLOW}Initializing features for Minecraft ${ChatColor.GREEN}$version${ChatColor.YELLOW}......"
-                )
+            val supportedVersionRange = "1.17.X ~ 1.20.1"
 
-                /* Each initialization must be done according to priority. */
-                /* Primary Component */
-                registerEventProcessor(NEvent()) // Event registration
-                registerItemHighlight() // Item highlight registration
+            plugin.server.consoleSender.sendMessage(
+                "${ChatColor.GRAY}[Neon] ${ChatColor.RED}Incompatible Minecraft version! Please check for the latest version of Neon plugin!"
+            )
 
-                val nClasses = NClassProperties.NClasses.values().map { it.nClass }.toTypedArray()
-                val notAsyncClassNames = NClassProperties.NotAsyncClassNames.values().map { it.nClassName }.toTypedArray()
+            plugin.server.consoleSender.sendMessage(
+                "${ChatColor.GRAY}[Neon] ${ChatColor.YELLOW}Supported Minecraft version: ${ChatColor.GREEN}$supportedVersionRange"
+            )
 
-                for (i in nClasses.indices) {
-                    val progress: Int = ((i + 1).toFloat() / nClasses.size.toFloat() * 100).toInt()
+            return
+        }
 
-                    /* Check if the simple name of the class is equal to "Handler" or "Companion",
-                    * if so, it split the canonical name and get the last 2 parts.
-                    * E.g.: com.islandstudio.neon.stable.primary.nCommand.NCommand.Companion -> NCommand.Companion
-                    */
-                    val className: String = if (nClasses[i].simpleName == "Handler" || nClasses[i].simpleName == "Companion") {
-                        val splitClassNames = nClasses[i].canonicalName.split(".")
-                        "${splitClassNames[splitClassNames.size - 2]}.${splitClassNames[splitClassNames.size - 1]}"
-                    } else {
-                        nClasses[i].simpleName
-                    }
+        plugin.server.consoleSender.sendMessage(
+            "${ChatColor.GRAY}[Neon] ${ChatColor.YELLOW}Detected Minecraft ${ChatColor.GREEN}$rawVersion${ChatColor.YELLOW}!"
+        )
 
-                    /* Check if the class is in the notAsyncClassNames array, if so,
-                    * the process will be done on the main thread.
-                    */
-                    if (className in notAsyncClassNames) {
-                        if (className.contains("Companion")) {
-                            nClasses[i].getDeclaredMethod("run").invoke(nClasses[i].enclosingClass.getField("Companion").get(null))
-                            plugin.server.consoleSender.sendMessage(
-                                "${ChatColor.GRAY}[Neon] ${ChatColor.YELLOW}Initializing......${progress}%")
-                            Thread.sleep(250)
-                            continue
-                        }
+        Thread.sleep(1000)
 
-                        nClasses[i].getDeclaredMethod("run").invoke(nClasses[i].getField("INSTANCE").get(null))
-                        plugin.server.consoleSender.sendMessage(
-                            "${ChatColor.GRAY}[Neon] ${ChatColor.YELLOW}Initializing......${progress}%")
-                        Thread.sleep(250)
-                        continue
-                    }
+        plugin.server.consoleSender.sendMessage(
+            "${ChatColor.GRAY}[Neon] ${ChatColor.YELLOW}Initializing features for Minecraft ${ChatColor.GREEN}$version${ChatColor.YELLOW}......"
+        )
 
-                    /* If the class is not in the notAsyncClassNames array,
-                    * the process will be done on the new thread.
-                    */
-                    val thread = Thread {
-                        if (className.contains("Companion")) {
-                            nClasses[i].getDeclaredMethod("run").invoke(nClasses[i].enclosingClass.getField("Companion").get(null))
-                            return@Thread
-                        }
+        /* Each initialization must be done according to priority. */
+        /* Primary Component */
+        registerEventProcessor(NEvent()) // Event registration
+        registerItemHighlight() // Item highlight registration
 
-                        nClasses[i].getDeclaredMethod("run").invoke(nClasses[i].getField("INSTANCE").get(null))
-                    }
+        val nClasses = NClassProperties.NClasses.values().map { it.nClass }.toTypedArray()
+        val notAsyncClassNames = NClassProperties.NotAsyncClassNames.values().map { it.nClassName }.toTypedArray()
 
-                    thread.name = "Server thread"
-                    thread.start()
-                    thread.join()
+        for (i in nClasses.indices) {
+            val progress: Int = ((i + 1).toFloat() / nClasses.size.toFloat() * 100).toInt()
 
+            /* Check if the simple name of the class is equal to "Handler" or "Companion",
+            * if so, it split the canonical name and get the last 2 parts.
+            * E.g.: com.islandstudio.neon.stable.primary.nCommand.NCommand.Companion -> NCommand.Companion
+            */
+            val className: String = if (nClasses[i].simpleName == "Handler" || nClasses[i].simpleName == "Companion") {
+                val splitClassNames = nClasses[i].canonicalName.split(".")
+                "${splitClassNames[splitClassNames.size - 2]}.${splitClassNames[splitClassNames.size - 1]}"
+            } else {
+                nClasses[i].simpleName
+            }
+
+            /* Check if the class is in the notAsyncClassNames array, if so,
+            * the process will be done on the main thread.
+            */
+            if (className in notAsyncClassNames) {
+                if (className.contains("Companion")) {
+                    nClasses[i].getDeclaredMethod("run").invoke(nClasses[i].enclosingClass.getField("Companion").get(null))
                     plugin.server.consoleSender.sendMessage(
                         "${ChatColor.GRAY}[Neon] ${ChatColor.YELLOW}Initializing......${progress}%")
                     Thread.sleep(250)
+                    continue
                 }
 
-                plugin.server.consoleSender.sendMessage("${ChatColor.GRAY}[Neon] ${ChatColor.GREEN}Initialization complete!")
-                sendIntro()
+                nClasses[i].getDeclaredMethod("run").invoke(nClasses[i].getField("INSTANCE").get(null))
+                plugin.server.consoleSender.sendMessage(
+                    "${ChatColor.GRAY}[Neon] ${ChatColor.YELLOW}Initializing......${progress}%")
+                Thread.sleep(250)
+                continue
             }
 
-            else -> {
-                val supportedVersion = "1.17.X ~ 1.20.X"
+            /* If the class is not in the notAsyncClassNames array,
+            * the process will be done on the new thread.
+            */
+            val thread = Thread {
+                if (className.contains("Companion")) {
+                    nClasses[i].getDeclaredMethod("run").invoke(nClasses[i].enclosingClass.getField("Companion").get(null))
+                    return@Thread
+                }
 
-                plugin.server.consoleSender.sendMessage(
-                    "${ChatColor.GRAY}[Neon] ${ChatColor.RED}Incompatible Minecraft version! Please check for the latest version of Neon plugin!"
-                )
-
-                plugin.server.consoleSender.sendMessage(
-                    "${ChatColor.GRAY}[Neon] ${ChatColor.YELLOW}Supported Minecraft version: ${ChatColor.GREEN}$supportedVersion"
-                )
-
+                nClasses[i].getDeclaredMethod("run").invoke(nClasses[i].getField("INSTANCE").get(null))
             }
+
+            thread.name = "Server thread"
+            thread.start()
+            thread.join()
+
+            plugin.server.consoleSender.sendMessage(
+                "${ChatColor.GRAY}[Neon] ${ChatColor.YELLOW}Initializing......${progress}%")
+            Thread.sleep(250)
         }
+
+        plugin.server.consoleSender.sendMessage("${ChatColor.GRAY}[Neon] ${ChatColor.GREEN}Initialization complete!")
+        sendIntro()
     }
 
-    fun getVersion(): String {
-        return version
-    }
+    fun getVersion(): String = version
+
+    fun getRawVersion(): String = rawVersion
 
     /***
      * Register event processor. This is used when the server is starting up and only if the particular feature is enabled.
