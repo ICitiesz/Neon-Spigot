@@ -2,9 +2,9 @@ package com.islandstudio.neon.stable.primary.nProfile
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.islandstudio.neon.stable.core.io.nFolder.FolderList
+import com.islandstudio.neon.stable.core.io.nFolder.NFolder
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
-import com.islandstudio.neon.stable.primary.nFolder.FolderList
-import com.islandstudio.neon.stable.primary.nFolder.NFolder
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

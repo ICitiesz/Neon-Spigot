@@ -1,8 +1,7 @@
 package com.islandstudio.neon.experimental.nFireworks
 
-import com.islandstudio.neon.stable.utils.NPacketProcessor
+import com.islandstudio.neon.stable.core.network.NPacketProcessor
 import org.bukkit.World
-import org.bukkit.entity.Firework
 import org.bukkit.scheduler.BukkitRunnable
 
 class DisplayPixel(private val pixel: Pixel, private val world: World) : BukkitRunnable() {
