@@ -1,10 +1,10 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
+import com.islandstudio.neon.stable.core.io.nFolder.FolderList
+import com.islandstudio.neon.stable.core.io.nFolder.NFolder
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
-import com.islandstudio.neon.stable.primary.nFolder.FolderList
-import com.islandstudio.neon.stable.primary.nFolder.NFolder
 import com.islandstudio.neon.stable.utils.DataSessionState
 import com.islandstudio.neon.stable.utils.ObjectSerializer
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
