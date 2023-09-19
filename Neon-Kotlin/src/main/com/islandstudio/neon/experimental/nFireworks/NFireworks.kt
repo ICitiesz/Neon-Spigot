@@ -1,12 +1,12 @@
 package com.islandstudio.neon.experimental.nFireworks
 
+//import com.mojang.math.Vector3f
+import com.islandstudio.neon.stable.core.io.nFolder.FolderList
+import com.islandstudio.neon.stable.core.network.NPacketProcessor
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
-import com.islandstudio.neon.stable.primary.nFolder.FolderList
 import com.islandstudio.neon.stable.utils.NeonKey
-import com.islandstudio.neon.stable.utils.NPacketProcessor
-import com.mojang.math.Vector3f
 import kotlinx.coroutines.*
 import net.minecraft.core.particles.DustParticleOptions
 import org.bukkit.*
@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.FireworkMeta
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.scheduler.BukkitRunnable
+import org.joml.Vector3f
 import java.io.BufferedReader
 import java.io.File
 import javax.imageio.ImageIO
@@ -205,7 +206,8 @@ object NFireworks {
 
                         val imgColorX = imgColorY[imgIndexX]
 
-                        val particleData = DustParticleOptions(Vector3f((imgColorX.red.toFloat()) / 255,
+                        val particleData = DustParticleOptions(
+                            Vector3f((imgColorX.red.toFloat()) / 255,
                             (imgColorX.green.toFloat()) / 255, (imgColorX.blue.toFloat()) / 255), particleSize)
 
                         NPacketProcessor.getNWorld(firework.world).sendParticles(null, particleData,
