@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core
+package com.islandstudio.neon.stable.core.recipe
 
 import org.bukkit.Material
 
@@ -277,7 +277,8 @@ enum class NMaterial(val bukkitMaterial: Material?) {
     STRIPPED_MANGROVE_LOG(Material.getMaterial("STRIPPED_MANGROVE_LOG")),
     STRIPPED_CHERRY_LOG(Material.getMaterial("STRIPPED_CHERRY_LOG")),
 
-    DUMMY1(Material.getMaterial("DUMMY1")),
-    DUMMY2(Material.getMaterial("DUMMY2")),
-    DUMMY3(Material.getMaterial("DUMMY3"));
+    /* Uncategorize */
+    BUNDLE(Material.getMaterial("BUNDLE")),
+    STRING(Material.getMaterial("STRING")),
+    RABBIT_HIDE(Material.getMaterial("RABBIT_HIDE"));
 }
