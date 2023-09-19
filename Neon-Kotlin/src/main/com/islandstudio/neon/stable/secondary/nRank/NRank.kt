@@ -2,14 +2,14 @@ package com.islandstudio.neon.stable.secondary.nRank
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
+import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nProfile.NProfile
 import com.islandstudio.neon.stable.primary.nProfile.PlayerProfile
-import com.islandstudio.neon.stable.utils.NPacketProcessor
-import net.minecraft.network.chat.ChatType
-import net.minecraft.network.chat.Component
-import net.minecraft.network.protocol.game.ClientboundChatPacket
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin.getPlugin
 import org.bukkit.scoreboard.Scoreboard
@@ -20,13 +20,17 @@ object NRank {
     private val plugin: Plugin = getPlugin(Neon::class.java)
     private val scoreboard: Scoreboard = plugin.server.scoreboardManager!!.newScoreboard
 
-    /**
-     * Initializes the nRank.
-     */
-    fun run() {
-        for (ranks in RankList.values()) {
-            val team: Team = scoreboard.registerNewTeam(ranks.name)
-            team.prefix = ranks.tagPrefix
+    object Handler {
+        /**
+         * Initializes the nRank.
+         */
+        fun run() {
+            for (ranks in RankList.values()) {
+                val team: Team = scoreboard.registerNewTeam(ranks.name)
+                team.prefix = ranks.tagPrefix
+            }
+
+            NConstructor.registerEventProcessor(EventProcessor())
         }
     }
 
@@ -42,24 +46,6 @@ object NRank {
 
             scoreboard.getTeam(playerRank.uppercase())!!.addEntry(target.name)
             target.scoreboard = scoreboard
-        }
-    }
-
-    /**
-     * Add rank prefix in front of their name in the chat.
-     *
-     * @param player The player who sent the message. (Player)
-     * @param message The message was sent. (String)
-     *
-     * @return The message with the rank prefix in front of the player's name. (String)
-     */
-    fun sendMessage(player: Player, message: String) {
-        val rank: String = NProfile.Handler.getProfileData(player)["Rank"] as String
-
-        if (RankList.values().none { rank.equals(it.name, true) }) return
-
-        plugin.server.onlinePlayers.parallelStream().forEach { onlinePlayers ->
-            processMessage(RankList.valueOf(rank.uppercase()).tagPrefix, player.name, message, onlinePlayers)
         }
     }
 
@@ -210,23 +196,6 @@ object NRank {
     }
 
     /**
-     * Process message with rank prefix in front of player name.
-     *
-     * @param rank The rank name. (String)
-     * @param message The message to process. (String)
-     * @param onlinePlayers The online players. (Player)
-     */
-    private fun processMessage(rank: String, playerName: String, message: String, onlinePlayers: Player) {
-        val messagePacket = ClientboundChatPacket(
-            Component.Serializer.fromJson("{\"text\":\"$rank${ChatColor.WHITE}$playerName${ChatColor.GRAY} > ${ChatColor.WHITE}${messageFilter(message)}\"}"),
-            ChatType.CHAT,
-            onlinePlayers.uniqueId
-        )
-
-        NPacketProcessor.sendGamePacket(onlinePlayers, messagePacket)
-    }
-
-    /**
      * Filter out some characters in the message to avoid parsing error.
      *
      * @param message The message to filter. (String)
@@ -258,5 +227,19 @@ object NRank {
         }
 
         return tempMessage
+    }
+
+    private class EventProcessor: Listener {
+        @EventHandler
+        private fun onPlayerChat(e: AsyncPlayerChatEvent) {
+            val player = e.player
+
+            val rank: String = NProfile.Handler.getProfileData(player)["Rank"] as String
+
+            if (RankList.values().none { rank.equals(it.name, true) }) return
+
+            e.format = "${RankList.valueOf(rank.uppercase()).tagPrefix}${ChatColor.WHITE}${player.name}" +
+                    "${ChatColor.GRAY} > ${ChatColor.WHITE}%2\$s"
+        }
     }
 }
