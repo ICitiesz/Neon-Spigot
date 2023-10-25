@@ -129,6 +129,8 @@ object NBundle: RecipeRegistry {
             val inventoryView: InventoryView = (nPlayer.javaClass.getField(playerContainerNMS).get(nPlayer)
                     as AbstractContainerMenu).bukkitView
 
+            if (rawSlotIndex >= inventoryView.countSlots()) return
+
             /* Get and check the inventory type. */
             inventoryView.getInventory(it)?.let { inventory ->
                 if (inventory.type != InventoryType.PLAYER) return
