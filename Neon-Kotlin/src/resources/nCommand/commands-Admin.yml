@@ -55,7 +55,7 @@ debug:
 durability:
   withPrefix: '/neon durability'
   usages:
-    - syntax: '/neon durability removeDamageProperty'
+    - syntax: '/neon durability removeDamageProperty <isForceRemoval>'
       description: 'Remove damage property for item in main hand that set by nDurable.'
-    - syntax: '/neon durability removeDamageProperty <playerName>'
+    - syntax: '/neon durability removeDamageProperty <isForceRemoval> <playerName>'
       description: 'Remove damage property for item in target player inventory that set by nDurable.'

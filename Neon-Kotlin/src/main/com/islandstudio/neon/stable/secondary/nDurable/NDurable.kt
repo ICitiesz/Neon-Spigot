@@ -6,6 +6,7 @@ import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
+import com.islandstudio.neon.stable.primary.nServerFeatures.OptionValueValidation
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
 import com.islandstudio.neon.stable.utils.NeonKey
 import com.islandstudio.neon.stable.utils.ObjectSerializer
@@ -92,17 +93,17 @@ object NDurable {
             }
 
             var damagePropertyContainer: HashMap<String, Any> = hashMapOf(NeonKey.getNeonKeyNameWithNamespace(
-                NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE) to finalItemDamage)
+                NeonKey.fromProperty("nDurable.property.damage.key")) to finalItemDamage)
 
-            if (NeonKey.hasNeonKey(NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItemMeta)) {
+            if (NeonKey.hasNeonKey(NeonKey.fromProperty("nDurable.property.header.key"), PersistentDataType.STRING, damageableItemMeta)) {
                 damagePropertyContainer = getDamageProperty(damageableItemMeta)
 
-                damagePropertyContainer[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] = finalItemDamage
+                damagePropertyContainer[NeonKey.getNeonKeyNameWithNamespace(NeonKey.fromProperty("nDurable.property.damage.key"))] = finalItemDamage
             }
 
             NeonKey.updateNeonKey(
                 ObjectSerializer.serializeObjectEncoded(damagePropertyContainer),
-                NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItemMeta)
+                NeonKey.fromProperty("nDurable.property.header.key"), PersistentDataType.STRING, damageableItemMeta)
 
             itemStack.itemMeta = damageableItemMeta
 
@@ -122,8 +123,10 @@ object NDurable {
 
             /* Getting the inventory view from player that received the tool/weapon
             * from /give command or getting from creative inventory */
-            val inventoryView: InventoryView = (nPlayer.javaClass.superclass.getField(NMSRemapped.Mapping.NMS_PLAYER_CONTAINER.remapped).get(nPlayer)
+            val inventoryView: InventoryView = (nPlayer.javaClass.superclass.getField(NMSRemapped.Mapping.NMS_CONTAINER_BASE.remapped).get(nPlayer)
                     as AbstractContainerMenu).bukkitView
+
+            if (rawSlotIndex >= inventoryView.countSlots()) return
 
             /* Get and check the inventory type. */
             inventoryView.getInventory(rawSlotIndex)?.let {
@@ -190,12 +193,19 @@ object NDurable {
          *
          * @param damageableItem The tool/weapon.
          */
-        private fun removeDamageProperty(damageableItem: ItemStack) {
+        private fun removeDamageProperty(damageableItem: ItemStack, isForceRemoval: Boolean) {
             if (!isItemMatch(damageableItem)) return
 
-            hideDamageProperty(damageableItem)
+            if (isForceRemoval) {
+                NeonKey.removeNeonKeyByNamespace(damageableItem, "durable").ifTrue {
+                    hideDamageProperty(damageableItem)
+                }
+                return
+            }
 
-            NeonKey.removeNeonKey(NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItem)
+            NeonKey.removeNeonKey(NeonKey.fromProperty("nDurable.property.header.key"), PersistentDataType.STRING, damageableItem).ifTrue {
+                hideDamageProperty(damageableItem)
+            }
         }
 
         /**
@@ -205,13 +215,13 @@ object NDurable {
          * @return The damage property.
          */
         fun getDamageProperty(damageableItemMeta: Damageable): HashMap<String, Any> {
-            if (!NeonKey.hasNeonKey(NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItemMeta)) {
+            if (!NeonKey.hasNeonKey(NeonKey.fromProperty("nDurable.property.header.key"), PersistentDataType.STRING, damageableItemMeta)) {
                 return hashMapOf()
             }
 
             @Suppress("UNCHECKED_CAST")
             return ObjectSerializer.deserializeObjectEncoded(
-                NeonKey.getNeonKeyValue(NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItemMeta) as String)
+                NeonKey.getNeonKeyValue(NeonKey.fromProperty("nDurable.property.header.key"), PersistentDataType.STRING, damageableItemMeta) as String)
                     as HashMap<String, Any>
         }
 
@@ -222,8 +232,12 @@ object NDurable {
             }
 
             when (args.size) {
-                2 -> {
-                    args[1].equals("removeDamageProperty", true).ifFalse {
+                3 -> {
+                    val isForceRemoval: Boolean = OptionValueValidation
+                        .isDataTypeValid(OptionValueValidation.DataTypes.BOOLEAN.dataType, args[2])
+                        ?.let { it as Boolean } ?: return commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
+
+                    if (!args[1].equals("removeDamageProperty", true)) {
                         commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
                         return
                     }
@@ -240,26 +254,30 @@ object NDurable {
                         return
                     }
 
-                    removeDamageProperty(damageableItem)
+                    removeDamageProperty(damageableItem, isForceRemoval)
                     commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.GREEN}Damage property for " +
                             "${ChatColor.GOLD}${getDamageableItemName(damageableItem)}${ChatColor.GREEN} has been removed!"))
                 }
 
-                3 -> {
-                    args[1].equals("removeDamageProperty", true).ifFalse {
+                4 -> {
+                    val isForceRemoval: Boolean = OptionValueValidation
+                        .isDataTypeValid(OptionValueValidation.DataTypes.BOOLEAN.dataType, args[2])
+                        ?.let { it as Boolean } ?: return commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
+
+                    if (!args[1].equals("removeDamageProperty", true)) {
                         commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
                         return
                     }
 
-                    val targetPlayerName = args[2]
+                    val targetPlayerName = args[3]
 
                     plugin.server.onlinePlayers.find { it.name == targetPlayerName }?.let {
                         it.inventory.contents.filterNotNull().filter { contentItem -> isItemMatch(contentItem) }
                             .forEach { damageableItem ->
-                                removeDamageProperty(damageableItem)
+                                removeDamageProperty(damageableItem, isForceRemoval)
                             }
-                    } ?: commander.sendMessage(CommandSyntax.createSyntaxMessage(
-                        "${ChatColor.YELLOW}No such player as ${ChatColor.GRAY}'${ChatColor.WHITE}" +
+                    } ?: return commander.sendMessage(CommandSyntax.createSyntaxMessage(
+                        "${ChatColor.RED}Can't remove damage property! No such player as ${ChatColor.GRAY}'${ChatColor.WHITE}" +
                                 "${targetPlayerName}${ChatColor.GRAY}'${ChatColor.YELLOW}!"))
 
                     commander.sendMessage(CommandSyntax.createSyntaxMessage(
@@ -283,10 +301,16 @@ object NDurable {
                 }
 
                 3 -> {
-                    if (!args[1].equals("removeDamageProperty", true)) return super.tabCompletion(commander, args)
+                    return listOf("true", "false").filter { it.startsWith(args[2], true) }.toMutableList()
+                }
+
+                4 -> {
+                    if (!args[1].equals("removeDamageProperty", true)) {
+                        return super.tabCompletion(commander, args)
+                    }
 
                     return plugin.server.onlinePlayers.parallelStream().map { targetPlayer -> targetPlayer.name }
-                        .toList().filter { it.startsWith(args[2]) }.toMutableList()
+                        .toList().filter { it.startsWith(args[3]) }.toMutableList()
                 }
             }
 
@@ -361,7 +385,7 @@ object NDurable {
 
         /* Check and get damage detail of the tool/weapon. */
         val itemDamage = damageProperty.entries.find { it.key == NeonKey.getNeonKeyNameWithNamespace(
-            NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE) }?.value ?: return
+            NeonKey.fromProperty("nDurable.property.damage.key")) }?.value ?: return
 
         val itemMaxDurability = itemStack.type.maxDurability
         val damagePropertyDisplay: MutableList<String> = if (damageableItemMeta.hasLore()) damageableItemMeta.lore!! else mutableListOf()
@@ -527,7 +551,7 @@ object NDurable {
 
         Handler.getDamageProperty(heldItemItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.fromProperty("nDurable.property.damage.key"))] as Int,
                         heldItem.type.maxDurability.toInt())
                 ) return false
             }
@@ -591,7 +615,7 @@ object NDurable {
 
         Handler.getDamageProperty(damageableItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.fromProperty("nDurable.property.damage.key"))] as Int,
                         damageableItem.type.maxDurability.toInt())
                 ) return false
             }
@@ -758,7 +782,7 @@ object NDurable {
 
         Handler.getDamageProperty(damageableItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.fromProperty("nDurable.property.damage.key"))] as Int,
                         lighter.type.maxDurability.toInt())
                 ) return false
             }
@@ -799,7 +823,7 @@ object NDurable {
 
         Handler.getDamageProperty(damageableItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.fromProperty("nDurable.property.damage.key"))] as Int,
                         damageableItem.type.maxDurability.toInt())
                 ) return false
             }
@@ -828,7 +852,7 @@ object NDurable {
 
         Handler.getDamageProperty(shearsItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.fromProperty("nDurable.property.damage.key"))] as Int,
                         shears.type.maxDurability.toInt())
                 ) return false
             }
@@ -860,7 +884,7 @@ object NDurable {
 
         Handler.getDamageProperty(bowItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.fromProperty("nDurable.property.damage.key"))] as Int,
                         bow.type.maxDurability.toInt())
                 ) return false
             }
@@ -961,7 +985,7 @@ object NDurable {
 
         Handler.getDamageProperty(damageableItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.fromProperty("nDurable.property.damage.key"))] as Int,
                         damageableItem.type.maxDurability.toInt())
                 ) return false
             }
