@@ -28,28 +28,57 @@ object NeonKey {
         }
     }
 
-    fun hasNeonKey(neonKey: NamespaceKeys, keyDataType: PersistentDataType<*, *>, itemMeta: ItemMeta): Boolean {
-        return itemMeta.persistentDataContainer.has(neonKey.key, keyDataType)
+    fun hasNeonKey(neonKey: NamespacedKey, keyDataType: PersistentDataType<*, *>, itemMeta: ItemMeta): Boolean {
+        return itemMeta.persistentDataContainer.has(neonKey, keyDataType)
     }
 
-    fun <Z: Any> addNeonKey(value: Z, namespaceKey: NamespaceKeys, keyDataType: PersistentDataType<*, Z>, itemMeta: ItemMeta, doUpdate: Boolean = false) {
+    fun <Z: Any> addNeonKey(value: Z, namespaceKey: NamespacedKey, keyDataType: PersistentDataType<*, Z>, itemMeta: ItemMeta, doUpdate: Boolean = false) {
         if ((hasNeonKey(namespaceKey, keyDataType, itemMeta) && !doUpdate)) return
 
-        itemMeta.persistentDataContainer[namespaceKey.key, keyDataType] = value
+        itemMeta.persistentDataContainer[namespaceKey, keyDataType] = value
     }
 
-    fun <Z: Any> updateNeonKey(value: Z, namespaceKey: NamespaceKeys, keyDataType: PersistentDataType<*, Z>, itemMeta: ItemMeta) {
+    fun <Z: Any> updateNeonKey(value: Z, namespaceKey: NamespacedKey, keyDataType: PersistentDataType<*, Z>, itemMeta: ItemMeta) {
         addNeonKey(value, namespaceKey, keyDataType, itemMeta, true)
     }
 
-    fun removeNeonKey(neonKey: NamespaceKeys, keyDataType: PersistentDataType<*, *>, itemStack: ItemStack) {
-        val itemMeta = itemStack.itemMeta ?: return
+    fun removeNeonKey(neonKey: NamespacedKey, keyDataType: PersistentDataType<*, *>, itemStack: ItemStack): Boolean {
+        val itemMeta = itemStack.itemMeta ?: return false
 
-        if (!hasNeonKey(neonKey, keyDataType, itemMeta)) return
+        if (!hasNeonKey(neonKey, keyDataType, itemMeta)) return false
 
-        itemMeta.persistentDataContainer.remove(neonKey.key)
+        itemMeta.persistentDataContainer.remove(neonKey)
+        itemStack.itemMeta = itemMeta
+        return true
+    }
+
+    /**
+     * Remove Neon Key by namespace and containsKeyword if available.
+     *
+     * @param itemStack The target item.
+     * @param containsKeyword The containsKeyword if available.
+     * @return
+     */
+    fun removeNeonKeyByNamespace(itemStack: ItemStack, containsKeyword: String? = null): Boolean {
+        val itemMeta = itemStack.itemMeta ?: return false
+        var dataContainerKeys = itemMeta.persistentDataContainer.keys
+
+        dataContainerKeys = dataContainerKeys.filter { it.namespace.equals("Neon", true) }.toMutableSet()
+
+        if (containsKeyword != null) {
+            dataContainerKeys = dataContainerKeys.filter { it.key.contains(containsKeyword, true) }.toMutableSet()
+        }
+
+        if (dataContainerKeys.isEmpty()) return false
+
+        itemMeta.persistentDataContainer.keys.forEach {
+            if (!dataContainerKeys.contains(it)) return@forEach
+
+            itemMeta.persistentDataContainer.remove(it)
+        }
 
         itemStack.itemMeta = itemMeta
+        return true
     }
 
     /**
@@ -57,19 +86,25 @@ object NeonKey {
      *
      * @param neonKey The Neon key
      * @param persistentDataType The Neon key's dataType
-     * @param itemMeta
+     * @param itemMeta The item meta from the target item.
      * @return
      */
-    fun getNeonKeyValue(neonKey: NamespaceKeys, persistentDataType: PersistentDataType<*, *>, itemMeta: ItemMeta): Any? {
+    fun getNeonKeyValue(neonKey: NamespacedKey, persistentDataType: PersistentDataType<*, *>, itemMeta: ItemMeta): Any? {
         if (!hasNeonKey(neonKey, persistentDataType, itemMeta)) return null
 
-        return itemMeta.persistentDataContainer.get(neonKey.key, persistentDataType)
+        return itemMeta.persistentDataContainer.get(neonKey, persistentDataType)
     }
 
-    fun getNeonKeyNameWithNamespace(neonKey: NamespaceKeys): String {
-        return "${neonKey.key.namespace}:${neonKey.key.key}"
+    fun getNeonKeyNameWithNamespace(neonKey: NamespacedKey): String {
+        return "${neonKey.namespace}:${neonKey.key}"
     }
 
+    /**
+     * Get neon key from the NeonKeys.properties file.
+     *
+     * @param keyName
+     * @return
+     */
     fun fromProperty(keyName: String): NamespacedKey {
         return NamespacedKey(NConstructor.plugin, neonKeyProperties.getProperty(keyName))
     }
