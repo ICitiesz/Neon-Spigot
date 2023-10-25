@@ -12,7 +12,7 @@ open class Commands {
         SERVERFEATURES("serverfeatures"),
         EFFECT("effect"),
         MOD("mod"),
-        //NFIREWORKS("fireworks"),
+        NFIREWORKS("fireworks"),
         DURABILITY("durability")
     }
 

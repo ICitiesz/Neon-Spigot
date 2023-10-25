@@ -1,6 +1,7 @@
 package com.islandstudio.neon.stable.primary.nCommand
 
 import com.islandstudio.neon.experimental.nEffect.NEffect
+import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.stable.primary.nCommand.nCommandList.NCommandList
 import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
@@ -71,10 +72,10 @@ class NCommand: Commands(), Listener, TabExecutor {
                 return true
             }
 
-//            CommandAlias.NFIREWORKS.aliasName -> {
-//                NFireworks.Handler.setCommandHandler(commander, args)
-//                return true
-//            }
+            CommandAlias.NFIREWORKS.aliasName -> {
+                NFireworks.Handler.setCommandHandler(commander, args)
+                return true
+            }
 
             CommandAlias.DEBUG.aliasName -> {
                 if (!commander.isOp) {
@@ -249,9 +250,10 @@ class NCommand: Commands(), Listener, TabExecutor {
                 return NServerFeatures.Handler.tabCompletion(commander, args)
             }
 
-//            CommandAlias.NFIREWORKS.aliasName -> {
-//                return NFireworks.Handler.tabCompletion(commander, args)
-//            }
+            CommandAlias.NFIREWORKS.aliasName -> {
+                return mutableListOf()
+                //return NFireworks.Handler.tabCompletion(commander, args)
+            }
 
             CommandAlias.DURABILITY.aliasName -> {
                 return NDurable.Handler.tabCompletion(commander, args)

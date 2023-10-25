@@ -65,5 +65,7 @@ nFireworks:
   isExperimental: true
   description: 'Create custom firework pattern by using imported images.'
   isEnabled: false
-  command: ''
-  options: {}
+  command: '/neon fireworks'
+  options:
+    particleSize: 1.0
+    particleSpeed: 1.0

@@ -1,5 +1,6 @@
 package com.islandstudio.neon.stable.primary.nConstructor
 
+import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPVP.NPVP
 import com.islandstudio.neon.stable.core.io.nFolder.NFolder
 import com.islandstudio.neon.stable.primary.nCommand.NCommand
@@ -34,7 +35,7 @@ object NClassProperties {
         N_CUTTER_HANDLER(NCutter.Handler::class.java),
         N_SMELTER_HANDLER(NSmelter.Handler::class.java),
         N_BUNDLE_HANDLER(NBundle.Handler::class.java),
-        //N_FIREWORKS(NFireworks.Handler::class.java)
+        N_FIREWORKS(NFireworks.Handler::class.java)
     }
 
     enum class NotAsyncClassNames(val nClassName: String) {
