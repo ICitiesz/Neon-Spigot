@@ -25,6 +25,11 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+
+        <repository>
+            <id>destroystokyo-repo</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -72,13 +77,13 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.19.4-R0.1-SNAPSHOT</version>
-            <classifier>remapped-mojang</classifier>
-            <scope>provided</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.spigotmc</groupId>-->
+<!--            <artifactId>spigot</artifactId>-->
+<!--            <version>1.19.4-R0.1-SNAPSHOT</version>-->
+<!--            <classifier>remapped-mojang</classifier>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.spigotmc</groupId>
