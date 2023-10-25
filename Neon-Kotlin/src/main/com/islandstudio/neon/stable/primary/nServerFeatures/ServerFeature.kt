@@ -19,10 +19,11 @@ class ServerFeature {
         N_HARVEST("nHarvest"),
         N_SMELTER("nSmelter"),
         N_PVP("nPVP"),
+        N_DURABLE("nDurable"),
+        N_BUNDLE("nBundle"),
 
         /* Experimental */
-        N_DURABLE("nDurable"),
-        N_BUNDLE("nBundle")
+        N_FIREWORKS("nFireworks")
     }
 
     data class SerializableFeature(@Transient private val serverFeatureData: Map.Entry<String, Any>): Serializable {
