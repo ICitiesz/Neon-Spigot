@@ -15,7 +15,7 @@ import java.lang.reflect.Field
 object NConstructor {
     val plugin: Plugin = getPlugin(Neon::class.java)
 
-    private const val NEON_VERSION: String = "|-------------== Neon v1.10.1-pre_1 ==--------------|"
+    private const val NEON_VERSION: String = "|--------------== Neon v1.10.1-rc_1 ==--------------|"
     private val rawVersion: String = plugin.server.bukkitVersion.split("-")[0]
     private val version: String = rawVersion.split(".")[0] + "." + rawVersion.split(".")[1]
 
