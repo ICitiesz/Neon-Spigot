@@ -15,21 +15,20 @@ import java.lang.reflect.Field
 object NConstructor {
     val plugin: Plugin = getPlugin(Neon::class.java)
 
-    private const val NEON_VERSION: String = "|--------------== Neon v1.10.1-rc_1 ==--------------|"
+    private const val NEON_VERSION: String = "|--------------== Neon v1.10.1-rc_2 ==--------------|"
     private val rawVersion: String = plugin.server.bukkitVersion.split("-")[0]
     private val version: String = rawVersion.split(".")[0] + "." + rawVersion.split(".")[1]
 
     private val supportedVersion = listOf("1.17", "1.18", "1.19", "1.20")
+    private val supportedLatestVersions = listOf("1.20", "1.20.1", "1.20.2")
 
     fun constructPlugin() {
         version.run {
             if (this in supportedVersion) {
-                if ((rawVersion == "1.20" || rawVersion == "1.20.1")) return@run
-
-                return@run
+                if (rawVersion in supportedLatestVersions) return@run
             }
 
-            val supportedVersionRange = "1.17.X ~ 1.20.1"
+            val supportedVersionRange = "1.17.X ~ 1.20.2"
 
             plugin.server.consoleSender.sendMessage(
                 "${ChatColor.GRAY}[Neon] ${ChatColor.RED}Incompatible Minecraft version! Please check for the latest version of Neon plugin!"
