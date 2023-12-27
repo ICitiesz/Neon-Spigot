@@ -1,22 +1,22 @@
 package com.islandstudio.neon.stable.core.network
 
+import com.islandstudio.neon.stable.core.init.NConstructor
 import com.islandstudio.neon.stable.primary.nCommand.nCommandList.NCommandList
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.secondary.nBundle.NBundle
 import com.islandstudio.neon.stable.secondary.nDurable.NDurable
 import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
+import com.islandstudio.neon.stable.utils.reflection.NReflector
 import io.netty.channel.Channel
 import io.netty.channel.ChannelDuplexHandler
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelPromise
-import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.ItemStack
 import org.bukkit.World
 import org.bukkit.entity.Player
-import java.lang.reflect.Field
 
 object NPacketProcessor {
     private val plugin = NConstructor.plugin
@@ -43,12 +43,16 @@ object NPacketProcessor {
      * @param player The target player to send.
      * @param gamePacket The game packet
      */
-    fun sendGamePacket(player: Player, gamePacket: Packet<*>) {
+    fun sendGamePacket(player: Player, gamePacket: Any) {
         val nPlayer = getNPlayer(player)
 
         val playerConnection = nPlayer.javaClass.getField(NMSRemapped.Mapping.NMS_PLAYER_CONNECTION.remapped).get(nPlayer)
 
-        playerConnection.javaClass.getMethod(NMSRemapped.Mapping.NMS_SEND_PACKET.remapped, Packet::class.java).invoke(playerConnection, gamePacket)
+        val nmsPacketClass = NReflector.getNamespaceClass("network.protocol.${NMSRemapped.Mapping.NMS_PACKET.remapped}")
+
+        NReflector.getNamespaceClass("server.network.ServerCommonPacketListenerImpl")?.let {
+            playerConnection.javaClass.superclass.getMethod(NMSRemapped.Mapping.NMS_SEND_PACKET.remapped, nmsPacketClass).invoke(playerConnection, gamePacket)
+        } ?: playerConnection.javaClass.getMethod(NMSRemapped.Mapping.NMS_SEND_PACKET.remapped, nmsPacketClass).invoke(playerConnection, gamePacket)
     }
 
     /**
@@ -62,7 +66,10 @@ object NPacketProcessor {
             override fun channelRead(ctx: ChannelHandlerContext?, gamePacket: Any?) {
                 when (gamePacket) {
                     is ServerboundContainerButtonClickPacket -> {
-                        NCommandList.navigateCommandUI(gamePacket.buttonId, nPlayer)
+                        val nmsButtonID = gamePacket::class.java.getDeclaredField(NMSRemapped.Mapping.NMS_BUTTON_ID.remapped)
+                        nmsButtonID.isAccessible = true
+
+                        NCommandList.navigateCommandUI(nmsButtonID.getInt(gamePacket), nPlayer)
                     }
                 }
 
@@ -75,8 +82,11 @@ object NPacketProcessor {
                         val bukkitPlayer = nPlayer.javaClass.getMethod(NMSRemapped.Mapping.NMS_GET_BUKKIT_ENTITY.remapped)
                             .invoke(nPlayer) as Player
 
-                        NDurable.Handler.applyDamagePropertyOnGive(nPlayer, gamePacket.slot)
-                        NBundle.discoverBundleRecipe(bukkitPlayer, gamePacket.slot)
+                        val baseItemStack = gamePacket.javaClass.getMethod(NMSRemapped.Mapping.NMS_GET_SET_SLOT_ITEM_STACK.remapped)
+                            .invoke(gamePacket)
+
+                        NDurable.Handler.applyDamagePropertyOnGive(baseItemStack as ItemStack)
+                        NBundle.discoverBundleRecipe(bukkitPlayer, baseItemStack)
                     }
                 }
 
@@ -135,7 +145,10 @@ object NPacketProcessor {
 
         val playerConnection = nPlayer.javaClass.getField(NMSRemapped.Mapping.NMS_PLAYER_CONNECTION.remapped).get(nPlayer)
 
-        val networkManagerField: Field = playerConnection.javaClass.getDeclaredField(NMSRemapped.Mapping.NMS_NETWORK_MANAGER.remapped)
+        val networkManagerField = NReflector.getNamespaceClass("server.network.ServerCommonPacketListenerImpl")?.let {
+            playerConnection.javaClass.superclass.getDeclaredField(NMSRemapped.Mapping.NMS_NETWORK_MANAGER.remapped)
+        } ?: playerConnection.javaClass.getDeclaredField(NMSRemapped.Mapping.NMS_NETWORK_MANAGER.remapped)
+
         networkManagerField.isAccessible = true
 
         val networkManager = networkManagerField.get(playerConnection)
