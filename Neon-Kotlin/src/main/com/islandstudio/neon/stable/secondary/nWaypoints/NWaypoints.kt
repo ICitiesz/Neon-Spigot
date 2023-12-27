@@ -3,13 +3,13 @@ package com.islandstudio.neon.stable.secondary.nWaypoints
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.core.init.NConstructor
 import com.islandstudio.neon.stable.core.io.nFolder.FolderList
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
 import com.islandstudio.neon.stable.utils.NItemHighlight
-import com.islandstudio.neon.stable.utils.NeonKey
+import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import org.bukkit.*
@@ -585,7 +585,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
 
             val currentItem: ItemStack = e.currentItem!!
             val currentItemMeta: ItemMeta = currentItem.itemMeta!!
-            val nItemHighlight = NItemHighlight(NeonKey.NamespaceKeys.NEON_BUTTON_HIGHLIGHT.key)
+            val nItemHighlight = NItemHighlight(NeonKeyGeneral.NGUI_HIGHTLIGHT_BUTTON.key)
             val persistentDataContainer: PersistentDataContainer = currentItemMeta.persistentDataContainer
 
             when (currentItem.type) {

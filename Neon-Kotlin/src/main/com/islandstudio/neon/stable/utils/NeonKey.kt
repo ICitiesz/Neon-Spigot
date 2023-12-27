@@ -1,55 +1,113 @@
 package com.islandstudio.neon.stable.utils
 
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
+import com.islandstudio.neon.stable.core.init.NConstructor
 import org.bukkit.NamespacedKey
+import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 import org.jetbrains.kotlin.konan.properties.Properties
 
 object NeonKey {
-    enum class NamespaceKeys(val key: NamespacedKey) {
-        NEON_BUTTON(NamespacedKey(NConstructor.plugin, "neon_button")),
-        NEON_BUTTON_HIGHLIGHT(NamespacedKey(NConstructor.plugin, "neon_button_highlight")),
-        NEON_BUNDLE(NamespacedKey(NConstructor.plugin, "neon_bundle")),
-        NEON_FIREWORK(NamespacedKey(NConstructor.plugin, "neon_firework")),
-        NEON_ID_FIELD(NamespacedKey(NConstructor.plugin, "neon_id")),
-
-        /* nDurable Properties */
-        NEON_N_DURABLE(NamespacedKey(NConstructor.plugin, "neon_n_durable")),
-        NEON_N_DURABLE_DAMAGE(NamespacedKey(NConstructor.plugin, "neon_n_durable_damage")),
+    enum class NeonKeyType {
+        GENERAL,
+        RECIPE
     }
 
-    private val neonKeyProperties: Properties = Properties()
+    val neonKeyGeneralProperties: Properties = Properties()
+    val neonKeyRecipeProperties: Properties = Properties()
 
     object Handler {
         fun run() {
-            neonKeyProperties.load(this.javaClass.classLoader.getResourceAsStream("resources/NeonKeys.properties"))
+            neonKeyGeneralProperties.load(this.javaClass.classLoader.getResourceAsStream("resources/NeonKeyProperties/NeonKeys-General.properties"))
+            neonKeyRecipeProperties.load(this.javaClass.classLoader.getResourceAsStream("resources/NeonKeyProperties/NeonKeys-Recipes.properties"))
         }
     }
 
-    fun hasNeonKey(neonKey: NamespacedKey, keyDataType: PersistentDataType<*, *>, itemMeta: ItemMeta): Boolean {
-        return itemMeta.persistentDataContainer.has(neonKey, keyDataType)
+    fun hasNeonKey(neonKey: NamespacedKey, keyDataType: PersistentDataType<*, *>, target: Any): Boolean {
+        return when (target) {
+            is ItemMeta -> {
+                target.persistentDataContainer.has(neonKey, keyDataType)
+            }
+
+            is Entity -> {
+                target.persistentDataContainer.has(neonKey, keyDataType)
+            }
+
+            else -> {
+                false
+            }
+        }
     }
 
-    fun <Z: Any> addNeonKey(value: Z, namespaceKey: NamespacedKey, keyDataType: PersistentDataType<*, Z>, itemMeta: ItemMeta, doUpdate: Boolean = false) {
-        if ((hasNeonKey(namespaceKey, keyDataType, itemMeta) && !doUpdate)) return
+    /**
+     * Add neon key to specific target (item meta/entity)
+     *
+     * @param Z The datatype based on value
+     * @param value The value
+     * @param neonKey The neonkey to identify the value.
+     * @param keyDataType  The datatype for the value.
+     * @param target The target to add: item meta /entity.
+     * @param doUpdate Is it the operation is update the key value.
+     */
+    fun <Z: Any> addNeonKey(value: Z, neonKey: NamespacedKey, keyDataType: PersistentDataType<*, Z>, target: Any, doUpdate: Boolean = false) {
+        when (target) {
+            is ItemMeta -> {
+                if ((hasNeonKey(neonKey, keyDataType, target) && !doUpdate)) return
 
-        itemMeta.persistentDataContainer[namespaceKey, keyDataType] = value
+                target.persistentDataContainer[neonKey, keyDataType] = value
+                return
+            }
+
+            is Entity -> {
+                if ((hasNeonKey(neonKey, keyDataType, target) && !doUpdate)) return
+
+                target.persistentDataContainer[neonKey, keyDataType] = value
+                return
+            }
+
+            else -> {
+                return
+            }
+        }
     }
 
-    fun <Z: Any> updateNeonKey(value: Z, namespaceKey: NamespacedKey, keyDataType: PersistentDataType<*, Z>, itemMeta: ItemMeta) {
-        addNeonKey(value, namespaceKey, keyDataType, itemMeta, true)
+    fun <Z: Any> updateNeonKey(value: Z, neonKey: NamespacedKey, keyDataType: PersistentDataType<*, Z>, target: Any) {
+        addNeonKey(value, neonKey, keyDataType, target, true)
     }
 
-    fun removeNeonKey(neonKey: NamespacedKey, keyDataType: PersistentDataType<*, *>, itemStack: ItemStack): Boolean {
-        val itemMeta = itemStack.itemMeta ?: return false
+    /**
+     * Remove neon key from the specific target (ItemStack/Entity)
+     *
+     * @param neonKey The neonkey used to identify value
+     * @param keyDataType The value datatype
+     * @param target The target (ItemStack/Entity)
+     * @return True if the removal success, else false
+     */
+    fun removeNeonKey(neonKey: NamespacedKey, keyDataType: PersistentDataType<*, *>, target: Any): Boolean {
+        when (target) {
+            is ItemStack -> {
+                val itemMeta = target.itemMeta ?: return false
 
-        if (!hasNeonKey(neonKey, keyDataType, itemMeta)) return false
+                if (!hasNeonKey(neonKey, keyDataType, itemMeta)) return false
 
-        itemMeta.persistentDataContainer.remove(neonKey)
-        itemStack.itemMeta = itemMeta
-        return true
+                itemMeta.persistentDataContainer.remove(neonKey)
+                target.itemMeta = itemMeta
+                return true
+            }
+
+            is Entity -> {
+                if (!hasNeonKey(neonKey, keyDataType, target)) return false
+
+                target.persistentDataContainer.remove(neonKey)
+
+                return true
+            }
+
+            else -> {
+                return false
+            }
+        }
     }
 
     /**
@@ -86,13 +144,27 @@ object NeonKey {
      *
      * @param neonKey The Neon key
      * @param persistentDataType The Neon key's dataType
-     * @param itemMeta The item meta from the target item.
+     * @param target The item meta from the target item.
      * @return
      */
-    fun getNeonKeyValue(neonKey: NamespacedKey, persistentDataType: PersistentDataType<*, *>, itemMeta: ItemMeta): Any? {
-        if (!hasNeonKey(neonKey, persistentDataType, itemMeta)) return null
+    fun getNeonKeyValue(neonKey: NamespacedKey, persistentDataType: PersistentDataType<*, *>, target: Any): Any? {
+        when (target) {
+            is ItemMeta -> {
+                if (!hasNeonKey(neonKey, persistentDataType, target)) return null
 
-        return itemMeta.persistentDataContainer.get(neonKey, persistentDataType)
+                return target.persistentDataContainer.get(neonKey, persistentDataType)
+            }
+
+            is Entity -> {
+                if (!hasNeonKey(neonKey, persistentDataType, target)) return null
+
+                return target.persistentDataContainer.get(neonKey, persistentDataType)
+            }
+
+            else -> {
+                return null
+            }
+        }
     }
 
     fun getNeonKeyNameWithNamespace(neonKey: NamespacedKey): String {
@@ -100,12 +172,21 @@ object NeonKey {
     }
 
     /**
-     * Get neon key from the NeonKeys.properties file.
+     * Get neon key from the properties file based on Neon key type.
      *
-     * @param keyName
-     * @return
+     * @param keyName The key name
+     * @param neonKeyType The Neon key type
+     * @return A namespace key
      */
-    fun fromProperty(keyName: String): NamespacedKey {
-        return NamespacedKey(NConstructor.plugin, neonKeyProperties.getProperty(keyName))
+    fun fromProperty(keyName: String, neonKeyType: NeonKeyType): NamespacedKey {
+        return when (neonKeyType) {
+            NeonKeyType.GENERAL -> {
+                NamespacedKey(NConstructor.plugin, neonKeyGeneralProperties.getProperty(keyName))
+            }
+
+            NeonKeyType.RECIPE -> {
+                NamespacedKey(NConstructor.plugin, neonKeyRecipeProperties.getProperty(keyName))
+            }
+        }
     }
 }
