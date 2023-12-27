@@ -59,3 +59,17 @@ durability:
       description: 'Remove damage property for item in main hand that set by nDurable.'
     - syntax: '/neon durability removeDamageProperty <isForceRemoval> <playerName>'
       description: 'Remove damage property for item in target player inventory that set by nDurable.'
+
+fireworks:
+  withPrefix: '/neon fireworks'
+  usages:
+    - syntax: '/neon fireworks'
+      description: 'Used to open nFireworks GUI.'
+
+painting:
+  withPrefix: '/neon painting'
+  usages:
+    - syntax: '/neon painting create <imageFileName.jpg>'
+      description: 'To create painting.'
+    - syntax: '/neon painting remove <imageFileName.jpg> <removalType> <renderId>'
+      description: 'To remove painting based on removal type. Full for full removal (displayed painting, original image, caches, metadata). Cached for displayed painting, cache and metadata removal. All_displayed for all displayed painting removal. Displayed for specific displayed painting removal based on the given renderId.'
