@@ -23,7 +23,8 @@ class ServerFeature {
         N_BUNDLE("nBundle"),
 
         /* Experimental */
-        N_FIREWORKS("nFireworks")
+        N_FIREWORKS("nFireworks"),
+        N_PAINTING("nPainting")
     }
 
     data class SerializableFeature(@Transient private val serverFeatureData: Map.Entry<String, Any>): Serializable {
