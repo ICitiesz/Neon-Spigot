@@ -2,8 +2,9 @@ package com.islandstudio.neon.stable.primary.nCommand
 
 import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
+import com.islandstudio.neon.experimental.nPainting.NPainting
+import com.islandstudio.neon.stable.core.init.NConstructor
 import com.islandstudio.neon.stable.primary.nCommand.nCommandList.NCommandList
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.secondary.nDurable.NDurable
 import com.islandstudio.neon.stable.secondary.nRank.NRank
@@ -77,13 +78,37 @@ class NCommand: Commands(), Listener, TabExecutor {
                 return true
             }
 
+            CommandAlias.NPAINTING.aliasName -> {
+                NPainting.Handler.setCommandHandler(commander, args)
+                return true
+            }
+
             CommandAlias.DEBUG.aliasName -> {
                 if (!commander.isOp) {
                     commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
                     return true
                 }
 
+//                val testData = CustomFirework.RowContainer(0)
+//                testData.pixelFrameX.add(CustomFirework.Pixel(Color.GREEN, commander.location))
+//
+//                val serialized = ObjectSerializer.serializeBukkitObjectEncoded(testData)
+//
+//                println("Serialized: ${serialized}")
+//                println("Serialized: ${ObjectSerializer.serializeBukkitObjectEncoded(Pixel(Color.GREEN, commander.location))}")
+
+//                val testData = commander.inventory.itemInMainHand.itemMeta!!
+//                    .persistentDataContainer.get(NeonKey.fromProperty("nFireworks.property.header.key"), PersistentDataType.STRING)
+//
+//                val deserialized = ObjectSerializer.deserializeObjectEncoded(testData!!) as FireworkProperty.FireworkEffects
+//
+//                println("Serialized: $testData")
+//                println("Deserialized: ${deserialized.imageName}")
+//                println("Deserialized: ${deserialized.fireworkPatternFacingOptions}")
+//                println("Deserialized: ${deserialized.fireworkPatternFacing}")
+
                 commander.sendMessage(CommandSyntax.createSyntaxMessage("There is nothing here :D"))
+
                 return true
             }
 
@@ -235,7 +260,8 @@ class NCommand: Commands(), Listener, TabExecutor {
 
         val commander: Player = sender
 
-        if (args.size == 1) return CommandAlias.values().sorted().map { it.aliasName }.filter { it.startsWith(args[0], true) }.toMutableList()
+        if (args.size == 1) return CommandAlias.entries.toTypedArray()
+            .sorted().map { it.aliasName }.filter { it.startsWith(args[0], true) }.toMutableList()
 
         when (args[0].lowercase()) {
             CommandAlias.RANK.aliasName -> {
@@ -257,6 +283,10 @@ class NCommand: Commands(), Listener, TabExecutor {
 
             CommandAlias.DURABILITY.aliasName -> {
                 return NDurable.Handler.tabCompletion(commander, args)
+            }
+
+            CommandAlias.NPAINTING.aliasName -> {
+                return NPainting.Handler.tabCompletion(commander, args)
             }
         }
 
