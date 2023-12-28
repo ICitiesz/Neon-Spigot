@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.utils.reflection
 
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
+import com.islandstudio.neon.stable.core.init.NConstructor
 import org.simpleyaml.configuration.MemorySection
 import org.simpleyaml.configuration.file.YamlFile
 import org.simpleyaml.utils.SupplierIO
@@ -8,6 +8,7 @@ import java.util.*
 
 object NReflector {
     private val loadedNMSMapping: EnumMap<NMSRemapped.MappingType, NMSMapping> = EnumMap(NMSRemapped.MappingType::class.java)
+
     object Handler {
         fun run() {
             loadNMSMapping()
@@ -21,7 +22,6 @@ object NReflector {
                 val nmsMapping = NMSMapping(it)
 
                 loadedNMSMapping[nmsMapping.mappingType] = nmsMapping
-
             }
         }
     }
@@ -44,10 +44,20 @@ object NReflector {
      * @param className The class name. (String)
      * @return The Minecraft namespace class. (Class)
      */
-    fun getNamespaceClass(className: String): Class<*> {
-        return Class.forName("net.minecraft.$className")
+    fun getNamespaceClass(className: String): Class<*>? {
+        return runCatching {
+            Class.forName("net.minecraft.$className")
+        }.getOrElse {
+            null
+        }
     }
 
+    /**
+     * Get craft bukkit class
+     *
+     * @param className The class name. [E.g.: inventory.CraftInventory]
+     * @return The CraftBukkit class
+     */
     fun getCraftBukkitClass(className: String): Class<*> {
         val craftBukkitVersion = NConstructor.plugin.server.javaClass.name.split(".")[3]
 
@@ -64,10 +74,16 @@ object NReflector {
         return Class.forName("com.islandstudio.$className")
     }
 
+    fun hasNamespaceClass(className: String): Boolean {
+        return getNamespaceClass(className) != null
+    }
+
     data class NMSMapping(private val nmsMappingsData: Map.Entry<String, Any>) {
         val mappingType: NMSRemapped.MappingType = when (nmsMappingsData.key) {
             "fields" -> { NMSRemapped.MappingType.FIELD }
             "methods" -> { NMSRemapped.MappingType.METHOD }
+            "constructors" -> { NMSRemapped.MappingType.CONSTRUCTOR }
+            "classes" -> { NMSRemapped.MappingType.CLASS }
             else -> { NMSRemapped.MappingType.UNKOWNN }
         }
 
