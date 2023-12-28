@@ -10,7 +10,7 @@ interface RecipeRegistry {
     fun filterRecipe(recipeHolder: String): HashMap<String, NRecipes> {
         val filteredRecipes: HashMap<String, NRecipes> = HashMap()
 
-        NRecipes.values().filter { nRecipe -> nRecipe.name.startsWith(recipeHolder, true) }.forEach { nRecipe ->
+        NRecipes.entries.filter { nRecipe -> nRecipe.name.startsWith(recipeHolder, true) }.forEach { nRecipe ->
             if (nRecipe.result.bukkitMaterial == null) return@forEach
 
             if (nRecipe.ingredients.isEmpty()) return@forEach

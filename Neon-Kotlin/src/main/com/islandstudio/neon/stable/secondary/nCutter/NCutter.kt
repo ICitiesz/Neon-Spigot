@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.secondary.nCutter
 
+import com.islandstudio.neon.stable.core.init.NConstructor
 import com.islandstudio.neon.stable.core.recipe.RecipeRegistry
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
 import org.bukkit.inventory.ItemStack
