@@ -4,18 +4,25 @@ import net.md_5.bungee.api.ChatColor
 import org.bukkit.Color
 import org.bukkit.FireworkEffect
 import org.bukkit.block.BlockFace
+import org.bukkit.entity.Player
+import java.io.Serializable
 
 object FireworkProperty {
-    data class FireworkEffects(var imageName: String = "") {
-        var fireworkAmount: Byte = 1
-        var fireworkColor: FireworkColors = FireworkColors.BLUE
-        var fireworkExplosionType: FireworkEffect.Type = FireworkEffect.Type.STAR
-        var fireworkPower: Byte = 10
-        var fireworkWithFade: Boolean = true
-        var fireworkWithFadeColor: FireworkColors = FireworkColors.AQUA
-        var fireworkWithFlicker: Boolean = true
-        var fireworkWithTrail: Boolean = true
-        var fireworkPatternFacing: FireworkPatternFacing = FireworkPatternFacing.AUTO
+    data class FireworkEffects(var imageName: String = "", @Transient var player: Player): Serializable {
+        @Transient var fireworkAmount: Byte = 1
+        @Transient var fireworkColor: FireworkColors = FireworkColors.BLUE
+        @Transient var fireworkExplosionType: FireworkEffect.Type = FireworkEffect.Type.STAR
+        @Transient var fireworkPower: Byte = 10
+        @Transient var fireworkWithFade: Boolean = true
+        @Transient var fireworkWithFadeColor: FireworkColors = FireworkColors.AQUA
+        @Transient var fireworkWithFlicker: Boolean = true
+        @Transient var fireworkWithTrail: Boolean = true
+        var fireworkPatternFacingOptions: FireworkPatternFacingOptions = FireworkPatternFacingOptions.AUTO
+        var fireworkPatternFacing: BlockFace = when {
+            fireworkPatternFacingOptions == FireworkPatternFacingOptions.AUTO -> fireworkPatternFacingOptions.getPlayerFacing(player)
+            else -> fireworkPatternFacingOptions.getFacing()
+        }
+
 
         fun setDefault() {
             fireworkAmount = 1
@@ -26,7 +33,8 @@ object FireworkProperty {
             fireworkWithFadeColor = FireworkColors.AQUA
             fireworkWithFlicker = true
             fireworkWithTrail = true
-            fireworkPatternFacing = FireworkPatternFacing.AUTO
+            fireworkPatternFacingOptions = FireworkPatternFacingOptions.AUTO
+            fireworkPatternFacing = fireworkPatternFacingOptions.getPlayerFacing(player)
         }
 
         /**
@@ -37,6 +45,15 @@ object FireworkProperty {
             "${ChatColor.GREEN}Large Ball"
         } else {
             "${ChatColor.GREEN}${fireworkExplosionType.name.lowercase().replaceFirstChar { it.uppercase() }}"
+        }
+
+        fun getFireworkPatternFacingName(player: Player): String {
+            if (fireworkPatternFacingOptions != FireworkPatternFacingOptions.AUTO) {
+                return "${org.bukkit.ChatColor.GREEN}${fireworkPatternFacingOptions.name.lowercase().replaceFirstChar { it.uppercase() }}"
+            }
+
+            return "${org.bukkit.ChatColor.GREEN}${fireworkPatternFacingOptions.name.lowercase().replaceFirstChar { it.uppercase() } } (${
+                fireworkPatternFacingOptions.getPlayerFacing(player).name.lowercase().replaceFirstChar { it.uppercase() }})"
         }
 
         /**
@@ -109,23 +126,30 @@ object FireworkProperty {
         abstract fun getBukkitColor(): Color
     }
 
-    enum class FireworkPatternFacing {
+    enum class FireworkPatternFacingOptions {
         AUTO {
-            override fun getFacing(): BlockFace? = null
+            override fun getFacing(): BlockFace = BlockFace.SELF
+            override fun getPlayerFacing(player: Player): BlockFace = player.facing
         },
         SOUTH {
             override fun getFacing(): BlockFace = BlockFace.SOUTH
+            override fun getPlayerFacing(player: Player): BlockFace = BlockFace.SOUTH
         },
         WEST {
             override fun getFacing(): BlockFace = BlockFace.WEST
+            override fun getPlayerFacing(player: Player): BlockFace = BlockFace.WEST
         },
         NORTH {
             override fun getFacing(): BlockFace = BlockFace.NORTH
+            override fun getPlayerFacing(player: Player): BlockFace = BlockFace.NORTH
         },
         EAST {
             override fun getFacing(): BlockFace = BlockFace.EAST
+            override fun getPlayerFacing(player: Player): BlockFace = BlockFace.EAST
         };
 
-        abstract fun getFacing(): BlockFace?
+        abstract fun getFacing(): BlockFace
+
+        abstract fun getPlayerFacing(player: Player): BlockFace
     }
 }

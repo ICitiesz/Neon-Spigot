@@ -1,7 +1,7 @@
 package com.islandstudio.neon.experimental.nFireworks
 
 import com.islandstudio.neon.stable.utils.NItemHighlight
-import com.islandstudio.neon.stable.utils.NeonKey
+import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import org.bukkit.ChatColor
@@ -14,7 +14,7 @@ abstract class GUIBuilder(nGUI: NGUI): NGUIConstructor(nGUI) {
     /* nFireworks properties */
     // TODO: FIREWORK_PATTERN_SELECTION = Firework Pattern Selection GUI | FIREWORK_CONFIGURATION = Vanila Firework Properties
     protected var guiState: GUIState = GUIState.FIREWORK_PATTERN_SELECTION // Default state
-    protected var fireworkEffects: FireworkProperty.FireworkEffects = FireworkProperty.FireworkEffects()
+    protected var fireworkEffects: FireworkProperty.FireworkEffects = FireworkProperty.FireworkEffects(player =  nGUI.getGUIOwner())
 
     /* Pagination properties */
     protected val maxItemPerPage = 45
@@ -33,13 +33,14 @@ abstract class GUIBuilder(nGUI: NGUI): NGUIConstructor(nGUI) {
     protected val restoreDefaultBtnName = "${ChatColor.YELLOW}${ChatColor.BOLD}Restore Default"
 
     protected val propertyBtnNames: HashMap<String, String> = hashMapOf(
-        Pair("amountBtnName", "${ChatColor.GOLD}${ChatColor.BOLD}Amount"),
-        Pair("colorBtnName", "${ChatColor.GOLD}${ChatColor.BOLD}Color"),
-        Pair("explosionTypeBtnName", "${ChatColor.GOLD}${ChatColor.BOLD}Explosion Type"),
-        Pair("powerBtnName", "${ChatColor.GOLD}${ChatColor.BOLD}Power"),
-        Pair("withFadeBtnName", "${ChatColor.GOLD}${ChatColor.BOLD}With Fade"),
-        Pair("withFlickerBtnName", "${ChatColor.GOLD}${ChatColor.BOLD}With Flicker"),
-        Pair("withTrailBtnName", "${ChatColor.GOLD}${ChatColor.BOLD}With Trail"),
+        "amountBtnName" to "${ChatColor.GOLD}${ChatColor.BOLD}Amount",
+        "colorBtnName" to "${ChatColor.GOLD}${ChatColor.BOLD}Color",
+        "explosionTypeBtnName" to "${ChatColor.GOLD}${ChatColor.BOLD}Explosion Type",
+        "patternFacing" to "${ChatColor.GOLD}${ChatColor.BOLD}Pattern Facing",
+        "powerBtnName" to "${ChatColor.GOLD}${ChatColor.BOLD}Power",
+        "withFadeBtnName" to "${ChatColor.GOLD}${ChatColor.BOLD}With Fade",
+        "withFlickerBtnName" to "${ChatColor.GOLD}${ChatColor.BOLD}With Flicker",
+        "withTrailBtnName" to "${ChatColor.GOLD}${ChatColor.BOLD}With Trail",
     )
 
     /* General button item */
@@ -53,10 +54,10 @@ abstract class GUIBuilder(nGUI: NGUI): NGUIConstructor(nGUI) {
     private val restoreDefaultBtn = ItemStack(Material.NAME_TAG)
 
     /* Button identifier key */
-    protected val buttonIDKey: NamespacedKey = NeonKey.fromProperty("nGUI.button.key")
+    protected val buttonIDKey: NamespacedKey = NeonKeyGeneral.NGUI_BUTTON.key
 
     /* Button highlight effect */
-    protected val nItemHighlight: NItemHighlight = NItemHighlight(NeonKey.fromProperty("nGUI.button.highlight.key"))
+    protected val nItemHighlight: NItemHighlight = NItemHighlight(NeonKeyGeneral.NGUI_HIGHTLIGHT_BUTTON.key)
 
     enum class GUIState(val stateName: String) {
         FIREWORK_PATTERN_SELECTION("nFireworks: Select Pattern"),
@@ -84,6 +85,7 @@ abstract class GUIBuilder(nGUI: NGUI): NGUIConstructor(nGUI) {
             "${ChatColor.GRAY}Amount: ${ChatColor.GREEN}${fireworkEffects.fireworkAmount}",
             "${ChatColor.GRAY}Color: ${fireworkEffects.fireworkColor.coloredName}",
             "${ChatColor.GRAY}Explosion Type: ${fireworkEffects.getExplosionTypeColoredName()}",
+            "${ChatColor.GRAY}Pattern Facing: ${fireworkEffects.getFireworkPatternFacingName(nGUI.getGUIOwner())}",
             "${ChatColor.GRAY}Power: ${ChatColor.GREEN}${fireworkEffects.fireworkPower}",
             "${ChatColor.GRAY}With Fade: ${fireworkEffects.getWithFadeColoredName()}",
             "${ChatColor.GRAY}With Flicker: ${fireworkEffects.getToggleColoredName(fireworkEffects.fireworkWithFlicker)}",

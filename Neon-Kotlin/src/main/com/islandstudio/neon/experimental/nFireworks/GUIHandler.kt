@@ -15,16 +15,16 @@ import kotlin.math.ceil
 class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
     private val player: Player = nGUI.getGUIOwner()
     //private var selectedImageName = ""
-//    private val imageFileNames = NFireworks.Handler.getImageFileNames()
-    private val imageFileNames = listOf(
-    "test1.jpg", "test2.jpg", "test3.jpg", "test4.jpg", "test5.jpg", "test6.jpg", "test7.jpg",
-    "test8.jpg", "test9.jpg", "test10.jpg", "test11.jpg", "test12.jpg", "test13.jpg", "test14.jpg",
-    "test15.jpg", "test16.jpg", "test17.jpg", "test18.jpg", "test19.jpg", "test20.jpg", "test21.jpg",
-    "test22.jpg", "test23.jpg", "test24.jpg", "test25.jpg", "test26.jpg", "test27.jpg", "test28.jpg",
-    "test29.jpg", "test30.jpg","test31.jpg","test32.jpg","test33.jpg","test34.jpg", "test35.jpg",
-    "test36.jpg", "test37.jpg","test38.jpg","test39.jpg","test40.jpg","test41.jpg","test42.jpg","test43.jpg",
-    "test44.jpg", "test45.jpg","test46.jpg","test47.jpg","test48.jpg","test49.jpg","test50.jpg","test51.jpg",
-    "test52.jpg", "test53.jpg","test54.jpg","test55.jpg","test56.jpg","test57.jpg","test58.jpg","test59.jpg")
+    private val imageFileNames = NFireworks.Handler.getImageFileNames()
+//    private val imageFileNames = listOf(
+//    "test1.jpg", "test2.jpg", "test3.jpg", "test4.jpg", "test5.jpg", "test6.jpg", "test7.jpg",
+//    "test8.jpg", "test9.jpg", "test10.jpg", "test11.jpg", "test12.jpg", "test13.jpg", "test14.jpg",
+//    "test15.jpg", "test16.jpg", "test17.jpg", "test18.jpg", "test19.jpg", "test20.jpg", "test21.jpg",
+//    "test22.jpg", "test23.jpg", "test24.jpg", "test25.jpg", "test26.jpg", "test27.jpg", "test28.jpg",
+//    "test29.jpg", "test30.jpg","test31.jpg","test32.jpg","test33.jpg","test34.jpg", "test35.jpg",
+//    "test36.jpg", "test37.jpg","test38.jpg","test39.jpg","test40.jpg","test41.jpg","test42.jpg","test43.jpg",
+//    "test44.jpg", "test45.jpg","test46.jpg","test47.jpg","test48.jpg","test49.jpg","test50.jpg","test51.jpg",
+//    "test52.jpg", "test53.jpg","test54.jpg","test55.jpg","test56.jpg","test57.jpg","test58.jpg","test59.jpg")
 
     override fun getGUIName(): String = super.guiState.stateName
 
@@ -108,6 +108,15 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
                         "${ChatColor.GRAY}Current: ${fireworkEffects.getExplosionTypeColoredName()}")
 
                     propertyBtnMeta.lore = explosionTypeBtnLore
+                }
+
+                "patternFacing" -> {
+                    val patternFacingBtnLore: List<String> = listOf(
+                        "${ChatColor.YELLOW}Firework pattern facing when explode.",
+                        "${ChatColor.GRAY}Current: ${fireworkEffects.getFireworkPatternFacingName(player)}"
+                    )
+
+                    propertyBtnMeta.lore = patternFacingBtnLore
                 }
 
                 "powerBtnName" -> {
@@ -263,7 +272,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
                             ClickType.RIGHT -> {
                                 currentFireworkColorIndex--
 
-                                if (currentFireworkColorIndex <= 0) {
+                                if (currentFireworkColorIndex < 0) {
                                     currentFireworkColorIndex = sortedFireworkColors.size - 1
                                 }
                             }
@@ -295,7 +304,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
                             ClickType.RIGHT -> {
                                 currentFireowkrExplosionTypeIndex--
 
-                                if (currentFireowkrExplosionTypeIndex <= 0) {
+                                if (currentFireowkrExplosionTypeIndex < 0) {
                                     currentFireowkrExplosionTypeIndex = sortedFireworkExplosionTypes.size - 1
                                 }
                             }
@@ -307,6 +316,37 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
                         fireworkPropertyValue = fireworkEffects.getExplosionTypeColoredName()
 
                         applyBtnLore[3] = "${ChatColor.GRAY}Explosion Type: ${fireworkEffects.getExplosionTypeColoredName()}"
+                    }
+
+                    /* Firework pattern facing */
+                    "patternFacing" -> {
+                        val sortedFireworkPatternFacingOptions = FireworkProperty.FireworkPatternFacingOptions.values().sorted()
+                        var currentFireowkrPatternFacingIndex = sortedFireworkPatternFacingOptions.indexOf(fireworkEffects.fireworkPatternFacingOptions)
+
+                        when (clickType) {
+                            ClickType.LEFT -> {
+                                currentFireowkrPatternFacingIndex++
+
+                                if (currentFireowkrPatternFacingIndex >= sortedFireworkPatternFacingOptions.size) {
+                                    currentFireowkrPatternFacingIndex = 0
+                                }
+                            }
+
+                            ClickType.RIGHT -> {
+                                currentFireowkrPatternFacingIndex--
+
+                                if (currentFireowkrPatternFacingIndex < 0) {
+                                    currentFireowkrPatternFacingIndex = sortedFireworkPatternFacingOptions.size - 1
+                                }
+                            }
+
+                            else -> { return }
+                        }
+
+                        fireworkEffects.fireworkPatternFacingOptions = sortedFireworkPatternFacingOptions[currentFireowkrPatternFacingIndex]
+                        fireworkPropertyValue = fireworkEffects.getFireworkPatternFacingName(player)
+
+                        applyBtnLore[4] = "${ChatColor.GRAY}Pattern Facing: ${fireworkEffects.getFireworkPatternFacingName(player)}"
                     }
 
                     /* Firework launch power button */
@@ -353,7 +393,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
 
                         fireworkPropertyValue = "${ChatColor.GREEN}${fireworkEffects.fireworkPower}"
 
-                        applyBtnLore[4] = "${ChatColor.GRAY}Power: ${ChatColor.GREEN}${fireworkEffects.fireworkPower}"
+                        applyBtnLore[5] = "${ChatColor.GRAY}Power: ${ChatColor.GREEN}${fireworkEffects.fireworkPower}"
                     }
 
                     /* Firework fade effect button */
@@ -377,7 +417,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
                             ClickType.SHIFT_RIGHT -> {
                                 currentFireworkFadeColorIndex--
 
-                                if (currentFireworkFadeColorIndex <= 0) {
+                                if (currentFireworkFadeColorIndex < 0) {
                                     currentFireworkFadeColorIndex = sortedFireworkFadeColors.size - 1
                                 }
                             }
@@ -388,7 +428,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
                         fireworkEffects.fireworkWithFadeColor = sortedFireworkFadeColors[currentFireworkFadeColorIndex]
                         fireworkPropertyValue = fireworkEffects.getWithFadeColoredName()
 
-                        applyBtnLore[5] = "${ChatColor.GRAY}With Fade: ${fireworkEffects.getWithFadeColoredName()}"
+                        applyBtnLore[6] = "${ChatColor.GRAY}With Fade: ${fireworkEffects.getWithFadeColoredName()}"
                     }
 
                     /* Firework flicker effect button */
@@ -396,7 +436,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
                         fireworkEffects.fireworkWithFlicker = !fireworkEffects.fireworkWithFlicker
                         fireworkPropertyValue = fireworkEffects.getToggleColoredName(fireworkEffects.fireworkWithFlicker)
 
-                        applyBtnLore[6] = "${ChatColor.GRAY}With Flicker: ${fireworkEffects.getToggleColoredName(fireworkEffects.fireworkWithFlicker)}"
+                        applyBtnLore[7] = "${ChatColor.GRAY}With Flicker: ${fireworkEffects.getToggleColoredName(fireworkEffects.fireworkWithFlicker)}"
                     }
 
                     /* Firework trail effect button */
@@ -404,7 +444,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
                         fireworkEffects.fireworkWithTrail = !fireworkEffects.fireworkWithTrail
                         fireworkPropertyValue = fireworkEffects.getToggleColoredName(fireworkEffects.fireworkWithTrail)
 
-                        applyBtnLore[7] = "${ChatColor.GRAY}With Fade: ${fireworkEffects.getToggleColoredName(fireworkEffects.fireworkWithTrail)}"
+                        applyBtnLore[8] = "${ChatColor.GRAY}With Fade: ${fireworkEffects.getToggleColoredName(fireworkEffects.fireworkWithTrail)}"
                     }
                 }
 
@@ -494,7 +534,8 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
                             }
 
                             applyBtnName -> {
-                                player.inventory.addItem(NFireworks.prepareFirework(fireworkEffects))
+                                player.inventory.addItem(NFireworks.createFirework(fireworkEffects, player))
+                                NFireworks.Handler.createPatternFrameData(fireworkEffects.imageName)
                                 player.closeInventory()
                             }
                         }
