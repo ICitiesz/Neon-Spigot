@@ -69,3 +69,10 @@ nFireworks:
   options:
     particleSize: 1.0
     particleSpeed: 1.0
+
+nPainting:
+  isExperimental: true
+  description: '[Incompatible with Minecraft 1.17.X] Create custom painting by using imported images.'
+  isEnabled: false
+  command: '/neon painting'
+  options: {}
