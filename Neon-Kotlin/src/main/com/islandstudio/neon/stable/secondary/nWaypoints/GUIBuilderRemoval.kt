@@ -1,6 +1,5 @@
 package com.islandstudio.neon.stable.secondary.nWaypoints
 
-import com.islandstudio.neon.stable.utils.NItemHighlight
 import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
@@ -26,7 +25,7 @@ abstract class GUIBuilderRemoval(nGUI: NGUI) : NGUIConstructor(nGUI) {
     protected val buttonIDKey: NamespacedKey = NeonKeyGeneral.NGUI_BUTTON.key
 
     /* Button highlight effect */
-    protected val nItemHighlight: NItemHighlight = NItemHighlight(NeonKeyGeneral.NGUI_HIGHTLIGHT_BUTTON.key)
+    //protected val nItemHighlight: NItemHighlight = NItemHighlight(NeonKeyGeneral.NGUI_HIGHTLIGHT_BUTTON.key)
 
     fun addGUIButtons() {
         /* Button lore */

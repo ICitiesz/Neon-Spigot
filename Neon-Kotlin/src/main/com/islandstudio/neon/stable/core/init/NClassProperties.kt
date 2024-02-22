@@ -3,6 +3,7 @@ package com.islandstudio.neon.stable.core.init
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPVP.NPVP
 import com.islandstudio.neon.experimental.nPainting.NPainting
+import com.islandstudio.neon.experimental.utils.NItemGlinter
 import com.islandstudio.neon.stable.core.event.NServerConstantProcessor
 import com.islandstudio.neon.stable.core.io.nFolder.NFolder
 import com.islandstudio.neon.stable.primary.nCommand.NCommand
@@ -15,7 +16,7 @@ import com.islandstudio.neon.stable.secondary.nHarvest.NHarvest
 import com.islandstudio.neon.stable.secondary.nRank.NRank
 import com.islandstudio.neon.stable.secondary.nSmelter.NSmelter
 import com.islandstudio.neon.stable.secondary.nWaypoints.NWaypoints
-import com.islandstudio.neon.stable.utils.NeonKey
+import com.islandstudio.neon.stable.utils.identifier.NeonKey
 import com.islandstudio.neon.stable.utils.reflection.NReflector
 
 data object NClassProperties {
@@ -23,7 +24,8 @@ data object NClassProperties {
         NReflector.Handler::class.java,
         NServerFeatures.Handler::class.java,
         NFolder::class.java,
-        NeonKey.Handler::class.java
+        NeonKey.Handler::class.java,
+        NItemGlinter.Handler::class.java
     )
 
     val postloadClasses: ArrayList<Class<*>> = arrayListOf(

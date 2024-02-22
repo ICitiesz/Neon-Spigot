@@ -1,5 +1,6 @@
 package com.islandstudio.neon.experimental.nFireworks
 
+import com.islandstudio.neon.experimental.utils.NItemGlinter
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import org.bukkit.ChatColor
 import org.bukkit.FireworkEffect
@@ -52,7 +53,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
                 val imageFileName = "${ChatColor.GOLD}${imageFileNames[itemIndex]}"
 
                 if (fireworkEffects.imageName.isNotEmpty() && imageFileNames[itemIndex] == fireworkEffects.imageName) {
-                    imageFileItemMeta.addEnchant(nItemHighlight, 0, true)
+                    imageFileItemMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0, true)
                 }
 
                 imageFileItemMeta.setDisplayName(imageFileName)
@@ -79,7 +80,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
 
             propertyBtnMeta.setDisplayName(propertyBtnNames[it])
             propertyBtnMeta.persistentDataContainer.set(buttonIDKey, PersistentDataType.STRING, it)
-            propertyBtnMeta.addEnchant(nItemHighlight, 0, true)
+            propertyBtnMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0, true)
 
             val minValueText = "${ChatColor.GRAY}[${ChatColor.GOLD}Min${ChatColor.GRAY}: ${ChatColor.GREEN}"
             val maxValueText = "${ChatColor.GRAY}, ${ChatColor.GOLD}Max${ChatColor.GRAY}: ${ChatColor.GREEN}"
@@ -176,7 +177,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
 
                 if (!imageFileNames.contains(clickedItemDisplayName)) return
 
-                if (clickedItemMeta.hasEnchant(nItemHighlight)) return
+                if (clickedItemMeta.hasEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint)) return
 
                 fireworkEffects.imageName = clickedItemDisplayName
 
@@ -257,7 +258,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
 
                     /* Firework color button */
                     "colorBtnName" -> {
-                        val sortedFireworkColors = FireworkProperty.FireworkColors.values().sorted()
+                        val sortedFireworkColors = FireworkProperty.FireworkColors.entries.toTypedArray().sorted()
                         var currentFireworkColorIndex = sortedFireworkColors.indexOf(fireworkEffects.fireworkColor)
 
                         when (clickType) {
@@ -289,7 +290,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
 
                     /* Firework explosion type */
                     "explosionTypeBtnName" -> {
-                        val sortedFireworkExplosionTypes = FireworkEffect.Type.values().sorted()
+                        val sortedFireworkExplosionTypes = FireworkEffect.Type.entries.toTypedArray().sorted()
                         var currentFireowkrExplosionTypeIndex = sortedFireworkExplosionTypes.indexOf(fireworkEffects.fireworkExplosionType)
 
                         when (clickType) {
@@ -320,7 +321,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
 
                     /* Firework pattern facing */
                     "patternFacing" -> {
-                        val sortedFireworkPatternFacingOptions = FireworkProperty.FireworkPatternFacingOptions.values().sorted()
+                        val sortedFireworkPatternFacingOptions = FireworkProperty.FireworkPatternFacingOptions.entries.toTypedArray().sorted()
                         var currentFireowkrPatternFacingIndex = sortedFireworkPatternFacingOptions.indexOf(fireworkEffects.fireworkPatternFacingOptions)
 
                         when (clickType) {
@@ -343,7 +344,8 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
                             else -> { return }
                         }
 
-                        fireworkEffects.fireworkPatternFacingOptions = sortedFireworkPatternFacingOptions[currentFireowkrPatternFacingIndex]
+                        fireworkEffects.updateFireworkPatternFacingOptions(sortedFireworkPatternFacingOptions[currentFireowkrPatternFacingIndex])
+
                         fireworkPropertyValue = fireworkEffects.getFireworkPatternFacingName(player)
 
                         applyBtnLore[4] = "${ChatColor.GRAY}Pattern Facing: ${fireworkEffects.getFireworkPatternFacingName(player)}"
@@ -398,7 +400,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
 
                     /* Firework fade effect button */
                     "withFadeBtnName" -> {
-                        val sortedFireworkFadeColors = FireworkProperty.FireworkColors.values().sorted()
+                        val sortedFireworkFadeColors = FireworkProperty.FireworkColors.entries.toTypedArray().sorted()
                         var currentFireworkFadeColorIndex = sortedFireworkFadeColors.indexOf(fireworkEffects.fireworkWithFadeColor)
 
                         when (clickType) {

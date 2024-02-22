@@ -148,7 +148,7 @@ data class CommandUISession(val player: Player) {
         init {
             commandUIView = getCommandUIView()
             commandUIId = commandUIWindow.containerId
-            currentPage = commandUIView.page
+            currentPage = commandUIView.javaClass.getMethod(NMSRemapped.Mapping.NMS_LECTERN_BOOK_PAGE.remapped).invoke(commandUIView) as Int
         }
 
         private fun getCommandUIView(): LecternMenu {
@@ -164,7 +164,7 @@ data class CommandUISession(val player: Player) {
         }
 
         fun updateOrGetCurrentPage(): Int {
-            currentPage = commandUIView.page
+            currentPage = commandUIView.javaClass.getMethod(NMSRemapped.Mapping.NMS_LECTERN_BOOK_PAGE.remapped).invoke(commandUIView) as Int
             return currentPage
         }
 

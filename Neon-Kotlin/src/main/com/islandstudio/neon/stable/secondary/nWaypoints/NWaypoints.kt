@@ -3,13 +3,12 @@ package com.islandstudio.neon.stable.secondary.nWaypoints
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.experimental.utils.NItemGlinter
 import com.islandstudio.neon.stable.core.init.NConstructor
 import com.islandstudio.neon.stable.core.io.nFolder.FolderList
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
-import com.islandstudio.neon.stable.utils.NItemHighlight
-import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import org.bukkit.*
@@ -585,7 +584,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
 
             val currentItem: ItemStack = e.currentItem!!
             val currentItemMeta: ItemMeta = currentItem.itemMeta!!
-            val nItemHighlight = NItemHighlight(NeonKeyGeneral.NGUI_HIGHTLIGHT_BUTTON.key)
+            val itemGlinter = NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint
             val persistentDataContainer: PersistentDataContainer = currentItemMeta.persistentDataContainer
 
             when (currentItem.type) {
@@ -600,13 +599,13 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
 
                         if (!currentItemMeta.displayName.equals(goldWaypointName, true)) return@forEach
 
-                        if (!currentItemMeta.hasEnchant(nItemHighlight)) {
-                            currentItemMeta.addEnchant(nItemHighlight, 0, true)
+                        if (!currentItemMeta.hasEnchant(itemGlinter)) {
+                            currentItemMeta.addEnchant(itemGlinter, 0, true)
                             waypointsDetails.add("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
 
                             selectedWaypoints.add(nWaypoints.waypointName)
                         } else {
-                            currentItemMeta.removeEnchant(nItemHighlight)
+                            currentItemMeta.removeEnchant(itemGlinter)
                             waypointsDetails.remove("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
                             selectedWaypoints.remove(nWaypoints.waypointName)
                         }
@@ -646,11 +645,11 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                                     if (itemMeta.displayName.substring(2).equals(selectedWaypoint, true)) {
                                         val waypointsDetails: MutableList<String> = itemMeta.lore!!
 
-                                        if (!itemMeta.hasEnchant(nItemHighlight)) {
-                                            itemMeta.addEnchant(nItemHighlight, 0, true)
+                                        if (!itemMeta.hasEnchant(itemGlinter)) {
+                                            itemMeta.addEnchant(itemGlinter, 0, true)
                                             waypointsDetails.add("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
                                         } else {
-                                            itemMeta.removeEnchant(nItemHighlight)
+                                            itemMeta.removeEnchant(itemGlinter)
                                             waypointsDetails.remove("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
                                         }
 
@@ -682,11 +681,11 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                                     if (itemMeta.displayName.substring(2).equals(selectedWaypoint, true)) {
                                         val waypointsDetails: MutableList<String> = itemMeta.lore!!
 
-                                        if (!itemMeta.hasEnchant(nItemHighlight)) {
-                                            itemMeta.addEnchant(nItemHighlight, 0, true)
+                                        if (!itemMeta.hasEnchant(itemGlinter)) {
+                                            itemMeta.addEnchant(itemGlinter, 0, true)
                                             waypointsDetails.add("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
                                         } else {
-                                            itemMeta.removeEnchant(nItemHighlight)
+                                            itemMeta.removeEnchant(itemGlinter)
                                             waypointsDetails.remove("${ChatColor.GREEN}${ChatColor.BOLD}Selected!")
                                         }
 

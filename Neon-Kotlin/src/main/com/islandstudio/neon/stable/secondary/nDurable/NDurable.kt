@@ -8,8 +8,8 @@ import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.OptionValueValidation
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
-import com.islandstudio.neon.stable.utils.NeonKey
 import com.islandstudio.neon.stable.utils.ObjectSerializer
+import com.islandstudio.neon.stable.utils.identifier.NeonKey
 import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
 import com.islandstudio.neon.stable.utils.reflection.NReflector
@@ -89,7 +89,8 @@ object NDurable {
                 damageableItemMeta.damage = itemMaxDamage.toInt()
             }
 
-            var damagePropertyContainer: HashMap<String, Any> = hashMapOf(NeonKey.getNeonKeyNameWithNamespace(
+            var damagePropertyContainer: HashMap<String, Any> = hashMapOf(
+                NeonKey.getNeonKeyNameWithNamespace(
                 NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key) to finalItemDamage)
 
             if (NeonKey.hasNeonKey(nDurableContainerHeader, PersistentDataType.STRING, damageableItemMeta)) {
@@ -135,20 +136,17 @@ object NDurable {
             /* Villager profession check */
             if (!(villager.profession == Villager.Profession.TOOLSMITH || villager.profession == Villager.Profession.WEAPONSMITH)) return
 
-            /* NMS Remapped */
-            val merchantRecipeResultNMS = NMSRemapped.Mapping.NMS_MERCHANT_RECIPE_RESULT.remapped
-
             villager.recipes.forEach {
-                val merchantRecipeField = it.javaClass.getDeclaredField("handle")
-                merchantRecipeField.isAccessible = true
-
-                val merchantRecipe = merchantRecipeField.get(it)
+                val merchantRecipe = it.javaClass.getDeclaredField("handle").run {
+                    this.isAccessible = true
+                    this.get(it)
+                }
 
                 /* Damage property for trade offer ingredient */
                 it.ingredients.forEach InnerFE@ { ingredient ->
                     if (!isItemMatch(ingredient)) return@InnerFE
 
-                    val originalIngredient = merchantRecipe.javaClass.getDeclaredField(merchantRecipeResultNMS)
+                    val originalIngredient = merchantRecipe.javaClass.getDeclaredField(NMSRemapped.Mapping.NMS_MERCHANT_RECIPE_RESULT.remapped)
                     originalIngredient.isAccessible = true
 
                     val newIngredient = if (isEnabled) applyDamageProperty(ingredient, 0)
@@ -161,7 +159,7 @@ object NDurable {
                 }
 
                 /* Damage property for trade offer result */
-                val originalResult = merchantRecipe.javaClass.getDeclaredField(merchantRecipeResultNMS)
+                val originalResult = merchantRecipe.javaClass.getDeclaredField(NMSRemapped.Mapping.NMS_MERCHANT_RECIPE_RESULT.remapped)
                 originalResult.isAccessible = true
 
                 val newResult = if (isEnabled) applyDamageProperty(it.result, 0)

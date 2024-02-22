@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
-import com.islandstudio.neon.stable.utils.NItemHighlight
+import com.islandstudio.neon.experimental.utils.NItemGlinter
 import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
@@ -31,9 +31,6 @@ abstract class GUIBuilder(ngui: NGUI): NGUIConstructor(ngui) {
 
     /* Button identifier key */
     protected val buttonIDKey: NamespacedKey = NeonKeyGeneral.NGUI_BUTTON.key
-
-    /* Button highlight effect */
-    protected val nItemHighlight: NItemHighlight = NItemHighlight(NeonKeyGeneral.NGUI_HIGHTLIGHT_BUTTON.key)
 
     /* Soring types whether show all by default, either by stable or by experimental */
     enum class SortingType(val type: String) {
@@ -127,11 +124,11 @@ abstract class GUIBuilder(ngui: NGUI): NGUIConstructor(ngui) {
 
         when (isOptionVisible) {
             true -> {
-                toggleOptionButtonMeta.addEnchant(nItemHighlight, 0 , true)
+                toggleOptionButtonMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0 , true)
             }
 
             false -> {
-                toggleOptionButtonMeta.removeEnchant(nItemHighlight)
+                toggleOptionButtonMeta.removeEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint)
             }
         }
 
