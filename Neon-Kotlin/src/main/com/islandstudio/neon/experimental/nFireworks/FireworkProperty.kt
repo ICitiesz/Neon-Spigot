@@ -69,6 +69,11 @@ object FireworkProperty {
 
         fun getWithFadeColoredName() = "${getToggleColoredName(fireworkWithFade)} " +
                 "${org.bukkit.ChatColor.GRAY}| ${fireworkWithFadeColor.coloredName}"
+
+        fun updateFireworkPatternFacingOptions(newPatternFacingOptions: FireworkPatternFacingOptions) {
+            fireworkPatternFacingOptions = newPatternFacingOptions
+            fireworkPatternFacing = fireworkPatternFacingOptions.getFacing()
+        }
     }
 
     enum class FireworkColors(val coloredName: String) {

@@ -6,6 +6,7 @@ import kotlinx.coroutines.*
 import net.minecraft.core.particles.DustParticleOptions
 import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.block.BlockFace
 import org.joml.Vector3f
 import java.awt.Color
 import java.io.Serializable
@@ -23,46 +24,197 @@ object FireworkPattern {
          * @param renderDuration The render duration in seconds.
          */
         @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
-        fun renderHorizontalPixel(explodePos: Location, verticalPointer: Double, renderDuration: Int) {
+        fun renderHorizontalPixel(explodePos: Location, verticalPointer: Double, renderDuration: Int, fireworkPatternFacing: BlockFace) {
             val defaultTickRate = AtomicInteger(20)
             val renderDurationInTicks = AtomicInteger(renderDuration * defaultTickRate.get())
             val durationCounter = AtomicInteger(0)
 
             Bukkit.getServer().scheduler.runTaskTimer(NConstructor.plugin, { bukkitTask ->
-                var horizontalPixelWorker: Job? = CoroutineScope(newSingleThreadContext("nFireworks Horizontal Pixel Worker"))
-                    .launch {
-                        val horizontalStart = String.format("%.1f", explodePos.x - (NFireworks.PATTERN_FRAME_INGAME_SIZE / 2)).toDouble()
-                        val horizontalEnd = String.format("%.1f", explodePos.x + (NFireworks.PATTERN_FRAME_INGAME_SIZE / 2)).toDouble()
+                var horizontalPixelWorker: Job? =
+                    CoroutineScope(newSingleThreadContext("nFireworks Horizontal Pixel Worker"))
+                        .launch {
+                            /* Firework pattern facing */
+                            val fireworkPatternFacingModX = fireworkPatternFacing.modX
+                            val fireworkPatternFacingModZ = fireworkPatternFacing.modZ
 
-                        /* Pointer for horizontal pixel where used to locate the current position within the horizontal pixels */
-                        var horizontalPointer: Double = String.format("%.1f", horizontalStart).toDouble()
+                            /*
+                            * If -Z then:
+                            * H.Start = explodePosX - (PATTERN_SIZE / 2)
+                            * H.End = explodePosX + (PATTERN_SIZE / 2)
+                            *
+                            * If Z+ then:
+                            * H.Start = explodePosX + (PATTERN_SIZE / 2)
+                            * H.End = explodePosX - (PATTERN_SIZE / 2)
+                            *
+                            * If X+ then:
+                            * H.Start = explodePosZ - (PATTERN_SIZE / 2)
+                            * H.End = explodePosZ + (PATTERN_SIZE / 2)
+                            *
+                            * If -X then:
+                            * H.Start = explodePosZ + (PATTERN_SIZE / 2)
+                            * H.End = explodePosZ - (PATTERN_SIZE / 2)
+                            *
+                            *  */
 
-                        horizontalPixels.stream()
-                            .sorted { hPixel1, hPixel2 -> hPixel1.horizontalIndex.compareTo(hPixel2.horizontalIndex) }
-                            .toList()
-                            .asReversed()
-                            .forEach {
-                                if (horizontalPointer >= horizontalEnd) horizontalPointer = horizontalStart
+                            when {
+                                /*
+                                * (-X) H.Start <--> H.End (X+)
+                                *
+                                *         ^ Facing -Z ^
+                                *
+                                * */
+                                (fireworkPatternFacingModZ == -1) -> {
+                                    val horizontalStart = String.format("%.1f", explodePos.x - (NFireworks.PATTERN_FRAME_INGAME_SIZE / 2)).toDouble()
+                                    val horizontalEnd = String.format("%.1f", explodePos.x + (NFireworks.PATTERN_FRAME_INGAME_SIZE / 2)).toDouble()
 
-                                /* Check if the pixelColor is null, if it is, horizontal pointer will move forward */
-                                if (it.pixelColor == null) {
-                                    horizontalPointer += NFireworks.PATTERN_FRAME_POINTER_INCREMENT
-                                    horizontalPointer = String.format("%.1f", horizontalPointer).toDouble()
-                                    return@forEach
+                                    /* Pointer for horizontal pixel where used to locate the current position within the horizontal pixels */
+                                    var horizontalPointer: Double = String.format("%.1f", horizontalStart).toDouble()
+
+                                    horizontalPixels.stream()
+                                        .sorted { hPixel1, hPixel2 -> hPixel1.horizontalIndex.compareTo(hPixel2.horizontalIndex) }
+                                        .toList()
+                                        .forEach {
+                                            if (horizontalPointer >= horizontalEnd) horizontalPointer = horizontalStart
+
+                                            /* Check if the pixelColor is null, if it is, horizontal pointer will move forward */
+                                            if (it.pixelColor == null) {
+                                                horizontalPointer += NFireworks.PATTERN_FRAME_POINTER_INCREMENT_DECREMENT
+                                                horizontalPointer = String.format("%.1f", horizontalPointer).toDouble()
+                                                return@forEach
+                                            }
+
+                                            val pixelDust = DustParticleOptions(it.pixelPos, 0.9F)
+
+                                            /* Render the pixel */
+                                            NPacketProcessor.getNWorld(explodePos.world!!).sendParticles(
+                                                null, pixelDust, horizontalPointer, verticalPointer,
+                                                explodePos.z, 1, 0.0, 0.0, 0.0, 1.0, true
+                                            )
+
+                                            horizontalPointer += NFireworks.PATTERN_FRAME_POINTER_INCREMENT_DECREMENT
+                                            horizontalPointer = String.format("%.1f", horizontalPointer).toDouble()
+                                        }
                                 }
 
-                                    val pixelDust = DustParticleOptions(it.pixelPos, 2.0F)
+                                /*
+                                * (X+) H.Start <--> H.End (-X)
+                                *
+                                *         ^ Facing Z+ ^
+                                *
+                                * */
+                                (fireworkPatternFacingModZ == 1) -> {
+                                    val horizontalStart = String.format("%.1f", explodePos.x + (NFireworks.PATTERN_FRAME_INGAME_SIZE / 2)).toDouble()
+                                    val horizontalEnd = String.format("%.1f", explodePos.x - (NFireworks.PATTERN_FRAME_INGAME_SIZE / 2)).toDouble()
 
-                                /* Render the pixel */
-                                NPacketProcessor.getNWorld(explodePos.world!!).sendParticles(
-                                    null, pixelDust, horizontalPointer, verticalPointer,
-                                    explodePos.z, 1, 0.0, 0.0, 0.0, 1.0, true
-                                )
+                                    /* Pointer for horizontal pixel where used to locate the current position within the horizontal pixels */
+                                    var horizontalPointer: Double = String.format("%.1f", horizontalStart).toDouble()
 
-                                horizontalPointer += NFireworks.PATTERN_FRAME_POINTER_INCREMENT
-                                horizontalPointer = String.format("%.1f", horizontalPointer).toDouble()
+                                    horizontalPixels.stream()
+                                        .sorted { hPixel1, hPixel2 -> hPixel1.horizontalIndex.compareTo(hPixel2.horizontalIndex) }
+                                        .toList()
+                                        .forEach {
+                                            if (horizontalPointer <= horizontalEnd) horizontalPointer = horizontalStart
+
+                                            /* Check if the pixelColor is null, if it is, horizontal pointer will move forward */
+                                            if (it.pixelColor == null) {
+                                                horizontalPointer -= NFireworks.PATTERN_FRAME_POINTER_INCREMENT_DECREMENT
+                                                horizontalPointer = String.format("%.1f", horizontalPointer).toDouble()
+                                                return@forEach
+                                            }
+
+                                            val pixelDust = DustParticleOptions(it.pixelPos, 0.9F)
+
+                                            /* Render the pixel */
+                                            NPacketProcessor.getNWorld(explodePos.world!!).sendParticles(
+                                                null, pixelDust, horizontalPointer, verticalPointer,
+                                                explodePos.z, 1, 0.0, 0.0, 0.0, 1.0, true
+                                            )
+
+                                            horizontalPointer -= NFireworks.PATTERN_FRAME_POINTER_INCREMENT_DECREMENT
+                                            horizontalPointer = String.format("%.1f", horizontalPointer).toDouble()
+                                        }
+                                }
+
+                                /*
+                                * (-Z) H.Start <--> H.End (Z+)
+                                *
+                                *         ^ Facing X+ ^
+                                *
+                                * */
+                                (fireworkPatternFacingModX == 1) -> {
+                                    val horizontalStart = String.format("%.1f", explodePos.z - (NFireworks.PATTERN_FRAME_INGAME_SIZE / 2)).toDouble()
+                                    val horizontalEnd = String.format("%.1f", explodePos.z + (NFireworks.PATTERN_FRAME_INGAME_SIZE / 2)).toDouble()
+
+                                    /* Pointer for horizontal pixel where used to locate the current position within the horizontal pixels */
+                                    var horizontalPointer: Double = String.format("%.1f", horizontalStart).toDouble()
+
+                                    horizontalPixels.stream()
+                                        .sorted { hPixel1, hPixel2 -> hPixel1.horizontalIndex.compareTo(hPixel2.horizontalIndex) }
+                                        .toList()
+                                        .forEach {
+                                            if (horizontalPointer >= horizontalEnd) horizontalPointer = horizontalStart
+
+                                            /* Check if the pixelColor is null, if it is, horizontal pointer will move forward */
+                                            if (it.pixelColor == null) {
+                                                horizontalPointer += NFireworks.PATTERN_FRAME_POINTER_INCREMENT_DECREMENT
+                                                horizontalPointer = String.format("%.1f", horizontalPointer).toDouble()
+                                                return@forEach
+                                            }
+
+                                            val pixelDust = DustParticleOptions(it.pixelPos, 0.9F)
+
+                                            /* Render the pixel */
+                                            NPacketProcessor.getNWorld(explodePos.world!!).sendParticles(
+                                                null, pixelDust, explodePos.x, verticalPointer,
+                                                horizontalPointer, 1, 0.0, 0.0, 0.0, 1.0, true
+                                            )
+
+                                            horizontalPointer += NFireworks.PATTERN_FRAME_POINTER_INCREMENT_DECREMENT
+                                            horizontalPointer = String.format("%.1f", horizontalPointer).toDouble()
+                                        }
+                                }
+
+                                /*
+                                * (Z+) H.Start <--> H.End (-Z)
+                                *
+                                *         ^ Facing X- ^
+                                *
+                                * */
+                                (fireworkPatternFacingModX == -1) -> {
+                                    val horizontalStart = String.format("%.1f", explodePos.z + (NFireworks.PATTERN_FRAME_INGAME_SIZE / 2)).toDouble()
+                                    val horizontalEnd = String.format("%.1f", explodePos.z - (NFireworks.PATTERN_FRAME_INGAME_SIZE / 2)).toDouble()
+
+                                    /* Pointer for horizontal pixel where used to locate the current position within the horizontal pixels */
+                                    var horizontalPointer: Double = String.format("%.1f", horizontalStart).toDouble()
+
+                                    horizontalPixels.stream()
+                                        .sorted { hPixel1, hPixel2 -> hPixel1.horizontalIndex.compareTo(hPixel2.horizontalIndex) }
+                                        .toList()
+                                        .forEach {
+                                            if (horizontalPointer <= horizontalEnd) horizontalPointer = horizontalStart
+
+                                            /* Check if the pixelColor is null, if it is, horizontal pointer will move forward */
+                                            if (it.pixelColor == null) {
+                                                horizontalPointer -= NFireworks.PATTERN_FRAME_POINTER_INCREMENT_DECREMENT
+                                                horizontalPointer = String.format("%.1f", horizontalPointer).toDouble()
+                                                return@forEach
+                                            }
+
+                                            val pixelDust = DustParticleOptions(it.pixelPos, 0.9F)
+
+                                            /* Render the pixel */
+                                            NPacketProcessor.getNWorld(explodePos.world!!).sendParticles(
+                                                null, pixelDust, explodePos.x, verticalPointer,
+                                                horizontalPointer, 1, 0.0, 0.0, 0.0, 1.0, true
+                                            )
+
+                                            horizontalPointer -= NFireworks.PATTERN_FRAME_POINTER_INCREMENT_DECREMENT
+                                            horizontalPointer = String.format("%.1f", horizontalPointer).toDouble()
+                                        }
+
+                                }
                             }
-                }
+                        }
 
                 /* Destroy the worker once the task has completed */
                 horizontalPixelWorker?.invokeOnCompletion { horizontalPixelWorker = null }
