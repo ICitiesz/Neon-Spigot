@@ -9,8 +9,8 @@ import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nCommand.Commands
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
-import com.islandstudio.neon.stable.utils.NeonKey
 import com.islandstudio.neon.stable.utils.ObjectSerializer
+import com.islandstudio.neon.stable.utils.identifier.NeonKey
 import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
 import kotlinx.coroutines.*
@@ -20,6 +20,7 @@ import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.GlowItemFrame
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -30,6 +31,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import org.jetbrains.kotlin.utils.addToStdlib.ifFalse
 import java.io.File
 import java.util.*
 import kotlin.jvm.optionals.getOrElse
@@ -61,7 +63,7 @@ object NPainting {
             }
 
             /* TODO: Temp. disable nPainting for version 1.17.X */
-            if (NConstructor.getVersion() == "1.17") {
+            if (NConstructor.getMajorVersion() == "1.17") {
                 val externalServerFeature = NServerFeatures.Handler.getLoadedExternalServerFeatures()
 
                 NServerFeatures.setToggle(
@@ -86,6 +88,27 @@ object NPainting {
             }
 
             when (args.size) {
+                2 -> {
+                    if (!validateArgument(args[1], CommandArgument.PAINTING_REMOVAL_STICK)) {
+                        return commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
+                    }
+
+                    val removalStick = ItemStack(Material.STICK)
+
+                    removalStick.itemMeta = removalStick.itemMeta?.let {
+                        NeonKey.addNeonKey(
+                            NeonKeyGeneral.N_PAINTING_REMOVAL_STICK.toString(),
+                            NeonKeyGeneral.N_PAINTING_REMOVAL_STICK.key,
+                            PersistentDataType.STRING, it, false)
+
+
+                        it.setDisplayName("${ChatColor.GOLD}nPainting Removal Stick")
+                        return@let it
+                    }
+
+                    commander.inventory.addItem(removalStick)
+                }
+
                 3 -> {
                     if (!validateArgument(args[1], CommandArgument.CREATE)) {
                         return commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
@@ -218,7 +241,7 @@ object NPainting {
             when (args.size) {
                 2 -> {
                     /* List options */
-                    return listOf(CommandArgument.CREATE, CommandArgument.REMOVE)
+                    return listOf(CommandArgument.CREATE, CommandArgument.REMOVE, CommandArgument.PAINTING_REMOVAL_STICK)
                         .map { it.argument }
                         .filter { it.startsWith(args[1], true) }.toMutableList()
                 }
@@ -394,7 +417,8 @@ object NPainting {
                 .filter { entity -> entity.type == EntityType.GLOW_ITEM_FRAME }
                 .filter { entity -> NeonKey.hasNeonKey(NeonKeyGeneral.NPAINTING_PROPERTY_HEADER.key, PersistentDataType.STRING, entity) }
                 .filter { entity ->
-                    val nPaintingProperty= ObjectSerializer.deserializeObjectEncoded(NeonKey.getNeonKeyValue(
+                    val nPaintingProperty= ObjectSerializer.deserializeObjectEncoded(
+                        NeonKey.getNeonKeyValue(
                         NeonKeyGeneral.NPAINTING_PROPERTY_HEADER.key,
                         PersistentDataType.STRING,
                         entity).toString()) as HashMap<String, Any>
@@ -490,6 +514,10 @@ object NPainting {
      * @param e The HangingBreakEvent
      */
     fun revokePaintingDestruction(e: HangingBreakEvent) {
+        if (!NeonKey.hasNeonKey(NeonKeyGeneral.NPAINTING_PROPERTY_HEADER.key, PersistentDataType.STRING, e.entity)) {
+            return
+        }
+
         /* For destruction cause by entity */
         if (e is HangingBreakByEntityEvent) {
             if (e.cause != HangingBreakEvent.RemoveCause.ENTITY) return
@@ -508,6 +536,31 @@ object NPainting {
             if (!player.isOp) {
                 e.isCancelled = true
                 return
+            }
+
+            // TODO: Temporary item to remove painting
+            player.inventory.itemInMainHand.apply {
+                if (this.type != Material.STICK) {
+                    e.isCancelled = true
+                    return
+                }
+
+                NeonKey.hasNeonKey(NeonKeyGeneral.N_PAINTING_REMOVAL_STICK.key, PersistentDataType.STRING, this.itemMeta!!).ifFalse {
+                    e.isCancelled = true
+                    return
+                }
+
+                val paintingFrame = e.entity as GlowItemFrame
+
+                val paintingData = ObjectSerializer.deserializeObjectEncoded(
+                    NeonKey.getNeonKeyValue(
+                        NeonKeyGeneral.NPAINTING_PROPERTY_HEADER.key, PersistentDataType.STRING, paintingFrame) as String) as HashMap<String, Any>
+
+                removePainting(
+                    paintingData[NeonKey.getNeonKeyNameWithNamespace(NeonKeyGeneral.NPAINTING_PROPERTY_IMAGE_NAME.key)]!! as String,
+                    Optional.of(paintingData[NeonKey.getNeonKeyNameWithNamespace(NeonKeyGeneral.NPAINTING_PROPERTY_RENDER_ID.key)]!! as UUID),
+                    RemovalType.DISPLAYED
+                )
             }
 
             return

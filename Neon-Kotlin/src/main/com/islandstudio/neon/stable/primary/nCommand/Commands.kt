@@ -26,7 +26,8 @@ open class Commands {
     enum class CommandArgument(val argument: String) {
         CREATE("create"),
         REMOVE("remove"),
-        ALL("all");
+        ALL("all"),
+        PAINTING_REMOVAL_STICK("removalStick");
     }
 
     enum class CommandTargetUser {

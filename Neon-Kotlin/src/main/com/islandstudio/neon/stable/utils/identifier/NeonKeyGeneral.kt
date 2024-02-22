@@ -1,6 +1,5 @@
 package com.islandstudio.neon.stable.utils.identifier
 
-import com.islandstudio.neon.stable.utils.NeonKey
 import org.bukkit.NamespacedKey
 
 enum class NeonKeyGeneral(val key: NamespacedKey) {
@@ -36,5 +35,8 @@ enum class NeonKeyGeneral(val key: NamespacedKey) {
     ),
     NCOMMAND_LIST_PROPERTY_ID(
         NeonKey.fromProperty("nCommandList.property.id.key", NeonKey.NeonKeyType.GENERAL)
+    ),
+    N_PAINTING_REMOVAL_STICK(
+      NeonKey.fromProperty("nPainting.tool.removal.key", NeonKey.NeonKeyType.GENERAL)
     ),
 }

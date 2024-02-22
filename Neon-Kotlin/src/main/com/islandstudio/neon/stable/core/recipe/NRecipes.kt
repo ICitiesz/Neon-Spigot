@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.core.recipe
 
-import com.islandstudio.neon.stable.utils.NeonKey
+import com.islandstudio.neon.stable.utils.identifier.NeonKey
 import org.bukkit.NamespacedKey
 
 @Suppress("unused")
@@ -663,7 +663,8 @@ enum class NRecipes(val key: NamespacedKey, val result: NMaterial, val resultAmo
         NMaterial.CRACKED_NETHER_BRICKS, 1,
         Handler.registerIngredients(NMaterial.NETHER_BRICKS)
     ),
-    NSMELTER_TERRACOTTA(NeonKey.fromProperty("nSmelter.recipe.terracotta.key", NeonKey.NeonKeyType.RECIPE),
+    NSMELTER_TERRACOTTA(
+        NeonKey.fromProperty("nSmelter.recipe.terracotta.key", NeonKey.NeonKeyType.RECIPE),
         NMaterial.TERRACOTTA, 1,
         Handler.registerIngredients(NMaterial.CLAY)
     ),
