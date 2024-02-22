@@ -8,13 +8,14 @@ import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
-import com.islandstudio.neon.stable.utils.NeonKey
 import com.islandstudio.neon.stable.utils.ObjectSerializer
+import com.islandstudio.neon.stable.utils.identifier.NeonKey
 import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import kotlinx.coroutines.*
 import org.bukkit.*
+import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -32,14 +33,14 @@ import java.util.*
 import javax.imageio.ImageIO
 
 object NFireworks {
-    private val supportedImageFormat = listOf("jpg", "png")
+    private val supportedImageFormat = listOf("jpeg", "jpg", "png")
 
     /* Used to draw selected image, resolution, n must be 16 >= or <= x128 [128 by 128] / [n by n]
     * 0.1 per pixel where it uses 0.1 block in-game to draw each pixel.
     * */
     const val PATTERN_FRAME_INGAME_SIZE = 12.8
-    const val PATTERN_FRAME_POINTER_INCREMENT = 0.2
-    private const val PATTERN_FRAME_INDEX = (((PATTERN_FRAME_INGAME_SIZE / 2) * 10) - 1).toInt()
+    const val PATTERN_FRAME_POINTER_INCREMENT_DECREMENT = 0.1
+    private const val PATTERN_FRAME_INDEX = ((PATTERN_FRAME_INGAME_SIZE * 10) - 1).toInt()
 
     private val imagesFolder = FolderList.NFIREWORKS_IMAGES.folder
     private val patternFramesFolder = FolderList.NFIREWORKS_PATTERN_FRAMES.folder
@@ -88,7 +89,7 @@ object NFireworks {
 
             val listOfImages = imageFiles
                 .filter { it.isFile }
-                .filter { it.extension == "jpg" || it.extension == "png" }
+                .filter { it.extension in supportedImageFormat }
                 .map { it.name }
                 .toMutableList()
 
@@ -225,8 +226,8 @@ object NFireworks {
      * @param fireworkLocation The exploded firework's location.
      * @return True if the rendering successful, else false.
      */
-    @OptIn(DelicateCoroutinesApi::class)
-    fun renderFireworkPattern(imageFileName: String, fireworkLocation: Location) {
+    @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
+    fun renderFireworkPattern(imageFileName: String, fireworkLocation: Location, fireworkPatternFacing: BlockFace) {
         val patternFile = File(FolderList.NFIREWORKS_PATTERN_FRAMES.folder, "${imageFileName}.pixdat")
 
         if (!patternFile.exists()) {
@@ -254,13 +255,13 @@ object NFireworks {
 
                         /* Check if the horizontalPixels is null, if it is, vertical pointer will move forward */
                         if (it.horizontalPixels.isEmpty()) {
-                            verticalPointer += PATTERN_FRAME_POINTER_INCREMENT
+                            verticalPointer += PATTERN_FRAME_POINTER_INCREMENT_DECREMENT
                             verticalPointer = String.format("%.1f", verticalPointer).toDouble()
                             return@forEach
                         }
 
-                        it.renderHorizontalPixel(fireworkLocation, verticalPointer, 20)
-                        verticalPointer += PATTERN_FRAME_POINTER_INCREMENT
+                        it.renderHorizontalPixel(fireworkLocation, verticalPointer, 20, fireworkPatternFacing)
+                        verticalPointer += PATTERN_FRAME_POINTER_INCREMENT_DECREMENT
                         verticalPointer = String.format("%.1f", verticalPointer).toDouble()
                 }
             }
@@ -349,7 +350,7 @@ object NFireworks {
             val fireworkEffects = ObjectSerializer.deserializeObjectEncoded(fireworkMeta.persistentDataContainer.get(
                 NeonKeyGeneral.NFIREWORKS_PROPERTY_HEADER.key, PersistentDataType.STRING)!!) as FireworkProperty.FireworkEffects
 
-            renderFireworkPattern(fireworkEffects.imageName, firework.location)
+            renderFireworkPattern(fireworkEffects.imageName, firework.location, fireworkEffects.fireworkPatternFacing)
         }
 
         @EventHandler

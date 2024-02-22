@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.utils
+package com.islandstudio.neon.stable.utils.identifier
 
 import com.islandstudio.neon.stable.core.init.NConstructor
 import org.bukkit.NamespacedKey

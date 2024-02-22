@@ -66,8 +66,9 @@ object NPacketProcessor {
             override fun channelRead(ctx: ChannelHandlerContext?, gamePacket: Any?) {
                 when (gamePacket) {
                     is ServerboundContainerButtonClickPacket -> {
-                        val nmsButtonID = gamePacket::class.java.getDeclaredField(NMSRemapped.Mapping.NMS_BUTTON_ID.remapped)
-                        nmsButtonID.isAccessible = true
+                        val nmsButtonID = gamePacket::class.java.getDeclaredField(NMSRemapped.Mapping.NMS_BUTTON_ID.remapped).also {
+                            it.isAccessible = true
+                        }
 
                         NCommandList.navigateCommandUI(nmsButtonID.getInt(gamePacket), nPlayer)
                     }
