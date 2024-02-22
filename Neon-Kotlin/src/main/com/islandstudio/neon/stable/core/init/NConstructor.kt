@@ -1,17 +1,13 @@
 package com.islandstudio.neon.stable.core.init
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.utils.NItemHighlight
-import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import org.bukkit.ChatColor
-import org.bukkit.enchantments.Enchantment
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin.getPlugin
-import java.lang.reflect.Field
 import java.util.logging.Logger
 
 object NConstructor {
@@ -22,22 +18,39 @@ object NConstructor {
     }.mapCatching { true }.getOrElse { false }
 
 
-    private const val NEON_VERSION: String = "|--------------== Neon v1.10.1-rc_2 ==--------------|"
-    private val rawVersion: String = plugin.server.bukkitVersion.split("-")[0]
-    private val version: String = rawVersion.split(".")[0] + "." + rawVersion.split(".")[1]
+    private const val NEON_VERSION: String = "|--------------== Neon v1.10.1-rc_3 ==--------------|"
+    private val minorVersion: String = plugin.server.bukkitVersion.split("-").first()
+    private val majorVersion: String = minorVersion.split(".")[0] + "." + minorVersion.split(".")[1]
 
-    private val supportedVersion = listOf("1.17", "1.18", "1.19", "1.20")
-    private val supportedLatestVersions = listOf("1.20", "1.20.1", "1.20.2")
+    private val isCompatible: Boolean = run {
+        if (!inMajorVersionRange(SupportedVersions.entries
+                .map { supportedVersion -> supportedVersion.majorVersion }.toTypedArray())) return@run false
 
-    private val isCompatible: Boolean = version.run {
-        if (this !in supportedVersion) return@run false
+        if (isMinorEqualMajorVersion()) return@run true
 
-        if (this == "1.20") {
-            if (rawVersion !in supportedLatestVersions) return@run false
-        }
+        val currentMinorVersions = SupportedVersions.entries
+                .find { supportedVersion -> majorVersion == supportedVersion.majorVersion }?.minorVersions ?: return@run false
+
+        if (!inMinorVersionRange(currentMinorVersions)) return@run false
 
         true
     }
+
+    /**
+     * Checkf if the current major version in the given major version range
+     *
+     * @return True if it is, else false
+     */
+    fun inMajorVersionRange(majorVersionRange: Array<String>): Boolean = majorVersion in majorVersionRange
+
+    /**
+     * Checkf if the current minor version in the given minor version range
+     *
+     * @return True if it is, else false
+     */
+    fun inMinorVersionRange(minorVersionRange: Array<String>): Boolean = minorVersion in minorVersionRange
+
+    fun isMinorEqualMajorVersion(): Boolean = minorVersion == majorVersion
 
     @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
     fun preConstructPlugin() {
@@ -106,7 +119,9 @@ object NConstructor {
 
         Thread.sleep(500L)
 
-        registerItemHighlight()
+        //registerItemHighlight()
+
+
 
         val postLoadClasses = NClassProperties.postloadClasses
 
@@ -173,18 +188,18 @@ object NConstructor {
     }
 
     /**
-     * Get simplified server version. E.g: 1.17, 1.18, 1.19 ...
+     * Get major server version. E.g: 1.17, 1.18, 1.19 ...
      *
      * @return
      */
-    fun getVersion(): String = version
+    fun getMajorVersion(): String = majorVersion
 
     /**
-     * Get raw server version. E.g: 1.17.1 1.18.2, 1.19.4
+     * Get minor server version. E.g: 1.17.1 1.18.2, 1.19.4
      *
      * @return
      */
-    fun getRawVersion(): String = rawVersion
+    fun getMinorVersion(): String = minorVersion
 
     /***
      * Register event processor. This is used when the server is starting up and only if the particular feature is enabled.
@@ -209,15 +224,20 @@ object NConstructor {
     }
 
     private fun registerItemHighlight() {
-        if (Enchantment.getByKey(NeonKeyGeneral.NGUI_HIGHTLIGHT_BUTTON.key) != null) return
+        //if (Enchantment.getByKey(NeonKeyGeneral.NGUI_HIGHTLIGHT_BUTTON.key) != null) return
 
-        val nItemHighlight = NItemHighlight(NeonKeyGeneral.NGUI_HIGHTLIGHT_BUTTON.key)
+        //val nItemHighlight = NItemHighlight(NeonKeyGeneral.NGUI_HIGHTLIGHT_BUTTON.key)
 
-        val field: Field = Enchantment::class.java.getDeclaredField("acceptingNew")
-        field.isAccessible = true
-        field.set(null, true)
+//        val field: Field = Enchantment::class.java.getDeclaredField("acceptingNew")
+//        field.isAccessible = true
+//        field.set(null, true)
 
-        Enchantment.registerEnchantment(nItemHighlight)
+        //Enchantment.registerEnchantment(nItemHighlight)
+
+//        Enchantments::class.java.getDeclaredMethod("a", String::class.java, net.minecraft.world.item.enchantment.Enchantment::class.java).apply {
+//            this.isAccessible = true
+//            this.invoke(null, NeonKeyGeneral.NGUI_HIGHTLIGHT_BUTTON.key.key, NItemHighlightRemastered())
+//        }
     }
 
     private fun displayStartingTitle() {

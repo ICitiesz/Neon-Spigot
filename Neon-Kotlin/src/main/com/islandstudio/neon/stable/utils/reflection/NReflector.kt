@@ -1,6 +1,7 @@
 package com.islandstudio.neon.stable.utils.reflection
 
 import com.islandstudio.neon.stable.core.init.NConstructor
+import org.bukkit.inventory.ItemStack
 import org.simpleyaml.configuration.MemorySection
 import org.simpleyaml.configuration.file.YamlFile
 import org.simpleyaml.utils.SupplierIO
@@ -24,6 +25,24 @@ object NReflector {
                 loadedNMSMapping[nmsMapping.mappingType] = nmsMapping
             }
         }
+    }
+
+    object CraftBukkitReflector {
+        /**
+         * Get craft bukkit class
+         *
+         * @param className The class name. [E.g.: inventory.CraftInventory]
+         * @return The CraftBukkit class
+         */
+        fun getCraftBukkitClass(className: String): Class<*> {
+            val craftBukkitVersion = NConstructor.plugin.server.javaClass.name.split(".")[3]
+
+            return Class.forName("org.bukkit.craftbukkit.${craftBukkitVersion}.$className")
+        }
+
+        fun getCraftItemStackClass(): Class<*> = getCraftBukkitClass("inventory.CraftItemStack")
+
+        fun getCraftItemStackClassByItemStack(itemStack: ItemStack): Class<*> = itemStack.javaClass
     }
 
     /**
@@ -90,7 +109,7 @@ object NReflector {
         private val mappingDetails: HashMap<String, String> = HashMap()
 
         init {
-            val version: String = NConstructor.getRawVersion()
+            val version: String = NConstructor.getMinorVersion()
 
             (nmsMappingsData.value as MemorySection).getValues(false).entries.forEach {
                 (it.value as MemorySection).getValues(false).forEach InnerFE@ { remappedObj ->
@@ -102,6 +121,6 @@ object NReflector {
             }
         }
 
-        fun getRemapped(remappedName: String): String = mappingDetails[remappedName]!!
+        fun getRemapped(remappedName: String): String = mappingDetails[remappedName] ?: ""
     }
 }
