@@ -26,9 +26,7 @@ object OptionValueValidation {
 
                 val doubleValue = if (inputValue::class.java.simpleName.equals(DataTypes.INTEGER.dataType)) (inputValue as Int).toDouble() else inputValue as Double
 
-                if (doubleValue < minValue || doubleValue > maxValue) return false
-
-                return true
+                return !(doubleValue < minValue || doubleValue > maxValue)
             }
 
             "Integer" -> {
@@ -37,9 +35,7 @@ object OptionValueValidation {
 
                 val integerValue = inputValue as Int
 
-                if (integerValue < minValue || integerValue > maxValue) return false
-
-                return true
+                return !(integerValue < minValue || integerValue > maxValue)
             }
 
             "Boolean" -> {

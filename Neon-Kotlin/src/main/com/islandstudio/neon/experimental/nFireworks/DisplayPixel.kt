@@ -1,12 +1,11 @@
 package com.islandstudio.neon.experimental.nFireworks
 
-import com.islandstudio.neon.stable.utils.NPacketProcessor
+import com.islandstudio.neon.stable.core.network.NPacketProcessor
 import org.bukkit.World
-import org.bukkit.entity.Firework
 import org.bukkit.scheduler.BukkitRunnable
 
 class DisplayPixel(private val pixel: Pixel, private val world: World) : BukkitRunnable() {
-    private val durationInTicks = (3 * 20)
+    private val durationInTicks = (2 * 20)
     private var currentTicks = 0
 
     override fun run() {

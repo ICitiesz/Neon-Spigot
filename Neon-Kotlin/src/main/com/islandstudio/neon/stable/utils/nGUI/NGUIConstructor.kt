@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.utils.nGUI
 
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
+import com.islandstudio.neon.stable.core.init.NConstructor
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder

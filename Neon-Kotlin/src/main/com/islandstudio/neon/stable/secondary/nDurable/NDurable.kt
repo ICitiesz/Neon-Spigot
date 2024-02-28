@@ -1,19 +1,19 @@
 package com.islandstudio.neon.stable.secondary.nDurable
 
 import com.islandstudio.neon.experimental.nEffect.NEffect
+import com.islandstudio.neon.stable.core.init.NConstructor
+import com.islandstudio.neon.stable.core.network.NPacketProcessor
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
+import com.islandstudio.neon.stable.primary.nServerFeatures.OptionValueValidation
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
-import com.islandstudio.neon.stable.utils.NPacketProcessor
-import com.islandstudio.neon.stable.utils.NReflector
-import com.islandstudio.neon.stable.utils.NeonKey
 import com.islandstudio.neon.stable.utils.ObjectSerializer
+import com.islandstudio.neon.stable.utils.identifier.NeonKey
+import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
+import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
+import com.islandstudio.neon.stable.utils.reflection.NReflector
 import net.minecraft.network.chat.Component
-import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.inventory.AbstractContainerMenu
 import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.entity.*
@@ -26,7 +26,6 @@ import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.event.entity.ItemSpawnEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
-import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.inventory.PrepareAnvilEvent
 import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.*
@@ -58,7 +57,7 @@ object NDurable {
             if (!isEnabled) {
                 toggleDamageProperty(isEnabled)
 
-                return NConstructor.unRegisterEvent(EventProcessor())
+                return NConstructor.unRegisterEventProcessor(EventProcessor())
             }
 
             toggleDamageProperty(isEnabled)
@@ -78,6 +77,7 @@ object NDurable {
         fun applyDamageProperty(itemStack: ItemStack, damagePerformed: Int): ItemStack {
             if (!isItemMatch(itemStack)) return itemStack
 
+            val nDurableContainerHeader = NeonKeyGeneral.NDURABLE_PROPERTY_HEADER.key
             val itemMaxDamage = itemStack.type.maxDurability
             val damageableItemMeta = itemStack.itemMeta as Damageable
             val itemDamage = damageableItemMeta.damage
@@ -89,18 +89,19 @@ object NDurable {
                 damageableItemMeta.damage = itemMaxDamage.toInt()
             }
 
-            var damagePropertyContainer: HashMap<String, Any> = hashMapOf(NeonKey.getNeonKeyNameWithNamespace(
-                NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE) to finalItemDamage)
+            var damagePropertyContainer: HashMap<String, Any> = hashMapOf(
+                NeonKey.getNeonKeyNameWithNamespace(
+                NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key) to finalItemDamage)
 
-            if (NeonKey.hasNeonKey(NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItemMeta)) {
+            if (NeonKey.hasNeonKey(nDurableContainerHeader, PersistentDataType.STRING, damageableItemMeta)) {
                 damagePropertyContainer = getDamageProperty(damageableItemMeta)
 
-                damagePropertyContainer[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] = finalItemDamage
+                damagePropertyContainer[NeonKey.getNeonKeyNameWithNamespace(NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key)] = finalItemDamage
             }
 
             NeonKey.updateNeonKey(
                 ObjectSerializer.serializeObjectEncoded(damagePropertyContainer),
-                NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItemMeta)
+                nDurableContainerHeader, PersistentDataType.STRING, damageableItemMeta)
 
             itemStack.itemMeta = damageableItemMeta
 
@@ -112,26 +113,16 @@ object NDurable {
          * Apply damage property to tool/weapon when player getting it from /give command
          * or from creative inventory.
          *
-         * @param nPlayer The nPlayer (Player object used by packet).
-         * @param rawSlotIndex The slot index in raw for the inventory.
+         * @param gaveItem The gave item in NMS-based.
          */
-        fun applyDamagePropertyOnGive(nPlayer: ServerPlayer, rawSlotIndex: Int) {
+        fun applyDamagePropertyOnGive(gaveItem: net.minecraft.world.item.ItemStack) {
             if (!isEnabled) return
 
-            /* Getting the inventory view from player that received the tool/weapon
-            * from /give command or getting from creative inventory */
-            /* TODO: 1.17, 1.18 mapping (bV) */
-            val inventoryView = (nPlayer.javaClass.superclass.getField("bV").get(nPlayer)
-                    as AbstractContainerMenu).bukkitView
-
-            /* Get and check the inventory type. */
-            inventoryView.getInventory(rawSlotIndex)?.let {
-                if (it.type != InventoryType.PLAYER) return
-            } ?: return
-
-            val gaveItem = inventoryView.getItem(rawSlotIndex) ?: return
-
-            applyDamageProperty(gaveItem, 0)
+            /* Convert base Item Stack to Bukkit Item Stack */
+            (NReflector.getCraftBukkitClass("inventory.CraftItemStack").getMethod("asCraftMirror",
+                net.minecraft.world.item.ItemStack::class.java).invoke(null, gaveItem) as ItemStack).also {
+                    applyDamageProperty(it, 0)
+            }
         }
 
         /**
@@ -146,17 +137,16 @@ object NDurable {
             if (!(villager.profession == Villager.Profession.TOOLSMITH || villager.profession == Villager.Profession.WEAPONSMITH)) return
 
             villager.recipes.forEach {
-                val merchantRecipeField = it.javaClass.getDeclaredField("handle")
-                merchantRecipeField.isAccessible = true
-
-                val merchantRecipe = merchantRecipeField.get(it)
+                val merchantRecipe = it.javaClass.getDeclaredField("handle").run {
+                    this.isAccessible = true
+                    this.get(it)
+                }
 
                 /* Damage property for trade offer ingredient */
                 it.ingredients.forEach InnerFE@ { ingredient ->
                     if (!isItemMatch(ingredient)) return@InnerFE
 
-                    /* TODO: 1.17, 1.18 mapping (c) */
-                    val originalIngredient = merchantRecipe.javaClass.getDeclaredField("c")
+                    val originalIngredient = merchantRecipe.javaClass.getDeclaredField(NMSRemapped.Mapping.NMS_MERCHANT_RECIPE_RESULT.remapped)
                     originalIngredient.isAccessible = true
 
                     val newIngredient = if (isEnabled) applyDamageProperty(ingredient, 0)
@@ -169,12 +159,11 @@ object NDurable {
                 }
 
                 /* Damage property for trade offer result */
-                /* TODO: 1.17, 1.18 mapping (c) */
-                val originalResult = merchantRecipe.javaClass.getDeclaredField("c")
+                val originalResult = merchantRecipe.javaClass.getDeclaredField(NMSRemapped.Mapping.NMS_MERCHANT_RECIPE_RESULT.remapped)
                 originalResult.isAccessible = true
 
                 val newResult = if (isEnabled) applyDamageProperty(it.result, 0)
-                else hideDamageProperty(it.result)
+                else removeDamageProperty(it.result, true)
 
                 val baseItemStack = NReflector.getCraftBukkitClass("inventory.CraftItemStack")
                     .getMethod("asNMSCopy", ItemStack::class.java).invoke(null, newResult)
@@ -188,12 +177,21 @@ object NDurable {
          *
          * @param damageableItem The tool/weapon.
          */
-        private fun removeDamageProperty(damageableItem: ItemStack) {
-            if (!isItemMatch(damageableItem)) return
+        fun removeDamageProperty(damageableItem: ItemStack, isForceRemoval: Boolean): ItemStack {
+            if (!isItemMatch(damageableItem)) return damageableItem
 
-            hideDamageProperty(damageableItem)
+            if (isForceRemoval) {
+                NeonKey.removeNeonKeyByNamespace(damageableItem, "durable").ifTrue {
+                    hideDamageProperty(damageableItem)
+                }
+                return damageableItem
+            }
 
-            NeonKey.removeNeonKey(NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItem)
+            NeonKey.removeNeonKey(NeonKeyGeneral.NDURABLE_PROPERTY_HEADER.key, PersistentDataType.STRING, damageableItem).ifTrue {
+                hideDamageProperty(damageableItem)
+            }
+
+            return damageableItem
         }
 
         /**
@@ -203,13 +201,13 @@ object NDurable {
          * @return The damage property.
          */
         fun getDamageProperty(damageableItemMeta: Damageable): HashMap<String, Any> {
-            if (!NeonKey.hasNeonKey(NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItemMeta)) {
+            if (!NeonKey.hasNeonKey(NeonKeyGeneral.NDURABLE_PROPERTY_HEADER.key, PersistentDataType.STRING, damageableItemMeta)) {
                 return hashMapOf()
             }
 
             @Suppress("UNCHECKED_CAST")
             return ObjectSerializer.deserializeObjectEncoded(
-                NeonKey.getNeonKeyValue(NeonKey.NamespaceKeys.NEON_N_DURABLE, PersistentDataType.STRING, damageableItemMeta) as String)
+                NeonKey.getNeonKeyValue(NeonKeyGeneral.NDURABLE_PROPERTY_HEADER.key, PersistentDataType.STRING, damageableItemMeta) as String)
                     as HashMap<String, Any>
         }
 
@@ -220,8 +218,12 @@ object NDurable {
             }
 
             when (args.size) {
-                2 -> {
-                    args[1].equals("removeDamageProperty", true).ifFalse {
+                3 -> {
+                    val isForceRemoval: Boolean = OptionValueValidation
+                        .isDataTypeValid(OptionValueValidation.DataTypes.BOOLEAN.dataType, args[2])
+                        ?.let { it as Boolean } ?: return commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
+
+                    if (!args[1].equals("removeDamageProperty", true)) {
                         commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
                         return
                     }
@@ -238,26 +240,30 @@ object NDurable {
                         return
                     }
 
-                    removeDamageProperty(damageableItem)
+                    removeDamageProperty(damageableItem, isForceRemoval)
                     commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.GREEN}Damage property for " +
                             "${ChatColor.GOLD}${getDamageableItemName(damageableItem)}${ChatColor.GREEN} has been removed!"))
                 }
 
-                3 -> {
-                    args[1].equals("removeDamageProperty", true).ifFalse {
+                4 -> {
+                    val isForceRemoval: Boolean = OptionValueValidation
+                        .isDataTypeValid(OptionValueValidation.DataTypes.BOOLEAN.dataType, args[2])
+                        ?.let { it as Boolean } ?: return commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
+
+                    if (!args[1].equals("removeDamageProperty", true)) {
                         commander.sendMessage(CommandSyntax.INVALID_ARGUMENT.syntaxMessage)
                         return
                     }
 
-                    val targetPlayerName = args[2]
+                    val targetPlayerName = args[3]
 
                     plugin.server.onlinePlayers.find { it.name == targetPlayerName }?.let {
                         it.inventory.contents.filterNotNull().filter { contentItem -> isItemMatch(contentItem) }
                             .forEach { damageableItem ->
-                                removeDamageProperty(damageableItem)
+                                removeDamageProperty(damageableItem, isForceRemoval)
                             }
-                    } ?: commander.sendMessage(CommandSyntax.createSyntaxMessage(
-                        "${ChatColor.YELLOW}No such player as ${ChatColor.GRAY}'${ChatColor.WHITE}" +
+                    } ?: return commander.sendMessage(CommandSyntax.createSyntaxMessage(
+                        "${ChatColor.RED}Can't remove damage property! No such player as ${ChatColor.GRAY}'${ChatColor.WHITE}" +
                                 "${targetPlayerName}${ChatColor.GRAY}'${ChatColor.YELLOW}!"))
 
                     commander.sendMessage(CommandSyntax.createSyntaxMessage(
@@ -281,10 +287,16 @@ object NDurable {
                 }
 
                 3 -> {
-                    if (!args[1].equals("removeDamageProperty", true)) return super.tabCompletion(commander, args)
+                    return listOf("true", "false").filter { it.startsWith(args[2], true) }.toMutableList()
+                }
+
+                4 -> {
+                    if (!args[1].equals("removeDamageProperty", true)) {
+                        return super.tabCompletion(commander, args)
+                    }
 
                     return plugin.server.onlinePlayers.parallelStream().map { targetPlayer -> targetPlayer.name }
-                        .toList().filter { it.startsWith(args[2]) }.toMutableList()
+                        .toList().filter { it.startsWith(args[3]) }.toMutableList()
                 }
             }
 
@@ -304,40 +316,44 @@ object NDurable {
         if (player != null) {
             player.inventory.contents.filterNotNull()
                 .filter { contentItem -> contentItem.itemMeta is Damageable }
-                .filter { damageableItem -> isItemMatch(damageableItem) }.forEach innerFE@ { damageableItem ->
+                .filter { damageableItem -> isItemMatch(damageableItem) }
+                .forEach innerFE@ { damageableItem ->
                     isEnabled.ifTrue {
                         Handler.applyDamageProperty(damageableItem, 0)
 
                         return@innerFE
                     }
 
-                    hideDamageProperty(damageableItem)
+                    Handler.removeDamageProperty(damageableItem, true)
                 }
 
             return
         }
+
         /* Toggle damage property display for all online players if no player specify  */
         plugin.server.onlinePlayers.forEach { onlinePlayer ->
             onlinePlayer.inventory.contents.filterNotNull()
                 .filter { contentItem -> contentItem.itemMeta is Damageable }
-                .filter { damageableItem -> isItemMatch(damageableItem) }.forEach innerFE@ { damageableItem ->
+                .filter { damageableItem -> isItemMatch(damageableItem) }
+                .forEach innerFE@ { damageableItem ->
                     isEnabled.ifTrue {
                         Handler.applyDamageProperty(damageableItem, 0)
 
                         return@innerFE
                     }
 
-                    hideDamageProperty(damageableItem)
+                    Handler.removeDamageProperty(damageableItem, true)
                 }
         }
 
         isEnabled.ifFalse {
-            /* Hide damage property display from all tool smith villager & weapon smith villager */
+            /* Remove and hide damage property display from all tool smith villager & weapon smith villager */
             plugin.server.worlds.forEach {
                 it.entities.parallelStream()
                     .filter { entity -> entity is Villager }
                     .filter { entity -> (entity as Villager).profession == Villager.Profession.TOOLSMITH
-                            || entity.profession == Villager.Profession.WEAPONSMITH }.forEach { entity ->
+                            || entity.profession == Villager.Profession.WEAPONSMITH }
+                    .forEach { entity ->
                         Handler.applyDamagePropertyOnTrading(entity as Villager)
                     }
             }
@@ -359,7 +375,7 @@ object NDurable {
 
         /* Check and get damage detail of the tool/weapon. */
         val itemDamage = damageProperty.entries.find { it.key == NeonKey.getNeonKeyNameWithNamespace(
-            NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE) }?.value ?: return
+            NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key) }?.value ?: return
 
         val itemMaxDurability = itemStack.type.maxDurability
         val damagePropertyDisplay: MutableList<String> = if (damageableItemMeta.hasLore()) damageableItemMeta.lore!! else mutableListOf()
@@ -525,7 +541,7 @@ object NDurable {
 
         Handler.getDamageProperty(heldItemItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key)] as Int,
                         heldItem.type.maxDurability.toInt())
                 ) return false
             }
@@ -589,7 +605,7 @@ object NDurable {
 
         Handler.getDamageProperty(damageableItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key)] as Int,
                         damageableItem.type.maxDurability.toInt())
                 ) return false
             }
@@ -756,7 +772,7 @@ object NDurable {
 
         Handler.getDamageProperty(damageableItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key)] as Int,
                         lighter.type.maxDurability.toInt())
                 ) return false
             }
@@ -797,7 +813,7 @@ object NDurable {
 
         Handler.getDamageProperty(damageableItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key)] as Int,
                         damageableItem.type.maxDurability.toInt())
                 ) return false
             }
@@ -826,7 +842,7 @@ object NDurable {
 
         Handler.getDamageProperty(shearsItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key)] as Int,
                         shears.type.maxDurability.toInt())
                 ) return false
             }
@@ -858,7 +874,7 @@ object NDurable {
 
         Handler.getDamageProperty(bowItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key)] as Int,
                         bow.type.maxDurability.toInt())
                 ) return false
             }
@@ -883,9 +899,12 @@ object NDurable {
         val alertMsg = "${ChatColor.GOLD}${getDamageableItemName(damagedItem)} " +
                 "${ChatColor.RED}has been damaged!"
 
-        val actionTitlePacket = ClientboundSetActionBarTextPacket(
-            Component.Serializer.fromJson("{\"text\":\"${alertMsg}\"}")
-        )
+        val setActionBarTextPacket = NReflector
+            .getNamespaceClass("network.protocol.game.${NMSRemapped.Mapping.NMS_CLIENT_PACKET_SET_ACTION_BAR_TEXT.remapped}")!!
+            .constructors
+            .find { it.parameterTypes.contains(Component::class.java) }!!
+
+        val actionTitlePacket = setActionBarTextPacket.newInstance(Component.Serializer.fromJson("{\"text\":\"${alertMsg}\"}"))
 
         NPacketProcessor.sendGamePacket(player, actionTitlePacket)
     }
@@ -901,7 +920,7 @@ object NDurable {
         val itemName = itemToMatch.type.name
 
         if (referenceItem == null) {
-            return DamageableItems.Items.values().any { itemName.contains(it.itemName, true) }
+            return DamageableItems.Items.entries.any { itemName.contains(it.itemName, true) }
         }
 
         if (!itemName.contains(referenceItem.itemName, true)) return false
@@ -959,7 +978,7 @@ object NDurable {
 
         Handler.getDamageProperty(damageableItemMeta).run {
             this.isNotEmpty().ifTrue {
-                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKey.NamespaceKeys.NEON_N_DURABLE_DAMAGE)] as Int,
+                if (!isItemDamaged(this[NeonKey.getNeonKeyNameWithNamespace(NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key)] as Int,
                         damageableItem.type.maxDurability.toInt())
                 ) return false
             }

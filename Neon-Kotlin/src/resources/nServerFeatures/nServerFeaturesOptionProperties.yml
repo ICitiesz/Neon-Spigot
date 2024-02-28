@@ -41,3 +41,17 @@ nDurable:
     description: 'Show/hide tool/weapon durability.'
     dataType: 'Boolean'
     dataRange: null
+
+nFireworks:
+  particleSize:
+    description: 'Size of the particle.'
+    dataType: 'Double'
+    dataRange:
+      minValue: 0.1
+      maxValue: 1.5
+  particleSpeed:
+    description:
+    dataType: 'Double'
+    dataRange:
+      minValue: 0.5
+      maxValue: 1.0

@@ -1,10 +1,10 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
+import com.islandstudio.neon.stable.core.init.NConstructor
+import com.islandstudio.neon.stable.core.io.nFolder.FolderList
+import com.islandstudio.neon.stable.core.io.nFolder.NFolder
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
-import com.islandstudio.neon.stable.primary.nFolder.FolderList
-import com.islandstudio.neon.stable.primary.nFolder.NFolder
 import com.islandstudio.neon.stable.utils.DataSessionState
 import com.islandstudio.neon.stable.utils.ObjectSerializer
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
@@ -199,7 +199,7 @@ object NServerFeatures {
             }
 
             /* Stage 3: Register event for nServerFeatures GUI */
-            NConstructor.registerEventProcessor(EventProcessor())
+//            NConstructor.registerEventProcessor(EventProcessor())
         }
 
         override fun setCommandHandler(commander: Player, args: Array<out String>) {
@@ -581,7 +581,7 @@ object NServerFeatures {
         }
     }
 
-    private class EventProcessor: Listener {
+    class EventProcessor: Listener {
         @EventHandler
         private fun onInventoryClose(e: InventoryCloseEvent) {
             val player: Player = e.player as Player

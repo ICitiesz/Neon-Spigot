@@ -1,17 +1,16 @@
 package com.islandstudio.neon.stable.secondary.nBundle
 
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
+import com.islandstudio.neon.stable.core.init.NConstructor
+import com.islandstudio.neon.stable.core.recipe.NRecipes
+import com.islandstudio.neon.stable.core.recipe.RecipeRegistry
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
-import com.islandstudio.neon.stable.utils.NPacketProcessor
-import com.islandstudio.neon.stable.utils.NeonKey
-import net.minecraft.world.inventory.AbstractContainerMenu
+import com.islandstudio.neon.stable.utils.reflection.NReflector
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.entity.Villager
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.server.ServerLoadEvent
@@ -22,7 +21,7 @@ import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.loot.LootTable
 import org.jetbrains.kotlin.utils.addToStdlib.ifFalse
 
-object NBundle {
+object NBundle: RecipeRegistry {
     /* Default Bundle trade values */
     private var bundleGenerateChance = 0.17
     private var bundleMaxBuy = 12
@@ -48,7 +47,7 @@ object NBundle {
 
             if (!isEnabled) {
                 removeBundleTradingRecipe()
-                return NConstructor.unRegisterEvent(EventProcessor())
+                return NConstructor.unRegisterEventProcessor(EventProcessor())
             }
 
             val featureName = ServerFeature.FeatureNames.N_BUNDLE.featureName
@@ -61,7 +60,7 @@ object NBundle {
 
             NConstructor.registerEventProcessor(EventProcessor())
 
-            addBundleCraftingRecipe()
+            registerRecipe()
         }
     }
 
@@ -78,7 +77,7 @@ object NBundle {
 
         if (!lootTableKey.startsWith("minecraft:chests")) return loot
 
-        if (!LootStructure.values().map { it.key }.contains(lootTableKey.split("/").last())) return loot
+        if (!LootStructure.entries.map { it.key }.contains(lootTableKey.split("/").last())) return loot
 
         if (Math.random() <= bundleGenerateChance) {
             loot.add(ItemStack(Material.BUNDLE, 1))
@@ -88,59 +87,52 @@ object NBundle {
         return loot
     }
 
-    /**
-     * Add bundle crafting recipe to the server.
-     *
-     */
-    private fun addBundleCraftingRecipe() {
-        val shapedRecipe = ShapedRecipe(NeonKey.NamespaceKeys.NEON_BUNDLE.key, ItemStack(Material.BUNDLE))
+    override fun registerRecipe() {
+        val filteredRecipe: HashMap<String, NRecipes> = filterRecipe("NBUNDLE")
 
-        shapedRecipe.shape("SRS", "R R", "RRR")
-        shapedRecipe.setIngredient('S', Material.STRING)
-        shapedRecipe.setIngredient('R', Material.RABBIT_HIDE)
-        plugin.server.addRecipe(shapedRecipe)
+        if (filteredRecipe.isEmpty()) return
+
+        plugin.server.addRecipe(filteredRecipe.values.first().run {
+            val bundleRecipe = ShapedRecipe(this.key, ItemStack(this.result.bukkitMaterial!!))
+
+            bundleRecipe.shape("SRS", "R R", "RRR")
+            bundleRecipe.setIngredient('S', this.ingredients.find { it.name.startsWith("S") }!!
+                .bukkitMaterial!!)
+            bundleRecipe.setIngredient('R', this.ingredients.find { it.name.startsWith("R") }!!
+                .bukkitMaterial!!)
+        })
     }
 
     /**
      * Discover bundle recipe once player acquired ingredient.
      *
      * @param player The target player.
-     * @param rawSlotIndex Raw slot index of the acquired ingredient.
+     * @param gaveItem The given item.
      */
-    fun discoverBundleRecipe(player: Player, rawSlotIndex: Int? = null) {
+    fun discoverBundleRecipe(player: Player, gaveItem: net.minecraft.world.item.ItemStack? = null) {
         if (!isEnabled) return
 
-        if (player.hasDiscoveredRecipe(NeonKey.NamespaceKeys.NEON_BUNDLE.key)) return
+        val bundleNamespaceKey = NRecipes.NBUNDLE_BUNDLE.key
 
-        val nPlayer = NPacketProcessor.getNPlayer(player)
+        if (player.hasDiscoveredRecipe(bundleNamespaceKey)) return
 
-        rawSlotIndex?.let {
-            /* Getting the inventory view from player that received ingredients
-            * from /give command or getting from creative inventory */
-            /* TODO: 1.17, 1.18 mapping (bV) */
-            val inventoryView = (nPlayer.javaClass.superclass.getField("bV").get(nPlayer)
-                    as AbstractContainerMenu).bukkitView
+        /* This section for player who using /give command or picked up the item */
+        gaveItem?.let { itemStack ->
+            (NReflector.getCraftBukkitClass("inventory.CraftItemStack").getMethod("asCraftMirror",
+                net.minecraft.world.item.ItemStack::class.java).invoke(null, itemStack) as ItemStack).also {
+                if (!(it.type == Material.RABBIT_HIDE || it.type == Material.BUNDLE)) return
 
-            /* Get and check the inventory type. */
-            inventoryView.getInventory(it)?.let { inventory ->
-                if (inventory.type != InventoryType.PLAYER) return
-            } ?: return
-
-            val gaveItem = inventoryView.getItem(it) ?: return
-
-            if (!(gaveItem.type == Material.RABBIT_HIDE || gaveItem.type == Material.BUNDLE)) return
-
-            plugin.server.scheduler.runTask(plugin, Runnable {
-                player.discoverRecipe(NeonKey.NamespaceKeys.NEON_BUNDLE.key)
-            })
-
-            return
+                plugin.server.scheduler.runTask(plugin, Runnable {
+                    player.discoverRecipe(bundleNamespaceKey)
+                })
+                return
+            }
         }
 
         player.inventory.contents.filterNotNull().any { itemStack ->
             itemStack.type == Material.RABBIT_HIDE || itemStack.type == Material.BUNDLE }.ifFalse { return }
 
-        player.discoverRecipe(NeonKey.NamespaceKeys.NEON_BUNDLE.key)
+        player.discoverRecipe(bundleNamespaceKey)
     }
 
     /**

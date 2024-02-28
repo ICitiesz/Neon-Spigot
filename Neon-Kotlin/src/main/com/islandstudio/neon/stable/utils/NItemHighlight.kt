@@ -5,6 +5,7 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.enchantments.EnchantmentTarget
 import org.bukkit.inventory.ItemStack
 
+@Deprecated("Older constructor has been deprecated where the parameter `NamespacedKey` no longer needed for future version.")
 class NItemHighlight(key: NamespacedKey) : Enchantment(key) {
     @Deprecated("Deprecated in Java", ReplaceWith("\"\""))
     override fun getName(): String {

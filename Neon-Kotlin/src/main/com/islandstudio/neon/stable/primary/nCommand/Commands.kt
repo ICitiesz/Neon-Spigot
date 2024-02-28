@@ -3,6 +3,12 @@ package com.islandstudio.neon.stable.primary.nCommand
 import org.simpleyaml.configuration.MemorySection
 
 open class Commands {
+    companion object {
+        fun validateArgument(arg: String, commandArgument: CommandArgument, ignoreCase: Boolean = true): Boolean {
+            return arg.equals(commandArgument.argument, ignoreCase)
+        }
+    }
+
     enum class CommandAlias(val aliasName: String) {
         WAYPOINTS("waypoints"),
         RANK("rank"),
@@ -12,8 +18,16 @@ open class Commands {
         SERVERFEATURES("serverfeatures"),
         EFFECT("effect"),
         MOD("mod"),
-        //NFIREWORKS("fireworks"),
-        DURABILITY("durability")
+        NFIREWORKS("fireworks"),
+        DURABILITY("durability"),
+        NPAINTING("painting")
+    }
+
+    enum class CommandArgument(val argument: String) {
+        CREATE("create"),
+        REMOVE("remove"),
+        ALL("all"),
+        PAINTING_REMOVAL_STICK("removalStick");
     }
 
     enum class CommandTargetUser {

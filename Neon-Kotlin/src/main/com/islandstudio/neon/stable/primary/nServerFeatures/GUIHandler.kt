@@ -1,7 +1,8 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
+import com.islandstudio.neon.experimental.utils.NItemGlinter
+import com.islandstudio.neon.stable.core.init.NConstructor
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import org.bukkit.ChatColor
 import org.bukkit.Material
@@ -51,7 +52,7 @@ open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI) {
 
             if (editableToggleStatus) {
                 serverFeatureDetailsContainer.add("${ChatColor.GRAY}Status: ${ChatColor.GREEN}Enabled!")
-                serverFeatureItemMeta.addEnchant(nItemHighlight, 0, true)
+                serverFeatureItemMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0, true)
             } else {
                 serverFeatureDetailsContainer.add("${ChatColor.GRAY}Status: ${ChatColor.RED}Disabled!")
             }
@@ -178,14 +179,14 @@ open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI) {
                         NServerFeatures.setToggle(editableServerFeature[clickedItemDisplayName]!!, false)
 
                         clickedItemLore[clickedItemLore.indexOf(statusEnabled)] = statusDisabled
-                        clickedItemMeta.removeEnchant(nItemHighlight)
+                        clickedItemMeta.removeEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint)
                     }
 
                     clickedItemLore.contains(statusDisabled) -> {
                         NServerFeatures.setToggle(editableServerFeature[clickedItemDisplayName]!!, true)
 
                         clickedItemLore[clickedItemLore.indexOf(statusDisabled)] = statusEnabled
-                        clickedItemMeta.addEnchant(nItemHighlight, 0, true)
+                        clickedItemMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0, true)
                     }
                 }
 
@@ -261,13 +262,15 @@ open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI) {
                             true -> {
                                 isOptionVisible = false
                                 clickedItemLore[clickedItemLore.indexOf(statusVisible)] = statusHidden
-                                clickedItemMeta.removeEnchant(nItemHighlight)
+
+                                clickedItemMeta.removeEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint)
                             }
 
                             false -> {
                                 isOptionVisible = true
                                 clickedItemLore[clickedItemLore.indexOf(statusHidden)] = statusVisible
-                                clickedItemMeta.addEnchant(nItemHighlight, 0, true)
+
+                                clickedItemMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0, true)
                             }
                         }
 
@@ -282,7 +285,7 @@ open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI) {
                     sortTypeButtonDisplayName -> {
                         val clickedItemLore: ArrayList<String> = clickedItemMeta.lore as ArrayList<String>
 
-                        val typeIndex = SortingType.values().indexOf(SortingType.values().single { it.type == clickedItemLore.first() })
+                        val typeIndex = SortingType.entries.indexOf(SortingType.entries.single { it.type == clickedItemLore.first() })
 
                         when (typeIndex + 1) {
                             1 -> {
@@ -315,7 +318,7 @@ open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI) {
                     sortOrderButtonDisplayName -> {
                         val clickedItemLore: ArrayList<String> = clickedItemMeta.lore as ArrayList<String>
 
-                        val orderIndex = SortingOrder.values().indexOf(SortingOrder.values().single { it.order == clickedItemLore.first() })
+                        val orderIndex = SortingOrder.entries.indexOf(SortingOrder.entries.single { it.order == clickedItemLore.first() })
 
                         when (orderIndex + 1) {
                             1 -> {

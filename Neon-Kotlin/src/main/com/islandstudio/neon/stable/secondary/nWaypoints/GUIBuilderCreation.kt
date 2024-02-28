@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.secondary.nWaypoints
 
-import com.islandstudio.neon.stable.utils.NeonKey
+import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import org.bukkit.ChatColor
@@ -21,7 +21,7 @@ abstract class GUIBuilderCreation(nGUI: NGUI) : NGUIConstructor(nGUI) {
     protected val closeButtonDisplayName = "${ChatColor.RED}Close"
 
     /* Button identifier key */
-    protected val buttonIDKey: NamespacedKey = NeonKey.NamespaceKeys.NEON_BUTTON.key
+    protected val buttonIDKey: NamespacedKey = NeonKeyGeneral.NGUI_BUTTON.key
 
     fun addGUIButtons() {
         /* Button lore */

@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.primary.nCommand.nCommandList
 
 import com.islandstudio.neon.stable.primary.nCommand.Commands
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
+import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.LecternMenu
 import org.bukkit.entity.Player
@@ -148,7 +148,7 @@ data class CommandUISession(val player: Player) {
         init {
             commandUIView = getCommandUIView()
             commandUIId = commandUIWindow.containerId
-            currentPage = commandUIView.page
+            currentPage = commandUIView.javaClass.getMethod(NMSRemapped.Mapping.NMS_LECTERN_BOOK_PAGE.remapped).invoke(commandUIView) as Int
         }
 
         private fun getCommandUIView(): LecternMenu {
@@ -164,7 +164,7 @@ data class CommandUISession(val player: Player) {
         }
 
         fun updateOrGetCurrentPage(): Int {
-            currentPage = commandUIView.page
+            currentPage = commandUIView.javaClass.getMethod(NMSRemapped.Mapping.NMS_LECTERN_BOOK_PAGE.remapped).invoke(commandUIView) as Int
             return currentPage
         }
 
@@ -178,15 +178,8 @@ data class CommandUISession(val player: Player) {
         }
 
         fun updateServerSideCurrentPage(newCurrentPage: Int) {
-            when (NConstructor.getVersion()) {
-                "1.17" -> {
-                    commandUIView.javaClass.getMethod("setContainerData", Int::class.java, Int::class.java).invoke(commandUIView, 0, newCurrentPage)
-                }
-
-                "1.18" -> {
-                    commandUIView.setData(0, newCurrentPage)
-                }
-            }
+            commandUIView.javaClass.getMethod(NMSRemapped.Mapping.NMS_SET_CONTAINER_DATA.remapped, Int::class.java, Int::class.java)
+                .invoke(commandUIView, 0, newCurrentPage)
         }
 
         fun updateOrGetCommandAlias(newCommandAlias: Commands.CommandAlias?): Commands.CommandAlias? {
