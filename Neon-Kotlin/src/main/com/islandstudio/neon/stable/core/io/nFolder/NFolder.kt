@@ -15,7 +15,7 @@ object NFolder {
      * Initialization for the folders
      */
     fun run() {
-        FolderList.values().forEach {
+        FolderList.entries.forEach {
             if (!it.folder.exists()) {
                 it.folder.mkdirs()
             }
@@ -34,6 +34,31 @@ object NFolder {
         if (file.exists()) return
 
         file.createNewFile()
+    }
+
+    /**
+     * Create new file if not exist, then get the created file, else get the existing file.
+     *
+     * @param requiredFolder The folder that contain the file.
+     * @param file The target file.
+     * @return The created file or existing file.
+     */
+    fun createOrGetNewFile(requiredFolder: File, file: File): File {
+        if (!requiredFolder.exists()) requiredFolder.mkdirs()
+
+        if (file.exists()) return file
+
+        file.createNewFile()
+
+        return file
+    }
+
+    fun createOrGetNewDirectory(directory: File): File {
+        if (directory.exists()) return directory
+
+        directory.mkdirs()
+
+        return directory
     }
 
     /**

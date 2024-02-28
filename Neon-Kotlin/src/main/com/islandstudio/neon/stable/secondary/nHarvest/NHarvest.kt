@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.secondary.nHarvest
 
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
+import com.islandstudio.neon.stable.core.init.NConstructor
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
 import com.islandstudio.neon.stable.secondary.nDurable.NDurable
@@ -25,7 +25,7 @@ object NHarvest {
         fun run() {
             isEnabled = NServerFeatures.getToggle(ServerFeature.FeatureNames.N_HARVEST)
 
-            if (!isEnabled) return NConstructor.unRegisterEvent(EventProcessor())
+            if (!isEnabled) return NConstructor.unRegisterEventProcessor(EventProcessor())
 
             NConstructor.registerEventProcessor(EventProcessor())
         }

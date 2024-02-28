@@ -1,8 +1,8 @@
 package com.islandstudio.neon.stable.secondary.nRank
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.core.init.NConstructor
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nProfile.NProfile
 import com.islandstudio.neon.stable.primary.nProfile.PlayerProfile
 import org.bukkit.ChatColor

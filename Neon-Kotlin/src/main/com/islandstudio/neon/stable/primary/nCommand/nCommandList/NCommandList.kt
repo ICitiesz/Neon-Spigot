@@ -1,10 +1,10 @@
 package com.islandstudio.neon.stable.primary.nCommand.nCommandList
 
+import com.islandstudio.neon.stable.core.init.NConstructor
 import com.islandstudio.neon.stable.core.network.NPacketProcessor
 import com.islandstudio.neon.stable.primary.nCommand.Commands
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.utils.NIdGenerator
-import com.islandstudio.neon.stable.utils.NeonKey
+import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
 import net.md_5.bungee.api.chat.BaseComponent
 import net.md_5.bungee.api.chat.ClickEvent
@@ -104,7 +104,7 @@ object NCommandList {
             commandListBooks[Commands.CommandTargetUser.ADMIN] = createCommandListBook(adminCommandList)
             commandListBooks[Commands.CommandTargetUser.PLAYER] = createCommandListBook(playerCommandList)
 
-            Commands.CommandAlias.values().forEach {
+            Commands.CommandAlias.entries.forEach {
                 commandUsageBooks[it] = adminCommandList.find { commandDetail ->
                     commandDetail.commandName.equals(it.aliasName, true) }?.let { it1 ->
                     createCommandUsagesBook(
@@ -203,7 +203,7 @@ object NCommandList {
             }
 
             /* ## Stage 4: Add session ID to the item ## */
-            commandListBookMeta.persistentDataContainer.set(NeonKey.NamespaceKeys.NEON_ID_FIELD.key, PersistentDataType.STRING, nCommandListSessionID)
+            commandListBookMeta.persistentDataContainer.set(NeonKeyGeneral.NCOMMAND_LIST_PROPERTY_ID.key, PersistentDataType.STRING, nCommandListSessionID)
             commandListBook.itemMeta = commandListBookMeta
 
             return commandListBook
@@ -316,7 +316,7 @@ object NCommandList {
             }
 
             /* ## Stage 4: Add session ID to the item ## */
-            commandUsageBookMeta.persistentDataContainer.set(NeonKey.NamespaceKeys.NEON_ID_FIELD.key, PersistentDataType.STRING, nCommandListSessionID)
+            commandUsageBookMeta.persistentDataContainer.set(NeonKeyGeneral.NCOMMAND_LIST_PROPERTY_ID.key, PersistentDataType.STRING, nCommandListSessionID)
             commandUsageBook.itemMeta = commandUsageBookMeta
 
             return commandUsageBook
@@ -528,9 +528,9 @@ object NCommandList {
         val bookItem = uiView.topInventory.getItem(0) ?: return null
         val bookMeta = bookItem.itemMeta ?: return null
 
-        if (!bookMeta.persistentDataContainer.has(NeonKey.NamespaceKeys.NEON_ID_FIELD.key, PersistentDataType.STRING)) return null
+        if (!bookMeta.persistentDataContainer.has(NeonKeyGeneral.NCOMMAND_LIST_PROPERTY_ID.key, PersistentDataType.STRING)) return null
 
-        if (bookMeta.persistentDataContainer.get(NeonKey.NamespaceKeys.NEON_ID_FIELD.key, PersistentDataType.STRING) != nCommandListSessionID) return null
+        if (bookMeta.persistentDataContainer.get(NeonKeyGeneral.NCOMMAND_LIST_PROPERTY_ID.key, PersistentDataType.STRING) != nCommandListSessionID) return null
 
         return openedUI
     }
@@ -632,7 +632,7 @@ object NCommandList {
             return@run this[2]
         }
 
-        return Commands.CommandAlias.values().find { it.aliasName.equals(filteredSwitchUICommand, true) }
+        return Commands.CommandAlias.entries.find { it.aliasName.equals(filteredSwitchUICommand, true) }
     }
 
     private class EventProcessor: Listener {
@@ -657,8 +657,8 @@ object NCommandList {
 
             val book = e.inventory.getItem(0) ?: return
             val bookMeta = book.itemMeta!! as BookMeta
-            if (!bookMeta.persistentDataContainer.has(NeonKey.NamespaceKeys.NEON_ID_FIELD.key, PersistentDataType.STRING)) return
-            if (bookMeta.persistentDataContainer.get(NeonKey.NamespaceKeys.NEON_ID_FIELD.key, PersistentDataType.STRING) != nCommandListSessionID) return
+            if (!bookMeta.persistentDataContainer.has(NeonKeyGeneral.NCOMMAND_LIST_PROPERTY_ID.key, PersistentDataType.STRING)) return
+            if (bookMeta.persistentDataContainer.get(NeonKeyGeneral.NCOMMAND_LIST_PROPERTY_ID.key, PersistentDataType.STRING) != nCommandListSessionID) return
 
             bookMeta.title?.let {
                 if (commandUISession.updateOrGetLastUIType(null) == "NONE") return@let

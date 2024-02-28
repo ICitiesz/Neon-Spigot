@@ -1,25 +1,20 @@
 package com.islandstudio.neon.stable.secondary.nBundle
 
-import com.islandstudio.neon.stable.core.network.NPacketProcessor
+import com.islandstudio.neon.stable.core.init.NConstructor
 import com.islandstudio.neon.stable.core.recipe.NRecipes
 import com.islandstudio.neon.stable.core.recipe.RecipeRegistry
-import com.islandstudio.neon.stable.primary.nConstructor.NConstructor
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
-import com.islandstudio.neon.stable.utils.NeonKey
-import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
-import net.minecraft.world.inventory.AbstractContainerMenu
+import com.islandstudio.neon.stable.utils.reflection.NReflector
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.entity.Villager
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.server.ServerLoadEvent
 import org.bukkit.event.world.LootGenerateEvent
-import org.bukkit.inventory.InventoryView
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.MerchantRecipe
 import org.bukkit.inventory.ShapedRecipe
@@ -52,7 +47,7 @@ object NBundle: RecipeRegistry {
 
             if (!isEnabled) {
                 removeBundleTradingRecipe()
-                return NConstructor.unRegisterEvent(EventProcessor())
+                return NConstructor.unRegisterEventProcessor(EventProcessor())
             }
 
             val featureName = ServerFeature.FeatureNames.N_BUNDLE.featureName
@@ -82,7 +77,7 @@ object NBundle: RecipeRegistry {
 
         if (!lootTableKey.startsWith("minecraft:chests")) return loot
 
-        if (!LootStructure.values().map { it.key }.contains(lootTableKey.split("/").last())) return loot
+        if (!LootStructure.entries.map { it.key }.contains(lootTableKey.split("/").last())) return loot
 
         if (Math.random() <= bundleGenerateChance) {
             loot.add(ItemStack(Material.BUNDLE, 1))
@@ -112,37 +107,26 @@ object NBundle: RecipeRegistry {
      * Discover bundle recipe once player acquired ingredient.
      *
      * @param player The target player.
-     * @param rawSlotIndex Raw slot index of the acquired ingredient.
+     * @param gaveItem The given item.
      */
-    fun discoverBundleRecipe(player: Player, rawSlotIndex: Int? = null) {
+    fun discoverBundleRecipe(player: Player, gaveItem: net.minecraft.world.item.ItemStack? = null) {
         if (!isEnabled) return
 
-        val bundleNamespaceKey = NeonKey.fromProperty("nBundle.recipe.bundle.key")
+        val bundleNamespaceKey = NRecipes.NBUNDLE_BUNDLE.key
 
         if (player.hasDiscoveredRecipe(bundleNamespaceKey)) return
 
-        val nPlayer = NPacketProcessor.getNPlayer(player)
+        /* This section for player who using /give command or picked up the item */
+        gaveItem?.let { itemStack ->
+            (NReflector.getCraftBukkitClass("inventory.CraftItemStack").getMethod("asCraftMirror",
+                net.minecraft.world.item.ItemStack::class.java).invoke(null, itemStack) as ItemStack).also {
+                if (!(it.type == Material.RABBIT_HIDE || it.type == Material.BUNDLE)) return
 
-        rawSlotIndex?.let {
-            val playerContainerNMS = NMSRemapped.Mapping.NMS_PLAYER_CONTAINER.remapped
-
-            val inventoryView: InventoryView = (nPlayer.javaClass.getField(playerContainerNMS).get(nPlayer)
-                    as AbstractContainerMenu).bukkitView
-
-            /* Get and check the inventory type. */
-            inventoryView.getInventory(it)?.let { inventory ->
-                if (inventory.type != InventoryType.PLAYER) return
-            } ?: return
-
-            val gaveItem = inventoryView.getItem(it) ?: return
-
-            if (!(gaveItem.type == Material.RABBIT_HIDE || gaveItem.type == Material.BUNDLE)) return
-
-            plugin.server.scheduler.runTask(plugin, Runnable {
-                player.discoverRecipe(bundleNamespaceKey)
-            })
-
-            return
+                plugin.server.scheduler.runTask(plugin, Runnable {
+                    player.discoverRecipe(bundleNamespaceKey)
+                })
+                return
+            }
         }
 
         player.inventory.contents.filterNotNull().any { itemStack ->
