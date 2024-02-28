@@ -18,7 +18,7 @@ object NConstructor {
     }.mapCatching { true }.getOrElse { false }
 
 
-    private const val NEON_VERSION: String = "|--------------== Neon v1.10.1-rc_3 ==--------------|"
+    private const val NEON_VERSION: String = "|--------------== Neon v1.10.1 ==-------------------|"
     private val minorVersion: String = plugin.server.bukkitVersion.split("-").first()
     private val majorVersion: String = minorVersion.split(".")[0] + "." + minorVersion.split(".")[1]
 
