@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.islandstudio</groupId>
+    <artifactId>neon-database-extension</artifactId>
+    <version>1.0</version>
+
+    <properties>
+        <maven.compiler.source>16</maven.compiler.source>
+        <maven.compiler.target>16</maven.compiler.target>
+        <maven.test.skip>true</maven.test.skip>
+
+        <kotlin.code.style>official</kotlin.code.style>
+        <kotlin.version>2.0.0</kotlin.version>
+        <kotlin.compiler.languageVersion>2.0</kotlin.compiler.languageVersion>
+        <kotlinCoroutine.version>1.8.0</kotlinCoroutine.version>
+        <kotlin.compiler.jvmTarget>16</kotlin.compiler.jvmTarget>
+
+        <jooq.version>3.19.10</jooq.version>
+        <koin.version>3.6.0-wasm-alpha2</koin.version>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>jooq-codegen</id>
+            <activation>
+                <property>
+                    <name>generateJOOQ</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jooq</groupId>
+                        <artifactId>jooq-codegen-maven</artifactId>
+                        <version>${jooq.version}</version>
+                        <executions>
+                            <execution>
+                                <id>jooq-codegen</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <generator>
+                                <database>
+                                    <name>org.jooq.meta.extensions.ddl.DDLDatabase</name>
+                                    <properties>
+                                        <!-- Specify the location of your SQL script.
+                                         You may use ant-style file matching, e.g. /path/**/to/*.sql
+
+                                         Where:
+                                         - ** matches any directory subtree
+                                         - * matches any number of characters in a directory / file name
+                                         - ? matches a single character in a directory / file name -->
+                                        <property>
+                                            <key>scripts</key>
+                                            <value>../Neon-Kotlin/src/main/resources/database/sql-scripts/NeonDatabase.sql</value>
+                                        </property>
+
+                                        <!-- The default name case for unquoted objects:
+                                         - as_is: unquoted object names are kept unquoted
+                                         - upper: unquoted object names are turned into upper case (most databases)
+                                         - lower: unquoted object names are turned into lower case (e.g. PostgreSQL) -->
+                                        <property>
+                                            <key>defaultNameCase</key>
+                                            <value>as_is</value>
+                                        </property>
+
+                                        <!-- Turn on/off ignoring contents between such tokens. Defaults to true -->
+                                        <property>
+                                            <key>parseIgnoreComments</key>
+                                            <value>true</value>
+                                        </property>
+
+                                        <!-- Change the starting token -->
+                                        <property>
+                                            <key>parseIgnoreCommentStart</key>
+                                            <value>[IGNORE_START]</value>
+                                        </property>
+
+                                        <!-- Change the stopping token -->
+                                        <property>
+                                            <key>parseIgnoreCommentStop</key>
+                                            <value>[IGNORE_END]</value>
+                                        </property>
+                                    </properties>
+                                </database>
+
+                                <name>org.jooq.codegen.KotlinGenerator</name>
+
+                                <target>
+                                    <packageName>com.islandstudio.neon.stable.core.database.schema</packageName>
+                                    <directory>../Neon-Kotlin/src/main</directory>
+                                </target>
+
+                                <strategy>
+                                    <name>jooq.generator.GeneratorStrategy</name>
+<!--                                    <java>-->
+
+<!--                                        import org.jooq.codegen.DefaultGeneratorStrategy;-->
+<!--                                        import org.jooq.meta.Definition;-->
+
+<!--                                        public class AsInDatabaseStrategy extends DefaultGeneratorStrategy {-->
+<!--                                            @Override-->
+<!--                                            public String getJavaClassName(Definition definition, Mode mode) {-->
+<!--                                                if (!(mode == Mode.POJO || mode == Mode.DAO)) return super.getJavaClassName(definition, mode);-->
+
+<!--                                                return super.getJavaClassName(definition, mode).substring(2);-->
+<!--                                            }-->
+<!--                                        }-->
+<!--                                    </java>-->
+                                </strategy>
+
+                                <generate>
+                                    <!-- Tell the KotlinGenerator to generate properties in addition to methods for these paths. Default is true. -->
+                                    <implicitJoinPathsAsKotlinProperties>true</implicitJoinPathsAsKotlinProperties>
+
+                                    <!--  Workaround for Kotlin generating setX() setters instead of setIsX() in byte code for mutable properties called
+                                          <code>isX</code>. Default is true. -->
+                                    <kotlinSetterJvmNameAnnotationsOnIsPrefix>true</kotlinSetterJvmNameAnnotationsOnIsPrefix>
+
+                                    <!-- Generate the DAO classes -->
+                                    <daos>false</daos>
+
+                                    <!-- Generate POJOs -->
+                                    <pojos>true</pojos>
+
+                                    <!-- Generate POJOs as data classes, when using the KotlinGenerator. Default is true. -->
+                                    <pojosAsKotlinDataClasses>true</pojosAsKotlinDataClasses>
+
+                                    <!-- Generate non-nullable types on POJO attributes, where column is not null. Default is false. -->
+                                    <kotlinNotNullPojoAttributes>false</kotlinNotNullPojoAttributes>
+
+                                    <!-- Generate non-nullable types on Record attributes, where column is not null. Default is false. -->
+                                    <kotlinNotNullRecordAttributes>false</kotlinNotNullRecordAttributes>
+
+                                    <!-- Generate non-nullable types on interface attributes, where column is not null. Default is false. -->
+                                    <kotlinNotNullInterfaceAttributes>false</kotlinNotNullInterfaceAttributes>
+
+                                    <!-- Generate defaulted nullable POJO attributes. Default is true. -->
+                                    <kotlinDefaultedNullablePojoAttributes>true</kotlinDefaultedNullablePojoAttributes>
+
+                                    <!-- Generate defaulted nullable Record attributes. Default is true. -->
+                                    <kotlinDefaultedNullableRecordAttributes>true</kotlinDefaultedNullableRecordAttributes>
+                                </generate>
+                            </generator>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Parent library -->
+        <dependency>
+            <groupId>com.islandstudio</groupId>
+            <artifactId>Neon-Kotlin</artifactId>
+            <version>original</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Kotlin core -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-maven-plugin</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core-jvm</artifactId>
+            <version>${kotlinCoroutine.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Database library -->
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.7.3</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta</artifactId>
+            <scope>compile</scope>
+            <version>${jooq.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta-extensions</artifactId>
+            <version>${jooq.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-codegen</artifactId>
+            <version>${jooq.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Other library -->
+        <dependency>
+            <groupId>io.insert-koin</groupId>
+            <artifactId>koin-core-jvm</artifactId>
+            <version>${koin.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>me.carleslc.Simple-YAML</groupId>
+            <artifactId>Simple-Yaml</artifactId>
+            <version>1.8.4</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-kotlin</artifactId>
+            <version>6.4.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.17.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>${project.basedir}/src/main</sourceDirectory>
+
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main</directory>
+                <includes>
+                    <include>plugin.yml</include>
+                </includes>
+            </resource>
+
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <targetPath>resources/</targetPath>
+
+                <excludes>
+                    <exclude>application/.env.template</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <sourceDir>${project.basedir}/src/main</sourceDir>
+                            </sourceDirs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+
+                <configuration>
+                    <excludes>
+                        <exclude>jooq/generator/AsInDatabaseStrategy.java</exclude>
+                    </excludes>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>java-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+
+                        <configuration>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <finalName>${artifactId}</finalName>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+                                    <resource>.txt</resource>
+                                </transformer>
+                            </transformers>
+                            <!--                            <filters>-->
+                            <!--                                <filter>-->
+                            <!--                                    <artifact>*:*</artifact>-->
+                            <!--                                    <excludes>-->
+                            <!--                                        <exclude>META-INF/maven/**</exclude>-->
+                            <!--                                    </excludes>-->
+                            <!--                                </filter>-->
+                            <!--                            </filters>-->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
