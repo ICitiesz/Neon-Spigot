@@ -3,9 +3,8 @@ package com.islandstudio.neon.stable.core.application.init
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.AppContext
 import com.islandstudio.neon.stable.core.application.CompatibleVersions
-import com.islandstudio.neon.stable.core.application.ServerProvider
-import com.islandstudio.neon.stable.core.init.ApplicationClasses
-import com.islandstudio.neon.stable.core.init.InitializationStage
+import com.islandstudio.neon.stable.core.application.server.ServerProvider
+import com.islandstudio.neon.stable.core.application.server.ServerRunningMode
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import net.md_5.bungee.api.ChatColor
@@ -24,6 +23,10 @@ class AppInitializer {
 
         val serverVersion = neon.server.bukkitVersion.split("-").first()
 
+        val serverRunningMode = if (neon.server.onlineMode) {
+            ServerRunningMode.ONLINE
+        } else { ServerRunningMode.OFFLINE }
+
         /* Title format palette */
         private val cyanBlue = ChatColor.of("#34baeb")
         private val orange = ChatColor.of("#f57d1f")
@@ -36,7 +39,7 @@ class AppInitializer {
         private val reset = ChatColor.RESET
         private val bold = ChatColor.BOLD
 
-        private val neonVersionText = "$cyanBlue${bold}v1.11-pre_1$reset"
+        private val neonVersionText = "$cyanBlue${bold}v${neon.description.version}$reset"
         /*
         *        _____                                                      _____
                 {_____}                                                    {_____}
@@ -143,7 +146,7 @@ class AppInitializer {
                 return@async
             }
 
-            val preInitAppClasses = ApplicationClasses.entries
+            val preInitAppClasses = AppClasses.entries
                 .filter { it.initializationStage == InitializationStage.PRE_INIT }
 
             preInitAppClasses.forEachIndexed { index, appClass ->
@@ -178,8 +181,7 @@ class AppInitializer {
                         clazz.getDeclaredMethod("run").invoke(clazz.getField("INSTANCE").get(null))
                     }
                 }.onFailure {
-                    neon.logger.severe(it.stackTraceToString())
-
+                    neon.logger.severe(it.cause?.stackTraceToString())
                     return@forEachIndexed
                 }.onSuccess {
                     neon.logger.info("Filling up Neon......${loadingProgress}%")
@@ -208,7 +210,7 @@ class AppInitializer {
         neon.logger.info("Start lighting up Neon......")
         Thread.sleep(500L)
         val jobContext = newSingleThreadContext("Neon Initializer (Post-Staging)")
-        val postLoadAppClasses = ApplicationClasses.entries
+        val postLoadAppClasses = AppClasses.entries
             .filter { it.initializationStage == InitializationStage.POST_INIT }
 
         postLoadAppClasses.forEachIndexed { index, appClazz ->
@@ -242,7 +244,7 @@ class AppInitializer {
                         }
                     }
                 }.onFailure {
-                    neon.logger.severe(it.stackTraceToString())
+                    neon.logger.severe(it.cause?.stackTraceToString())
                     return@forEachIndexed
                 }.onSuccess {
                     neon.logger.info("Lighting up Neon......${loadingProgress}%")
@@ -263,7 +265,7 @@ class AppInitializer {
                         }
                     }
                 }.onFailure {
-                    neon.logger.severe(it.stackTraceToString())
+                    neon.logger.severe(it.cause?.stackTraceToString())
                     return@async
                 }.onSuccess {
                     neon.logger.info("Lighting up Neon......${loadingProgress}%")
@@ -281,7 +283,7 @@ class AppInitializer {
     fun reInit() {
         val jobContext = newSingleThreadContext("Neon Initializer (Re-staging)")
 
-        ApplicationClasses.entries
+        AppClasses.entries
             .filter { it.isConfigReloadable && it.initializationStage == InitializationStage.POST_INIT }
             .forEach { appClassDetail ->
                 val clazz = appClassDetail.clazz
@@ -313,7 +315,7 @@ class AppInitializer {
                             }
                         }
                     }.onFailure {
-                        neon.logger.severe(it.stackTraceToString())
+                        neon.logger.severe(it.cause?.stackTraceToString())
                         return@forEach
                     }.onSuccess {
                         Thread.sleep(150L)
@@ -333,7 +335,7 @@ class AppInitializer {
                             }
                         }
                     }.onFailure {
-                        neon.logger.severe(it.stackTraceToString())
+                        neon.logger.severe(it.cause?.stackTraceToString())
                         return@async
                     }.onSuccess {
                         delay(150L)
