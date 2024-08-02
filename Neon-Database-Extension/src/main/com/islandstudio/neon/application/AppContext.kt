@@ -1,8 +1,8 @@
 package com.islandstudio.neon.application
 
 import com.islandstudio.neon.NeonDatabaseExtension
-import com.islandstudio.neon.stable.core.io.ResourceManager
 import com.islandstudio.neon.stable.core.io.resource.NeonResources
+import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import io.github.cdimascio.dotenv.dotenv
 import org.bukkit.plugin.java.JavaPlugin.getPlugin
 import org.hsqldb.server.Server
@@ -36,7 +36,13 @@ object AppContext {
     fun getAppEnvValue(key: String): String = enVValues.get(key)
 
     fun loadCodeMessages() {
-        with(ResourceManager().getNeonResourceAsStream(NeonResources.NEON_DATABASE_CODE_MESSAGES)) {
+        val dbExtension by koinApplication.koin.inject<NeonDatabaseExtension>()
+
+        with(
+            ResourceManager().getNeonResourceAsStream(
+            NeonResources.NEON_DATABASE_CODE_MESSAGES,
+            dbExtension.getPluginClassLoader())
+        ) {
             this?.let {
                 use {
                     codeMessages.load(it)
@@ -45,7 +51,7 @@ object AppContext {
         }
     }
 
-    fun getCodeMessages(code: String): String = codeMessages.getProperty(code)
+    fun getCodeMessages(code: String): String = codeMessages.getProperty(code) ?: code
 
     interface Injector: KoinComponent {
         override fun getKoin(): Koin = koinApplication.koin
