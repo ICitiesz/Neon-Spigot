@@ -1,13 +1,14 @@
 package com.islandstudio.neon.stable.core.application
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.core.application.server.ServerRunningMode
 import com.islandstudio.neon.stable.core.database.DatabaseConnector
 import com.islandstudio.neon.stable.core.database.repository.AccessPermissionRepository
 import com.islandstudio.neon.stable.core.database.repository.PlayerProfileRepository
 import com.islandstudio.neon.stable.core.database.repository.RoleAccessRepository
 import com.islandstudio.neon.stable.core.database.repository.RoleRepository
-import com.islandstudio.neon.stable.core.io.ResourceManager
 import com.islandstudio.neon.stable.core.io.resource.NeonResources
+import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import io.github.cdimascio.dotenv.Dotenv
 import io.github.cdimascio.dotenv.dotenv
 import org.bukkit.plugin.java.JavaPlugin.getPlugin
@@ -82,7 +83,7 @@ object AppContext {
         }
     }
 
-    fun getCodeMessage(code: String): String = codeMessages.getProperty(code)
+    fun getCodeMessage(code: String): String = codeMessages.getProperty(code) ?: code
 
     fun loadExtension(neonExtension: NeonExtensions) {
         val neon by koinApplication.koin.inject<Neon>()
