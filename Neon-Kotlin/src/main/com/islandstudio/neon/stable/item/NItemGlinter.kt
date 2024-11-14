@@ -8,8 +8,8 @@ import com.islandstudio.neon.stable.core.application.init.SupportedVersions
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
 import com.islandstudio.neon.stable.core.application.reflection.NReflector
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NMSMapping
-import com.islandstudio.neon.stable.core.application.reflection.testimp.NmsMap
-import com.islandstudio.neon.stable.core.application.reflection.testimp.NmsProcessor
+import com.islandstudio.neon.stable.core.application.reflection.remastered.NmsMap
+import com.islandstudio.neon.stable.core.application.reflection.remastered.NmsProcessor
 import net.minecraft.core.Holder
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.HolderOwner

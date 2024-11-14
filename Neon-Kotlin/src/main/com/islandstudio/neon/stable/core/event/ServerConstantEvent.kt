@@ -6,7 +6,7 @@ import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.application.reflection.NReflector
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NMSMapping
-import com.islandstudio.neon.stable.core.application.reflection.testimp.NmsMap
+import com.islandstudio.neon.stable.core.application.reflection.remastered.NmsMap
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import com.islandstudio.neon.stable.core.command.NCommand
 import com.islandstudio.neon.stable.features.nDurable.NDurable

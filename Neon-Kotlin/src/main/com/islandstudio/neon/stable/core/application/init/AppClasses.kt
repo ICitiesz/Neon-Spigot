@@ -5,6 +5,7 @@ import com.islandstudio.neon.experimental.nPVP.NPVP
 import com.islandstudio.neon.experimental.nPainting.NPainting
 import com.islandstudio.neon.stable.core.application.identifier.NeonKey
 import com.islandstudio.neon.stable.core.application.reflection.NReflector
+import com.islandstudio.neon.stable.core.application.reflection.remastered.NmsProcessor
 import com.islandstudio.neon.stable.core.command.NCommand
 import com.islandstudio.neon.stable.core.database.DatabaseCacheManager
 import com.islandstudio.neon.stable.core.database.DatabaseConnector
@@ -37,6 +38,13 @@ enum class AppClasses(
     val isConfigReloadable: Boolean
 ) {
     /* #################################### Pre-init Classes #################################### */
+    NmsProcessorClass(
+        NmsProcessor.Companion::class.java,
+        InitializationStage.PRE_INIT,
+        isSynchronous = false,
+        isConfigReloadable = false
+    ),
+
     NReflectorClass(
         NReflector.Handler::class.java,
         InitializationStage.PRE_INIT,
