@@ -21,4 +21,8 @@ object NIdGenerator {
     fun generateNIdWithValidation() {
 
     }
+
+    fun generatePlayerSessionId(playerUUID: UUID): String {
+        return "${UUID.randomUUID()}.${playerUUID}"
+    }
 }
