@@ -1,7 +1,8 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
-import com.islandstudio.neon.experimental.utils.NItemGlinter
-import com.islandstudio.neon.stable.core.init.NConstructor
+import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.item.NItemGlinter
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import org.bukkit.ChatColor
@@ -12,10 +13,13 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
+import org.koin.core.component.inject
 import java.util.*
 import kotlin.math.ceil
 
-open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI) {
+open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI), ModuleInjector {
+    private val neon by inject<Neon>()
+
     private val player: Player = nGUI.getGUIOwner()
     private val internalServerFeatures = NServerFeatures.Handler.getLoadedInternalServerFeatures()
     private var serverFeatureNames = NServerFeatures.getServerFeatureNames(sortingType, sortingOrder)
@@ -204,7 +208,7 @@ open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI) {
 
                 player.closeInventory()
 
-                NConstructor.plugin.server.onlinePlayers.forEach { onlinePlayer ->
+                neon.server.onlinePlayers.forEach { onlinePlayer ->
                     if (!onlinePlayer.isOp) return@forEach
 
                     if (onlinePlayer == player) return@forEach

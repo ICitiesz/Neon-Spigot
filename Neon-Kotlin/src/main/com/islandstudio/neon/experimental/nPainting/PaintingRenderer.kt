@@ -1,9 +1,9 @@
 package com.islandstudio.neon.experimental.nPainting
 
-import com.islandstudio.neon.stable.core.init.NConstructor
+import com.islandstudio.neon.stable.core.application.identifier.NeonKey
+import com.islandstudio.neon.stable.core.application.identifier.NeonKeyGeneral
+import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.utils.ObjectSerializer
-import com.islandstudio.neon.stable.utils.identifier.NeonKey
-import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import kotlinx.coroutines.*
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor

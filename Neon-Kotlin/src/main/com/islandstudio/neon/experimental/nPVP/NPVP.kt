@@ -1,19 +1,22 @@
 package com.islandstudio.neon.experimental.nPVP
 
-import com.islandstudio.neon.stable.core.init.NConstructor
-import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
-import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
+import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
+import org.koin.core.component.inject
+import kotlin.properties.Delegates
 
-object NPVP {
-    private val serverWorlds = NConstructor.plugin.server.worlds
-    private var isEnabled = false
+object NPVP: ModuleInjector {
+    private val neon by inject<Neon>()
+    private val serverWorlds = neon.server.worlds
+    private var isEnabled by Delegates.notNull<Boolean>()
 
     /**
      * Initialization for nPVP
      *
      */
     fun run() {
-        isEnabled = NServerFeatures.getToggle(ServerFeature.FeatureNames.N_PVP)
+        isEnabled = NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nPVP") ?: false
 
         serverWorlds.forEach {
             if (isEnabled) {

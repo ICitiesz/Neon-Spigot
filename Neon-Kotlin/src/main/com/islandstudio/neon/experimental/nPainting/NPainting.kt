@@ -1,18 +1,22 @@
 package com.islandstudio.neon.experimental.nPainting
 
-import com.islandstudio.neon.stable.core.init.NConstructor
-import com.islandstudio.neon.stable.core.io.nFolder.FolderList
-import com.islandstudio.neon.stable.core.io.nFolder.NFolder
-import com.islandstudio.neon.stable.core.network.NPacketProcessor
+import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.identifier.NeonKey
+import com.islandstudio.neon.stable.core.application.identifier.NeonKeyGeneral
+import com.islandstudio.neon.stable.core.application.init.NConstructor
+import com.islandstudio.neon.stable.core.application.reflection.mapping.NMSMapping
+import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
+import com.islandstudio.neon.stable.core.io.DataSourceType
+import com.islandstudio.neon.stable.core.io.nFile.FolderList
+import com.islandstudio.neon.stable.core.io.nFile.NFile
+import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
+import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered.saveToFile
+import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered.toYAML
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nCommand.Commands
-import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
-import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
 import com.islandstudio.neon.stable.utils.ObjectSerializer
-import com.islandstudio.neon.stable.utils.identifier.NeonKey
-import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
-import com.islandstudio.neon.stable.utils.reflection.NMSRemapped
 import kotlinx.coroutines.*
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
@@ -31,12 +35,12 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import org.jetbrains.kotlin.utils.addToStdlib.ifFalse
+import org.koin.core.component.inject
 import java.io.File
 import java.util.*
 import kotlin.jvm.optionals.getOrElse
 
-object NPainting {
+object NPainting: ModuleInjector {
     /* General properties */
     private const val RENDER_DATA_FILE_EXTENSION = ".rendat"
 
@@ -56,7 +60,7 @@ object NPainting {
 
     object Handler: Commands(), CommandHandler  {
         fun run() {
-            isEnabled = NServerFeatures.getToggle(ServerFeature.FeatureNames.N_PAINTING)
+            isEnabled = NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nPainting") ?: false
 
             if (!isEnabled) {
                 return NConstructor.unRegisterEventProcessor(EventProcessor())
@@ -64,21 +68,30 @@ object NPainting {
 
             /* TODO: Temp. disable nPainting for version 1.17.X */
             if (NConstructor.getMajorVersion() == "1.17") {
-                val externalServerFeature = NServerFeatures.Handler.getLoadedExternalServerFeatures()
+                NServerFeaturesRemastered.serverFeatureSession.also {
+                    it.setServerFeatureToggle("nPainting", false)
 
-                NServerFeatures.setToggle(
-                    externalServerFeature[ServerFeature.FeatureNames.N_PAINTING.featureName]!!,
-                    false
-                )
+                    saveToFile(toYAML(it.getServerFeatureList(DataSourceType.EXTERNAL_SOURCE)))
+                }
 
-                NServerFeatures.Handler.updateServerFeatures(externalServerFeature, NServerFeatures.Handler.SavingState.UPDATE)
+                isEnabled = false
                 return
+
+//                val externalServerFeature = NServerFeatures.Handler.getLoadedExternalServerFeatures()
+//
+//                NServerFeatures.setToggle(
+//                    externalServerFeature[ServerFeature.FeatureNames.N_PAINTING.featureName]!!,
+//                    false
+//                )
+//
+//                NServerFeatures.Handler.updateServerFeatures(externalServerFeature, NServerFeatures.Handler.SavingState.UPDATE)
+//                return
             }
 
             NConstructor.registerEventProcessor(EventProcessor())
         }
 
-        override fun setCommandHandler(commander: Player, args: Array<out String>) {
+        override fun getCommandHandler(commander: Player, args: Array<out String>) {
             if (!commander.isOp) {
                 return commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
             }
@@ -229,8 +242,8 @@ object NPainting {
             }
         }
 
-        override fun tabCompletion(commander: Player, args: Array<out String>): MutableList<String> {
-            if (!commander.isOp) return super.tabCompletion(commander, args)
+        override fun getTabCompletion(commander: Player, args: Array<out String>): MutableList<String> {
+            if (!commander.isOp) return super.getTabCompletion(commander, args)
 
             val imageFileNames = imageSourceFolder.listFiles()
                 ?.filter { it.isFile }
@@ -252,16 +265,16 @@ object NPainting {
                         CommandArgument.CREATE.argument, CommandArgument.REMOVE.argument -> {
                             return imageFileNames
                                 ?.filter { it.startsWith(args[2], true) }
-                                ?.toMutableList() ?: return super.tabCompletion(commander, args)
+                                ?.toMutableList() ?: return super.getTabCompletion(commander, args)
                         }
 
-                        else -> { return super.tabCompletion(commander, args) }
+                        else -> { return super.getTabCompletion(commander, args) }
                     }
                 }
 
                 4 -> {
                     if (!validateArgument(args[1], CommandArgument.REMOVE)) {
-                        return super.tabCompletion(commander, args)
+                        return super.getTabCompletion(commander, args)
                     }
 
                     /* List removal type */
@@ -272,20 +285,20 @@ object NPainting {
 
                 5 -> {
                     if (!validateArgument(args[1], CommandArgument.REMOVE)) {
-                        return super.tabCompletion(commander, args)
+                        return super.getTabCompletion(commander, args)
                     }
 
                     if (!args[3].equals(RemovalType.DISPLAYED.name, true)) {
-                        return super.tabCompletion(commander, args)
+                        return super.getTabCompletion(commander, args)
                     }
 
                     val renderedPaintingIds = getPaintingRenderData(args[2])
-                        .getOrElse { return super.tabCompletion(commander, args) }.renderedPainting
+                        .getOrElse { return super.getTabCompletion(commander, args) }.renderedPainting
 
                     return renderedPaintingIds.filter { it.toString().startsWith(args[4]) }.map { it.toString() }.toMutableList()
                 }
 
-                else -> { return super.tabCompletion(commander, args) }
+                else -> { return super.getTabCompletion(commander, args) }
             }
         }
 
@@ -344,7 +357,7 @@ object NPainting {
         }
 
         fun saveReusableMapIds(reusableMapIds: HashSet<Int>) {
-            NFolder.createOrGetNewFile(FolderList.NPAINTING.folder, reusableMapIdsFile)
+            NFile.createOrGetNewFile(FolderList.NPAINTING.folder, reusableMapIdsFile)
                 .writeBytes(ObjectSerializer.serializeObjectRaw(reusableMapIds))
         }
 
@@ -356,7 +369,7 @@ object NPainting {
         fun getReusableMapIds(): HashSet<Int> {
             val reusableMapIds: HashSet<Int> = HashSet()
 
-            NFolder.createOrGetNewFile(FolderList.NPAINTING.folder, reusableMapIdsFile).let {
+            NFile.createOrGetNewFile(FolderList.NPAINTING.folder, reusableMapIdsFile).let {
                 it.readBytes().also { bytes ->
                     if (bytes.isEmpty()) return reusableMapIds
 
@@ -409,10 +422,11 @@ object NPainting {
      * @return True if the removal sucess, else false
      */
     fun removePainting(imageFileName: String, renderId: Optional<UUID> = Optional.empty(), removalType: RemovalType): Boolean {
+        val neon by inject<Neon>()
         val painting = Handler.getPaintingRenderData(imageFileName).getOrElse { return false }
 
         /* Stage 1: Remove all the painting from the worlds */
-        NConstructor.plugin.server.worlds.forEach { world ->
+        neon.server.worlds.forEach { world ->
             world.entities
                 .filter { entity -> entity.type == EntityType.GLOW_ITEM_FRAME }
                 .filter { entity -> NeonKey.hasNeonKey(NeonKeyGeneral.NPAINTING_PROPERTY_HEADER.key, PersistentDataType.STRING, entity) }
@@ -466,10 +480,10 @@ object NPainting {
         }
 
         NPacketProcessor.getNWorld(Bukkit.getWorlds().find { it.environment == World.Environment.NORMAL }!!).let {
-            it.javaClass.getMethod(NMSRemapped.Mapping.NMS_GET_WORLD_PERSISTENT_CONTAINER.remapped).invoke(it).apply worldPersistentContainer@ {
+            it.javaClass.getMethod(NMSMapping.NMS_GET_WORLD_PERSISTENT_CONTAINER.remapped).invoke(it).apply worldPersistentContainer@ {
                 /* Stage 3: Remove from the cache */
                 @Suppress("UNCHECKED_CAST")
-                (this@worldPersistentContainer.javaClass.getField(NMSRemapped.Mapping.NMS_WORLD_CACHE.remapped).get(this@worldPersistentContainer) as MutableMap<String, *>)
+                (this@worldPersistentContainer.javaClass.getField(NMSMapping.NMS_WORLD_CACHE.remapped).get(this@worldPersistentContainer) as MutableMap<String, *>)
                     .also { worldCache ->
                         painting.paintingTiles.forEach { paintingTileId ->
                             if (!worldCache.containsKey("map_${paintingTileId.tileId}")) return@forEach
@@ -479,7 +493,7 @@ object NPainting {
                 }
 
                 /* Stage 4: Remove the map data file */
-                this@worldPersistentContainer.javaClass.getDeclaredMethod(NMSRemapped.Mapping.NMS_GET_MAP_DATA_FILE.remapped, String::class.java).also { mapDataFile ->
+                this@worldPersistentContainer.javaClass.getDeclaredMethod(NMSMapping.NMS_GET_MAP_DATA_FILE.remapped, String::class.java).also { mapDataFile ->
                     mapDataFile.isAccessible = true
 
                     usedMapIds.forEach { mapId ->
@@ -545,10 +559,16 @@ object NPainting {
                     return
                 }
 
-                NeonKey.hasNeonKey(NeonKeyGeneral.N_PAINTING_REMOVAL_STICK.key, PersistentDataType.STRING, this.itemMeta!!).ifFalse {
+                if (!NeonKey.hasNeonKey(NeonKeyGeneral.N_PAINTING_REMOVAL_STICK.key, PersistentDataType.STRING, this.itemMeta!!)) {
                     e.isCancelled = true
                     return
                 }
+
+                /* TODO: Kotlin lib bug */
+//                NeonKey.hasNeonKey(NeonKeyGeneral.N_PAINTING_REMOVAL_STICK.key, PersistentDataType.STRING, this.itemMeta!!).ifFalse {
+//                    e.isCancelled = true
+//                    return
+//                }
 
                 val paintingFrame = e.entity as GlowItemFrame
 
@@ -580,8 +600,8 @@ object NPainting {
      */
     private fun processPainting(imageFileName: String) {
         /* Folder & file existent check and creation */
-        val renderDataFile = NFolder.createOrGetNewDirectory(paintingRenderDataFolder).run {
-            NFolder.createOrGetNewFile(this, Handler.getPaintingRenderDataFile(imageFileName))
+        val renderDataFile = NFile.createOrGetNewDirectory(paintingRenderDataFolder).run {
+            NFile.createOrGetNewFile(this, Handler.getPaintingRenderDataFile(imageFileName))
         }.also {
             if (it.readBytes().isNotEmpty()) return
         }

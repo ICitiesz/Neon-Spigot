@@ -1,0 +1,66 @@
+nWaypoints:
+  - crossDimension:
+      description: 'Enable cross dimension teleportation.'
+      dataType: 'Boolean'
+      defaultValue: false
+      dataRange: {}
+
+nBundle:
+  - bundleGenerateChance:
+      description: 'How frequent Bundle can generate in loot chests.'
+      dataType: 'Double'
+      defaultValue: 0.17
+      dataRange:
+        minValue: 0.001
+        maxValue: 1.0
+  - bundleMaxBuy:
+      description: 'How many Bundle you can buy from Tannery Villager per stock.'
+      dataType: 'Integer'
+      defaultValue: 12
+      dataRange:
+        minValue: 1
+        maxValue: 64
+  - bundlePrice:
+      description: 'How much (emeralds) per Bundle.'
+      dataType: 'Integer'
+      defaultValue: 5
+      dataRange:
+        minValue: 1
+        maxValue: 64
+  - bundlePriceMultiplier:
+      description: 'How much price will be multiplied when Bundle in demand.'
+      dataType: 'Double'
+      defaultValue: 0.2
+      dataRange:
+        minValue: 0.1
+        maxValue: 1.0
+  - villagerExperience:
+      description: 'How much xp will villager get per trade.'
+      dataType: 'Integer'
+      defaultValue: 5
+      dataRange:
+        minValue: 1
+        maxValue: 64
+
+nDurable:
+  - showItemDurability:
+      description: 'Show/hide tool/weapon durability.'
+      dataType: 'Boolean'
+      defaultValue: true
+      dataRange: {}
+
+nFireworks:
+  - particleSize:
+      description: 'Size of the particle.'
+      dataType: 'Double'
+      defaultValue: 1.0
+      dataRange:
+        minValue: 0.1
+        maxValue: 1.5
+  - particleSpeed:
+      description: 'TBA'
+      dataType: 'Double'
+      defaultValue: 1.0
+      dataRange:
+        minValue: 0.5
+        maxValue: 1.0

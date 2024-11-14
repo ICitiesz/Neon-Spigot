@@ -1,5 +1,6 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
+// TODO: May merge into utility class in the future
 object OptionValueValidation {
     enum class DataTypes(val dataType: String) {
         BOOLEAN("Boolean"),

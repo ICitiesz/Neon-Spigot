@@ -1,6 +1,6 @@
 package com.islandstudio.neon.experimental.nFireworks
 
-import com.islandstudio.neon.stable.core.network.NPacketProcessor
+import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import org.bukkit.World
 import org.bukkit.scheduler.BukkitRunnable
 

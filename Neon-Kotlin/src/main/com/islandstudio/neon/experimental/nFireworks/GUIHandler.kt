@@ -1,6 +1,6 @@
 package com.islandstudio.neon.experimental.nFireworks
 
-import com.islandstudio.neon.experimental.utils.NItemGlinter
+import com.islandstudio.neon.stable.item.NItemGlinter
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import org.bukkit.ChatColor
 import org.bukkit.FireworkEffect

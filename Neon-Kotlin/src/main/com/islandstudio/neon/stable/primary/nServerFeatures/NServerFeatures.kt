@@ -1,8 +1,9 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
-import com.islandstudio.neon.stable.core.init.NConstructor
-import com.islandstudio.neon.stable.core.io.nFolder.FolderList
-import com.islandstudio.neon.stable.core.io.nFolder.NFolder
+import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.io.nFile.FolderList
+import com.islandstudio.neon.stable.core.io.nFile.NFile
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.utils.DataSessionState
@@ -17,6 +18,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
+import org.koin.core.component.inject
 import org.simpleyaml.configuration.ConfigurationSection
 import org.simpleyaml.configuration.file.YamlFile
 import org.simpleyaml.configuration.implementation.SimpleYamlImplementation
@@ -28,8 +30,9 @@ import java.io.BufferedWriter
 import java.io.File
 import java.util.*
 
-object NServerFeatures {
+object NServerFeatures: ModuleInjector {
     private val nServerFeatureGUISession: HashMap<UUID, HashMap<String, ServerFeature.SerializableFeature>> = HashMap()
+    private val neon by inject<Neon>()
 
     val experimentalTag = "${ChatColor.WHITE}${ChatColor.BOLD}[${ChatColor.YELLOW}${ChatColor.BOLD}" +
             "Exp${ChatColor.WHITE}${ChatColor.BOLD}] "
@@ -155,7 +158,7 @@ object NServerFeatures {
         Handler.updateServerFeatures(Handler.getLoadedEditableServerFeatures(), Handler.SavingState.SAVE)
     }
 
-    object Handler: CommandHandler {
+    object Handler: CommandHandler/*, CommandDispatcher*/ {
         private val nServerFeaturesFolder: File = FolderList.NSERVERFEATURES_FOLDER.folder
         private val nServerFeaturesFile = File(nServerFeaturesFolder, "nServerFeatures.yml")
 
@@ -175,7 +178,7 @@ object NServerFeatures {
             var isFirstGenerated = false
 
             /* Stage 1: File creation and initialization. */
-            NFolder.createNewFile(nServerFeaturesFolder, nServerFeaturesFile)
+            NFile.createNewFile(nServerFeaturesFolder, nServerFeaturesFile)
 
             /* Getting the file content size */
             val externalBufferedReader: BufferedReader = nServerFeaturesFile.bufferedReader()
@@ -202,7 +205,7 @@ object NServerFeatures {
 //            NConstructor.registerEventProcessor(EventProcessor())
         }
 
-        override fun setCommandHandler(commander: Player, args: Array<out String>) {
+        override fun getCommandHandler(commander: Player, args: Array<out String>) {
             if (!commander.isOp) {
                 commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
                 return
@@ -329,7 +332,7 @@ object NServerFeatures {
 
                         commander.sendMessage(reloadMessage)
 
-                        NConstructor.plugin.server.onlinePlayers.forEach { onlinePlayer ->
+                        neon.server.onlinePlayers.forEach { onlinePlayer ->
                             if (!onlinePlayer.isOp) return@forEach
 
                             if (onlinePlayer == commander) return@forEach
@@ -358,7 +361,7 @@ object NServerFeatures {
                     commander.sendMessage("${modifiedMessage}${ChatColor.GREEN}$newOptionValue")
                     commander.sendMessage(reloadMessage)
 
-                    NConstructor.plugin.server.onlinePlayers.forEach { onlinePlayer ->
+                    neon.server.onlinePlayers.forEach { onlinePlayer ->
                         if (!onlinePlayer.isOp) return@forEach
 
                         if (onlinePlayer == commander) return@forEach
@@ -374,8 +377,8 @@ object NServerFeatures {
             }
         }
 
-        override fun tabCompletion(commander: Player, args: Array<out String>): MutableList<String> {
-            if (!commander.isOp) return super.tabCompletion(commander, args)
+        override fun getTabCompletion(commander: Player, args: Array<out String>): MutableList<String> {
+            if (!commander.isOp) return super.getTabCompletion(commander, args)
 
             val serverFeatureNames = getServerFeatureNames(GUIBuilder.SortingType.DEFAULT, GUIBuilder.SortingOrder.ASCENDING)
 
@@ -387,7 +390,7 @@ object NServerFeatures {
 
                 /* Size 3: Display all server feature options */
                 3 -> {
-                    val featureName = serverFeatureNames.firstOrNull { it.equals(args[1], true) } ?: return super.tabCompletion(commander, args)
+                    val featureName = serverFeatureNames.firstOrNull { it.equals(args[1], true) } ?: return super.getTabCompletion(commander, args)
 
                     return getServerFeatureOptions(featureName).filter { it.startsWith(args[2], true) }
                         .toMutableList()
@@ -396,10 +399,10 @@ object NServerFeatures {
                 /* Size 4: Display pre-define value for specific server feature option */
                 4 -> {
                     val featureName = serverFeatureNames.firstOrNull { it.equals(args[1], true) }
-                        ?: return super.tabCompletion(commander, args)
+                        ?: return super.getTabCompletion(commander, args)
 
                     val optionName: String = getServerFeatureOptions(featureName).firstOrNull { it.equals(args[2], true) }
-                        ?: return super.tabCompletion(commander, args)
+                        ?: return super.getTabCompletion(commander, args)
 
                     if (getOptionDataType(featureName, optionName).equals("Boolean",true)) {
                         return mutableListOf("default", "true", "false").filter { it.startsWith(args[3], true) }.toMutableList()
@@ -409,7 +412,7 @@ object NServerFeatures {
                 }
             }
 
-            return super.tabCompletion(commander, args)
+            return super.getTabCompletion(commander, args)
         }
 
         /**
@@ -579,6 +582,29 @@ object NServerFeatures {
 
             return internalServerFeatures
         }
+
+//        override fun getCommandDispatcher(commander: CommandSender, args: Array<out String>) {
+//            val command = CommandAlias.NSERVER_FEATURES.command
+//            val roleAccess = NRoleAccess.getCommandSenderRoleAccess(commander, command.permission).also {
+//                if (!command.isCommandAccessible(commander, it)) {
+//                    return CommandInterfaceProcessor.notifyInvalidCommand(commander, args[0])
+//                }
+//            }
+//            val argsLength = args.size
+//
+//            if (argsLength == 1) {
+//                if (commander !is Player) {
+//                    return CommandInterfaceProcessor.sendCommandSyntax(commander, com.islandstudio.neon.stable.core.command.properties.CommandSyntax.UNSUPPORTED_GUI_ACCESS)
+//                }
+//
+//                addGUISession(commander.uniqueId)
+//                GUIHandler(NGUI.Handler.getNGUI(commander)).openGUI()
+//                return
+//            }
+//
+//            // TODO: Need to change the command execution to fully integrate permission for each of the command argument.
+//
+//        }
     }
 
     class EventProcessor: Listener {

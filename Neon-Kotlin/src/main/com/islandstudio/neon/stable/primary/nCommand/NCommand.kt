@@ -1,14 +1,16 @@
 package com.islandstudio.neon.stable.primary.nCommand
 
+import com.islandstudio.neon.Neon
 import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPainting.NPainting
-import com.islandstudio.neon.stable.core.init.NConstructor
-import com.islandstudio.neon.stable.primary.nCommand.nCommandList.NCommandList
+import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.command.commandlist.NCommandList
+import com.islandstudio.neon.stable.features.nDurable.NDurable
+import com.islandstudio.neon.stable.features.nRank.NRank
+import com.islandstudio.neon.stable.features.nWaypoints.NWaypoints
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
-import com.islandstudio.neon.stable.secondary.nDurable.NDurable
-import com.islandstudio.neon.stable.secondary.nRank.NRank
-import com.islandstudio.neon.stable.secondary.nWaypoints.NWaypoints
+import com.islandstudio.neon.stable.utils.processing.TextProcessor
 import org.bukkit.ChatColor
 import org.bukkit.GameMode
 import org.bukkit.command.Command
@@ -16,15 +18,15 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
-import org.bukkit.plugin.Plugin
+import org.koin.core.component.inject
 
 class NCommand: Commands(), Listener, TabExecutor {
-    companion object {
+    companion object: ModuleInjector {
         var isModerating: Boolean = false
 
         private const val COMMAND_PREFIX: String = "neon"
         private val pluginName: String = "${ChatColor.WHITE}[${ChatColor.AQUA}Neon${ChatColor.WHITE}]"
-        private val plugin: Plugin = NConstructor.plugin
+        private val plugin by inject<Neon>()
 
         fun run() {
             (plugin.server.getPluginCommand(COMMAND_PREFIX))?.setExecutor(NCommand())
@@ -74,12 +76,12 @@ class NCommand: Commands(), Listener, TabExecutor {
             }
 
             CommandAlias.NFIREWORKS.aliasName -> {
-                NFireworks.Handler.setCommandHandler(commander, args)
+                NFireworks.Handler.getCommandHandler(commander, args)
                 return true
             }
 
             CommandAlias.NPAINTING.aliasName -> {
-                NPainting.Handler.setCommandHandler(commander, args)
+                NPainting.Handler.getCommandHandler(commander, args)
                 return true
             }
 
@@ -89,31 +91,18 @@ class NCommand: Commands(), Listener, TabExecutor {
                     return true
                 }
 
-//                val testData = CustomFirework.RowContainer(0)
-//                testData.pixelFrameX.add(CustomFirework.Pixel(Color.GREEN, commander.location))
-//
-//                val serialized = ObjectSerializer.serializeBukkitObjectEncoded(testData)
-//
-//                println("Serialized: ${serialized}")
-//                println("Serialized: ${ObjectSerializer.serializeBukkitObjectEncoded(Pixel(Color.GREEN, commander.location))}")
+                val testRoleName = "&1[&2Admin&3]"
 
-//                val testData = commander.inventory.itemInMainHand.itemMeta!!
-//                    .persistentDataContainer.get(NeonKey.fromProperty("nFireworks.property.header.key"), PersistentDataType.STRING)
-//
-//                val deserialized = ObjectSerializer.deserializeObjectEncoded(testData!!) as FireworkProperty.FireworkEffects
-//
-//                println("Serialized: $testData")
-//                println("Deserialized: ${deserialized.imageName}")
-//                println("Deserialized: ${deserialized.fireworkPatternFacingOptions}")
-//                println("Deserialized: ${deserialized.fireworkPatternFacing}")
+                commander.sendMessage("Original: $testRoleName")
+                commander.sendMessage("After: ${TextProcessor.processColorText(testRoleName)}")
 
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("There is nothing here :D"))
+                //commander.sendMessage(CommandSyntax.createSyntaxMessage("There is nothing here :D"))
 
                 return true
             }
 
             CommandAlias.SERVERFEATURES.aliasName -> {
-                NServerFeatures.Handler.setCommandHandler(commander, args)
+                NServerFeatures.Handler.getCommandHandler(commander, args)
             }
 
             CommandAlias.REGEN.aliasName -> {
@@ -236,7 +225,7 @@ class NCommand: Commands(), Listener, TabExecutor {
             }
 
             CommandAlias.DURABILITY.aliasName -> {
-                NDurable.Handler.setCommandHandler(commander, args)
+                //.Handler.getCommandHandler(commander, args)
             }
 
             else -> {
@@ -273,7 +262,7 @@ class NCommand: Commands(), Listener, TabExecutor {
             }
 
             CommandAlias.SERVERFEATURES.aliasName -> {
-                return NServerFeatures.Handler.tabCompletion(commander, args)
+                return NServerFeatures.Handler.getTabCompletion(commander, args)
             }
 
             CommandAlias.NFIREWORKS.aliasName -> {
@@ -282,11 +271,11 @@ class NCommand: Commands(), Listener, TabExecutor {
             }
 
             CommandAlias.DURABILITY.aliasName -> {
-                return NDurable.Handler.tabCompletion(commander, args)
+                return NDurable.Handler.getTabCompletion(commander, args)
             }
 
             CommandAlias.NPAINTING.aliasName -> {
-                return NPainting.Handler.tabCompletion(commander, args)
+                return NPainting.Handler.getTabCompletion(commander, args)
             }
         }
 

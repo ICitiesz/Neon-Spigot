@@ -1,6 +1,6 @@
 package com.islandstudio.neon.experimental.nFireworks
 
-import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
+import com.islandstudio.neon.stable.core.application.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import org.bukkit.ChatColor

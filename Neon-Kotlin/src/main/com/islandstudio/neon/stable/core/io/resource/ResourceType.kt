@@ -4,5 +4,6 @@ enum class ResourceType {
     JAR,
     JSON,
     YAML,
-    PROPERTIES
+    PROPERTIES,
+    EXCEL
 }

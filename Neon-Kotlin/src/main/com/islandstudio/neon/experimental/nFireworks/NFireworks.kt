@@ -1,16 +1,17 @@
 package com.islandstudio.neon.experimental.nFireworks
 
 //import com.mojang.math.Vector3f
-import com.islandstudio.neon.stable.core.init.NConstructor
-import com.islandstudio.neon.stable.core.io.nFolder.FolderList
-import com.islandstudio.neon.stable.core.io.nFolder.NFolder
+import com.islandstudio.neon.stable.core.application.identifier.NeonKey
+import com.islandstudio.neon.stable.core.application.identifier.NeonKeyGeneral
+import com.islandstudio.neon.stable.core.application.init.NConstructor
+import com.islandstudio.neon.stable.core.io.nFile.FolderList
+import com.islandstudio.neon.stable.core.io.nFile.NFile
+import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.primary.nServerFeatures.ServerFeature
 import com.islandstudio.neon.stable.utils.ObjectSerializer
-import com.islandstudio.neon.stable.utils.identifier.NeonKey
-import com.islandstudio.neon.stable.utils.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import kotlinx.coroutines.*
@@ -49,7 +50,7 @@ object NFireworks {
 
     object Handler: CommandHandler {
         fun run() {
-            isEnabled = NServerFeatures.getToggle(ServerFeature.FeatureNames.N_FIREWORKS)
+            isEnabled = NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nFireworks") ?: false
 
             if (!isEnabled) {
                 return NConstructor.unRegisterEventProcessor(EventProcessor())
@@ -58,7 +59,7 @@ object NFireworks {
             NConstructor.registerEventProcessor(EventProcessor())
         }
 
-        override fun setCommandHandler(commander: Player, args: Array<out String>) {
+        override fun getCommandHandler(commander: Player, args: Array<out String>) {
             if (!commander.isOp) {
                 return commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
             }
@@ -78,14 +79,14 @@ object NFireworks {
             }
         }
 
-        override fun tabCompletion(commander: Player, args: Array<out String>): MutableList<String> {
-            if (!commander.isOp) return super.tabCompletion(commander, args)
+        override fun getTabCompletion(commander: Player, args: Array<out String>): MutableList<String> {
+            if (!commander.isOp) return super.getTabCompletion(commander, args)
 
-            if (args.size != 2) return super.tabCompletion(commander, args)
+            if (args.size != 2) return super.getTabCompletion(commander, args)
 
             val imageFiles = imagesFolder.listFiles()
 
-            if (imageFiles.isNullOrEmpty()) return super.tabCompletion(commander, args)
+            if (imageFiles.isNullOrEmpty()) return super.getTabCompletion(commander, args)
 
             val listOfImages = imageFiles
                 .filter { it.isFile }
@@ -110,7 +111,7 @@ object NFireworks {
                 if (it.filter { file -> file.isFile }.contains(patternFrameFile)) return
             }
 
-            NFolder.createNewFile(patternFramesFolder, patternFrameFile)
+            NFile.createNewFile(patternFramesFolder, patternFrameFile)
 
             val patternFrame: ArrayList<FireworkPattern.PixelContainer> = ArrayList()
 

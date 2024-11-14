@@ -7,6 +7,7 @@ enum class NeonResources(val resourcePath: String, val resourceType: ResourceTyp
     NEON_KEY_RECIPE_PROPERTIES("resources/application/NeonKeyProperties/NeonKeys-Recipes.properties", ResourceType.PROPERTIES),
     NEON_SERVER_FEATURES("resources/nServerFeatures/nServerFeatures-reduced.yml", ResourceType.YAML),
     NEON_SERVER_OPTION_PROPERTIES("resources/nServerFeatures/nServerFeaturesOptionProperties-v2.yml", ResourceType.YAML),
+    NEON_NMS_MAPPING("resources/application/reflection/nms-mappings.xlsx", ResourceType.EXCEL),
 
     /* Neon Database Resources */
     NEON_DATABASE_CODE_MESSAGES("resources/application/code-messages.properties", ResourceType.PROPERTIES),

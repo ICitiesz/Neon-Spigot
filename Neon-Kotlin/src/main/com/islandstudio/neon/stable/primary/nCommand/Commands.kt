@@ -20,7 +20,8 @@ open class Commands {
         MOD("mod"),
         NFIREWORKS("fireworks"),
         DURABILITY("durability"),
-        NPAINTING("painting")
+        NPAINTING("painting"),
+        NROLE("role")
     }
 
     enum class CommandArgument(val argument: String) {

@@ -2,9 +2,9 @@ package com.islandstudio.neon.stable.primary.nProfile
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.islandstudio.neon.stable.core.init.NConstructor
-import com.islandstudio.neon.stable.core.io.nFolder.FolderList
-import com.islandstudio.neon.stable.core.io.nFolder.NFolder
+import com.islandstudio.neon.stable.core.application.init.NConstructor
+import com.islandstudio.neon.stable.core.io.nFile.FolderList
+import com.islandstudio.neon.stable.core.io.nFile.NFile
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -53,15 +53,10 @@ object NProfile {
             val playerProfileFolder: File = getPlayerProfileFolder(player)
             val playerProfileFile: File = getPlayerProfileFile(player)
 
-            NFolder.createNewFile(playerProfileFolder, playerProfileFile)
-
-            val externalBufferedReader = playerProfileFile.bufferedReader()
-            val externalLinesCount: Long = externalBufferedReader.lines().count()
-
-            externalBufferedReader.close()
+            NFile.createNewFile(playerProfileFolder, playerProfileFile)
 
             /* Check if the file content lines is equal to 0 */
-            if (externalLinesCount == 0L) {
+            if (playerProfileFile.length() == 0L) {
                 val externalBufferedWriter = playerProfileFile.bufferedWriter()
 
                 val profileElement: JSONObject = getInternalProfileElement()

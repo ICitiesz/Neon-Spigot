@@ -1,19 +1,21 @@
 package com.islandstudio.neon.experimental.nFireworks
 
-import com.islandstudio.neon.stable.core.init.NConstructor
-import com.islandstudio.neon.stable.core.network.NPacketProcessor
+import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import kotlinx.coroutines.*
 import net.minecraft.core.particles.DustParticleOptions
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.block.BlockFace
 import org.joml.Vector3f
+import org.koin.core.component.inject
 import java.awt.Color
 import java.io.Serializable
 import java.util.concurrent.atomic.AtomicInteger
 
 object FireworkPattern {
-    data class PixelContainer(val verticalIndex: Int): Serializable {
+    data class PixelContainer(val verticalIndex: Int): Serializable, ModuleInjector {
         val horizontalPixels: ArrayList<Pixel> = ArrayList()
 
         /**
@@ -25,11 +27,12 @@ object FireworkPattern {
          */
         @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
         fun renderHorizontalPixel(explodePos: Location, verticalPointer: Double, renderDuration: Int, fireworkPatternFacing: BlockFace) {
+            val neon by inject<Neon>()
             val defaultTickRate = AtomicInteger(20)
             val renderDurationInTicks = AtomicInteger(renderDuration * defaultTickRate.get())
             val durationCounter = AtomicInteger(0)
 
-            Bukkit.getServer().scheduler.runTaskTimer(NConstructor.plugin, { bukkitTask ->
+            Bukkit.getServer().scheduler.runTaskTimer(neon, { bukkitTask ->
                 var horizontalPixelWorker: Job? =
                     CoroutineScope(newSingleThreadContext("nFireworks Horizontal Pixel Worker"))
                         .launch {

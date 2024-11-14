@@ -9,7 +9,7 @@ interface CommandHandler {
      * @param commander The player who perform the command.
      * @param args The command arguments.
      */
-    fun setCommandHandler(commander: Player, args: Array<out String>)
+    fun getCommandHandler(commander: Player, args: Array<out String>)
 
     /**
      * Set the tab completion for the particular command.
@@ -18,7 +18,7 @@ interface CommandHandler {
      * @param args The command arguments.
      * @return A list of valid command arguments.
      */
-     fun tabCompletion(commander: Player, args: Array<out String>): MutableList<String> {
+     fun getTabCompletion(commander: Player, args: Array<out String>): MutableList<String> {
         return mutableListOf()
     }
 }

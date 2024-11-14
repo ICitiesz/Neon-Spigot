@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.core.io.resource
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.AppContext
+import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +15,7 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 
-class ResourceManager: AppContext.Injector {
+class ResourceManager: ModuleInjector {
     private val neon by inject<Neon>()
 
     fun extractExtension() {
@@ -71,7 +71,7 @@ class ResourceManager: AppContext.Injector {
         return neon.getPluginClassLoader().getResource(neonResource.resourcePath)
     }
 
-    fun getNeonResourceAsStream(neonResource: NeonResources, pluginClassLoader: ClassLoader? = null): InputStream? {
+    fun getNeonResourceAsStream(neonResource: NeonResources, pluginClassLoader: ClassLoader? = null): InputStream {
         pluginClassLoader?.let {
             return it.getResourceAsStream(neonResource.resourcePath)
         } ?: return neon.getPluginClassLoader().getResourceAsStream(neonResource.resourcePath)

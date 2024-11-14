@@ -1,0 +1,64 @@
+# Makes harvesting crops much easier!
+nHarvest:
+  isEnabled: false
+  options: []
+
+# Enables stonecutter to craft some of the woord items with fewer ingredients.
+nCutter:
+  isEnabled: false
+  options: []
+
+# Enables blast furnace to smelft some of the smeltable items that only the furnace can smelt.
+nSmelter:
+  isEnabled: false
+  options: []
+
+# Enables or disables PvP in the server.
+nPVP:
+  isEnabled: false
+  options: []
+
+# Enables to save waypoints, remove waypoints and teleport to waypoint in the server.
+# Command: /neon waypoints
+nWaypoints:
+  isEnabled: false
+  options:
+    # Enable cross dimension teleportation. Default: false
+    - crossDimension: false
+
+# Another way of handling the durability of the tools/weapons.
+# Command: /neon durability
+nDurable:
+  isEnabled: false
+  options:
+    # Show/hide item durability. Default: true
+    - showItemDurability: true
+
+# Since the bundle is unobtainable in survival mode within Minecraft 1.17 ~ 1.20, it is now obtainable in survival mode.
+nBundle:
+  isEnabled: false
+  options:
+    # How frequent Bundle can generate in loot chests. Default: 0.17 [Min: 0.001, Max : 1.0]
+    - bundleGenerateChance: 0.17
+    # How many Bundle you can buy from Tannery Villager per stock. Default: 12 [Min: 1, Max: 64]
+    - bundleMaxBuy: 12
+    # How much (emeralds) per Bundle. Default: 5 [Min: 1, Max: 64]
+    - bundlePrice: 5
+    # How much price will be multiplied when Bundle in demand. Default: 0.2 [Min: 0.1, Max: 1.0]
+    - bundlePriceMultiplier: 0.2
+    # How much xp will villager get per trade. Default 5 [Min: 1, Max: 64]
+    - villagerExperience: 5
+
+# [Experimental] Create custom firework pattern by using imported images.
+# Command: /neon fireworks
+nFireworks:
+  isEnabled: false
+  options:
+    - particleSize: 1.0
+    - particleSpeed: 1.0
+
+# [Experimental] (Incompatible with Minecraft 1.17.X) Create custom painting by using imported images.
+# Command: /neon painting
+nPainting:
+  isEnabled: false
+  options: []

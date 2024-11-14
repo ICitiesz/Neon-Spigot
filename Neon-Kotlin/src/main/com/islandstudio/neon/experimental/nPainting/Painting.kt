@@ -1,6 +1,6 @@
 package com.islandstudio.neon.experimental.nPainting
 
-import com.islandstudio.neon.stable.core.io.nFolder.FolderList
+import com.islandstudio.neon.stable.core.io.nFile.FolderList
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.Serializable
