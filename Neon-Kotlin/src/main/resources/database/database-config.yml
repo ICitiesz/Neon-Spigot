@@ -1,0 +1,18 @@
+NeonDatabase:
+  # The database will split into 2 main scope:
+  # Neon-Global-Online.db -> Share usage across version
+  # Neon-1.20-Online.db -> Usage only target for specific version
+  #
+  # The indicator (-Online/-Offline) used to differeciate between server running in Online Mode or Offline Mode
+  # Server reload needed to apply the changes.
+  isGlobal: true
+  backup:
+    isEnabled: true
+    # Backup once after server initialized (Startup / Reload)
+    runOnceAfterServerInitialized: true
+    # Backup interval in minutes: Default = 30 minutes, Min = 15 minutes, Max = 60 minutes
+    interval: 30
+    # Maximum backup entry will be created. Overwrite the older if reaches maximum. Default = 5, Min = 1, Max = 10
+    maxBackups: 5
+    # [Experimental] Transfer and merge data over another database after database switching.
+    transferDataUponDatabaseChange: false

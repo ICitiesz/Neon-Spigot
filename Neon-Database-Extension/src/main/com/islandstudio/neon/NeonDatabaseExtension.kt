@@ -6,7 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class NeonDatabaseExtension: JavaPlugin() {
     override fun onLoad() {
-        if (!validateParentPlugin()) return this.server.logger.warning("Neon plugin is not running! Neon database initialization has been cancalled!")
+        if (!validateParentPlugin()) return this.server.logger.warning(AppContext.getCodeMessages("neon_database.warning.neon_not_running"))
 
         AppContext.loadModuleInjection()
         AppContext.loadCodeMessages()
@@ -14,6 +14,7 @@ class NeonDatabaseExtension: JavaPlugin() {
     }
 
     override fun onEnable() {
+
         ServerConstantEvent.registerEvent()
     }
 

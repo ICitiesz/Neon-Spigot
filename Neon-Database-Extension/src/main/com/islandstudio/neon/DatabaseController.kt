@@ -1,10 +1,16 @@
 package com.islandstudio.neon
 
 import com.islandstudio.neon.application.AppContext
-import com.islandstudio.neon.stable.core.init.NConstructor
+import com.islandstudio.neon.stable.core.application.init.AppInitializer
+import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.io.nFile.NFile
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import kotlinx.coroutines.*
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.Filter
+import org.apache.logging.log4j.core.filter.RegexFilter
+import org.flywaydb.core.Flyway
+import org.flywaydb.core.api.logging.LogFactory
 import org.hsqldb.DatabaseManager
 import org.hsqldb.server.Server
 import org.koin.core.component.inject
@@ -53,11 +59,15 @@ object DatabaseController: AppContext.Injector {
                 return@invokeOnCompletion dbExtension.logger.severe(AppContext.getCodeMessages("neon_database.error.db_server_start_failed"))
             }
 
-            dbExtension.logger.info(AppContext.getCodeMessages("neon_database.info.db_connection_success"))
+            dbExtension.logger.info(AppContext.getCodeMessages("neon_database.info.db_server_start_success"))
 
             // Disable logger for `org.jooq.Constants`
             System.setProperty("org.jooq.no-logo", "true")
             System.setProperty("org.jooq.no-tips", "true")
+
+            updateDatabaseStructure()
+
+            jobContext.close()
         }
     }
 
@@ -96,24 +106,71 @@ object DatabaseController: AppContext.Injector {
     private fun getDatabaseFolderName(): String {
         return when {
             isGlobal -> {
-                "Neon-Global-${NConstructor.serverRunningMode.value .replaceFirstChar { chr -> chr.uppercaseChar() }}"
+                "Neon-Global-${AppInitializer.serverRunningMode.value .replaceFirstChar { chr -> chr.uppercaseChar() }}"
             }
 
             else -> {
-                "Neon-${NConstructor.getMajorVersion()}-${NConstructor.serverRunningMode.value.replaceFirstChar { chr -> chr.uppercaseChar() }}"
+                "Neon-${NConstructor.getMajorVersion()}-${AppInitializer.serverRunningMode.value.replaceFirstChar { chr -> chr.uppercaseChar() }}"
             }
         }
     }
 
-    private fun getDatabaseFolderPath(): String {
-        return when {
-            isGlobal -> {
-                "${NeonDataFolder.NeonDatabaseFolder().path}${File.separator}${getDatabaseFolderName()}${File.separator}${getDatabaseFolderName()}-DB"
+    private fun getDatabaseFolderPath(): String = "${NeonDataFolder.NeonDatabaseFolder().path}${File.separator}${getDatabaseFolderName()}${File.separator}${getDatabaseFolderName()}-DB"
+
+//    private fun getDatabaseFolderPath(): String {
+//        return when {
+//            isGlobal -> {
+//                "${NeonDataFolder.NeonDatabaseFolder().path}${File.separator}${getDatabaseFolderName()}${File.separator}${getDatabaseFolderName()}-DB"
+//            }
+//
+//            else -> {
+//                "${NeonDataFolder.NeonDatabaseFolder().path}${File.separator}${getDatabaseFolderName()}${File.separator}${getDatabaseFolderName()}-DB"
+//            }
+//        }
+//    }
+
+    //TODO: Credential will be store in .env file
+    /**
+     * Update database structure based on the provided update scripts if available.
+     *
+     * Update script file name pattern: v{version}-db_udpate.sql
+     * Details will be within the scripts itself by using comment.
+     */
+    private fun updateDatabaseStructure() {
+        val flywayDbMigrator = Flyway.configure(dbExtension.getPluginClassLoader())
+            .locations(AppContext.getAppEnvValue("DATABASE_UPDATE_SCRIPTS_LOCATION"))
+            .dataSource(
+                "jdbc:hsqldb:hsql://localhost/neondatabase",
+                "SA",
+                ""
+            )
+            .driver(AppContext.getAppEnvValue("DATABASE_DRIVER"))
+            .defaultSchema("NEON_DATA") // TODO: Will change to other schema for storing flyway migration index
+            .validateMigrationNaming(true)
+            .sqlMigrationPrefix(AppContext.getAppEnvValue("FLYWAY_SQL_MIGRATION_PREFIX"))
+            .sqlMigrationSeparator(AppContext.getAppEnvValue("FLYWAY_SQL_MIGRATION_SEPARATOR"))
+            .loggers(AppContext.getAppEnvValue("FLYWAY_LOGGER"))
+            .baselineVersion("0")
+            .load().also {
+                suppressAuthReq()
             }
 
-            else -> {
-                "${NeonDataFolder.NeonDatabaseFolder().path}${File.separator}${getDatabaseFolderName()}${File.separator}${getDatabaseFolderName()}-DB"
-            }
+        flywayDbMigrator.baseline()
+        flywayDbMigrator.migrate()
+    }
+
+    /**
+     * Suppress authentication notification upon database migration/updates.
+     */
+    private fun suppressAuthReq() {
+        val loggerContext = LogManager.getContext(LogFactory::class.java.getClassLoader(), false) as org.apache.logging.log4j.core.LoggerContext
+        val regexFilter = RegexFilter.createFilter("^You are not signed in to Flyway, to sign in please run auth"
+            , arrayOf("CASE_INSENSITIVE"), true, Filter.Result.DENY, Filter.Result.ACCEPT)
+
+        if (!loggerContext.rootLogger.filters.asSequence().toList().contains(regexFilter)) {
+            loggerContext.addFilter(regexFilter)
         }
+
+        if (!regexFilter.isStarted) regexFilter.start()
     }
 }
