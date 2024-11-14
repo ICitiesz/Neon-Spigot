@@ -4,15 +4,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.islandstudio.neon</groupId>
-    <artifactId>Neon-Kotlin</artifactId>
+    <groupId>com.islandstudio</groupId>
+    <artifactId>neon-kotlin</artifactId>
     <version>original</version>
 
     <properties>
+        <!-- Maven Properties -->
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
-        <kotlin.version>1.9.22</kotlin.version>
+        <maven.test.skip>true</maven.test.skip>
+
+        <!-- Kotlin Properties -->
+        <kotlin.code.style>official</kotlin.code.style>
+        <kotlin.version>2.0.0</kotlin.version>
+        <kotlin.compiler.languageVersion>2.0</kotlin.compiler.languageVersion>
+        <kotlinCoroutine.version>1.8.0</kotlinCoroutine.version>
         <kotlin.compiler.jvmTarget>16</kotlin.compiler.jvmTarget>
+
+        <!-- Misc Properties -->
+        <jooq.version>3.19.10</jooq.version>
+        <koin.version>3.6.0-wasm-alpha2</koin.version>
     </properties>
 
     <repositories>
@@ -35,13 +46,26 @@
             <id>destroystokyo-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+
+        <repository>
+            <id>sonatype</id>
+            <url>https://central.sonatype.com</url>
+        </repository>
+
+        <repository>
+            <id>maven_central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2/</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <!--  ###################### Core library ###################### -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -52,19 +76,73 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-core-jvm</artifactId>
-            <version>1.7.3</version>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+            <version>${kotlin.version}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>me.carleslc.Simple-YAML</groupId>
-            <artifactId>Simple-Yaml</artifactId>
-            <version>1.8.4</version>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core-jvm</artifactId>
+            <version>${kotlinCoroutine.version}</version>
             <scope>compile</scope>
         </dependency>
 
+        <!--  ###################### Database Library ###################### -->
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>3.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.7.3</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta</artifactId>
+            <scope>provided</scope>
+            <version>${jooq.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta-extensions</artifactId>
+            <version>${jooq.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-codegen</artifactId>
+            <version>${jooq.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>33.2.1-jre</version>
+        </dependency>
+
+        <!-- ################ Server API Reference Library ################ -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
@@ -80,21 +158,21 @@
             <scope>provided</scope>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.spigotmc</groupId>-->
-<!--            <artifactId>spigot</artifactId>-->
-<!--            <version>1.18.2-R0.1-SNAPSHOT</version>-->
-<!--            <classifier>remapped-mojang</classifier>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.spigotmc</groupId>-->
+        <!--            <artifactId>spigot</artifactId>-->
+        <!--            <version>1.18.2-R0.1-SNAPSHOT</version>-->
+        <!--            <classifier>remapped-mojang</classifier>-->
+        <!--            <scope>provided</scope>-->
+        <!--        </dependency>-->
 
-<!--        <dependency>-->
-<!--            <groupId>org.spigotmc</groupId>-->
-<!--            <artifactId>spigot</artifactId>-->
-<!--            <version>1.19.4-R0.1-SNAPSHOT</version>-->
-<!--            <classifier>remapped-mojang</classifier>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.spigotmc</groupId>-->
+        <!--            <artifactId>spigot</artifactId>-->
+        <!--            <version>1.19.4-R0.1-SNAPSHOT</version>-->
+        <!--            <classifier>remapped-mojang</classifier>-->
+        <!--            <scope>provided</scope>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -104,27 +182,85 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- ###################### Function Library ###################### -->
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-kotlin</artifactId>
+            <version>6.4.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>me.carleslc.Simple-YAML</groupId>
+            <artifactId>Simple-Yaml</artifactId>
+            <version>1.8.4</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.insert-koin</groupId>
+            <artifactId>koin-core-jvm</artifactId>
+            <version>${koin.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dhatim</groupId>
+            <artifactId>fastexcel-reader</artifactId>
+            <version>0.18.4</version>
+        </dependency>
+
     </dependencies>
 
     <build>
-        <sourceDirectory>src/main/</sourceDirectory>
+        <sourceDirectory>${project.basedir}/src/main</sourceDirectory>
+
         <resources>
             <resource>
-                <directory>src</directory>
-                <filtering>false</filtering>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <targetPath>resources/</targetPath>
+            </resource>
+
+            <resource>
+                <directory>${project.basedir}/src/main</directory>
                 <includes>
                     <include>plugin.yml</include>
-                    <include>**/*.json</include>
-                    <include>**/*.yml</include>
-                    <include>**/*.properties</include>
                 </includes>
             </resource>
         </resources>
+
         <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dist</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/resources</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/../Neon-Database-Extension/target</directory>
+                                    <targetPath>extensions</targetPath>-->
+                                    <includes>
+                                        <include>neon-database-extension.jar</include>-->
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <version>${kotlin.version}</version>
+
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -133,7 +269,7 @@
                         </goals>
                         <configuration>
                             <sourceDirs>
-                                <sourceDir>src/main/</sourceDir>
+                                <sourceDir>${project.basedir}/src/main</sourceDir>
                             </sourceDirs>
                         </configuration>
                     </execution>
@@ -143,7 +279,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>3.13.0</version>
+
                 <executions>
                     <execution>
                         <id>default-compile</id>
@@ -152,16 +289,37 @@
                     <execution>
                         <id>java-compile</id>
                         <phase>compile</phase>
+
                         <goals>
                             <goal>compile</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <configuration>
+                    <archive>
+                        <index>true</index>
+                        <manifest>
+                            <mainClass>com.islandstudio.neon.Neon</mainClass>
+                        </manifest>
+
+                        <manifestEntries>
+                            <databaseExtension>META-INF/extension/neon-database-extension.jar</databaseExtension>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.6.0</version>
+
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -170,18 +328,12 @@
                         </goals>
 
                         <configuration>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/maven/**</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 

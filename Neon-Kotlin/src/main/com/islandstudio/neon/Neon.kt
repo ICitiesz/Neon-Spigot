@@ -1,18 +1,34 @@
 package com.islandstudio.neon
 
-import com.islandstudio.neon.stable.core.init.NConstructor
+import com.islandstudio.neon.stable.core.application.AppContext
+import com.islandstudio.neon.stable.core.application.di.AppModuleInjection
+import com.islandstudio.neon.stable.core.application.init.AppInitializer
+import com.islandstudio.neon.stable.core.application.reflection.testimp.NmsProcessor
 import org.bukkit.plugin.java.JavaPlugin
 
 class Neon : JavaPlugin() {
+    private lateinit var appInitializer: AppInitializer
+
     override fun onLoad() {
-        NConstructor.preConstructPlugin()
+        AppModuleInjection.run().apply {
+            appInitializer = AppInitializer()
+            AppContext.loadCodeMessages()
+        }
+
+        appInitializer.preInit()
     }
 
     override fun onEnable() {
-        NConstructor.postConstructPlugin()
+        appInitializer.postInit()
+        server.consoleSender.sendMessage(AppInitializer.NEON_ON_ENABLED_TITLE)
+        NmsProcessor.run()
     }
 
     override fun onDisable() {
-        NConstructor.displayClosingTitle()
+        server.consoleSender.sendMessage(AppInitializer.NEON_ON_DISABLED_TITLE)
     }
+
+    fun getPluginClassLoader(): ClassLoader = this.classLoader
+
+    fun getAppInitializer(): AppInitializer = this.appInitializer
 }

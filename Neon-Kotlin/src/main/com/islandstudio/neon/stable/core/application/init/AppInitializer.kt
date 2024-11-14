@@ -3,6 +3,7 @@ package com.islandstudio.neon.stable.core.application.init
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.AppContext
 import com.islandstudio.neon.stable.core.application.CompatibleVersions
+import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.server.ServerProvider
 import com.islandstudio.neon.stable.core.application.server.ServerRunningMode
 import kotlinx.coroutines.*
@@ -14,7 +15,7 @@ import org.koin.core.component.inject
 import kotlin.math.roundToInt
 
 class AppInitializer {
-    companion object: AppContext.Injector {
+    companion object: ModuleInjector {
         private val neon by inject<Neon>()
 
         val serverProvider = with (neon.server.name) {
