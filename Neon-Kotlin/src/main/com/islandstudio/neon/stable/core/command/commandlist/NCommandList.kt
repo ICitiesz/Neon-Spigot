@@ -4,7 +4,7 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.init.NConstructor
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NMSMapping
+import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import com.islandstudio.neon.stable.primary.nCommand.Commands
 import com.islandstudio.neon.stable.utils.NIdGenerator
@@ -481,7 +481,7 @@ object NCommandList: ModuleInjector {
      * @param nPlayer Minecraft player who clicked the button
      */
     fun navigateCommandUI(buttonState: Int, nPlayer: ServerPlayer) {
-        val player: Player = nPlayer.javaClass.getMethod(NMSMapping.NMS_GET_BUKKIT_ENTITY.remapped).invoke(nPlayer) as Player
+        val player: Player = nPlayer.javaClass.getMethod(NmsMap.GetBukkitEntity.remapped).invoke(nPlayer) as Player
 
         if (hasCommandUISession(player) == null) return
 
@@ -524,7 +524,7 @@ object NCommandList: ModuleInjector {
     private fun getOpenedUIWindow(player: Player): AbstractContainerMenu? {
         val nPlayer = NPacketProcessor.getNPlayer(player)
 
-        val openedUI = nPlayer.javaClass.superclass.getField(NMSMapping.NMS_CONTAINER_BASE.remapped)[nPlayer] as AbstractContainerMenu
+        val openedUI = nPlayer.javaClass.superclass.getField(NmsMap.ContainerBase.remapped)[nPlayer] as AbstractContainerMenu
         val uiView = openedUI.bukkitView
 
         if (uiView.type != InventoryType.LECTERN) return null

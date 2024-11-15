@@ -1,4 +1,6 @@
-package com.islandstudio.neon.stable.core.application.reflection.remastered
+package com.islandstudio.neon.stable.core.application.reflection.mapping
+
+import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
 
 enum class NmsMap(nmsObject: NmsObject?) {
     /* Field Mapping */
@@ -7,7 +9,7 @@ enum class NmsMap(nmsObject: NmsObject?) {
     McServer(NmsProcessor.getNmsObject(MappingType.FIELD, "McServer")), // Supported 1.20.4
     MerchantRecipeResult(NmsProcessor.getNmsObject(MappingType.FIELD, "MerchantRecipeResult")), // Supported 1.20.4
     PlayerConnection(NmsProcessor.getNmsObject(MappingType.FIELD, "PlayerConnection")), // Supported 1.20.4
-    NetworkManger(NmsProcessor.getNmsObject(MappingType.FIELD, "NetworkManager")), // Supported 1.20.4
+    NetworkManager(NmsProcessor.getNmsObject(MappingType.FIELD, "NetworkManager")), // Supported 1.20.4
     Channel(NmsProcessor.getNmsObject(MappingType.FIELD, "Channel")), // Supported 1.20.4
     ContainerBase(NmsProcessor.getNmsObject(MappingType.FIELD, "ContainerBase")), // Supported 1.20.4
     ButtonId(NmsProcessor.getNmsObject(MappingType.FIELD, "ButtonId")), // Supported 1.20.4

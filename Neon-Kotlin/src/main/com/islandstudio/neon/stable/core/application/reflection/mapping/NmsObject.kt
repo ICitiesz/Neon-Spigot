@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application.reflection.remastered
+package com.islandstudio.neon.stable.core.application.reflection.mapping
 
 data class NmsObject(
     val mappingType: MappingType,

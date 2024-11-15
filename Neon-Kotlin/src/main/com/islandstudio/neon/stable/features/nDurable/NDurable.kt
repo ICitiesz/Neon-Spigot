@@ -7,8 +7,8 @@ import com.islandstudio.neon.stable.core.application.identifier.NeonKey
 import com.islandstudio.neon.stable.core.application.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
-import com.islandstudio.neon.stable.core.application.reflection.NReflector
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NMSMapping
+import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
+import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import com.islandstudio.neon.stable.core.command.CommandDispatcher
 import com.islandstudio.neon.stable.core.command.CommandInterfaceProcessor
@@ -163,7 +163,7 @@ object NDurable: ModuleInjector {
                 it.ingredients.forEach InnerFE@ { ingredient ->
                     if (!isItemMatch(ingredient)) return@InnerFE
 
-                    val originalIngredient = merchantRecipe.javaClass.getDeclaredField(NMSMapping.NMS_MERCHANT_RECIPE_RESULT.remapped)
+                    val originalIngredient = merchantRecipe.javaClass.getDeclaredField(NmsMap.MerchantRecipeResult.remapped)
                     originalIngredient.isAccessible = true
 
                     val newIngredient = if (nDurableisEnabled) applyDamageProperty(ingredient, 0)
@@ -176,7 +176,7 @@ object NDurable: ModuleInjector {
                 }
 
                 /* Damage property for trade offer result */
-                val originalResult = merchantRecipe.javaClass.getDeclaredField(NMSMapping.NMS_MERCHANT_RECIPE_RESULT.remapped)
+                val originalResult = merchantRecipe.javaClass.getDeclaredField(NmsMap.MerchantRecipeResult.remapped)
                 originalResult.isAccessible = true
 
                 val newResult = if (nDurableisEnabled) applyDamageProperty(it.result, 0)
@@ -991,8 +991,8 @@ object NDurable: ModuleInjector {
         val alertMsg = "${ChatColor.GOLD}${getDamageableItemName(damagedItem)} " +
                 "${ChatColor.RED}has been damaged!"
 
-        val setActionBarTextPacket = NReflector
-            .getMcClass("network.protocol.game.${NMSMapping.NMS_CLIENT_PACKET_SET_ACTION_BAR_TEXT.remapped}")!!
+        val setActionBarTextPacket = NmsProcessor()
+            .getMcClass("network.protocol.game.${NmsMap.ClientPacketSetActionBarText.remapped}")!!
             .constructors
             .find { it.parameterTypes.contains(Component::class.java) }!!
 

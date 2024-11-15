@@ -5,7 +5,7 @@ import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.identifier.NeonKey
 import com.islandstudio.neon.stable.core.application.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.init.NConstructor
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NMSMapping
+import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import com.islandstudio.neon.stable.core.io.DataSourceType
 import com.islandstudio.neon.stable.core.io.nFile.FolderList
@@ -480,10 +480,10 @@ object NPainting: ModuleInjector {
         }
 
         NPacketProcessor.getNWorld(Bukkit.getWorlds().find { it.environment == World.Environment.NORMAL }!!).let {
-            it.javaClass.getMethod(NMSMapping.NMS_GET_WORLD_PERSISTENT_CONTAINER.remapped).invoke(it).apply worldPersistentContainer@ {
+            it.javaClass.getMethod(NmsMap.GetWorldPersistentContainer.remapped).invoke(it).apply worldPersistentContainer@ {
                 /* Stage 3: Remove from the cache */
                 @Suppress("UNCHECKED_CAST")
-                (this@worldPersistentContainer.javaClass.getField(NMSMapping.NMS_WORLD_CACHE.remapped).get(this@worldPersistentContainer) as MutableMap<String, *>)
+                (this@worldPersistentContainer.javaClass.getField(NmsMap.WorldCache.remapped).get(this@worldPersistentContainer) as MutableMap<String, *>)
                     .also { worldCache ->
                         painting.paintingTiles.forEach { paintingTileId ->
                             if (!worldCache.containsKey("map_${paintingTileId.tileId}")) return@forEach
@@ -493,7 +493,7 @@ object NPainting: ModuleInjector {
                 }
 
                 /* Stage 4: Remove the map data file */
-                this@worldPersistentContainer.javaClass.getDeclaredMethod(NMSMapping.NMS_GET_MAP_DATA_FILE.remapped, String::class.java).also { mapDataFile ->
+                this@worldPersistentContainer.javaClass.getDeclaredMethod(NmsMap.GetMapDataFile.remapped, String::class.java).also { mapDataFile ->
                     mapDataFile.isAccessible = true
 
                     usedMapIds.forEach { mapId ->

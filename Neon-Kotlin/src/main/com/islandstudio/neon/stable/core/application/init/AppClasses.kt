@@ -4,8 +4,7 @@ import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPVP.NPVP
 import com.islandstudio.neon.experimental.nPainting.NPainting
 import com.islandstudio.neon.stable.core.application.identifier.NeonKey
-import com.islandstudio.neon.stable.core.application.reflection.NReflector
-import com.islandstudio.neon.stable.core.application.reflection.remastered.NmsProcessor
+import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
 import com.islandstudio.neon.stable.core.command.NCommand
 import com.islandstudio.neon.stable.core.database.DatabaseCacheManager
 import com.islandstudio.neon.stable.core.database.DatabaseConnector
@@ -30,7 +29,7 @@ import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 enum class AppClasses(
     val clazz: Class<*>,
     val initializationStage: InitializationStage,
-    /** Classes that not able to do async on the new thread
+    /* Classes that not able to do async on the new thread
      * If the run() method is in the nested class, the nClassName should include the nested class name
      * E.g: NDurable.Handler.run() | nClassName: NDurable.Handler
      */
@@ -43,13 +42,6 @@ enum class AppClasses(
         InitializationStage.PRE_INIT,
         isSynchronous = false,
         isConfigReloadable = false
-    ),
-
-    NReflectorClass(
-        NReflector.Handler::class.java,
-        InitializationStage.PRE_INIT,
-        false,
-        false
     ),
 
     NFileClass(

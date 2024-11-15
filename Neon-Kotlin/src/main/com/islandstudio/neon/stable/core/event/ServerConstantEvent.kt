@@ -4,9 +4,8 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.init.NConstructor
-import com.islandstudio.neon.stable.core.application.reflection.NReflector
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NMSMapping
-import com.islandstudio.neon.stable.core.application.reflection.remastered.NmsMap
+import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
+import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import com.islandstudio.neon.stable.core.command.NCommand
 import com.islandstudio.neon.stable.features.nDurable.NDurable
@@ -86,17 +85,17 @@ class ServerConstantEvent: ModuleInjector {
     @Suppress("UNCHECKED_CAST")
     private fun updatePlayerRecipe(player: Player) {
         val mcPlayer = NPacketProcessor.getNPlayer(player)
-        val mcServer = mcPlayer.javaClass.getField(NMSMapping.NMS_MC_SERVER.remapped).get(mcPlayer)
-        val craftingManager = mcServer.javaClass.getMethod(NMSMapping.NMS_CRAFTING_MANAGER.remapped).invoke(mcServer)!!
+        val mcServer = mcPlayer.javaClass.getField(NmsMap.McServer.remapped).get(mcPlayer)
+        val craftingManager = mcServer.javaClass.getMethod(NmsMap.CraftingManager.remapped).invoke(mcServer)!!
 
-        val serverRecipes: Map<Any, Map<Any, Any>> = craftingManager.javaClass.getField(NMSMapping.NMS_SERVER_RECIPES.remapped)
+        val serverRecipes: Map<Any, Map<Any, Any>> = craftingManager.javaClass.getField(NmsMap.ServerRecipes.remapped)
             .get(craftingManager)!! as Map<Any, Map<Any, Any>>
 
         val recipeList = serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }
             .toList()!!
 
-        val updateRecipePacketConstructors = NReflector.getMcClass(
-            "network.protocol.game.${NMSMapping.NMS_CLIENT_PACKET_UPDATE_RECIPES.remapped}"
+        val updateRecipePacketConstructors = NmsProcessor().getMcClass(
+            "network.protocol.game.${NmsMap.ClientPacketUpdateRecipes.remapped}"
         )!!.constructors.filter { it.parameters.size == 1 }
 
         val recipeUpdatePacket: Any = updateRecipePacketConstructors.find { it.parameterTypes.contains(Collection::class.java) }!!

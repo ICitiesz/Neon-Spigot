@@ -3,7 +3,7 @@ package com.islandstudio.neon
 import com.islandstudio.neon.stable.core.application.AppContext
 import com.islandstudio.neon.stable.core.application.di.AppModuleInjection
 import com.islandstudio.neon.stable.core.application.init.AppInitializer
-import com.islandstudio.neon.stable.core.application.reflection.remastered.NmsProcessor
+import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
 import org.bukkit.plugin.java.JavaPlugin
 
 class Neon : JavaPlugin() {

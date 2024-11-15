@@ -1,6 +1,8 @@
-package com.islandstudio.neon.stable.core.application.reflection.remastered
+package com.islandstudio.neon.stable.core.application.reflection
 
 import com.islandstudio.neon.stable.core.application.init.AppInitializer
+import com.islandstudio.neon.stable.core.application.reflection.mapping.MappingType
+import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsObject
 import com.islandstudio.neon.stable.core.io.resource.NeonResources
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import org.dhatim.fastexcel.reader.ReadableWorkbook
@@ -55,7 +57,7 @@ class NmsProcessor {
                         val versions = row.getCell(2).text.split(",").map { v -> v.trim() }
 
                         NmsObject(
-                            MappingType.valueOfMappingType(excelSheet.name),
+                            MappingType.Companion.valueOfMappingType(excelSheet.name),
                             objectName,
                             remappedName,
                             versions.first { v -> v == AppInitializer.serverVersion }

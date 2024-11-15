@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.core.command.commandlist
 
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NMSMapping
+import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.primary.nCommand.Commands
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.LecternMenu
@@ -148,7 +148,7 @@ data class CommandUISession(val player: Player) {
         init {
             commandUIView = getCommandUIView()
             commandUIId = commandUIWindow.containerId
-            currentPage = commandUIView.javaClass.getMethod(NMSMapping.NMS_LECTERN_BOOK_PAGE.remapped).invoke(commandUIView) as Int
+            currentPage = commandUIView.javaClass.getMethod(NmsMap.LecternBookPage.remapped).invoke(commandUIView) as Int
         }
 
         private fun getCommandUIView(): LecternMenu {
@@ -164,7 +164,7 @@ data class CommandUISession(val player: Player) {
         }
 
         fun updateOrGetCurrentPage(): Int {
-            currentPage = commandUIView.javaClass.getMethod(NMSMapping.NMS_LECTERN_BOOK_PAGE.remapped).invoke(commandUIView) as Int
+            currentPage = commandUIView.javaClass.getMethod(NmsMap.LecternBookPage.remapped).invoke(commandUIView) as Int
             return currentPage
         }
 
@@ -178,7 +178,7 @@ data class CommandUISession(val player: Player) {
         }
 
         fun updateServerSideCurrentPage(newCurrentPage: Int) {
-            commandUIView.javaClass.getMethod(NMSMapping.NMS_SET_CONTAINER_DATA.remapped, Int::class.java, Int::class.java)
+            commandUIView.javaClass.getMethod(NmsMap.SetContainerData.remapped, Int::class.java, Int::class.java)
                 .invoke(commandUIView, 0, newCurrentPage)
         }
 

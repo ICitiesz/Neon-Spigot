@@ -6,10 +6,8 @@ import com.islandstudio.neon.stable.core.application.identifier.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.application.init.SupportedVersions
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
-import com.islandstudio.neon.stable.core.application.reflection.NReflector
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NMSMapping
-import com.islandstudio.neon.stable.core.application.reflection.remastered.NmsMap
-import com.islandstudio.neon.stable.core.application.reflection.remastered.NmsProcessor
+import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
+import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import net.minecraft.core.Holder
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.HolderOwner
@@ -30,14 +28,15 @@ object NItemGlinter {
     private const val NMS_REGISTERY_HOLDER_OWNER_PATH = "core.HolderOwner"
     private const val NMS_REGISTRIES_GENERIC_TYPE_T = "T"
 
-    private val registriesBaseClass = NmsProcessor().getMcClass(NMS_REGISTRIES_BASE_CLASS_PATH)!!
+    private val nmsProcessor = NmsProcessor()
+    private val registriesBaseClass = nmsProcessor.getMcClass(NMS_REGISTRIES_BASE_CLASS_PATH)!!
 
     /* Used to get enchantment registry  */
     private val enchantmentRegistry = run {
         /* Get registries class based on the given class path */
         val registriesClass = when {
-            NReflector.hasNamespaceClass(NMS_REGISTRIES_CLASS_PATH) -> {
-                NReflector.getMcClass(NMS_REGISTRIES_CLASS_PATH)
+            nmsProcessor.hasMcClass(NMS_REGISTRIES_CLASS_PATH) -> {
+                nmsProcessor.getMcClass(NMS_REGISTRIES_CLASS_PATH)
             }
 
             else -> {
@@ -87,7 +86,7 @@ object NItemGlinter {
                     }
                 }
 
-                enchantmentRegistry.javaClass.getDeclaredField(NMSMapping.NMS_REGISTRY_ENTRY_TOGGLE_STATE.remapped).also {
+                enchantmentRegistry.javaClass.getDeclaredField(NmsMap.RegistryEntryToggleState.remapped).also {
                     it.isAccessible = true
                     it.set(enchantmentRegistry, false)
                 }
@@ -108,7 +107,7 @@ object NItemGlinter {
                 }
 
                 initOrGetUnregisterHolderContainer(enchantmentRegistry as Registry<Enchantment>)
-                enchantmentRegistry.javaClass.getMethod(NMSMapping.NMS_REVOKE_REGISTRY_ENTRY.remapped).invoke(
+                enchantmentRegistry.javaClass.getMethod(NmsMap.RevokeRegistryEntry.remapped).invoke(
                     enchantmentRegistry
                 )
             }
@@ -135,7 +134,7 @@ object NItemGlinter {
                     .filter { method -> method.returnType == Holder.Reference::class.java }
                     .filter { method -> method.parameterCount == 2 }
                     .filter { method ->
-                        if (NReflector.hasNamespaceClass(NMS_REGISTERY_HOLDER_OWNER_PATH)) {
+                        if (nmsProcessor.hasMcClass(NMS_REGISTERY_HOLDER_OWNER_PATH)) {
                             method.parameterTypes.contains(HolderOwner::class.java) && method.parameterTypes.contains(
                                 Any::class.java
                             )
@@ -147,7 +146,7 @@ object NItemGlinter {
                         if (this.isEmpty()) return@apply
 
                         val unregistryHolderReference = this.first().run {
-                            if (NReflector.hasNamespaceClass(NMS_REGISTERY_HOLDER_OWNER_PATH)) {
+                            if (nmsProcessor.hasMcClass(NMS_REGISTERY_HOLDER_OWNER_PATH)) {
                                 val unregistryHolderOwner = enchantmentRegistry.javaClass.declaredFields
                                     .filter { field -> Modifier.isPrivate(field.modifiers) && Modifier.isFinal(field.modifiers) }
                                     .filter { field -> field.type == HolderLookup::class.java }
@@ -265,7 +264,7 @@ object NItemGlinter {
 
         /* Apply enchantment (Item Glinter) */
         nmsItemStack.javaClass.getMethod(
-            NMSMapping.NMS_APPLY_ENCHANTMENT.remapped,
+            NmsMap.ApplyEnchantment.remapped,
             Enchantment::class.java,
             Int::class.java
         ).invoke(

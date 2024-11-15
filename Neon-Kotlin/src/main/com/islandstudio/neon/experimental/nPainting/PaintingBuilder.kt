@@ -1,7 +1,7 @@
 package com.islandstudio.neon.experimental.nPainting
 
 import com.islandstudio.neon.stable.core.application.init.NConstructor
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NMSMapping
+import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import com.islandstudio.neon.stable.utils.ObjectSerializer
 import kotlinx.coroutines.*
@@ -76,7 +76,7 @@ class PaintingBuilder {
                     horizontalTileSize, verticalTileSize).run { MapPalette.imageToBytes(this) }
 
                 /* Get the worldMapData from the CraftMapView class */
-                val worldMapData = paintingTile.javaClass.getDeclaredField(NMSMapping.NMS_WORLD_MAP_DATA.remapped)
+                val worldMapData = paintingTile.javaClass.getDeclaredField(NmsMap.WorldMapData.remapped)
                     .run {
                         this.isAccessible = true
                         this.get(paintingTile)
@@ -93,7 +93,7 @@ class PaintingBuilder {
                 /* Set the map data in world cache */
                 NPacketProcessor.getNWorld(world).apply {
                     this.javaClass.getMethod(
-                        NMSMapping.NMS_SET_WORLD_MAP_DATA.remapped, String::class.java,
+                        NmsMap.SetWorldMapData.remapped, String::class.java,
                         MapItemSavedData::class.java).invoke(this, "map_${paintingTile.id}", worldMapData)
                 }
             }
@@ -103,13 +103,13 @@ class PaintingBuilder {
         NPainting.Handler.saveReusableMapIds(usableIds.toHashSet())
 
         val worldPersistantContainer = NPacketProcessor.getNWorld(world).run {
-            this.javaClass.getMethod(NMSMapping.NMS_GET_WORLD_PERSISTENT_CONTAINER.remapped)
+            this.javaClass.getMethod(NmsMap.GetWorldPersistentContainer.remapped)
                 .invoke(this)
         }
 
         worldPersistantContainer.javaClass.run {
             /* Save the map data that stores in cache */
-            this.getMethod(NMSMapping.NMS_SAVE_WORLD_CACHE.remapped).invoke(worldPersistantContainer)
+            this.getMethod(NmsMap.SaveWorldCache.remapped).invoke(worldPersistantContainer)
         }
     }
 
@@ -125,7 +125,7 @@ class PaintingBuilder {
 
         val usableId = usableIds.removeFirst() /* Get usable id */
         val overworldResourceKey = NPacketProcessor.getNWorld(world).javaClass.superclass
-            .getField(NMSMapping.NMS_OVERWORLD_RESOURCE_KEY.remapped).get(NPacketProcessor.getNWorld(world))
+            .getField(NmsMap.OverworldResourceKey.remapped).get(NPacketProcessor.getNWorld(world))
 
         /* Construct NMS-based map data */
         val mapDataContainer = MapItemSavedData::class.java.getDeclaredConstructor(
@@ -137,8 +137,8 @@ class PaintingBuilder {
         }
 
         return mapDataContainer.javaClass.run {
-            this.getField(NMSMapping.NMS_WORLD_MAP_DATA_ID.remapped).set(mapDataContainer, "map_${usableId}")
-            this.getField(NMSMapping.NMS_WORLD_MAP_DATA_MAP_VIEW.remapped).get(mapDataContainer) as MapView
+            this.getField(NmsMap.WorldMapDataId.remapped).set(mapDataContainer, "map_${usableId}")
+            this.getField(NmsMap.WorldMapDataMapView.remapped).get(mapDataContainer) as MapView
         }
     }
 
@@ -157,7 +157,7 @@ class PaintingBuilder {
         val tileSize = painting.tileSize.toInt()
         val horizonatalPointerMaxIndex = painting.horizontalPointerMaxIndex
 
-        (worldMapData.javaClass.getField(NMSMapping.NMS_WORLD_MAP_DATA_COLORS.remapped)
+        (worldMapData.javaClass.getField(NmsMap.WorldMapDataColors.remapped)
             .get(worldMapData) as ByteArray).also worldMapColors@ { worldMapColors ->
             /* Fill the ByteArray with -1 */
             worldMapColors.fill(-1)
