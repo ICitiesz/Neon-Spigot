@@ -1,7 +1,7 @@
 package com.islandstudio.neon
 
 import com.islandstudio.neon.application.AppContext
-import com.islandstudio.neon.stable.core.application.init.AppInitializer
+import com.islandstudio.neon.stable.core.application.NeonAPI
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.io.nFile.NFile
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
@@ -106,11 +106,11 @@ object DatabaseController: AppContext.Injector {
     private fun getDatabaseFolderName(): String {
         return when {
             isGlobal -> {
-                "Neon-Global-${AppInitializer.serverRunningMode.value .replaceFirstChar { chr -> chr.uppercaseChar() }}"
+                "Neon-Global-${NeonAPI.getServerRunningMode().value.replaceFirstChar { chr -> chr.uppercaseChar() }}"
             }
 
             else -> {
-                "Neon-${NConstructor.getMajorVersion()}-${AppInitializer.serverRunningMode.value.replaceFirstChar { chr -> chr.uppercaseChar() }}"
+                "Neon-${NConstructor.getMajorVersion()}-${NeonAPI.getServerRunningMode().value.replaceFirstChar { chr -> chr.uppercaseChar() }}"
             }
         }
     }

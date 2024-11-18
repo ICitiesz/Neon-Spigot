@@ -175,7 +175,8 @@
             <groupId>com.islandstudio</groupId>
             <artifactId>Neon-Kotlin</artifactId>
             <version>original</version>
-            <scope>provided</scope>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../Neon-Kotlin/build/libs/neon-kotlin.jar</systemPath>
         </dependency>
 
         <!-- Kotlin core -->

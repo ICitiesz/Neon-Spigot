@@ -10,7 +10,6 @@ import com.islandstudio.neon.stable.core.database.DatabaseCacheManager
 import com.islandstudio.neon.stable.core.database.DatabaseConnector
 import com.islandstudio.neon.stable.core.event.ServerConstantEvent
 import com.islandstudio.neon.stable.core.gui.NGUI
-import com.islandstudio.neon.stable.core.io.nFile.NFile
 import com.islandstudio.neon.stable.features.nBundle.NBundle
 import com.islandstudio.neon.stable.features.nCutter.NCutter
 import com.islandstudio.neon.stable.features.nDurable.NDurable
@@ -44,12 +43,12 @@ enum class AppClasses(
         isConfigReloadable = false
     ),
 
-    NFileClass(
-        NFile::class.java,
-        InitializationStage.PRE_INIT,
-        false,
-        false
-    ),
+//    NFileClass(
+//        NFile::class.java,
+//        InitializationStage.PRE_INIT,
+//        false,
+//        false
+//    ),
 
     NeonKeyClass(
         NeonKey.Handler::class.java,

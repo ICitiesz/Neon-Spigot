@@ -1,6 +1,7 @@
 package com.islandstudio.neon.stable.core.io.resource
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.core.application.NeonExtensions
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import kotlinx.coroutines.CoroutineScope
@@ -38,6 +39,9 @@ class ResourceManager: ModuleInjector {
 
                     copyResource(originalResource, extensionFile)
                 }
+        }.invokeOnCompletion {
+            neon.getAppInitializer().loadExtension(NeonExtensions.NeonDatabaseExtension())
+            neon.logger.info("Completed extraction")
         }
     }
 

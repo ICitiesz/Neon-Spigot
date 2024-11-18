@@ -3,44 +3,31 @@ package com.islandstudio.neon.stable.core.application.init
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.AppContext
 import com.islandstudio.neon.stable.core.application.CompatibleVersions
+import com.islandstudio.neon.stable.core.application.NeonExtensions
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
-import com.islandstudio.neon.stable.core.application.server.ServerProvider
-import com.islandstudio.neon.stable.core.application.server.ServerRunningMode
+import com.islandstudio.neon.stable.core.common.ColorPalette
+import com.islandstudio.neon.stable.core.io.nFile.NFile
+import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
-import net.md_5.bungee.api.ChatColor
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.koin.core.component.inject
 import kotlin.math.roundToInt
 
-class AppInitializer {
+class AppInitializer: ModuleInjector {
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            NFile.run()
+            ResourceManager().extractExtension()
+        }
+    }
+
     companion object: ModuleInjector {
         private val neon by inject<Neon>()
+        private val appContext by inject<AppContext>()
 
-        val serverProvider = with (neon.server.name) {
-            ServerProvider.entries.find { it.name.equals(this, true) }!!
-        }
-
-        val serverVersion = neon.server.bukkitVersion.split("-").first()
-
-        val serverRunningMode = if (neon.server.onlineMode) {
-            ServerRunningMode.ONLINE
-        } else { ServerRunningMode.OFFLINE }
-
-        /* Title format palette */
-        private val cyanBlue = ChatColor.of("#34baeb")
-        private val orange = ChatColor.of("#f57d1f")
-        private val lightGreen = ChatColor.of("#9bec00")
-        private val purple = ChatColor.of("#892cdc")
-        private val yellow = ChatColor.of("#ffed00")
-        private val red = ChatColor.RED
-        private val green = ChatColor.GREEN
-
-        private val reset = ChatColor.RESET
-        private val bold = ChatColor.BOLD
-
-        private val neonVersionText = "$cyanBlue${bold}v${neon.description.version}$reset"
+        private val neonVersionText = "${ColorPalette.CyanBlue.color}${ColorPalette.Bold.color}v${neon.description.version}${ColorPalette.Reset.color}"
         /*
         *        _____                                                      _____
                 {_____}                                                    {_____}
@@ -63,39 +50,39 @@ class AppInitializer {
         * */
 
         val NEON_ON_ENABLED_TITLE = "\n" + """
-                 ${yellow}_____                                                                _____ 
-                $yellow{_____}                                                              {_____}
-                 $purple| ~ |$orange~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$purple| ~ | 
-                 $purple| ~ |  $lightGreen+==========================================================+  $purple| ~ | 
-                 $purple| ~ |          ${cyanBlue}░███    ░██ ░███████    ░███    ░███    ░██           $purple| ~ | 
-                 $purple| ~ |          ${cyanBlue}░████   ░██ ░██       ░██  ░██  ░████   ░██           $purple| ~ |
-                 $purple| ~ |          ${cyanBlue}░██ ░██ ░██ ░██████  ░██    ░██ ░██ ░██ ░██           $purple| ~ | 
-                 $purple| ~ |          ${cyanBlue}░██   ░████ ░██       ░██  ░██  ░██   ░████           $purple| ~ |
-                 $purple| ~ |          ${cyanBlue}░██    ░███ ░███████    ░███    ░██    ░███           $purple| ~ | 
-                 $purple| ~ |  $lightGreen+==========================================================+  $purple| ~ |
-                 $purple|___|$orange~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$purple|___| 
-                $yellow{_____}$reset                  ()                     ()                   $yellow{_____}$reset
+                 ${ColorPalette.Yellow.color}_____                                                                _____ 
+                ${ColorPalette.Yellow.color}{_____}                                                              {_____}
+                 ${ColorPalette.Purple.color}| ~ |${ColorPalette.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorPalette.Purple.color}| ~ | 
+                 ${ColorPalette.Purple.color}| ~ |  ${ColorPalette.LightGreen.color}+==========================================================+  ${ColorPalette.Purple.color}| ~ | 
+                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░███    ░██ ░███████    ░███    ░███    ░██           ${ColorPalette.Purple.color}| ~ | 
+                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░████   ░██ ░██       ░██  ░██  ░████   ░██           ${ColorPalette.Purple.color}| ~ |
+                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░██ ░██ ░██ ░██████  ░██    ░██ ░██ ░██ ░██           ${ColorPalette.Purple.color}| ~ | 
+                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░██   ░████ ░██       ░██  ░██  ░██   ░████           ${ColorPalette.Purple.color}| ~ |
+                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░██    ░███ ░███████    ░███    ░██    ░███           ${ColorPalette.Purple.color}| ~ | 
+                 ${ColorPalette.Purple.color}| ~ |  ${ColorPalette.LightGreen.color}+==========================================================+  ${ColorPalette.Purple.color}| ~ |
+                 ${ColorPalette.Purple.color}|___|${ColorPalette.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorPalette.Purple.color}|___| 
+                ${ColorPalette.Yellow.color}{_____}${ColorPalette.Reset.color}                  ()                     ()                   ${ColorPalette.Yellow.color}{_____}${ColorPalette.Reset.color}
                                          ++=====================++
-                                         ||     ~ $green${bold}STARTED$reset ~     ||
+                                         ||     ~ ${ColorPalette.Green.color}${ColorPalette.Bold.color}STARTED${ColorPalette.Reset.color} ~     ||
                                          ||   ~ $neonVersionText ~   ||
                                          ++=====================++
         """.trimIndent() + "\n"
 
         val NEON_ON_DISABLED_TITLE = "\n" + """
-                 ${yellow}_____                                                                _____ 
-                $yellow{_____}                                                              {_____}
-                 $purple| ~ |$orange~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$purple| ~ | 
-                 $purple| ~ |  $lightGreen+==========================================================+  $purple| ~ | 
-                 $purple| ~ |          ${cyanBlue}░███    ░██ ░███████    ░███    ░███    ░██           $purple| ~ | 
-                 $purple| ~ |          ${cyanBlue}░████   ░██ ░██       ░██  ░██  ░████   ░██           $purple| ~ |
-                 $purple| ~ |          ${cyanBlue}░██ ░██ ░██ ░██████  ░██    ░██ ░██ ░██ ░██           $purple| ~ | 
-                 $purple| ~ |          ${cyanBlue}░██   ░████ ░██       ░██  ░██  ░██   ░████           $purple| ~ |
-                 $purple| ~ |          ${cyanBlue}░██    ░███ ░███████    ░███    ░██    ░███           $purple| ~ | 
-                 $purple| ~ |  $lightGreen+==========================================================+  $purple| ~ |
-                 $purple|___|$orange~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$purple|___| 
-                $yellow{_____}$reset                  ()                     ()                   $yellow{_____}$reset
+                 ${ColorPalette.Yellow.color}_____                                                                _____ 
+                ${ColorPalette.Yellow.color}{_____}                                                              {_____}
+                 ${ColorPalette.Purple.color}| ~ |${ColorPalette.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorPalette.Purple.color}| ~ | 
+                 ${ColorPalette.Purple.color}| ~ |  ${ColorPalette.LightGreen.color}+==========================================================+  ${ColorPalette.Purple.color}| ~ | 
+                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░███    ░██ ░███████    ░███    ░███    ░██           ${ColorPalette.Purple.color}| ~ | 
+                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░████   ░██ ░██       ░██  ░██  ░████   ░██           ${ColorPalette.Purple.color}| ~ |
+                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░██ ░██ ░██ ░██████  ░██    ░██ ░██ ░██ ░██           ${ColorPalette.Purple.color}| ~ | 
+                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░██   ░████ ░██       ░██  ░██  ░██   ░████           ${ColorPalette.Purple.color}| ~ |
+                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░██    ░███ ░███████    ░███    ░██    ░███           ${ColorPalette.Purple.color}| ~ | 
+                 ${ColorPalette.Purple.color}| ~ |  ${ColorPalette.LightGreen.color}+==========================================================+  ${ColorPalette.Purple.color}| ~ |
+                 ${ColorPalette.Purple.color}|___|${ColorPalette.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorPalette.Purple.color}|___| 
+                ${ColorPalette.Yellow.color}{_____}${ColorPalette.Reset.color}                  ()                     ()                   ${ColorPalette.Yellow.color}{_____}${ColorPalette.Reset.color}
                                          ++=====================++
-                                         ||     ~ $red${bold}DISABLED$reset ~    ||
+                                         ||     ~ ${ColorPalette.Red.color}${ColorPalette.Bold.color}DISABLED${ColorPalette.Reset.color} ~    ||
                                          ||   ~ $neonVersionText ~   ||
                                          ++=====================++
         """.trimIndent() + "\n"
@@ -125,7 +112,7 @@ class AppInitializer {
         }
 
         fun isCompatible(): Boolean {
-            return CompatibleVersions.entries.any { serverVersion in it.versions }
+            return CompatibleVersions.entries.any { appContext.serverVersion in it.versions }
         }
     }
 
@@ -135,15 +122,16 @@ class AppInitializer {
      */
     @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
     fun preInit() {
+        val appContext by inject<AppContext>()
         val jobContext = newSingleThreadContext("Neon Initializer (Pre-Staging)")
 
         CoroutineScope(jobContext).async {
-            neon.logger.info(AppContext.getCodeMessage("neon.info.preinit.start_preinit_message"))
+            neon.logger.info(appContext.getCodeMessage("neon.info.preinit.start_preinit_message"))
 
             delay(500L)
 
             if (!isCompatible()) {
-                neon.logger.severe(AppContext.getCodeMessage("neon.error.preinit.incompatible_version"))
+                neon.logger.severe(appContext.getCodeMessage("neon.error.preinit.incompatible_version"))
                 return@async
             }
 
@@ -346,5 +334,11 @@ class AppInitializer {
             }
 
         jobContext.close()
+    }
+
+    fun loadExtension(neonExtension: NeonExtensions) {
+        neon.pluginLoader.loadPlugin(neonExtension).also {
+            neon.pluginLoader.enablePlugin(it)
+        }
     }
 }

@@ -2,14 +2,20 @@ package com.islandstudio.neon.stable.core.application
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.server.ServerProvider
+import com.islandstudio.neon.stable.core.application.server.ServerRunningMode
 import com.islandstudio.neon.stable.core.io.resource.NeonResources
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import io.github.cdimascio.dotenv.Dotenv
 import io.github.cdimascio.dotenv.dotenv
+import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 import java.util.*
 
-object AppContext: ModuleInjector {
+@Single
+class AppContext: ModuleInjector {
+    private val neon by inject<Neon>()
+
     private val codeMessages = Properties()
     private val envValues: Dotenv = dotenv {
         this.directory = "/resources/application"
@@ -17,6 +23,10 @@ object AppContext: ModuleInjector {
         this.ignoreIfMalformed = true
         this.ignoreIfMissing = true
     }
+
+    val serverProvider = ServerProvider.entries.first { it.name.equals(neon.server.name, true) }
+    val serverVersion = neon.server.bukkitVersion.split("-").first()
+    val serverRunningMode = if (neon.server.onlineMode) ServerRunningMode.ONLINE else ServerRunningMode.OFFLINE
 
     fun getAppEnvValue(key: String): String = envValues.get(key)
 
@@ -29,14 +39,6 @@ object AppContext: ModuleInjector {
     }
 
     fun getCodeMessage(code: String): String = codeMessages.getProperty(code) ?: code
-
-    fun loadExtension(neonExtension: NeonExtensions) {
-        val neon by inject<Neon>()
-
-        neon.pluginLoader.loadPlugin(neonExtension).also {
-           neon.pluginLoader.enablePlugin(it)
-        }
-    }
 }
 
 

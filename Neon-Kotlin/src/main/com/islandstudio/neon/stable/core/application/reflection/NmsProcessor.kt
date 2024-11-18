@@ -1,15 +1,17 @@
 package com.islandstudio.neon.stable.core.application.reflection
 
-import com.islandstudio.neon.stable.core.application.init.AppInitializer
+import com.islandstudio.neon.stable.core.application.AppContext
+import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.reflection.mapping.MappingType
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsObject
 import com.islandstudio.neon.stable.core.io.resource.NeonResources
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import org.dhatim.fastexcel.reader.ReadableWorkbook
 import org.dhatim.fastexcel.reader.Sheet
+import org.koin.core.component.inject
 
 class NmsProcessor {
-    companion object {
+    companion object: ModuleInjector {
         private val nmsMapping: ArrayList<NmsObject> = arrayListOf()
 
         /**
@@ -44,12 +46,14 @@ class NmsProcessor {
          *
          */
         private fun prepareNmsMapping(excelSheet: Sheet) {
+            val appContext by inject<AppContext>()
+
             excelSheet.openStream().use { rows ->
                 val filteredMapping = rows.filter { row -> row.rowNum != 1 }
                     .filter { row ->
                         val versionsValue = row.getCell(2).text.split(",").map { v -> v.trim() }
 
-                        AppInitializer.serverVersion in versionsValue
+                        appContext.serverVersion in versionsValue
                     }
                     .map<NmsObject> { row ->
                         val objectName = row.getCell(0).text
@@ -60,7 +64,7 @@ class NmsProcessor {
                             MappingType.Companion.valueOfMappingType(excelSheet.name),
                             objectName,
                             remappedName,
-                            versions.first { v -> v == AppInitializer.serverVersion }
+                            versions.first { v -> v == appContext.serverVersion }
                         )
                     }.toList()
 

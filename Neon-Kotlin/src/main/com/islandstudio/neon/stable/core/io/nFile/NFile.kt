@@ -2,7 +2,6 @@ package com.islandstudio.neon.stable.core.io.nFile
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
-import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import org.koin.core.component.inject
 import java.io.File
 
@@ -15,19 +14,11 @@ object NFile: ModuleInjector {
     fun run() {
         reformatVersionFolder()
 
-//        FolderList.entries.forEach {
-//            if (it.folder.exists()) return@forEach
-//
-//            it.folder.mkdirs()
-//        }
-
         NeonDataFolder.getAllDataFolder().forEach {
             if (it.exists()) return@forEach
 
             it.mkdirs()
         }
-
-        ResourceManager().extractExtension()
     }
 
     /**

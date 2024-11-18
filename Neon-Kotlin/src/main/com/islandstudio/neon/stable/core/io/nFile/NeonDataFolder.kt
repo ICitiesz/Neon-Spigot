@@ -1,14 +1,16 @@
 package com.islandstudio.neon.stable.core.io.nFile
 
+import com.islandstudio.neon.stable.core.application.AppContext
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
-import com.islandstudio.neon.stable.core.application.init.AppInitializer
 import com.islandstudio.neon.stable.core.application.init.NConstructor
+import org.koin.core.component.inject
 import java.io.File
 import kotlin.reflect.full.createInstance
 
 sealed class NeonDataFolder(folder: File): File(folder.toPath().toString()) {
     companion object: ModuleInjector {
-        private val serverRunningMode = AppInitializer.serverRunningMode
+        private val appContext by inject<AppContext>()
+        private val serverRunningMode = appContext.serverRunningMode
 
         fun getAllDataFolder(): ArrayList<File> {
             return NeonDataFolder::class.sealedSubclasses
