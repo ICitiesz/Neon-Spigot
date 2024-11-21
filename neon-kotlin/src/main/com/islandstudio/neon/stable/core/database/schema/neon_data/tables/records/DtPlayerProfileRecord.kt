@@ -6,12 +6,10 @@ package com.islandstudio.neon.stable.core.database.schema.neon_data.tables.recor
 
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.DtPlayerProfile
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.PlayerProfile
-
-import java.time.LocalDateTime
-import java.util.UUID
-
 import org.jooq.Record1
 import org.jooq.impl.UpdatableRecordImpl
+import java.time.LocalDateTime
+import java.util.*
 
 
 /**

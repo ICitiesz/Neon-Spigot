@@ -35,7 +35,7 @@ dependencies {
     val koinAnnotationsVersion = "2.0.0-Beta1"
 
     /* Misc */
-    compileOnly(files("../Neon-Kotlin/build/libs/neon-kotlin-shaded.jar"))
+    compileOnly(files("../neon-kotlin/build/libs/neon-kotlin-shaded.jar"))
     jooqCodegen(project)
 
     /* Core Language Library */
@@ -97,7 +97,7 @@ jooq {
                 /* Specify the location of your SQL script. */
                 val scriptProperty = org.jooq.meta.jaxb.Property().apply {
                     this.key = "scripts"
-                    this.value = "../Neon-Kotlin/src/main/resources/database/sql-scripts/NeonDatabase.sql"
+                    this.value = "../neon-kotlin/src/main/resources/database/sql-scripts/NeonDatabase.sql"
                 }
 
                 /* The default name case for unquoted objects:
@@ -143,7 +143,7 @@ jooq {
 
             target {
                 packageName = "com.islandstudio.neon.stable.core.database.schema"
-                directory = "../Neon-Kotlin/src/main"
+                directory = "../neon-kotlin/src/main"
             }
 
             strategy {

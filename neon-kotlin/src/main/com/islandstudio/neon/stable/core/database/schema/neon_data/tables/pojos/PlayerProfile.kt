@@ -6,7 +6,7 @@ package com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos
 
 import java.io.Serializable
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 
 /**

@@ -10,34 +10,13 @@ import com.islandstudio.neon.stable.core.database.schema.neon_data.keys.PK_DT_PL
 import com.islandstudio.neon.stable.core.database.schema.neon_data.keys.UQ_DT_PLAYER_PROFILE_PLAYER_NAME
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.DtRole.DtRolePath
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.records.DtPlayerProfileRecord
-
-import java.time.LocalDateTime
-import java.util.UUID
-
-import kotlin.collections.Collection
-import kotlin.collections.List
-
-import org.jooq.Condition
-import org.jooq.Field
-import org.jooq.ForeignKey
-import org.jooq.InverseForeignKey
-import org.jooq.Name
-import org.jooq.Path
-import org.jooq.PlainSQL
-import org.jooq.QueryPart
-import org.jooq.Record
-import org.jooq.SQL
-import org.jooq.Schema
-import org.jooq.Select
-import org.jooq.Stringly
-import org.jooq.Table
-import org.jooq.TableField
-import org.jooq.TableOptions
-import org.jooq.UniqueKey
+import org.jooq.*
 import org.jooq.impl.DSL
 import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
+import java.time.LocalDateTime
+import java.util.*
 
 
 /**

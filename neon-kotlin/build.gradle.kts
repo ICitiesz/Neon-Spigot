@@ -124,7 +124,7 @@ tasks.named<Jar>("jar") {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     archiveFileName.set(pluginFinalJarName)
 
-    from(file("${project.rootDir}/../Neon-Database-Extension/target/neon-database-extension.jar")) {
+    from(file("${project.rootDir}/../neon-database-server/build/libs/neon-database-server.jar")) {
         into("resources/extensions/")
     }
 
