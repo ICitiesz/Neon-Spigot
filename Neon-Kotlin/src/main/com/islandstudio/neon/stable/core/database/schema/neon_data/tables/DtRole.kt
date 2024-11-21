@@ -13,6 +13,10 @@ import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.DtAcce
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.DtPlayerProfile.DtPlayerProfilePath
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.DtRoleAccess.DtRoleAccessPath
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.records.DtRoleRecord
+
+import kotlin.collections.Collection
+import kotlin.collections.List
+
 import org.jooq.Check
 import org.jooq.Condition
 import org.jooq.Field
@@ -36,8 +40,6 @@ import org.jooq.impl.DSL
 import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
-import kotlin.collections.Collection
-import kotlin.collections.List
 
 
 /**

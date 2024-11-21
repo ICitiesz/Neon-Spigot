@@ -12,6 +12,10 @@ import com.islandstudio.neon.stable.core.database.schema.neon_data.keys.UQ_DT_AC
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.DtRole.DtRolePath
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.DtRoleAccess.DtRoleAccessPath
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.records.DtAccessPermissionRecord
+
+import kotlin.collections.Collection
+import kotlin.collections.List
+
 import org.jooq.Check
 import org.jooq.Condition
 import org.jooq.Field
@@ -35,8 +39,6 @@ import org.jooq.impl.DSL
 import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
-import kotlin.collections.Collection
-import kotlin.collections.List
 
 
 /**
@@ -132,7 +134,7 @@ open class DtAccessPermission(
     override fun getSchema(): Schema? = if (aliased()) null else NeonData.NEON_DATA
     override fun getIdentity(): Identity<DtAccessPermissionRecord, Long?> = super.getIdentity() as Identity<DtAccessPermissionRecord, Long?>
     override fun getPrimaryKey(): UniqueKey<DtAccessPermissionRecord> = PK_DT_ACCESS_PERMISSION
-    override fun getUniqueKeys(): List<UniqueKey<DtAccessPermissionRecord>> = listOf(UQ_DT_ACCESS_PERMISSION_PERMISSION_NAME, UQ_DT_ACCESS_PERMISSION_PERMISSION_CODE)
+    override fun getUniqueKeys(): List<UniqueKey<DtAccessPermissionRecord>> = listOf(UQ_DT_ACCESS_PERMISSION_PERMISSION_CODE, UQ_DT_ACCESS_PERMISSION_PERMISSION_NAME)
 
     private lateinit var _dtRoleAccess: DtRoleAccessPath
 

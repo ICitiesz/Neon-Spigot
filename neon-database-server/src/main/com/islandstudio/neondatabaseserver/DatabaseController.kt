@@ -1,13 +1,14 @@
-package com.islandstudio.neon
+package com.islandstudio.neondatabaseserver
 
-import com.islandstudio.neon.application.AppContext
 import com.islandstudio.neon.stable.core.application.NeonAPI
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.io.nFile.NFile
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
+import com.islandstudio.neondatabaseserver.application.AppContext
 import kotlinx.coroutines.*
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.Filter
+import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.filter.RegexFilter
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.logging.LogFactory
@@ -21,7 +22,7 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 object DatabaseController: AppContext.Injector {
-    private val dbExtension by inject<NeonDatabaseExtension>()
+    private val dbExtension by inject<NeonDatabaseServer>()
     private val hsqldbServer by inject<Server>()
 
     private val dbConfigFile = NFile.createOrGetNewFile(
@@ -163,7 +164,7 @@ object DatabaseController: AppContext.Injector {
      * Suppress authentication notification upon database migration/updates.
      */
     private fun suppressAuthReq() {
-        val loggerContext = LogManager.getContext(LogFactory::class.java.getClassLoader(), false) as org.apache.logging.log4j.core.LoggerContext
+        val loggerContext = LogManager.getContext(LogFactory::class.java.getClassLoader(), false) as LoggerContext
         val regexFilter = RegexFilter.createFilter("^You are not signed in to Flyway, to sign in please run auth"
             , arrayOf("CASE_INSENSITIVE"), true, Filter.Result.DENY, Filter.Result.ACCEPT)
 

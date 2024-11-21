@@ -1,10 +1,10 @@
-package com.islandstudio.neon
+package com.islandstudio.neondatabaseserver
 
-import com.islandstudio.neon.application.AppContext
-import com.islandstudio.neon.event.ServerConstantEvent
+import com.islandstudio.neondatabaseserver.application.AppContext
+import com.islandstudio.neondatabaseserver.event.ServerConstantEvent
 import org.bukkit.plugin.java.JavaPlugin
 
-class NeonDatabaseExtension: JavaPlugin() {
+class NeonDatabaseServer: JavaPlugin() {
     override fun onLoad() {
         if (!validateParentPlugin()) return this.server.logger.warning(AppContext.getCodeMessages("neon_database.warning.neon_not_running"))
 

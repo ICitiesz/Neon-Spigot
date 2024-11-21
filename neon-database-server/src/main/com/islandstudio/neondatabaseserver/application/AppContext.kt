@@ -1,8 +1,8 @@
-package com.islandstudio.neon.application
+package com.islandstudio.neondatabaseserver.application
 
-import com.islandstudio.neon.NeonDatabaseExtension
 import com.islandstudio.neon.stable.core.io.resource.NeonResources
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
+import com.islandstudio.neondatabaseserver.NeonDatabaseServer
 import io.github.cdimascio.dotenv.dotenv
 import org.bukkit.plugin.java.JavaPlugin.getPlugin
 import org.hsqldb.server.Server
@@ -23,7 +23,7 @@ object AppContext {
     }
 
     private val generalModules = module {
-        single<NeonDatabaseExtension> { getPlugin(NeonDatabaseExtension::class.java) }
+        single<NeonDatabaseServer> { getPlugin(NeonDatabaseServer::class.java) }
         single<Server> { Server() }
     }
 
@@ -36,7 +36,7 @@ object AppContext {
     fun getAppEnvValue(key: String): String = enVValues.get(key)
 
     fun loadCodeMessages() {
-        val dbExtension by koinApplication.koin.inject<NeonDatabaseExtension>()
+        val dbExtension by koinApplication.koin.inject<NeonDatabaseServer>()
 
         with(
             ResourceManager().getNeonResourceAsStream(

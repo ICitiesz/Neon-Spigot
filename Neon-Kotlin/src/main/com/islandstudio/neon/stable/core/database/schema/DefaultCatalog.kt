@@ -5,10 +5,12 @@ package com.islandstudio.neon.stable.core.database.schema
 
 
 import com.islandstudio.neon.stable.core.database.schema.neon_data.NeonData
+
+import kotlin.collections.List
+
 import org.jooq.Constants
 import org.jooq.Schema
 import org.jooq.impl.CatalogImpl
-import kotlin.collections.List
 
 
 /**

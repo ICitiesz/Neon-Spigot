@@ -9,10 +9,12 @@ import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.DtAcce
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.DtPlayerProfile
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.DtRole
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.DtRoleAccess
+
+import kotlin.collections.List
+
 import org.jooq.Catalog
 import org.jooq.Table
 import org.jooq.impl.SchemaImpl
-import kotlin.collections.List
 
 
 /**

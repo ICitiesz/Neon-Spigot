@@ -1,15 +1,14 @@
-package com.islandstudio.neon.event
+package com.islandstudio.neondatabaseserver.event
 
-import com.islandstudio.neon.DatabaseController
-import com.islandstudio.neon.NeonDatabaseExtension
-import com.islandstudio.neon.application.AppContext
+import com.islandstudio.neondatabaseserver.DatabaseController
+import com.islandstudio.neondatabaseserver.NeonDatabaseServer
+import com.islandstudio.neondatabaseserver.application.AppContext
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.server.ServerCommandEvent
-import org.jetbrains.kotlin.utils.addToStdlib.ifFalse
 import org.koin.core.component.inject
 
 class ServerConstantEvent: Listener {
@@ -23,7 +22,7 @@ class ServerConstantEvent: Listener {
     }
 
     companion object: AppContext.Injector {
-        private val dbExtension by inject<NeonDatabaseExtension>()
+        private val dbExtension by inject<NeonDatabaseServer>()
 
         fun registerEvent() {
             HandlerList.getRegisteredListeners(dbExtension).find {
@@ -60,7 +59,7 @@ class ServerConstantEvent: Listener {
             else -> return
         }
 
-        (command in reloadCommands || command in reloadCommandsWithConfirm || command.equals("stop", true)).ifFalse {
+        if (!(command in reloadCommands || command in reloadCommandsWithConfirm || command.equals("stop", true))) {
             return
         }
 

@@ -24,14 +24,20 @@ repositories {
         name = "spigot"
         url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     }
+
     maven {
         name = "papermc"
         url = uri("https://repo.papermc.io/repository/maven-public/")
     }
+
+    maven {
+        name = "jitpack.io"
+        url = uri("https://jitpack.io/")
+    }
 }
 
 dependencies {
-    val jooqVersion = "3.19.10"
+    val jooqVersion = "3.19.15"
     val koinAnnotationsVersion = "2.0.0-Beta1"
 
     /* Core Language Library */
@@ -53,7 +59,7 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
 
     /* Database Library */
-    implementation("org.modelmapper:modelmapper:3.2.0")
+    api("org.modelmapper:modelmapper:3.2.1")
     implementation("org.hsqldb:hsqldb:2.7.3")
     implementation("org.jooq:jooq:$jooqVersion")
     compileOnly("org.jooq:jooq-meta:$jooqVersion")
@@ -64,18 +70,16 @@ dependencies {
 }
 
 sourceSets {
-    main {
-        kotlin {
-            srcDir("src/main/")
+    kotlin.sourceSets {
+        main {
+            kotlin.srcDir("src/main/")
+
+            resources.srcDir("src/main/resources")
+            resources.exclude("**")
 
             dependencies {
                 api("io.insert-koin:koin-annotations-jvm:2.0.0-Beta1")
             }
-        }
-
-        resources {
-            srcDir("src/main/resources")
-            exclude("**")
         }
     }
 }
