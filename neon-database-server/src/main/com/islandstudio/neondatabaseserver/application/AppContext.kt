@@ -3,17 +3,16 @@ package com.islandstudio.neondatabaseserver.application
 import com.islandstudio.neon.stable.core.io.resource.NeonResources
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import com.islandstudio.neondatabaseserver.NeonDatabaseServer
+import com.islandstudio.neondatabaseserver.application.di.ModuleInjector
 import io.github.cdimascio.dotenv.dotenv
-import org.bukkit.plugin.java.JavaPlugin.getPlugin
-import org.hsqldb.server.Server
-import org.koin.core.Koin
-import org.koin.core.KoinApplication
-import org.koin.core.component.KoinComponent
-import org.koin.dsl.module
+import org.koin.core.annotation.Single
+import org.koin.core.component.inject
 import java.util.*
 
-object AppContext {
-    private val koinApplication = KoinApplication.init()
+@Single
+class AppContext: ModuleInjector  {
+    private val neonDbServer by inject<NeonDatabaseServer>()
+
     private val codeMessages = Properties()
     private val enVValues = dotenv {
         this.directory = "/resources/application"
@@ -22,38 +21,15 @@ object AppContext {
         this.ignoreIfMissing = true
     }
 
-    private val generalModules = module {
-        single<NeonDatabaseServer> { getPlugin(NeonDatabaseServer::class.java) }
-        single<Server> { Server() }
-    }
-
-    fun loadModuleInjection() {
-        koinApplication.modules(
-            generalModules
-        ).createEagerInstances()
-    }
-
     fun getAppEnvValue(key: String): String = enVValues.get(key)
 
     fun loadCodeMessages() {
-        val dbExtension by koinApplication.koin.inject<NeonDatabaseServer>()
-
-        with(
-            ResourceManager().getNeonResourceAsStream(
-            NeonResources.NEON_DATABASE_CODE_MESSAGES,
-            dbExtension.getPluginClassLoader())
-        ) {
-            this?.let {
-                use {
-                    codeMessages.load(it)
-                }
+        with(ResourceManager().getNeonResourceAsStream(NeonResources.NEON_DATABASE_CODE_MESSAGES, neonDbServer.getPluginClassLoader())) {
+            use {
+                codeMessages.load(it)
             }
         }
     }
 
     fun getCodeMessages(code: String): String = codeMessages.getProperty(code) ?: code
-
-    interface Injector: KoinComponent {
-        override fun getKoin(): Koin = koinApplication.koin
-    }
 }

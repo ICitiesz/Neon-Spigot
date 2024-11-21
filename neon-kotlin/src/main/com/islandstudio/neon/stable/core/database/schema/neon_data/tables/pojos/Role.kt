@@ -15,8 +15,7 @@ data class Role(
     var roleId: Long? = null,
     var roleDisplayName: String? = null,
     var roleCode: String? = null,
-    var assignedPlayerCount: Long? = null,
-    var testcol: String? = null
+    var assignedPlayerCount: Long? = null
 ): Serializable {
 
 
@@ -52,12 +51,6 @@ data class Role(
         }
         else if (this.assignedPlayerCount != o.assignedPlayerCount)
             return false
-        if (this.testcol == null) {
-            if (o.testcol != null)
-                return false
-        }
-        else if (this.testcol != o.testcol)
-            return false
         return true
     }
 
@@ -68,7 +61,6 @@ data class Role(
         result = prime * result + (if (this.roleDisplayName == null) 0 else this.roleDisplayName.hashCode())
         result = prime * result + (if (this.roleCode == null) 0 else this.roleCode.hashCode())
         result = prime * result + (if (this.assignedPlayerCount == null) 0 else this.assignedPlayerCount.hashCode())
-        result = prime * result + (if (this.testcol == null) 0 else this.testcol.hashCode())
         return result
     }
 
@@ -79,7 +71,6 @@ data class Role(
         sb.append(", ").append(roleDisplayName)
         sb.append(", ").append(roleCode)
         sb.append(", ").append(assignedPlayerCount)
-        sb.append(", ").append(testcol)
 
         sb.append(")")
         return sb.toString()

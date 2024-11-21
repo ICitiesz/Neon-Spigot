@@ -1,6 +1,7 @@
 package com.islandstudio.neondatabaseserver
 
 import com.islandstudio.neon.stable.core.application.NeonAPI
+import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.io.nFile.NFile
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
@@ -21,8 +22,9 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-object DatabaseController: AppContext.Injector {
-    private val dbExtension by inject<NeonDatabaseServer>()
+object DatabaseController: ModuleInjector {
+    private val appContext by inject<AppContext>()
+    private val neonDbServer by inject<NeonDatabaseServer>()
     private val hsqldbServer by inject<Server>()
 
     private val dbConfigFile = NFile.createOrGetNewFile(
@@ -57,10 +59,10 @@ object DatabaseController: AppContext.Injector {
             hsqldbServer.start()
         }.invokeOnCompletion {
             if (!isDbServerRunning()) {
-                return@invokeOnCompletion dbExtension.logger.severe(AppContext.getCodeMessages("neon_database.error.db_server_start_failed"))
+                return@invokeOnCompletion neonDbServer.logger.severe(appContext.getCodeMessages("neon_database_server.error.db_server_start_failed"))
             }
 
-            dbExtension.logger.info(AppContext.getCodeMessages("neon_database.info.db_server_start_success"))
+            neonDbServer.logger.info(appContext.getCodeMessages("neon_database_server.info.db_server_start_success"))
 
             // Disable logger for `org.jooq.Constants`
             System.setProperty("org.jooq.no-logo", "true")
@@ -79,13 +81,13 @@ object DatabaseController: AppContext.Injector {
         val jobContext = newSingleThreadContext("Neon Database Processor")
 
         CoroutineScope(jobContext).launch {
-            dbExtension.logger.info("Closing Neon database......")
+            neonDbServer.logger.info("Closing Neon database......")
             DatabaseManager.closeDatabases(0)
             hsqldbServer.shutdown()
             //hikariDataSource?.close()
             hsqldbServer.stop()
         }.invokeOnCompletion {
-            dbExtension.logger.info("Neon Database closed!")
+            neonDbServer.logger.info("Neon Database closed!")
             jobContext.close()
         }
     }
@@ -98,7 +100,7 @@ object DatabaseController: AppContext.Injector {
         with(dbConfigFile) {
             if (this.length() != 0L) return@with
 
-            dbExtension.getPluginClassLoader().getResourceAsStream("resources/database-config.yml")?.let {
+            neonDbServer.getPluginClassLoader().getResourceAsStream("resources/database-config.yml")?.let {
                 Files.copy(it, dbConfigFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
             }
         }
@@ -138,19 +140,19 @@ object DatabaseController: AppContext.Injector {
      * Details will be within the scripts itself by using comment.
      */
     private fun updateDatabaseStructure() {
-        val flywayDbMigrator = Flyway.configure(dbExtension.getPluginClassLoader())
-            .locations(AppContext.getAppEnvValue("DATABASE_UPDATE_SCRIPTS_LOCATION"))
+        val flywayDbMigrator = Flyway.configure(neonDbServer.getPluginClassLoader())
+            .locations(appContext.getAppEnvValue("DATABASE_UPDATE_SCRIPTS_LOCATION"))
             .dataSource(
                 "jdbc:hsqldb:hsql://localhost/neondatabase",
                 "SA",
                 ""
             )
-            .driver(AppContext.getAppEnvValue("DATABASE_DRIVER"))
+            .driver(appContext.getAppEnvValue("DATABASE_DRIVER"))
             .defaultSchema("NEON_DATA") // TODO: Will change to other schema for storing flyway migration index
             .validateMigrationNaming(true)
-            .sqlMigrationPrefix(AppContext.getAppEnvValue("FLYWAY_SQL_MIGRATION_PREFIX"))
-            .sqlMigrationSeparator(AppContext.getAppEnvValue("FLYWAY_SQL_MIGRATION_SEPARATOR"))
-            .loggers(AppContext.getAppEnvValue("FLYWAY_LOGGER"))
+            .sqlMigrationPrefix(appContext.getAppEnvValue("FLYWAY_SQL_MIGRATION_PREFIX"))
+            .sqlMigrationSeparator(appContext.getAppEnvValue("FLYWAY_SQL_MIGRATION_SEPARATOR"))
+            .loggers(appContext.getAppEnvValue("FLYWAY_LOGGER"))
             .baselineVersion("0")
             .load().also {
                 suppressAuthReq()

@@ -1,15 +1,22 @@
 package com.islandstudio.neondatabaseserver
 
 import com.islandstudio.neondatabaseserver.application.AppContext
+import com.islandstudio.neondatabaseserver.application.di.AppModuleInjection
+import com.islandstudio.neondatabaseserver.application.di.ModuleInjector
 import com.islandstudio.neondatabaseserver.event.ServerConstantEvent
 import org.bukkit.plugin.java.JavaPlugin
+import org.koin.core.component.inject
 
-class NeonDatabaseServer: JavaPlugin() {
+class NeonDatabaseServer: JavaPlugin(), ModuleInjector {
     override fun onLoad() {
-        if (!validateParentPlugin()) return this.server.logger.warning(AppContext.getCodeMessages("neon_database.warning.neon_not_running"))
+        AppModuleInjection.run().apply {
+            val appContext by inject<AppContext>()
 
-        AppContext.loadModuleInjection()
-        AppContext.loadCodeMessages()
+            if (!validateParentPlugin()) {
+                return this@NeonDatabaseServer.server.logger.warning(appContext.getCodeMessages("neon_database_server.warning.neon_not_running"))
+            }
+        }
+
         DatabaseController.initDatabaseServer()
     }
 

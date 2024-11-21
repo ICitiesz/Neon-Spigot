@@ -35,7 +35,8 @@ dependencies {
     val koinAnnotationsVersion = "2.0.0-Beta1"
 
     /* Misc */
-    compileOnly(files("../neon-kotlin/build/libs/neon-kotlin-shaded.jar"))
+    compileOnly(files("../neon-kotlin/build/classes/kotlin/main"))
+    implementation(files("build/classes/java/main"))
     jooqCodegen(project)
 
     /* Core Language Library */

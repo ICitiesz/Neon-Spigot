@@ -33,10 +33,6 @@ open class DtRoleRecord() : UpdatableRecordImpl<DtRoleRecord>(DtRole.DT_ROLE) {
         set(value): Unit = set(3, value)
         get(): Long? = get(3) as Long?
 
-    open var testcol: String?
-        set(value): Unit = set(4, value)
-        get(): String? = get(4) as String?
-
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -46,12 +42,11 @@ open class DtRoleRecord() : UpdatableRecordImpl<DtRoleRecord>(DtRole.DT_ROLE) {
     /**
      * Create a detached, initialised DtRoleRecord
      */
-    constructor(roleId: Long? = null, roleDisplayName: String? = null, roleCode: String? = null, assignedPlayerCount: Long? = null, testcol: String? = null): this() {
+    constructor(roleId: Long? = null, roleDisplayName: String? = null, roleCode: String? = null, assignedPlayerCount: Long? = null): this() {
         this.roleId = roleId
         this.roleDisplayName = roleDisplayName
         this.roleCode = roleCode
         this.assignedPlayerCount = assignedPlayerCount
-        this.testcol = testcol
         resetChangedOnNotNull()
     }
 
@@ -64,7 +59,6 @@ open class DtRoleRecord() : UpdatableRecordImpl<DtRoleRecord>(DtRole.DT_ROLE) {
             this.roleDisplayName = value.roleDisplayName
             this.roleCode = value.roleCode
             this.assignedPlayerCount = value.assignedPlayerCount
-            this.testcol = value.testcol
             resetChangedOnNotNull()
         }
     }

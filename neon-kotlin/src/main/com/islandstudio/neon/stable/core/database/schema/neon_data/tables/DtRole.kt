@@ -77,11 +77,6 @@ open class DtRole(
      */
     val ASSIGNED_PLAYER_COUNT: TableField<DtRoleRecord, Long?> = createField(DSL.name("ASSIGNED_PLAYER_COUNT"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.field(DSL.raw("0"), SQLDataType.BIGINT)), this, "")
 
-    /**
-     * The column <code>NEON_DATA.DT_ROLE.testCol</code>.
-     */
-    val TESTCOL: TableField<DtRoleRecord, String?> = createField(DSL.name("testCol"), SQLDataType.VARCHAR(20), this, "")
-
     private constructor(alias: Name, aliased: Table<DtRoleRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<DtRoleRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<DtRoleRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)

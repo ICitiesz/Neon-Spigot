@@ -19,9 +19,6 @@ ALTER TABLE NEON_DATA.DT_ROLE
 ALTER TABLE NEON_DATA.DT_ROLE
     ADD CONSTRAINT DT_ROLE_ENSURE_UPPER CHECK(ROLE_CODE = UPPER(ROLE_CODE));
 
-ALTER TABLE NEON_DATA.DT_ROLE
-ADD COLUMN "testCol" VARCHAR(20);
-
 -- ##############################################################################################
 
 /* Table 2: DT_PLAYER_PROFILE */

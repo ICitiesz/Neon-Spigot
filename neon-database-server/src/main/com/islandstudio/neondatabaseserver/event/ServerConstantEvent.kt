@@ -1,8 +1,8 @@
 package com.islandstudio.neondatabaseserver.event
 
+import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neondatabaseserver.DatabaseController
 import com.islandstudio.neondatabaseserver.NeonDatabaseServer
-import com.islandstudio.neondatabaseserver.application.AppContext
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
@@ -14,26 +14,26 @@ import org.koin.core.component.inject
 class ServerConstantEvent: Listener {
     private val reloadCommands = arrayListOf("rl", "reload", "bukkit:reload", "bukkit:rl")
     private val reloadCommandsWithConfirm = arrayListOf("rl confirm", "reload confirm", "bukkit:reload confirm", "bukkit:rl confirm")
-    private val serverName = dbExtension.server.name
+    private val serverName = neonDbServer.server.name
     private val doLetMeReload: Boolean? = with(System.getProperties()) {
         return@with this.entries.find { it.key == "LetMeReload" }?.let {
             (it.value as String).toBoolean()
         }
     }
 
-    companion object: AppContext.Injector {
-        private val dbExtension by inject<NeonDatabaseServer>()
+    companion object: ModuleInjector {
+        private val neonDbServer by inject<NeonDatabaseServer>()
 
         fun registerEvent() {
-            HandlerList.getRegisteredListeners(dbExtension).find {
+            HandlerList.getRegisteredListeners(neonDbServer).find {
                 it.listener.javaClass.canonicalName == it.listener.javaClass.canonicalName
             }?.let { return }
 
-            dbExtension.server.pluginManager.registerEvents(EventProcessor(), dbExtension)
+            neonDbServer.server.pluginManager.registerEvents(EventProcessor(), neonDbServer)
         }
 
         fun unregisterEvent() {
-            HandlerList.getRegisteredListeners(dbExtension).find {
+            HandlerList.getRegisteredListeners(neonDbServer).find {
                 it.listener.javaClass.canonicalName == it.listener.javaClass.canonicalName
             }?.let { HandlerList.unregisterAll(it.listener) }
         }
