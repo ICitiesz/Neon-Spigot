@@ -26,7 +26,7 @@ class ResourceManager: ModuleInjector {
                 .forEach { extension ->
                     val originalResource = neon.getPluginClassLoader().getResource(extension.resourcePath)
                         ?: return@forEach neon.logger.warning("Missing extension! Skipping extension extration for '${extension.getResourceName()}'...")
-                    val extensionFile = File(NeonDataFolder.ExtensionFolder(), extension.getResourceName())
+                    val extensionFile = File(NeonDataFolder.ExtensionFolder, extension.getResourceName())
 
                     if (!extensionFile.exists()) {
                         copyResource(originalResource, extensionFile)
@@ -40,8 +40,8 @@ class ResourceManager: ModuleInjector {
                     copyResource(originalResource, extensionFile)
                 }
         }.invokeOnCompletion {
-            neon.getAppInitializer().loadExtension(NeonExtensions.NeonDatabaseExtension())
             neon.logger.info("Completed extraction")
+            neon.getAppInitializer().loadExtension(NeonExtensions.NeonDatabaseExtension())
         }
     }
 

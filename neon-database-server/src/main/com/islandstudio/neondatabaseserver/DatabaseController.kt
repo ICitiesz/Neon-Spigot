@@ -1,11 +1,11 @@
 package com.islandstudio.neondatabaseserver
 
 import com.islandstudio.neon.stable.core.application.NeonAPI
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.io.nFile.NFile
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import com.islandstudio.neondatabaseserver.application.AppContext
+import com.islandstudio.neondatabaseserver.application.di.ModuleInjector
 import kotlinx.coroutines.*
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.Filter
@@ -28,8 +28,8 @@ object DatabaseController: ModuleInjector {
     private val hsqldbServer by inject<Server>()
 
     private val dbConfigFile = NFile.createOrGetNewFile(
-        NeonDataFolder.NeonDatabaseFolder(),
-        File(NeonDataFolder.NeonDatabaseFolder(), "database-config.yml")
+        NeonDataFolder.NeonDatabaseFolder,
+        File(NeonDataFolder.NeonDatabaseFolder, "database-config.yml")
     )
 
     /* Determine which scope that database should be generated */
@@ -118,7 +118,7 @@ object DatabaseController: ModuleInjector {
         }
     }
 
-    private fun getDatabaseFolderPath(): String = "${NeonDataFolder.NeonDatabaseFolder().path}${File.separator}${getDatabaseFolderName()}${File.separator}${getDatabaseFolderName()}-DB"
+    private fun getDatabaseFolderPath(): String = "${NeonDataFolder.NeonDatabaseFolder.path}${File.separator}${getDatabaseFolderName()}${File.separator}${getDatabaseFolderName()}-DB"
 
 //    private fun getDatabaseFolderPath(): String {
 //        return when {

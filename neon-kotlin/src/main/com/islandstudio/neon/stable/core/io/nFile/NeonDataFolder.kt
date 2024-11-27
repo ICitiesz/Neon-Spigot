@@ -3,112 +3,98 @@ package com.islandstudio.neon.stable.core.io.nFile
 import com.islandstudio.neon.stable.core.application.AppContext
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.init.NConstructor
-import org.koin.core.component.inject
 import java.io.File
-import kotlin.reflect.full.createInstance
 
 sealed class NeonDataFolder(folder: File): File(folder.toPath().toString()) {
     companion object: ModuleInjector {
-        private val appContext by inject<AppContext>()
+        private val appContext by getKoin().inject<AppContext>()
         private val serverRunningMode = appContext.serverRunningMode
 
         fun getAllDataFolder(): ArrayList<File> {
             return NeonDataFolder::class.sealedSubclasses
                 .map {
-                    it.createInstance()
+                    it.objectInstance as File
                 }.toCollection(ArrayList())
         }
     }
 
-    data class ModeFolder(
-        val folder: File = File(
-            NFile.getDataFolder(),
-            "${NConstructor.getMajorVersion()}$separator${serverRunningMode.value}"
-        )
-    ): NeonDataFolder(folder)
+    data object ModeFolder: NeonDataFolder(
+        File(NFile.getDataFolder(), "${NConstructor.getMajorVersion()}$separator${serverRunningMode.value}")
+    ) {
+        private fun readResolve(): Any = ModeFolder
+    }
 
-    data class NeonDatabaseFolder(
-        val folder: File = File(
-            NFile.getDataFolder(),
-            "database"
-        )
-    ): NeonDataFolder(folder)
 
-    data class NServerFeaturesFolder(
-        val folder: File = File(
-            ModeFolder(),
-            "nServerFeatures"
-        )
-    ): NeonDataFolder(folder)
+    data object NeonDatabaseFolder: NeonDataFolder(
+        File(NFile.getDataFolder(), "database")
+    ) {
+        private fun readResolve(): Any = NeonDatabaseFolder
+    }
 
-    data class NExperimentalFolder(
-        val folder: File = File(
-            NServerFeaturesFolder(),
-            "nExperimental"
-        )
-    ): NeonDataFolder(folder)
+    data object NServerFeaturesFolder: NeonDataFolder(
+        File(ModeFolder, "nServerFeatures")
+    ) {
+        private fun readResolve(): Any = NServerFeaturesFolder
+    }
 
-    data class NProfileFolder(
-        val folder: File = File(
-            ModeFolder(),
-            "nProfile"
-        )
-    ): NeonDataFolder(folder)
+    data object NExperimentalFolder: NeonDataFolder(
+        File(NServerFeaturesFolder, "nExperimental")
+    ) {
+        private fun readResolve(): Any = NExperimentalFolder
+    }
 
-    data class NWaypointsFolder(
-        val folder: File = File(
-            NServerFeaturesFolder(),
-            "nWaypoints"
-        )
-    ): NeonDataFolder(folder)
+    data object NProfileFolder: NeonDataFolder(
+        File(ModeFolder, "nProfile")
+    ) {
+        private fun readResolve(): Any = NProfileFolder
+    }
 
-    data class ExtensionFolder(
-        val folder: File  = File(
-            NFile.getDataFolder(),
-            "extensions"
-        )
-    ): NeonDataFolder(folder)
+    data object NWaypointsFolder: NeonDataFolder(
+        File(NServerFeaturesFolder, "nWaypoints")
+    ) {
+        private fun readResolve(): Any = NWaypointsFolder
+    }
+
+    data object ExtensionFolder: NeonDataFolder(
+        File(NFile.getDataFolder(), "extensions")
+    ) {
+        private fun readResolve(): Any = ExtensionFolder
+    }
 
     /* Experimental */
-    data class NFireworksFolder(
-        val folder: File = File(
-            NExperimentalFolder(),
-            "nFireworks"
-        )
-    ): NeonDataFolder(folder)
+    data object NFireworksFolder: NeonDataFolder(
+        File(NExperimentalFolder, "nFireworks")
+    ) {
+        private fun readResolve(): Any = NFireworksFolder
+    }
 
-    data class NFireworkdsImageFolder(
-        val folder: File = File(
-            NFireworksFolder(),
-            "images"
-        )
-    ): NeonDataFolder(folder)
+    data object NFireworkdsImageFolder: NeonDataFolder(
+        File(NFireworksFolder, "images")
+    ) {
+        private fun readResolve(): Any = NFireworkdsImageFolder
+    }
 
-    data class NFireworksPatternFramesFolder(
-        val folder: File = File(
-            NFireworksFolder(),
-            "patterns"
-        )
-    ): NeonDataFolder(folder)
+    data object NFireworksPatternFramesFolder: NeonDataFolder(
+        File(NFireworksFolder, "patterns")
+    ) {
+        private fun readResolve(): Any = NFireworksPatternFramesFolder
+    }
 
-    data class NPaintingFolder(
-        val folder: File = File(
-            NExperimentalFolder(),
-            "nPainting"
-        )
-    ): NeonDataFolder(folder)
+    data object NPaintingFolder: NeonDataFolder(
+        File(NExperimentalFolder, "nPainting")
+    ) {
+        private fun readResolve(): Any = NPaintingFolder
+    }
 
-    data class NPaintingImageFolder(
-        val folder: File = File(
-            NPaintingFolder(),
-            "images"
-        )
-    ): NeonDataFolder(folder)
+    data object NPaintingImageFolder: NeonDataFolder(
+        File(NPaintingFolder, "images")
+    ) {
+        private fun readResolve(): Any = NPaintingImageFolder
+    }
 
-    data class NPaintingRenderDataFolder(
-        val folder: File = File(
-            NPaintingFolder(),
-            "render_data"
-        )
-    ): NeonDataFolder(folder)
+    data object NPaintingRenderDataFolder: NeonDataFolder(
+        File(NPaintingFolder, "render_data")
+    ) {
+        private fun readResolve(): Any = NPaintingRenderDataFolder
+    }
 }

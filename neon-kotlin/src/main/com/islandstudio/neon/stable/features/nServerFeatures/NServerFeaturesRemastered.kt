@@ -68,8 +68,8 @@ object NServerFeaturesRemastered: ModuleInjector {
     }
 
     private val nServerFeaturesActiveFile: File = run {
-        with(File(NeonDataFolder.NServerFeaturesFolder(), "nServerFeatures-reduced.yml")) {
-            return@with NFile.createOrGetNewFile(NeonDataFolder.NServerFeaturesFolder(), this)
+        with(File(NeonDataFolder.NServerFeaturesFolder, "nServerFeatures-reduced.yml")) {
+            return@with NFile.createOrGetNewFile(NeonDataFolder.NServerFeaturesFolder, this)
         }
     }
 
