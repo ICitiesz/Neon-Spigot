@@ -126,12 +126,12 @@ class AppInitializer: ModuleInjector {
         val jobContext = newSingleThreadContext("Neon Initializer (Pre-Staging)")
 
         CoroutineScope(jobContext).async {
-            neon.logger.info(appContext.getCodeMessage("neon.info.preinit.start_preinit_message"))
+            neon.logger.info(appContext.getCodeMessage("neon.info.pre_init.start"))
 
             delay(500L)
 
             if (!isCompatible()) {
-                neon.logger.severe(appContext.getCodeMessage("neon.error.preinit.incompatible_version"))
+                neon.logger.severe(appContext.getCodeMessage("neon.error.pre_init.incompatible_version"))
                 return@async
             }
 
@@ -173,12 +173,14 @@ class AppInitializer: ModuleInjector {
                     neon.logger.severe(it.cause?.stackTraceToString())
                     return@forEachIndexed
                 }.onSuccess {
-                    neon.logger.info("Filling up Neon......${loadingProgress}%")
+                    //neon.logger.info("Filling up Neon......${loadingProgress}%")
+                    neon.logger.info(appContext.getFormattedCodeMessage("neon.info.pre_init.processing", loadingProgress))
                     delay(150L)
                 }
             }
         }.asCompletableFuture().join().also {
-            neon.logger.info("Neon has been filled up!")
+            //neon.logger.info("Neon has been filled up!")
+            neon.logger.info(appContext.getCodeMessage("neon.info.pre_init.complete"))
             jobContext.close()
         }
     }
@@ -190,13 +192,13 @@ class AppInitializer: ModuleInjector {
     @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
     fun postInit() {
         if (!isCompatible()) {
-            neon.logger.severe("Neon could not be lit up: Incompatible Minecraft version!")
-            neon.logger.severe("Please check for the latest version of Neon plugin!")
-            neon.logger.warning("Supported Minecraft version: 1.17.X ~ 1.20.4")
+            neon.logger.severe(appContext.getCodeMessage("neon.error.post_init.incompatible_version"))
+            //neon.logger.severe("Please check for the latest version of Neon plugin!")
+            //neon.logger.warning("Supported Minecraft version: 1.17.X ~ 1.20.4")
             return
         }
 
-        neon.logger.info("Start lighting up Neon......")
+        neon.logger.info(appContext.getCodeMessage("neon.info.post_init.start"))
         Thread.sleep(500L)
         val jobContext = newSingleThreadContext("Neon Initializer (Post-Staging)")
         val postLoadAppClasses = AppClasses.entries
@@ -236,7 +238,7 @@ class AppInitializer: ModuleInjector {
                     neon.logger.severe(it.cause?.stackTraceToString())
                     return@forEachIndexed
                 }.onSuccess {
-                    neon.logger.info("Lighting up Neon......${loadingProgress}%")
+                    neon.logger.info(appContext.getFormattedCodeMessage("neon.info.post_init.processing", loadingProgress))
                     Thread.sleep(150L)
                     return@forEachIndexed
                 }
@@ -257,14 +259,14 @@ class AppInitializer: ModuleInjector {
                     neon.logger.severe(it.cause?.stackTraceToString())
                     return@async
                 }.onSuccess {
-                    neon.logger.info("Lighting up Neon......${loadingProgress}%")
+                    neon.logger.info(appContext.getFormattedCodeMessage("neon.info.post_init.processing", loadingProgress))
                     delay(150L)
                 }
             }.asCompletableFuture().get()
         }
 
         jobContext.close()
-        neon.logger.info("Neon has been lit up!")
+        neon.logger.info(appContext.getCodeMessage("neon.info.post_init.complete"))
     }
 
 

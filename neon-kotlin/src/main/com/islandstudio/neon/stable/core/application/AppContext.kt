@@ -39,6 +39,14 @@ class AppContext: ModuleInjector {
     }
 
     fun getCodeMessage(code: String): String = codeMessages.getProperty(code) ?: code
+
+    fun getFormattedCodeMessage(code: String, vararg valueReplacement: Any): String {
+        val codeMessage = getCodeMessage(code)
+
+        if (codeMessage == code) return codeMessage
+
+        return String.format(codeMessage, *valueReplacement)
+    }
 }
 
 
