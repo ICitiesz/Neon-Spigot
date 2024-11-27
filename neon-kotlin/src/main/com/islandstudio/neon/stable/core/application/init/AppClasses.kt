@@ -43,13 +43,6 @@ enum class AppClasses(
         isConfigReloadable = false
     ),
 
-//    NFileClass(
-//        NFile::class.java,
-//        InitializationStage.PRE_INIT,
-//        false,
-//        false
-//    ),
-
     NeonKeyClass(
         NeonKey.Handler::class.java,
         InitializationStage.PRE_INIT,

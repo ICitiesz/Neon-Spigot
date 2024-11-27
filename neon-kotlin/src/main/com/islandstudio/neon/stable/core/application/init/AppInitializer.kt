@@ -6,7 +6,6 @@ import com.islandstudio.neon.stable.core.application.CompatibleVersions
 import com.islandstudio.neon.stable.core.application.NeonExtensions
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.common.ColorPalette
-import com.islandstudio.neon.stable.core.io.nFile.NFile
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
@@ -17,10 +16,7 @@ import kotlin.math.roundToInt
 
 class AppInitializer: ModuleInjector {
     init {
-        CoroutineScope(Dispatchers.IO).launch {
-            NFile.run()
-            ResourceManager().extractExtension()
-        }
+        ResourceManager.run()
     }
 
     companion object: ModuleInjector {
@@ -173,13 +169,11 @@ class AppInitializer: ModuleInjector {
                     neon.logger.severe(it.cause?.stackTraceToString())
                     return@forEachIndexed
                 }.onSuccess {
-                    //neon.logger.info("Filling up Neon......${loadingProgress}%")
-                    neon.logger.info(appContext.getFormattedCodeMessage("neon.info.pre_init.processing", loadingProgress))
+                    //neon.logger.info(appContext.getFormattedCodeMessage("neon.info.pre_init.processing", loadingProgress))
                     delay(150L)
                 }
             }
         }.asCompletableFuture().join().also {
-            //neon.logger.info("Neon has been filled up!")
             neon.logger.info(appContext.getCodeMessage("neon.info.pre_init.complete"))
             jobContext.close()
         }
@@ -339,6 +333,8 @@ class AppInitializer: ModuleInjector {
     }
 
     fun loadExtension(neonExtension: NeonExtensions) {
+        neon.logger.info("Loading extensions......")
+
         neon.pluginLoader.loadPlugin(neonExtension).also {
             neon.pluginLoader.enablePlugin(it)
         }

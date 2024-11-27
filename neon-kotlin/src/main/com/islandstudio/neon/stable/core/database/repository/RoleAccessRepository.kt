@@ -8,6 +8,7 @@ import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.refere
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.references.DT_ROLE_ACCESS
 import com.islandstudio.neon.stable.player.nAccessPermission.Permission
 import org.jooq.DSLContext
+import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 
 @Single

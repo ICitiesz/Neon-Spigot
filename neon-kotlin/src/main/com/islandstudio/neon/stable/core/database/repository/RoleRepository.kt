@@ -6,6 +6,7 @@ import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.record
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.references.DT_PLAYER_PROFILE
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.references.DT_ROLE
 import org.jooq.DSLContext
+import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 import java.util.*
 

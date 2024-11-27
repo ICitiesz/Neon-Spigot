@@ -59,10 +59,10 @@ object DatabaseController: ModuleInjector {
             hsqldbServer.start()
         }.invokeOnCompletion {
             if (!isDbServerRunning()) {
-                return@invokeOnCompletion neonDbServer.logger.severe(appContext.getCodeMessages("neon_database_server.error.db_server_start_failed"))
+                return@invokeOnCompletion neonDbServer.logger.severe(appContext.getCodeMessage("neon_database_server.error.db_server_start_failed"))
             }
 
-            neonDbServer.logger.info(appContext.getCodeMessages("neon_database_server.info.db_server_start_success"))
+            neonDbServer.logger.info(appContext.getCodeMessage("neon_database_server.info.db_server_start_success"))
 
             // Disable logger for `org.jooq.Constants`
             System.setProperty("org.jooq.no-logo", "true")

@@ -18,7 +18,7 @@ class NeonDatabaseServer: JavaPlugin(), ModuleInjector {
         appContext.loadCodeMessages()
 
         if (!validateParentPlugin()) {
-            return this@NeonDatabaseServer.server.logger.warning(appContext.getCodeMessages("neon_database_server.warning.neon_not_running"))
+            return this@NeonDatabaseServer.server.logger.warning(appContext.getCodeMessage("neon_database_server.warning.neon_not_running"))
         }
 
         DatabaseController.initDatabaseServer()
