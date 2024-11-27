@@ -8,10 +8,9 @@ import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.refere
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.references.DT_ROLE_ACCESS
 import com.islandstudio.neon.stable.player.nAccessPermission.Permission
 import org.jooq.DSLContext
-import org.koin.core.annotation.Singleton
 import org.koin.core.component.inject
 
-@Singleton
+@Single
 class RoleAccessRepository: ModuleInjector {
     private val dbContext by inject<DSLContext>()
 

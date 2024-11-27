@@ -5,11 +5,11 @@ import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.records.DtPlayerProfileRecord
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.references.DT_PLAYER_PROFILE
 import org.jooq.DSLContext
-import org.koin.core.annotation.Singleton
+import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 import java.util.*
 
-@Singleton
+@Single
 class PlayerProfileRepository: ModuleInjector {
     private val dbContext by inject<DSLContext>()
 

@@ -5,10 +5,10 @@ import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.records.DtAccessPermissionRecord
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.references.DT_ACCESS_PERMISSION
 import org.jooq.DSLContext
-import org.koin.core.annotation.Singleton
+import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 
-@Singleton
+@Single
 class AccessPermissionRepository: ModuleInjector {
     private val dbContext by inject<DSLContext>()
 

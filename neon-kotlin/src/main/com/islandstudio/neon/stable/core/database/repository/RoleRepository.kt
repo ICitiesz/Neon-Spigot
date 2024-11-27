@@ -6,11 +6,10 @@ import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.record
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.references.DT_PLAYER_PROFILE
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.references.DT_ROLE
 import org.jooq.DSLContext
-import org.koin.core.annotation.Singleton
 import org.koin.core.component.inject
 import java.util.*
 
-@Singleton
+@Single
 class RoleRepository: ModuleInjector {
     private val dbContext by inject<DSLContext>()
 

@@ -8,7 +8,7 @@ import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
 @Module
-@ComponentScan("com.islandstudio.neon.stable.core.database")
+@ComponentScan("com.islandstudio.neondatabaseserver")
 class GeneralModule {
 
     @Single
