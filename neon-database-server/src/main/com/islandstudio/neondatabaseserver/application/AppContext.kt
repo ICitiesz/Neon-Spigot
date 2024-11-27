@@ -31,5 +31,5 @@ class AppContext: ModuleInjector  {
         }
     }
 
-    fun getCodeMessages(code: String): String = codeMessages.getProperty(code) ?: code
+    fun getCodeMessage(code: String): String = codeMessages.getProperty(code) ?: code
 }
