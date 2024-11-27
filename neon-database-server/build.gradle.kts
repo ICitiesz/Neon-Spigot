@@ -51,12 +51,11 @@ dependencies {
 
     /* Database Library */
     implementation("org.hsqldb:hsqldb:2.7.3")
-    implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("org.jooq:jooq-meta:$jooqVersion")
     implementation("org.jooq:jooq-meta-extensions:$jooqVersion")
     compileOnly("org.jooq:jooq-codegen:$jooqVersion")
     implementation("com.redgate.flyway:flyway-core:10.17.0")
-
+    runtimeOnly("com.redgate.flyway:flyway-database-hsqldb:10.17.0")
 
     /* Function Library */
     implementation("io.insert-koin:koin-core-jvm:4.0.0")
@@ -68,27 +67,26 @@ dependencies {
     compileOnly("org.apache.logging.log4j:log4j-core:2.19.0")
 }
 
-sourceSets {
-    kotlin.sourceSets {
-        main {
-            kotlin.srcDir("src/main")
-            kotlin.include("**")
-
-            resources.srcDir("src/main/resources")
-            resources.exclude("**")
-
-            dependencies {
-                api("io.insert-koin:koin-annotations-jvm:2.0.0-Beta1")
-            }
-        }
+java.sourceSets {
+    named("main") {
+        java.srcDir("src/main")
     }
+}
 
-    java.sourceSets {
-        main {
-            java.srcDir("src/main")
+kotlin.sourceSets {
+    main {
+        kotlin.srcDir("src/main")
+
+        resources.srcDir("src/main/resources")
+        resources.exclude("**")
+
+        dependencies {
+            api("io.insert-koin:koin-annotations-jvm:2.0.0-Beta1")
         }
     }
 }
+
+
 
 jooq {
     configuration {
@@ -215,6 +213,9 @@ tasks.named<ShadowJar>("shadowJar") {
 
     minimize {
         exclude(dependency("org.jetbrains.kotlin:kotlin-reflect:.*"))
-    } 
+        exclude(dependency("com.redgate.flyway:flyway-database-hsqldb"))
+        exclude(dependency("org.hsqldb:hsqldb"))
+        exclude("*.kotlin_module")
+    }
 }
 

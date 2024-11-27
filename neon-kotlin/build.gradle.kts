@@ -11,7 +11,6 @@ val pluginShadedjarName = "neon-kotlin-shaded.jar"
 
 plugins {
     kotlin("jvm") version "2.0.20" apply true
-    java apply true
     id("com.gradleup.shadow") version "8.3.5" apply true
     id("com.google.devtools.ksp") version "2.0.20-1.0.25" apply true
 }
@@ -69,8 +68,8 @@ dependencies {
     implementation("com.google.guava:guava:33.2.1-jre")
 }
 
-sourceSets {
-    kotlin.sourceSets {
+kotlin {
+    sourceSets {
         main {
             kotlin.srcDir("src/main/")
 
@@ -81,13 +80,6 @@ sourceSets {
                 api("io.insert-koin:koin-annotations-jvm:2.0.0-Beta1")
             }
         }
-    }
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
@@ -112,6 +104,7 @@ tasks.named<ShadowJar>("shadowJar") {
 
     minimize {
         exclude(dependency("org.jetbrains.kotlin:kotlin-reflect:.*"))
+        exclude("*.kotlin_module")
     }
 
     finalizedBy("jar")
@@ -124,7 +117,7 @@ tasks.named<Jar>("jar") {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     archiveFileName.set(pluginFinalJarName)
 
-    from(file("${project.rootDir}/../neon-database-server/build/libs/neon-database-server.jar")) {
+    from(file("${project.projectDir}/../neon-database-server/build/libs/neon-database-server.jar")) {
         into("resources/extensions/")
     }
 
