@@ -7,8 +7,8 @@ import java.io.File
 sealed class NeonExtensions(extension: File): File(extension.toURI()) {
     data class NeonDatabaseExtension(
         val extension: File = File(
-            NeonDataFolder.ExtensionFolder(),
-            NeonResources.NEON_DATABASE_EXTENSION.getResourceName()
+            NeonDataFolder.ExtensionFolder,
+            NeonResources.NEON_DATABASE_SERVER.getResourceName()
         )
     ): NeonExtensions(extension)
 }
