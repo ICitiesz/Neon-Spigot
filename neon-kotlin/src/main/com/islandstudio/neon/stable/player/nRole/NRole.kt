@@ -1,13 +1,13 @@
 package com.islandstudio.neon.stable.player.nRole
 
+import com.islandstudio.neon.stable.common.action.ActionState
+import com.islandstudio.neon.stable.common.action.ActionStatus
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.command.CommandDispatcher
 import com.islandstudio.neon.stable.core.command.CommandInterfaceProcessor
 import com.islandstudio.neon.stable.core.command.properties.CommandAlias
 import com.islandstudio.neon.stable.core.command.properties.CommandArgument
 import com.islandstudio.neon.stable.core.command.properties.CommandSyntax
-import com.islandstudio.neon.stable.core.common.action.ActionState
-import com.islandstudio.neon.stable.core.common.action.ActionStatus
 import com.islandstudio.neon.stable.core.database.model.RoleWithPermissionModel
 import com.islandstudio.neon.stable.core.database.repository.RoleRepository
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.Role

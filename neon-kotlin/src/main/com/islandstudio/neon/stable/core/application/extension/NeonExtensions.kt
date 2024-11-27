@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application
+package com.islandstudio.neon.stable.core.application.extension
 
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import com.islandstudio.neon.stable.core.io.resource.NeonResources

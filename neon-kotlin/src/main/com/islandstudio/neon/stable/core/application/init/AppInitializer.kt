@@ -1,11 +1,10 @@
 package com.islandstudio.neon.stable.core.application.init
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.common.ColorPalette
 import com.islandstudio.neon.stable.core.application.AppContext
-import com.islandstudio.neon.stable.core.application.CompatibleVersions
-import com.islandstudio.neon.stable.core.application.NeonExtensions
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
-import com.islandstudio.neon.stable.core.common.ColorPalette
+import com.islandstudio.neon.stable.core.application.extension.NeonExtensions
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
@@ -106,10 +105,6 @@ class AppInitializer: ModuleInjector {
                 HandlerList.unregisterAll(it.listener)
             }
         }
-
-        fun isCompatible(): Boolean {
-            return CompatibleVersions.entries.any { appContext.serverVersion in it.versions }
-        }
     }
 
     /**
@@ -126,7 +121,7 @@ class AppInitializer: ModuleInjector {
 
             delay(500L)
 
-            if (!isCompatible()) {
+            if (!appContext.isVersionCompatible) {
                 neon.logger.severe(appContext.getCodeMessage("neon.error.pre_init.incompatible_version"))
                 return@async
             }
@@ -174,7 +169,10 @@ class AppInitializer: ModuleInjector {
                 }
             }
         }.asCompletableFuture().join().also {
-            neon.logger.info(appContext.getCodeMessage("neon.info.pre_init.complete"))
+            if (appContext.isVersionCompatible) {
+                neon.logger.info(appContext.getCodeMessage("neon.info.pre_init.complete"))
+            }
+
             jobContext.close()
         }
     }
@@ -185,15 +183,16 @@ class AppInitializer: ModuleInjector {
      */
     @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
     fun postInit() {
-        if (!isCompatible()) {
+        neon.logger.info(appContext.getCodeMessage("neon.info.post_init.start"))
+        Thread.sleep(500L)
+
+        if (!appContext.isVersionCompatible) {
             neon.logger.severe(appContext.getCodeMessage("neon.error.post_init.incompatible_version"))
             //neon.logger.severe("Please check for the latest version of Neon plugin!")
             //neon.logger.warning("Supported Minecraft version: 1.17.X ~ 1.20.4")
             return
         }
 
-        neon.logger.info(appContext.getCodeMessage("neon.info.post_init.start"))
-        Thread.sleep(500L)
         val jobContext = newSingleThreadContext("Neon Initializer (Post-Staging)")
         val postLoadAppClasses = AppClasses.entries
             .filter { it.initializationStage == InitializationStage.POST_INIT }

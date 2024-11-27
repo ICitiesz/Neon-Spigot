@@ -1,7 +1,7 @@
 package com.islandstudio.neon.experimental.nPainting
 
-import com.islandstudio.neon.stable.core.application.identifier.NeonKey
-import com.islandstudio.neon.stable.core.application.identifier.NeonKeyGeneral
+import com.islandstudio.neon.stable.core.application.identity.NeonKey
+import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.utils.ObjectSerializer
 import kotlinx.coroutines.*

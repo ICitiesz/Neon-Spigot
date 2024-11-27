@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
-import com.islandstudio.neon.stable.core.application.identifier.NeonKeyGeneral
+import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.item.NItemGlinter
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor

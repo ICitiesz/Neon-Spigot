@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.common.action
+package com.islandstudio.neon.stable.common.action
 
 enum class ActionStatus {
     /* General Action Status Types */

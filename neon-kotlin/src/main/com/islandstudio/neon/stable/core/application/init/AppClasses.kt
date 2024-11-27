@@ -3,7 +3,7 @@ package com.islandstudio.neon.stable.core.application.init
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPVP.NPVP
 import com.islandstudio.neon.experimental.nPainting.NPainting
-import com.islandstudio.neon.stable.core.application.identifier.NeonKey
+import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
 import com.islandstudio.neon.stable.core.command.NCommand
 import com.islandstudio.neon.stable.core.database.DatabaseCacheManager

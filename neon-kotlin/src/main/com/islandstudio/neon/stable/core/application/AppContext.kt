@@ -27,6 +27,12 @@ class AppContext: ModuleInjector {
     val serverProvider = ServerProvider.entries.first { it.name.equals(neon.server.name, true) }
     val serverVersion = neon.server.bukkitVersion.split("-").first()
     val serverRunningMode = if (neon.server.onlineMode) ServerRunningMode.ONLINE else ServerRunningMode.OFFLINE
+    val isVersionCompatible = arrayOf(
+        "1.17", "1.17.1",
+        "1.18", "1.18.1", "1.18.2",
+        "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4",
+        "1.20", "1.20.1", "1.20.2", "1.20.3", "1.20.4"
+    ).run { serverVersion in this }
 
     fun getAppEnvValue(key: String): String = envValues.get(key)
 

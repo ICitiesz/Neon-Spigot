@@ -1,6 +1,6 @@
-package com.islandstudio.neon.stable.recipe
+package com.islandstudio.neon.stable.core.recipe
 
-import com.islandstudio.neon.stable.core.application.identifier.NeonKey
+import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import org.bukkit.NamespacedKey
 
 @Suppress("unused")

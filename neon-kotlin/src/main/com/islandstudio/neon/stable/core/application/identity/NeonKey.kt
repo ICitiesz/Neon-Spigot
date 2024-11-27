@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application.identifier
+package com.islandstudio.neon.stable.core.application.identity
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector

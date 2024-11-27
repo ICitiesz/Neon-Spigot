@@ -2,7 +2,7 @@ package com.islandstudio.neon.stable.core.command.commandlist
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
-import com.islandstudio.neon.stable.core.application.identifier.NeonKeyGeneral
+import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor

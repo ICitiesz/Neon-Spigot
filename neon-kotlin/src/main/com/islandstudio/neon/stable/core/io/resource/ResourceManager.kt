@@ -2,8 +2,8 @@ package com.islandstudio.neon.stable.core.io.resource
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.AppContext
-import com.islandstudio.neon.stable.core.application.NeonExtensions
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.extension.NeonExtensions
 import com.islandstudio.neon.stable.core.database.DatabaseConnector.neon
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import kotlinx.coroutines.CoroutineScope
@@ -26,6 +26,8 @@ class ResourceManager: ModuleInjector {
         private val appContext by inject<AppContext>()
 
         fun run() {
+            if (!appContext.isVersionCompatible) return
+
             CoroutineScope(Dispatchers.IO).launch {
                 neon.logger.info(appContext.getCodeMessage("neon.info.resource_manager.data_folder_init"))
 

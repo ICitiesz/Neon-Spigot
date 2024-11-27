@@ -1,9 +1,9 @@
 package com.islandstudio.neon.stable.features.nSmelter
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.stable.core.recipe.NRecipes
+import com.islandstudio.neon.stable.core.recipe.RecipeRegistry
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
-import com.islandstudio.neon.stable.recipe.NRecipes
-import com.islandstudio.neon.stable.recipe.RecipeRegistry
 import org.bukkit.inventory.BlastingRecipe
 import org.bukkit.inventory.FurnaceRecipe
 import org.bukkit.inventory.ItemStack

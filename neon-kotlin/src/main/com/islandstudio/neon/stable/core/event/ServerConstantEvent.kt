@@ -3,7 +3,7 @@ package com.islandstudio.neon.stable.core.event
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
-import com.islandstudio.neon.stable.core.application.init.NConstructor
+import com.islandstudio.neon.stable.core.application.init.AppInitializer
 import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
@@ -51,8 +51,8 @@ class ServerConstantEvent: ModuleInjector {
 
     object Handler {
         fun run() {
-            NConstructor.registerEventProcessor(EventProcessor())
-            NConstructor.registerEventProcessor(NServerFeatures.EventProcessor())
+            AppInitializer.registerEventProcessor(EventProcessor())
+            AppInitializer.registerEventProcessor(NServerFeatures.EventProcessor())
         }
     }
 

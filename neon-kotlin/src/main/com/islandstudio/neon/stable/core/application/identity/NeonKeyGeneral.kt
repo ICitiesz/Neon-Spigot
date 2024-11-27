@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application.identifier
+package com.islandstudio.neon.stable.core.application.identity
 
 import org.bukkit.NamespacedKey
 

@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.common
+package com.islandstudio.neon.stable.common
 
 import net.md_5.bungee.api.ChatColor
 

@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.common.action
+package com.islandstudio.neon.stable.common.action
 
 /**
  * The action state is used to contains multiple action output once an action has been completed such as validation.

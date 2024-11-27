@@ -9,24 +9,28 @@ import org.koin.core.component.inject
 
 class Neon : JavaPlugin(), ModuleInjector {
     private val appInitializer by lazy { AppInitializer() }
+    private val appContext by inject<AppContext>()
 
     init {
         AppModuleInjection.run()
     }
 
     override fun onLoad() {
-        val appContext by inject<AppContext>()
-
         appContext.loadCodeMessages()
         appInitializer.preInit()
     }
 
     override fun onEnable() {
         appInitializer.postInit()
+
+        if (!appContext.isVersionCompatible) return
+
         server.consoleSender.sendMessage(AppInitializer.NEON_ON_ENABLED_TITLE)
     }
 
     override fun onDisable() {
+        if (!appContext.isVersionCompatible) return
+
         server.consoleSender.sendMessage(AppInitializer.NEON_ON_DISABLED_TITLE)
     }
 

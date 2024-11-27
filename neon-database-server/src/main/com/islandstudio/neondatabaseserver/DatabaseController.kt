@@ -1,6 +1,6 @@
 package com.islandstudio.neondatabaseserver
 
-import com.islandstudio.neon.stable.core.application.NeonAPI
+import com.islandstudio.neon.stable.core.application.extension.NeonAPI
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.io.nFile.NFile
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder

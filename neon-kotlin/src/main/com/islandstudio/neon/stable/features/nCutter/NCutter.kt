@@ -2,8 +2,8 @@ package com.islandstudio.neon.stable.features.nCutter
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.recipe.RecipeRegistry
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
-import com.islandstudio.neon.stable.recipe.RecipeRegistry
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.RecipeChoice
 import org.bukkit.inventory.StonecuttingRecipe

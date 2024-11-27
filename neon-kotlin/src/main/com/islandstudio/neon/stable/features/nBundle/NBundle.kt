@@ -4,9 +4,9 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
+import com.islandstudio.neon.stable.core.recipe.NRecipes
+import com.islandstudio.neon.stable.core.recipe.RecipeRegistry
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
-import com.islandstudio.neon.stable.recipe.NRecipes
-import com.islandstudio.neon.stable.recipe.RecipeRegistry
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.entity.Villager
