@@ -8,20 +8,23 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.inject
 
 class NeonDatabaseServer: JavaPlugin(), ModuleInjector {
-    override fun onLoad() {
-        AppModuleInjection.run().apply {
-            val appContext by inject<AppContext>()
+    init {
+        AppModuleInjection.run()
+    }
 
-            if (!validateParentPlugin()) {
-                return this@NeonDatabaseServer.server.logger.warning(appContext.getCodeMessages("neon_database_server.warning.neon_not_running"))
-            }
+    override fun onLoad() {
+        val appContext by inject<AppContext>()
+
+        appContext.loadCodeMessages()
+
+        if (!validateParentPlugin()) {
+            return this@NeonDatabaseServer.server.logger.warning(appContext.getCodeMessages("neon_database_server.warning.neon_not_running"))
         }
 
         DatabaseController.initDatabaseServer()
     }
 
     override fun onEnable() {
-
         ServerConstantEvent.registerEvent()
     }
 

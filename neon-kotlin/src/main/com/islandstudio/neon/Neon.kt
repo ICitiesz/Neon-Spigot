@@ -8,17 +8,16 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.inject
 
 class Neon : JavaPlugin(), ModuleInjector {
-    private lateinit var appInitializer: AppInitializer
+    private val appInitializer by lazy { AppInitializer() }
+
+    init {
+        AppModuleInjection.run()
+    }
 
     override fun onLoad() {
-        AppModuleInjection.run().apply {
-            val appContext by inject<AppContext>()
+        val appContext by inject<AppContext>()
 
-            appContext.loadCodeMessages()
-
-            appInitializer = AppInitializer()
-        }
-
+        appContext.loadCodeMessages()
         appInitializer.preInit()
     }
 
@@ -33,5 +32,6 @@ class Neon : JavaPlugin(), ModuleInjector {
 
     fun getPluginClassLoader(): ClassLoader = this.classLoader
 
+    @JvmName("getNeonAppInitializer")
     fun getAppInitializer(): AppInitializer = this.appInitializer
 }
