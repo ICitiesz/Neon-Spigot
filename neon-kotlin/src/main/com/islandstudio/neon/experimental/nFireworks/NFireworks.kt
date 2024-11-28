@@ -5,7 +5,7 @@ import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.io.nFile.FolderList
-import com.islandstudio.neon.stable.core.io.nFile.NFile
+import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
@@ -105,13 +105,11 @@ object NFireworks {
          * @param imageFileName The target image.
          */
         fun createPatternFrameData(imageFileName: String) {
-            val patternFrameFile = File(patternFramesFolder, "${imageFileName}.pixdat")
+            val patternFrameFile = NeonDataFolder.createNewFile(patternFramesFolder, "${imageFileName}.pixdat")
 
             patternFramesFolder.listFiles()?.let {
                 if (it.filter { file -> file.isFile }.contains(patternFrameFile)) return
             }
-
-            NFile.createNewFile(patternFramesFolder, patternFrameFile)
 
             val patternFrame: ArrayList<FireworkPattern.PixelContainer> = ArrayList()
 

@@ -6,6 +6,8 @@ NeonDatabase:
   # The indicator (-Online/-Offline) used to differeciate between server running in Online Mode or Offline Mode
   # Server reload needed to apply the changes.
   isGlobal: true
+
+  # NOTE: Backup not available yet
   backup:
     isEnabled: true
     # Backup once after server initialized (Startup / Reload)

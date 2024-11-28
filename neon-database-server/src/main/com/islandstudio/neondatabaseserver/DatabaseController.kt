@@ -2,7 +2,6 @@ package com.islandstudio.neondatabaseserver
 
 import com.islandstudio.neon.stable.core.application.extension.NeonAPI
 import com.islandstudio.neon.stable.core.application.init.NConstructor
-import com.islandstudio.neon.stable.core.io.nFile.NFile
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import com.islandstudio.neondatabaseserver.application.AppContext
 import com.islandstudio.neondatabaseserver.application.di.ModuleInjector
@@ -27,10 +26,7 @@ object DatabaseController: ModuleInjector {
     private val neonDbServer by inject<NeonDatabaseServer>()
     private val hsqldbServer by inject<Server>()
 
-    private val dbConfigFile = NFile.createOrGetNewFile(
-        NeonDataFolder.NeonDatabaseFolder,
-        File(NeonDataFolder.NeonDatabaseFolder, "database-config.yml")
-    )
+    private val dbConfigFile = NeonDataFolder.createNewFile(NeonDataFolder.NeonDatabaseFolder, "database-config.yml")
 
     /* Determine which scope that database should be generated */
     private val isGlobal by lazy { YamlFile.loadConfiguration(SupplierIO.Reader { dbConfigFile.reader() })

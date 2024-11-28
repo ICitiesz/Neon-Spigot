@@ -24,7 +24,7 @@ enum class Permission(
     ),
 
     AP_ACCESS_NDURABLE_CONFIG(
-        "Access nDurable Configu",
+        "Access nDurable Config",
         "ACCESS_NDURABLE_CONFIG",
         "Grant access to modify nDurable configuration."
     );

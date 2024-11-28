@@ -31,8 +31,7 @@ class ResourceManager: ModuleInjector {
             CoroutineScope(Dispatchers.IO).launch {
                 neon.logger.info(appContext.getCodeMessage("neon.info.resource_manager.data_folder_init"))
 
-                reformatVersionFolder()
-
+                NeonDataFolder.reformatVersionFolder()
                 NeonDataFolder.getAllDataFolder().forEach { folder ->
                     if (folder.exists()) return@forEach
 
@@ -41,33 +40,6 @@ class ResourceManager: ModuleInjector {
             }.invokeOnCompletion {
                 ResourceManager().extractExtension()
             }
-        }
-
-        /**
-         * Get the root data folder of Neon which inside the plugin directory within the server directory.
-         * @return The root data folder of Neon. [File]
-         */
-        fun getRootDataFolder(): File {
-            return neon.dataFolder.apply {
-                if (!this.exists()) this.mkdirs()
-            }
-        }
-
-        /**
-         * Reformat version folder from older formart, '1_17' to new format '1.17'
-         *
-         */
-        private fun reformatVersionFolder() {
-            /* Old version format: '1_17'
-            * New version format: '1.17' */
-            getRootDataFolder().listFiles()?.let {
-                it.filter { folder ->
-                    folder.isDirectory && folder.name.matches("^\\d_\\d\\d\$".toRegex())
-                }.forEach { folder ->
-                    folder.renameTo(File(getRootDataFolder(), folder.name.replace("_", ".")))
-                }
-            }
-
         }
     }
 

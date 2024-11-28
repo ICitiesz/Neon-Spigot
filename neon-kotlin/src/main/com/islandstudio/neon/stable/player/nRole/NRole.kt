@@ -31,7 +31,7 @@ object NRole: ModuleInjector {
     private val roleRepository by inject<RoleRepository>()
 
     object Handler: CommandDispatcher {
-
+        val nPlayerProfile by inject<NPlayerProfile>()
 
         fun run() {
             //NConstructor.registerEventProcessor(EventProcessor())
@@ -166,7 +166,7 @@ object NRole: ModuleInjector {
                         }
 
                         val targetPlayerProfile = with(args[2]) {
-                            return@with NPlayerProfile.getPlayerProfile(this)
+                            return@with nPlayerProfile.getPlayerProfile(this)
                                 ?: return CommandInterfaceProcessor.sendCommandSyntax(commander, "No profile!")
                         }
 
@@ -188,7 +188,7 @@ object NRole: ModuleInjector {
                             return@with this
                         }
 
-                        NPlayerProfile.assignRole(targetPlayerProfile, roleCode).also {
+                        nPlayerProfile.assignRole(targetPlayerProfile, roleCode).also {
                             if (it.isSuccess()) {
                                 return CommandInterfaceProcessor.sendCommandSyntax(
                                     commander,
@@ -208,7 +208,7 @@ object NRole: ModuleInjector {
                         }
 
                         val targetPlayerProfile = with(args[2]) {
-                            return@with NPlayerProfile.getPlayerProfile(this)
+                            return@with nPlayerProfile.getPlayerProfile(this)
                                 ?: return CommandInterfaceProcessor.sendCommandSyntax(commander, "No profile!")
                         }
 
@@ -241,7 +241,7 @@ object NRole: ModuleInjector {
                             return CommandInterfaceProcessor.sendCommandSyntax(commander, CommandSyntax.INVALID_CONFIRMATION)
                         }
 
-                        NPlayerProfile.unassignRole(targetPlayerProfile).also {
+                        nPlayerProfile.unassignRole(targetPlayerProfile).also {
                             if (it.isSuccess()) {
                                 return CommandInterfaceProcessor.sendCommandSyntax(
                                     commander,
@@ -266,7 +266,7 @@ object NRole: ModuleInjector {
             val roleAccess = NRoleAccess.getCommandSenderRoleAccess(commander, command.permission)
 
             val roles = getAllRole()
-            val playerProfiles by lazy { NPlayerProfile.getAllPlayerProfile() }
+            val playerProfiles by lazy { nPlayerProfile.getAllPlayerProfile() }
 
             when (val argLength = args.size) {
                 2 -> {

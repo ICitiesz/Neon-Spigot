@@ -15,10 +15,9 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Player
 import org.koin.core.component.inject
-import java.util.logging.Logger
 
 object NRoleAccess: ModuleInjector {
-    private val neonLogger by inject<Logger>()
+    private val nPlayerProfile by inject<NPlayerProfile>()
     private val roleAccessReposittory by inject<RoleAccessRepository>()
 
     /**
@@ -87,7 +86,7 @@ object NRoleAccess: ModuleInjector {
      * @return
      */
     fun getAssignedRoleAccess(player: Player, permission: Permission): RoleAccess? {
-        NPlayerProfile.getPlayerAssignedRole(player)?.let {
+        nPlayerProfile.getPlayerAssignedRole(player)?.let {
             return getRoleAccess(it.roleId!!, permission)
         } ?: return null
     }
@@ -111,7 +110,7 @@ object NRoleAccess: ModuleInjector {
     }
 
     fun getAssignedRoleAccess(player: Player): List<RoleAccess> {
-        NPlayerProfile.getPlayerAssignedRole(player)?.let {
+        nPlayerProfile.getPlayerAssignedRole(player)?.let {
             return getRoleAccess(it.roleId!!)
         } ?: return listOf()
     }

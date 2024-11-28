@@ -3,7 +3,7 @@ package com.islandstudio.neon.stable.primary.nServerFeatures
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.io.nFile.FolderList
-import com.islandstudio.neon.stable.core.io.nFile.NFile
+import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.utils.DataSessionState
@@ -178,7 +178,7 @@ object NServerFeatures: ModuleInjector {
             var isFirstGenerated = false
 
             /* Stage 1: File creation and initialization. */
-            NFile.createNewFile(nServerFeaturesFolder, nServerFeaturesFile)
+            NeonDataFolder.createNewFile(nServerFeaturesFolder, nServerFeaturesFile.name)
 
             /* Getting the file content size */
             val externalBufferedReader: BufferedReader = nServerFeaturesFile.bufferedReader()

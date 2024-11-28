@@ -13,10 +13,8 @@ import com.islandstudio.neon.stable.features.nDurable.NDurable
 import com.islandstudio.neon.stable.features.nRank.NRank
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import com.islandstudio.neon.stable.features.nWaypoints.NWaypoints
-import com.islandstudio.neon.stable.player.NPlayerProfile
 import com.islandstudio.neon.stable.player.nAccessPermission.NAccessPermission
 import com.islandstudio.neon.stable.player.nRole.NRole
-import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import org.bukkit.ChatColor
 import org.bukkit.GameMode
 import org.bukkit.command.Command
@@ -34,7 +32,7 @@ class NCommand: Listener, TabExecutor {
         var isModerating: Boolean = false
 
         /* nCommand general properties */
-        val COMMAND_SYNTAX_PREFIX: String = "${ChatColor.WHITE}[${ChatColor.AQUA}Neon${ChatColor.WHITE}]"
+        val COMMAND_SYNTAX_PREFIX: String = "${ChatColor.WHITE}[${ChatColor.AQUA}Neon${ChatColor.WHITE}] "
         private const val COMMAND_PREFIX: String = "neon"
         private val neon by inject<Neon>()
         private val disabledServerReloadCommand: ArrayList<String> = arrayListOf("rl", "reload", "bukkit:reload", "bukkit:rl")
@@ -93,11 +91,8 @@ class NCommand: Listener, TabExecutor {
                     }
 
                     CommandAlias.DEBUG -> {
-                        //CommandInterfaceProcessor.sendCommandSyntax(commander, "This is debug command!")
+                        CommandInterfaceProcessor.sendCommandSyntax(commander, "This is debug command!")
 
-                        NPlayerProfile.getAllPlayerProfile().forEach { playerProfile ->
-                            println("Player: $playerProfile")
-                        }
 
                         // TODO: Multiplayer testing needed
 //                        val nPlayer = NPacketProcessor.getNPlayer(commander as Player)
@@ -198,7 +193,7 @@ class NCommand: Listener, TabExecutor {
                     }
 
                     CommandAlias.NSERVER_FEATURES -> {
-                        NServerFeatures.Handler.getCommandHandler(commander as Player, args)
+                        //NServerFeatures.Handler.getCommandHandler(commander as Player, args)
                     }
 
                     CommandAlias.EFFECT -> {
@@ -274,14 +269,14 @@ class NCommand: Listener, TabExecutor {
                     }
 
                     CommandAlias.DATABASE -> {
-                        if (args.size == 2) {
-                            if (args[1].equals("off", true)) {
-
-                                //databaseController.stopDatabase()
-                            } else {
-                                return@let
-                            }
-                        }
+//                        if (args.size == 2) {
+//                            if (args[1].equals("off", true)) {
+//
+//                                //databaseController.stopDatabase()
+//                            } else {
+//                                return@let
+//                            }
+//                        }
                     }
 
                     CommandAlias.NSERVER_FEATURES_REMASTERED -> {

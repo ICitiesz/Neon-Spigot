@@ -5,7 +5,7 @@ import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import org.koin.core.component.inject
 import java.io.File
 
-@Deprecated("Merged into ResourceManager")
+@Deprecated("Merged into NeonDataFolder")
 object NFile: ModuleInjector {
     private val neon by inject<Neon>()
 

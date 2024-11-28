@@ -1,32 +1,87 @@
 package com.islandstudio.neon.stable.core.io.nFile
 
+import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.AppContext
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
-import com.islandstudio.neon.stable.core.application.init.NConstructor
+import org.koin.core.component.inject
 import java.io.File
 
 sealed class NeonDataFolder(folder: File): File(folder.toPath().toString()) {
     companion object: ModuleInjector {
-        private val appContext by getKoin().inject<AppContext>()
+        private val neon by inject<Neon>()
+        private val appContext by inject<AppContext>()
         private val serverRunningMode = appContext.serverRunningMode
 
+        /**
+         * Create and get the new file.
+         *
+         * @param requiredFolder The required folder that contains the new file.
+         * @param fileName The new file name.
+         * @return
+         */
+        fun createNewFile(requiredFolder: File, fileName: String): File {
+            if (!requiredFolder.exists()) requiredFolder.mkdirs()
+
+            val newFile = File(requiredFolder, fileName)
+
+            if (!newFile.exists()) newFile.createNewFile()
+
+            return newFile
+        }
+
+        /**
+         * Get all Neon data folder
+         *
+         * @return
+         */
         fun getAllDataFolder(): ArrayList<File> {
             return NeonDataFolder::class.sealedSubclasses
                 .map {
                     it.objectInstance as File
                 }.toCollection(ArrayList())
         }
+
+        /**
+         * Get the root data folder of Neon which inside the plugin directory within the server directory.
+         * @return The root data folder of Neon. [File]
+         */
+        fun getRootDataFolder(): File {
+            return neon.dataFolder.apply {
+                if (!this.exists()) this.mkdirs()
+            }
+        }
+
+        /**
+         * Reformat version folder from older formart, '1_17' to new format '1.17'
+         */
+        fun reformatVersionFolder() {
+            /* Old version format: '1_17'
+            * New version format: '1.17' */
+            getRootDataFolder().listFiles()?.let { folders ->
+                folders.filter { folder ->
+                    folder.isDirectory && folder.name.matches("^\\d_\\d\\d\$".toRegex())
+                }.forEach { folder ->
+                    folder.renameTo(File(getRootDataFolder(), folder.name.replace("_", ".")))
+                }
+            }
+        }
+    }
+
+    data object VersionFolder: NeonDataFolder(
+        File(getRootDataFolder(), appContext.serverMajorVersion)
+    ) {
+        private fun readResolve(): Any = VersionFolder
     }
 
     data object ModeFolder: NeonDataFolder(
-        File(NFile.getDataFolder(), "${NConstructor.getMajorVersion()}$separator${serverRunningMode.value}")
+        File(VersionFolder, serverRunningMode.value)
     ) {
         private fun readResolve(): Any = ModeFolder
     }
 
 
     data object NeonDatabaseFolder: NeonDataFolder(
-        File(NFile.getDataFolder(), "database")
+        File(getRootDataFolder(), "database")
     ) {
         private fun readResolve(): Any = NeonDatabaseFolder
     }
@@ -56,7 +111,7 @@ sealed class NeonDataFolder(folder: File): File(folder.toPath().toString()) {
     }
 
     data object ExtensionFolder: NeonDataFolder(
-        File(NFile.getDataFolder(), "extensions")
+        File(getRootDataFolder(), "extensions")
     ) {
         private fun readResolve(): Any = ExtensionFolder
     }

@@ -13,6 +13,7 @@ import com.islandstudio.neon.stable.features.nRank.NRank
 import com.islandstudio.neon.stable.features.nWaypoints.NWaypoints
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
+import net.minecraft.server.level.ServerPlayer
 import org.bukkit.ChatColor
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
@@ -104,9 +105,9 @@ class ServerConstantEvent: ModuleInjector {
         NPacketProcessor.sendGamePacket(player, recipeUpdatePacket)
 
         /* Recipe book update */
-        val playerRecipeBook: Any = mcPlayer.javaClass.getMethod(NmsMap.PlayerRecipeBook.remapped).invoke(mcServer)
+        val playerRecipeBook: Any = mcPlayer.javaClass.getMethod(NmsMap.PlayerRecipeBook.remapped).invoke(mcPlayer)
 
-        playerRecipeBook.javaClass.getMethod(NmsMap.InitRecipeBook.remapped).invoke(playerRecipeBook, mcPlayer)
+        playerRecipeBook.javaClass.getMethod(NmsMap.InitRecipeBook.remapped, ServerPlayer::class.java).invoke(playerRecipeBook, mcPlayer)
     }
 
     /**

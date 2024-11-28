@@ -85,6 +85,7 @@ kotlin {
 
 tasks.processResources {
     from("src/main/resources") {
+        exclude("application/*.template")
         into("resources/")
     }
 

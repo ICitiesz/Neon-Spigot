@@ -12,7 +12,6 @@ import com.islandstudio.neon.stable.core.command.properties.CommandSyntax
 import com.islandstudio.neon.stable.core.gui.NGUI
 import com.islandstudio.neon.stable.core.io.ConfigurationProperty
 import com.islandstudio.neon.stable.core.io.DataSourceType
-import com.islandstudio.neon.stable.core.io.nFile.NFile
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import com.islandstudio.neon.stable.core.io.resource.NeonResources
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
@@ -67,11 +66,7 @@ object NServerFeaturesRemastered: ModuleInjector {
         }
     }
 
-    private val nServerFeaturesActiveFile: File = run {
-        with(File(NeonDataFolder.NServerFeaturesFolder, "nServerFeatures-reduced.yml")) {
-            return@with NFile.createOrGetNewFile(NeonDataFolder.NServerFeaturesFolder, this)
-        }
-    }
+    private val nServerFeaturesActiveFile: File = NeonDataFolder.createNewFile(NeonDataFolder.NServerFeaturesFolder, "nServerFeatures-reduced.yml")
 
     object Handler: CommandDispatcher {
         fun run() {
@@ -264,7 +259,8 @@ object NServerFeaturesRemastered: ModuleInjector {
 
                                     return CommandInterfaceProcessor.sendCommandSyntax(
                                         commander,
-                                        "${ChatColor.GOLD}${sourceServerFeature.featureName} ${ChatColor.YELLOW}has been ${newToggleValue}${ChatColor.YELLOW}!"
+                                        "${ChatColor.GOLD}${sourceServerFeature.featureName} ${ChatColor.YELLOW}has been ${newToggleValue}${ChatColor.YELLOW}! " +
+                                                "Please do `/neon serverfeaturesRemastered reload` to apply the changes!"
                                     )
                                 }
 
@@ -342,7 +338,8 @@ object NServerFeaturesRemastered: ModuleInjector {
 
                                     return CommandInterfaceProcessor.sendCommandSyntax(
                                         commander,
-                                        "${ChatColor.GOLD}${featureName}:${featureOption.optionName} ${ChatColor.YELLOW}has been set to: $newOptionValue"
+                                        "${ChatColor.GOLD}${featureName}:${featureOption.optionName} ${ChatColor.YELLOW}has been set to: $newOptionValue " +
+                                                "${ChatColor.YELLOW}Please do `/neon serverfeaturesRemastered reload` to apply the changes!"
                                     )
                                 }
 

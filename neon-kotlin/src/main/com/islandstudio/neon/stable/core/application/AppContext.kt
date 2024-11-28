@@ -26,6 +26,7 @@ class AppContext: ModuleInjector {
 
     val serverProvider = ServerProvider.entries.first { it.name.equals(neon.server.name, true) }
     val serverVersion = neon.server.bukkitVersion.split("-").first()
+    val serverMajorVersion = "${serverVersion.split(".")[0]}.${serverVersion.split(".")[1]}"
     val serverRunningMode = if (neon.server.onlineMode) ServerRunningMode.ONLINE else ServerRunningMode.OFFLINE
     val isVersionCompatible = arrayOf(
         "1.17", "1.17.1",

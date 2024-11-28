@@ -19,7 +19,7 @@ object CommandInterfaceProcessor {
     }
 
     fun sendCommandSyntax(commander: CommandSender, syntaxMessage: String) {
-        commander.sendMessage("${NCommand.COMMAND_SYNTAX_PREFIX} $syntaxMessage")
+        commander.sendMessage("${NCommand.COMMAND_SYNTAX_PREFIX}$syntaxMessage")
     }
 
     // Design 1: Invalid or missing argument: ...debug test <- at position 2

@@ -79,13 +79,13 @@ class RoleAccessRepository: ModuleInjector {
         accessType?.let {
             sqlQuery
                 .where(DT_ROLE_ACCESS.ROLE_ID.eq(roleId)
-                    .and(DT_ROLE_ACCESS.PERMISSION_ID.eq(permissionId))
-                )
-        } ?: sqlQuery
-                .where(DT_ROLE_ACCESS.ROLE_ID.eq(roleId)
                     .and(DT_ROLE_ACCESS.PERMISSION_ID.eq(permissionId)
                         .and(DT_ROLE_ACCESS.ACCESS_TYPE.eq(accessType.toString()))
                     )
+                )
+        } ?: sqlQuery
+            .where(DT_ROLE_ACCESS.ROLE_ID.eq(roleId)
+                .and(DT_ROLE_ACCESS.PERMISSION_ID.eq(permissionId))
             )
 
         return sqlQuery.fetchOneInto(RoleAccess::class.java)

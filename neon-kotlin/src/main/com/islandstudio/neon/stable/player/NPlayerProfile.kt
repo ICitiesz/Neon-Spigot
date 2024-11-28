@@ -13,11 +13,13 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
+import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 import java.time.LocalDateTime
 import java.util.*
 
-object NPlayerProfile: ModuleInjector {
+@Single
+class NPlayerProfile: ModuleInjector {
     private val playerProfileRepository by inject<PlayerProfileRepository>()
 
     object Handler {
@@ -25,6 +27,8 @@ object NPlayerProfile: ModuleInjector {
     }
 
     private fun createPlayerProfile(player: Player) {
+        if (playerProfileRepository.getByPlayerUUID(player.uniqueId) != null) return
+
         val playerProfile = PlayerProfile(
             player.uniqueId,
             player.name,
@@ -123,7 +127,7 @@ object NPlayerProfile: ModuleInjector {
         return NRole.getRoleByPlayerUUID(playerUUID)
     }
 
-    private class EventProcessor: Listener {
+    private class EventProcessor: Listener, ModuleInjector {
         private val nPlayerProfile by inject<NPlayerProfile>()
 
         @EventHandler
