@@ -66,6 +66,13 @@ dependencies {
     compileOnly("org.jooq:jooq-codegen:$jooqVersion")
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("com.google.guava:guava:33.2.1-jre")
+
+    implementation("org.liquibase:liquibase-core:4.30.0")
+    runtimeOnly("org.liquibase.ext:liquibase-javalogger:3.0")
+    implementation("com.mattbertolini:liquibase-slf4j:5.1.0")
+    implementation("org.slf4j:jul-to-slf4j:2.0.16")
+    implementation("org.slf4j:slf4j-api:2.0.16")
+    testImplementation("org.slf4j:slf4j-simple:2.0.16")
 }
 
 kotlin {
@@ -103,17 +110,18 @@ tasks.withType<KotlinCompile> {
 tasks.named<ShadowJar>("shadowJar") {
     this.archiveFileName.set(pluginShadedjarName)
 
-    minimize {
-        exclude(dependency("org.jetbrains.kotlin:kotlin-reflect:.*"))
-        exclude("*.kotlin_module")
-    }
+//    minimize {
+//        exclude(dependency("org.hsqldb:hsqldb*"))
+//        exclude(dependency("org.jetbrains.kotlin:kotlin-reflect:.*"))
+//        exclude("*.kotlin_module")
+//    }
 
-    finalizedBy("jar")
+    //finalizedBy("jar")
 }
 
 
 tasks.named<Jar>("jar") {
-    dependsOn(tasks.named<ShadowJar>("shadowJar"))
+    //dependsOn(tasks.named<ShadowJar>("shadowJar"))
 
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     archiveFileName.set(pluginFinalJarName)

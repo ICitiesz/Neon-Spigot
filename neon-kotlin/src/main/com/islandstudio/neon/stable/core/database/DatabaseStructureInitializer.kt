@@ -14,8 +14,9 @@ import org.koin.core.component.inject
 import java.util.*
 import java.util.logging.Logger
 
-class DatabaseStructureInitializer: ModuleInjector {
-    private val dbContext by inject<DSLContext>()
+class DatabaseStructureInitializer: ModuleInjector, IDatabaseContext {
+    //private val dbContext by inject<DSLContext>()
+    private val dbContext = getDatabaseContext()
 
     fun initializeStructure() {
         runCatching {

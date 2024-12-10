@@ -81,7 +81,7 @@ class ServerConstantEvent: Listener {
             }
         }
 
-        DatabaseController.stopDbServer()
+        DatabaseController().stopDbServer()
     }
 
     private class EventProcessor: Listener {

@@ -6,8 +6,6 @@ import com.islandstudio.neon.experimental.nPainting.NPainting
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
 import com.islandstudio.neon.stable.core.command.NCommand
-import com.islandstudio.neon.stable.core.database.DatabaseCacheManager
-import com.islandstudio.neon.stable.core.database.DatabaseConnector
 import com.islandstudio.neon.stable.core.event.ServerConstantEvent
 import com.islandstudio.neon.stable.core.gui.NGUI
 import com.islandstudio.neon.stable.features.nBundle.NBundle
@@ -46,23 +44,16 @@ enum class AppClasses(
     NeonKeyClass(
         NeonKey.Handler::class.java,
         InitializationStage.PRE_INIT,
-        false,
-        false
+        isSynchronous = false,
+        isConfigReloadable =  false
     ),
 
-    DatabaseCacheManagerClass(
-        DatabaseCacheManager.Handler::class.java,
-        InitializationStage.PRE_INIT,
-        false,
-        false
-    ),
-
-    DatabaseConnectorClass(
-        DatabaseConnector::class.java,
-        InitializationStage.PRE_INIT,
-        false,
-        false
-    ),
+//    DatabaseCacheManagerClass(
+//        DatabaseCacheManager.Handler::class.java,
+//        InitializationStage.PRE_INIT,
+//        false,
+//        false
+//    ),
 
     NAccessPermissionClass(
         NAccessPermission.Handler::class.java,

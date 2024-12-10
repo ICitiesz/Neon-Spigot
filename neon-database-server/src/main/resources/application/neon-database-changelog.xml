@@ -1,0 +1,17 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+>
+
+    <changeSet id="1.0" author="SYSTEM" dbms="hsqldb">
+        <createTable ifNotExists="true" schemaName="PUBLIC" tableName="LQ_Test_Table">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="FK_LQ_Test" />
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="SYSTEM" dbms="hsqldb">
+        <renameTable oldTableName="LQ_TEST_TABLE" newTableName="LQ_TEST_TABLE_RENEW"/>
+    </changeSet>
+
+</databaseChangeLog>

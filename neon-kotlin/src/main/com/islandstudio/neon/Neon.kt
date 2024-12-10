@@ -4,11 +4,12 @@ import com.islandstudio.neon.stable.core.application.AppContext
 import com.islandstudio.neon.stable.core.application.di.AppModuleInjection
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.init.AppInitializer
+import com.islandstudio.neon.stable.core.database.DatabaseInterface
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.inject
 
 class Neon : JavaPlugin(), ModuleInjector {
-    private val appInitializer by lazy { AppInitializer() }
+    private val appInitializer: AppInitializer by lazy { AppInitializer() }
     private val appContext by inject<AppContext>()
 
     init {
@@ -30,6 +31,10 @@ class Neon : JavaPlugin(), ModuleInjector {
 
     override fun onDisable() {
         if (!appContext.isVersionCompatible) return
+
+        val databaseInterface by inject<DatabaseInterface>()
+
+        databaseInterface.disconnect()
 
         server.consoleSender.sendMessage(AppInitializer.NEON_ON_DISABLED_TITLE)
     }

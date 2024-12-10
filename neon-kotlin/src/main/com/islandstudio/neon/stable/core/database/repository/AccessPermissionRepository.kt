@@ -1,16 +1,16 @@
 package com.islandstudio.neon.stable.core.database.repository
 
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.database.IDatabaseContext
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.AccessPermission
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.records.DtAccessPermissionRecord
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.references.DT_ACCESS_PERMISSION
-import org.jooq.DSLContext
 import org.koin.core.annotation.Single
-import org.koin.core.component.inject
 
 @Single
-class AccessPermissionRepository: ModuleInjector {
-    private val dbContext by inject<DSLContext>()
+class AccessPermissionRepository: ModuleInjector, IDatabaseContext {
+    //private val dbContext by inject<DSLContext>()
+    private val dbContext = getDatabaseContext()
 
     fun addAccessPermission(accessPermission: AccessPermission) {
         val record = DtAccessPermissionRecord(accessPermission)

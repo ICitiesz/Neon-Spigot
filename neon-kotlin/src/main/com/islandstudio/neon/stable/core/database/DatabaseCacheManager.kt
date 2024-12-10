@@ -4,16 +4,15 @@ import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
-import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.Result
 import org.jooq.ResultQuery
-import org.koin.core.component.inject
 import java.util.concurrent.TimeUnit
 
-object DatabaseCacheManager: ModuleInjector {
+object DatabaseCacheManager: ModuleInjector, IDatabaseContext {
     private lateinit var databaseCache: Cache<ResultQuery<*>, Result<out Record>>
-    private val dslContext by inject<DSLContext>()
+    //private val dslContext by inject<DSLContext>()
+    private val dslContext = getDatabaseContext()
 
     object Handler {
         fun run() {

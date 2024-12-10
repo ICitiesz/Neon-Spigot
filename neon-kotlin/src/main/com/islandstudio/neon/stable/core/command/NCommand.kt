@@ -268,17 +268,6 @@ class NCommand: Listener, TabExecutor {
                         NPainting.Handler.getCommandHandler(commander as Player, args)
                     }
 
-                    CommandAlias.DATABASE -> {
-//                        if (args.size == 2) {
-//                            if (args[1].equals("off", true)) {
-//
-//                                //databaseController.stopDatabase()
-//                            } else {
-//                                return@let
-//                            }
-//                        }
-                    }
-
                     CommandAlias.NSERVER_FEATURES_REMASTERED -> {
                         NServerFeaturesRemastered.Handler.getCommandDispatcher(commander, args)
                     }
@@ -356,10 +345,6 @@ class NCommand: Listener, TabExecutor {
                 }
 
                 CommandAlias.NPAINTING -> {
-                    return mutableListOf()
-                }
-
-                CommandAlias.DATABASE -> {
                     return mutableListOf()
                 }
 

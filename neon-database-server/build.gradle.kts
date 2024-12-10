@@ -54,6 +54,18 @@ dependencies {
     implementation("org.jooq:jooq-meta:$jooqVersion")
     implementation("org.jooq:jooq-meta-extensions:$jooqVersion")
     compileOnly("org.jooq:jooq-codegen:$jooqVersion")
+
+    implementation("org.liquibase.ext:liquibase-javalogger:3.0")
+
+    //implementation("com.mysql:mysql-connector-j:9.1.0")
+    implementation("org.liquibase:liquibase-core:4.30.0")
+    implementation("com.mattbertolini:liquibase-slf4j:5.1.0")
+    implementation("org.slf4j:jul-to-slf4j:2.0.16")
+    implementation("org.slf4j:slf4j-api:2.0.16")
+    testImplementation("org.slf4j:slf4j-simple:2.0.16")
+
+
+
     implementation("com.redgate.flyway:flyway-core:10.17.0")
     runtimeOnly("com.redgate.flyway:flyway-database-hsqldb:10.17.0")
 
@@ -212,11 +224,13 @@ tasks.withType<KotlinCompile> {
 tasks.named<ShadowJar>("shadowJar") {
     this.archiveFileName.set(pluginFinalJarName)
 
-    minimize {
-        exclude(dependency("org.jetbrains.kotlin:kotlin-reflect:.*"))
-        exclude(dependency("com.redgate.flyway:flyway-database-hsqldb"))
-        exclude(dependency("org.hsqldb:hsqldb"))
-        exclude("*.kotlin_module")
-    }
+    //mergeServiceFiles()
+
+//    minimize {
+//        exclude(dependency("org.jetbrains.kotlin:kotlin-reflect:.*"))
+//        exclude(dependency("com.redgate.flyway:flyway-database-hsqldb"))
+//        exclude(dependency("org.hsqldb:hsqldb"))
+//        exclude("*.kotlin_module")
+//    }
 }
 

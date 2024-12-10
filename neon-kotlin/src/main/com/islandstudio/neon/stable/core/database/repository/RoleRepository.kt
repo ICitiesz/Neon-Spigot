@@ -1,18 +1,18 @@
 package com.islandstudio.neon.stable.core.database.repository
 
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.database.IDatabaseContext
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.Role
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.records.DtRoleRecord
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.references.DT_PLAYER_PROFILE
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.references.DT_ROLE
-import org.jooq.DSLContext
 import org.koin.core.annotation.Single
-import org.koin.core.component.inject
 import java.util.*
 
 @Single
-class RoleRepository: ModuleInjector {
-    private val dbContext by inject<DSLContext>()
+class RoleRepository: ModuleInjector, IDatabaseContext {
+    //private val dbContext by inject<DSLContext>()
+    private val dbContext = getDatabaseContext()
 
     fun addRole(role: Role) {
         with(DtRoleRecord(role)) {
