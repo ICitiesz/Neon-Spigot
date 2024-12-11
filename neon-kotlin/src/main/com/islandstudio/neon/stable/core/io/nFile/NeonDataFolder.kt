@@ -3,6 +3,7 @@ package com.islandstudio.neon.stable.core.io.nFile
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.AppContext
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.io.resource.NeonExternalResources
 import org.koin.core.component.inject
 import java.io.File
 
@@ -11,6 +12,16 @@ sealed class NeonDataFolder(folder: File): File(folder.toPath().toString()) {
         private val neon by inject<Neon>()
         private val appContext by inject<AppContext>()
         private val serverRunningMode = appContext.serverRunningMode
+
+        /**
+         * Create and get the new file with NeonExternalResources
+         *
+         * @param neonExternalResource Defined NeonExternalResources
+         * @return
+         */
+        fun createNewFile(neonExternalResource: NeonExternalResources): File {
+            return createNewFile(neonExternalResource.neonDataFolder, neonExternalResource.resourceName)
+        }
 
         /**
          * Create and get the new file.

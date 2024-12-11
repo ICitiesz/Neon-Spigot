@@ -81,7 +81,7 @@ enum class CommandAlias(val command: Command) {
 
     NPAINTING(Command("painting", null)),
 
-    DATABASE(Command("db", null)),
+    //DATABASE(Command("db", null)),
 
     NSERVER_FEATURES_REMASTERED(Command("serverfeaturesRemastered", Permission.AP_ACCESS_NSERVER_FEATURE).apply {
         this.addCommandArgument(

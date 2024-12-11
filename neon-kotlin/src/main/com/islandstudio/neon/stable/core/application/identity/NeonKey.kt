@@ -2,7 +2,7 @@ package com.islandstudio.neon.stable.core.application.identity
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
-import com.islandstudio.neon.stable.core.io.resource.NeonResources
+import com.islandstudio.neon.stable.core.io.resource.NeonInternalResources
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Entity
@@ -25,8 +25,8 @@ object NeonKey: ModuleInjector {
         fun run() {
             val resourceManager = ResourceManager()
 
-            neonKeyGeneralProperties.load(resourceManager.getNeonResourceAsStream(NeonResources.NEON_KEY_GENERAL_PROPERTIES))
-            neonKeyRecipeProperties.load(resourceManager.getNeonResourceAsStream(NeonResources.NEON_KEY_RECIPE_PROPERTIES))
+            neonKeyGeneralProperties.load(resourceManager.getNeonResourceAsStream(NeonInternalResources.NeonKeyGeneralProperties))
+            neonKeyRecipeProperties.load(resourceManager.getNeonResourceAsStream(NeonInternalResources.NeonKeyRecipeProperties))
         }
     }
 

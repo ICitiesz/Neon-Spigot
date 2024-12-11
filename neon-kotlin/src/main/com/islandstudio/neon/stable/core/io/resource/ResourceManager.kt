@@ -4,11 +4,7 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.AppContext
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.extension.NeonExtensions
-import com.islandstudio.neon.stable.core.database.DatabaseConnector.neon
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.core.component.inject
 import java.io.File
 import java.io.InputStream
@@ -23,53 +19,52 @@ class ResourceManager: ModuleInjector {
     private val appContext by inject<AppContext>()
 
     companion object: ModuleInjector {
+        private val neon by inject<Neon>()
         private val appContext by inject<AppContext>()
 
         fun run() {
             if (!appContext.isVersionCompatible) return
 
-            CoroutineScope(Dispatchers.IO).launch {
-                neon.logger.info(appContext.getCodeMessage("neon.info.resource_manager.data_folder_init"))
+            neon.logger.info(appContext.getCodeMessage("neon.info.resource_manager.data_folder_init"))
 
-                NeonDataFolder.reformatVersionFolder()
-                NeonDataFolder.getAllDataFolder().forEach { folder ->
-                    if (folder.exists()) return@forEach
+            NeonDataFolder.reformatVersionFolder()
+            NeonDataFolder.getAllDataFolder().forEach { folder ->
+                if (folder.exists()) return@forEach
 
-                    folder.mkdirs()
-                }
-            }.invokeOnCompletion {
-                ResourceManager().extractExtension()
+                folder.mkdirs()
             }
+
+            ResourceManager().extractExtension()
         }
     }
 
     fun extractExtension() {
-        CoroutineScope(Dispatchers.IO).launch {
-            neon.logger.info(appContext.getCodeMessage("neon.info.resource_manager.extension_init"))
-            NeonResources.entries
-                .filter { it.resourceType == ResourceType.JAR }
-                .forEach { extension ->
-                    val originalResource = getNeonResourceAsUrl(extension)
-                        ?: return@forEach neon.logger.warning(
-                            appContext.getFormattedCodeMessage("neon.info.resource_manager.extension_extract_failed",
-                                extension.getResourceName()))
-                        //?: return@forEach neon.logger.warning("Missing extension! Skipping extension extration for '${extension.getResourceName()}'...")
-                    val extensionFile = File(NeonDataFolder.ExtensionFolder, extension.getResourceName())
+        neon.logger.info(appContext.getCodeMessage("neon.info.resource_manager.extension_init"))
+        NeonInternalResources.entries
+            .filter { it.resourceType == ResourceType.JAR }
+            .forEach { extension ->
+                val originalResource = getNeonResourceAsUrl(extension)
+                    ?: return@forEach neon.logger.warning(
+                        appContext.getFormattedCodeMessage(
+                            "neon.info.resource_manager.extension_extract_failed",
+                            extension.getResourceName()
+                        )
+                    )
+                val extensionFile = File(NeonDataFolder.ExtensionFolder, extension.getResourceName())
 
-                    if (!extensionFile.exists()) {
-                        copyResource(originalResource, extensionFile)
-                        return@forEach
-                    }
-
-                    if (verifyResourceCheckSum(originalResource, extensionFile.toURI().toURL())) {
-                        return@forEach
-                    }
-
+                if (!extensionFile.exists()) {
                     copyResource(originalResource, extensionFile)
+                    return@forEach
                 }
-        }.invokeOnCompletion {
-            neon.getAppInitializer().loadExtension(NeonExtensions.NeonDatabaseExtension())
-        }
+
+                if (verifyResourceCheckSum(originalResource, extensionFile.toURI().toURL())) {
+                    return@forEach
+                }
+
+                copyResource(originalResource, extensionFile)
+            }
+
+        neon.getAppInitializer().loadExtension(NeonExtensions.NeonDatabaseExtension())
     }
 
     fun verifyResourceCheckSum(originalResource: URL, destinationResource: URL): Boolean {
@@ -98,13 +93,13 @@ class ResourceManager: ModuleInjector {
         }
     }
 
-    fun getNeonResourceAsUrl(neonResource: NeonResources): URL? {
-        return neon.getPluginClassLoader().getResource(neonResource.resourcePath)
+    fun getNeonResourceAsUrl(neonResource: NeonInternalResources): URL? {
+        return neon.getPluginClassLoader().getResource(neonResource.resourceURL)
     }
 
-    fun getNeonResourceAsStream(neonResource: NeonResources, pluginClassLoader: ClassLoader? = null): InputStream {
+    fun getNeonResourceAsStream(neonResource: NeonInternalResources, pluginClassLoader: ClassLoader? = null): InputStream {
         pluginClassLoader?.let {
-            return it.getResourceAsStream(neonResource.resourcePath)
-        } ?: return neon.getPluginClassLoader().getResourceAsStream(neonResource.resourcePath)
+            return it.getResourceAsStream(neonResource.resourceURL)
+        } ?: return neon.getPluginClassLoader().getResourceAsStream(neonResource.resourceURL)
     }
 }

@@ -13,7 +13,7 @@ import com.islandstudio.neon.stable.core.gui.NGUI
 import com.islandstudio.neon.stable.core.io.ConfigurationProperty
 import com.islandstudio.neon.stable.core.io.DataSourceType
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
-import com.islandstudio.neon.stable.core.io.resource.NeonResources
+import com.islandstudio.neon.stable.core.io.resource.NeonInternalResources
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import com.islandstudio.neon.stable.features.nServerFeatures.properties.ServerFeature
 import com.islandstudio.neon.stable.features.nServerFeatures.properties.ServerFeatureDetail
@@ -46,7 +46,7 @@ object NServerFeaturesRemastered: ModuleInjector {
 
     private val nServerFeaturesSourceFile: YamlFile  = run {
         val readerSupplierIO = SupplierIO.Reader {
-            resourceManager.getNeonResourceAsStream(NeonResources.NEON_SERVER_FEATURES)!!.reader()
+            resourceManager.getNeonResourceAsStream(NeonInternalResources.NeonServerFeatures)!!.reader()
         }
 
         YamlFile.loadConfiguration(readerSupplierIO, true).apply {
@@ -57,7 +57,7 @@ object NServerFeaturesRemastered: ModuleInjector {
 
     private val optionProperties: YamlFile  = run {
         val readerSupplierIO = SupplierIO.Reader {
-            resourceManager.getNeonResourceAsStream(NeonResources.NEON_SERVER_OPTION_PROPERTIES)!!.reader()
+            resourceManager.getNeonResourceAsStream(NeonInternalResources.NeonServerOptionProperties)!!.reader()
         }
 
         YamlFile.loadConfiguration(readerSupplierIO).apply {

@@ -5,19 +5,18 @@ import com.islandstudio.neon.stable.common.ColorPalette
 import com.islandstudio.neon.stable.core.application.AppContext
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.extension.NeonExtensions
+import com.islandstudio.neon.stable.core.database.DatabaseInterface
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
+import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 import kotlin.math.roundToInt
 
+@Single
 class AppInitializer: ModuleInjector {
-    init {
-        ResourceManager.run()
-    }
-
     companion object: ModuleInjector {
         private val neon by inject<Neon>()
         private val appContext by inject<AppContext>()
@@ -116,64 +115,76 @@ class AppInitializer: ModuleInjector {
         val appContext by inject<AppContext>()
         val jobContext = newSingleThreadContext("Neon Initializer (Pre-Staging)")
 
-        CoroutineScope(jobContext).async {
-            neon.logger.info(appContext.getCodeMessage("neon.info.pre_init.start"))
+        jobContext.use { dispatcher ->
+            CoroutineScope(dispatcher).async {
+                neon.logger.info(appContext.getCodeMessage("neon.info.pre_init.start"))
 
-            delay(500L)
+                delay(500L)
 
-            if (!appContext.isVersionCompatible) {
-                neon.logger.severe(appContext.getCodeMessage("neon.error.pre_init.incompatible_version"))
-                return@async
-            }
-
-            val preInitAppClasses = AppClasses.entries
-                .filter { it.initializationStage == InitializationStage.PRE_INIT }
-
-            preInitAppClasses.forEachIndexed { index, appClass ->
-                val clazz = appClass.clazz
-                val loadingProgress: Int =  (((index + 1).toDouble() / preInitAppClasses.size.toDouble()) * 100).roundToInt()
-
-                val className: String = with(clazz.simpleName) {
-                    if (this == "Handler" || this == "Companion") {
-                        val splitClassNames = clazz.canonicalName.split(".")
-
-                        return@with "${splitClassNames[splitClassNames.size - 2]}.${splitClassNames[splitClassNames.size - 1]}"
-                    }
-
-                    return@with this
+                if (!appContext.isVersionCompatible) {
+                    neon.logger.severe(appContext.getCodeMessage("neon.error.pre_init.incompatible_version"))
+                    return@async
                 }
 
-                runCatching {
-                    if (className.contains("Companion")) {
+                val preInitAppClasses = AppClasses.entries
+                    .filter { it.initializationStage == InitializationStage.PRE_INIT }
+
+                this.async {
+                    ResourceManager.run()
+                }.await()
+
+                this.async(Dispatchers.IO) {
+                    delay(500)
+
+                    val databaseInterface by inject<DatabaseInterface>()
+
+                    databaseInterface.connect()
+                }.await()
+
+                preInitAppClasses.forEachIndexed { index, appClass ->
+                    val clazz = appClass.clazz
+                    val loadingProgress: Int =  (((index + 1).toDouble() / preInitAppClasses.size.toDouble()) * 100).roundToInt()
+
+                    val className: String = with(clazz.simpleName) {
+                        if (this == "Handler" || this == "Companion") {
+                            val splitClassNames = clazz.canonicalName.split(".")
+
+                            return@with "${splitClassNames[splitClassNames.size - 2]}.${splitClassNames[splitClassNames.size - 1]}"
+                        }
+
+                        return@with this
+                    }
+
+                    runCatching {
+                        if (className.contains("Companion")) {
+                            val hasRunFunction = clazz.declaredMethods.map { lambdaClazz -> lambdaClazz.name }.contains("run")
+
+                            if (hasRunFunction) {
+                                clazz.getDeclaredMethod("run").invoke(clazz.enclosingClass.getField("Companion").get(null))
+                            }
+
+                            return@runCatching
+                        }
+
+                        /* For non-companion class */
                         val hasRunFunction = clazz.declaredMethods.map { lambdaClazz -> lambdaClazz.name }.contains("run")
 
                         if (hasRunFunction) {
-                            clazz.getDeclaredMethod("run").invoke(clazz.enclosingClass.getField("Companion").get(null))
+                            clazz.getDeclaredMethod("run").invoke(clazz.getField("INSTANCE").get(null))
                         }
-
-                        return@runCatching
+                    }.onFailure {
+                        neon.logger.severe(it.cause?.stackTraceToString())
+                        return@forEachIndexed
+                    }.onSuccess {
+                        //neon.logger.info(appContext.getFormattedCodeMessage("neon.info.pre_init.processing", loadingProgress))
+                        delay(150L)
                     }
-
-                    /* For non-companion class */
-                    val hasRunFunction = clazz.declaredMethods.map { lambdaClazz -> lambdaClazz.name }.contains("run")
-
-                    if (hasRunFunction) {
-                        clazz.getDeclaredMethod("run").invoke(clazz.getField("INSTANCE").get(null))
-                    }
-                }.onFailure {
-                    neon.logger.severe(it.cause?.stackTraceToString())
-                    return@forEachIndexed
-                }.onSuccess {
-                    //neon.logger.info(appContext.getFormattedCodeMessage("neon.info.pre_init.processing", loadingProgress))
-                    delay(150L)
+                }
+            }.asCompletableFuture().join().also {
+                if (appContext.isVersionCompatible) {
+                    neon.logger.info(appContext.getCodeMessage("neon.info.pre_init.complete"))
                 }
             }
-        }.asCompletableFuture().join().also {
-            if (appContext.isVersionCompatible) {
-                neon.logger.info(appContext.getCodeMessage("neon.info.pre_init.complete"))
-            }
-
-            jobContext.close()
         }
     }
 

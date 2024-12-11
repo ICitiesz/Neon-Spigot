@@ -4,7 +4,7 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.di.ModuleInjector
 import com.islandstudio.neon.stable.core.application.server.ServerProvider
 import com.islandstudio.neon.stable.core.application.server.ServerRunningMode
-import com.islandstudio.neon.stable.core.io.resource.NeonResources
+import com.islandstudio.neon.stable.core.io.resource.NeonInternalResources
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import io.github.cdimascio.dotenv.Dotenv
 import io.github.cdimascio.dotenv.dotenv
@@ -38,7 +38,7 @@ class AppContext: ModuleInjector {
     fun getAppEnvValue(key: String): String = envValues.get(key)
 
     fun loadCodeMessages() {
-        with(ResourceManager().getNeonResourceAsStream(NeonResources.NEON_CODE_MESSAGES)) {
+        with(ResourceManager().getNeonResourceAsStream(NeonInternalResources.NeonCodeMessages)) {
             use {
                 codeMessages.load(it)
             }

@@ -1,6 +1,6 @@
 package com.islandstudio.neondatabaseserver.application
 
-import com.islandstudio.neon.stable.core.io.resource.NeonResources
+import com.islandstudio.neon.stable.core.io.resource.NeonInternalResources
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import com.islandstudio.neondatabaseserver.NeonDatabaseServer
 import com.islandstudio.neondatabaseserver.application.di.ModuleInjector
@@ -24,7 +24,7 @@ class AppContext: ModuleInjector  {
     fun getAppEnvValue(key: String): String = enVValues.get(key)
 
     fun loadCodeMessages() {
-        with(ResourceManager().getNeonResourceAsStream(NeonResources.NEON_DATABASE_CODE_MESSAGES, neonDbServer.getPluginClassLoader())) {
+        with(ResourceManager().getNeonResourceAsStream(NeonInternalResources.NeonDatabaseServerCodeMessages, neonDbServer.getPluginClassLoader())) {
             use {
                 codeMessages.load(it)
             }
