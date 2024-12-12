@@ -2,7 +2,7 @@ package com.islandstudio.neon.stable.player.nRoleAccess
 
 import com.islandstudio.neon.stable.common.action.ActionState
 import com.islandstudio.neon.stable.common.action.ActionStatus
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.database.repository.RoleAccessRepository
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.AccessPermission
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.RoleAccess
@@ -16,7 +16,7 @@ import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Player
 import org.koin.core.component.inject
 
-object NRoleAccess: ModuleInjector {
+object NRoleAccess: IComponentInjector {
     private val nPlayerProfile by inject<NPlayerProfile>()
     private val roleAccessReposittory by inject<RoleAccessRepository>()
 

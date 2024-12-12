@@ -1,13 +1,13 @@
 package com.islandstudio.neon.stable.utils.nGUI
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 import org.koin.core.component.inject
 
-abstract class NGUIConstructor(protected val nGUI: NGUI): InventoryHolder, ModuleInjector {
+abstract class NGUIConstructor(protected val nGUI: NGUI): InventoryHolder, IComponentInjector {
     private val neon by inject<Neon>()
     private lateinit var inventory: Inventory
 

@@ -2,13 +2,13 @@ package com.islandstudio.neon.stable.core.io.nFile
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.AppContext
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
-import com.islandstudio.neon.stable.core.io.resource.NeonExternalResources
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
+import com.islandstudio.neon.stable.core.io.resource.NeonExternalResource
 import org.koin.core.component.inject
 import java.io.File
 
 sealed class NeonDataFolder(folder: File): File(folder.toPath().toString()) {
-    companion object: ModuleInjector {
+    companion object: IComponentInjector {
         private val neon by inject<Neon>()
         private val appContext by inject<AppContext>()
         private val serverRunningMode = appContext.serverRunningMode
@@ -19,7 +19,7 @@ sealed class NeonDataFolder(folder: File): File(folder.toPath().toString()) {
          * @param neonExternalResource Defined NeonExternalResources
          * @return
          */
-        fun createNewFile(neonExternalResource: NeonExternalResources): File {
+        fun createNewFile(neonExternalResource: NeonExternalResource): File {
             return createNewFile(neonExternalResource.neonDataFolder, neonExternalResource.resourceName)
         }
 

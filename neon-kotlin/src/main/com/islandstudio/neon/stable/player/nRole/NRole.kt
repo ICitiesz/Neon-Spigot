@@ -2,7 +2,7 @@ package com.islandstudio.neon.stable.player.nRole
 
 import com.islandstudio.neon.stable.common.action.ActionState
 import com.islandstudio.neon.stable.common.action.ActionStatus
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.command.CommandDispatcher
 import com.islandstudio.neon.stable.core.command.CommandInterfaceProcessor
 import com.islandstudio.neon.stable.core.command.properties.CommandAlias
@@ -24,7 +24,7 @@ import org.bukkit.event.Listener
 import org.koin.core.component.inject
 import java.util.*
 
-object NRole: ModuleInjector {
+object NRole: IComponentInjector {
     private const val MIN_INPUT_LENGTH = 3
     private const val MAX_INPUT_LENGTH = 64
 

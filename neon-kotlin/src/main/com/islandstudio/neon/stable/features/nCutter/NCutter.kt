@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.features.nCutter
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.recipe.RecipeRegistry
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import org.bukkit.inventory.ItemStack
@@ -10,7 +10,7 @@ import org.bukkit.inventory.StonecuttingRecipe
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.inject
 
-class NCutter: RecipeRegistry, ModuleInjector {
+class NCutter: RecipeRegistry, IComponentInjector {
     private val plugin: Plugin by inject<Neon>()
 
     object Handler {

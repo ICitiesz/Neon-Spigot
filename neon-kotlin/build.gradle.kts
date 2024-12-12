@@ -56,6 +56,7 @@ dependencies {
     implementation("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4")
     implementation("org.dhatim:fastexcel-reader:0.18.4")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-toml:2.18.2")
 
     /* Database Library */
     api("org.modelmapper:modelmapper:3.2.1")
@@ -66,13 +67,7 @@ dependencies {
     compileOnly("org.jooq:jooq-codegen:$jooqVersion")
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("com.google.guava:guava:33.2.1-jre")
-
-    implementation("org.liquibase:liquibase-core:4.30.0")
-    runtimeOnly("org.liquibase.ext:liquibase-javalogger:3.0")
-    implementation("com.mattbertolini:liquibase-slf4j:5.1.0")
-    implementation("org.slf4j:jul-to-slf4j:2.0.16")
-    implementation("org.slf4j:slf4j-api:2.0.16")
-    testImplementation("org.slf4j:slf4j-simple:2.0.16")
+    runtimeOnly("org.liquibase:liquibase-core:4.30.0")
 }
 
 kotlin {

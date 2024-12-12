@@ -1,7 +1,7 @@
 package com.islandstudio.neon.experimental.nPainting
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.init.NConstructor
@@ -40,7 +40,7 @@ import java.io.File
 import java.util.*
 import kotlin.jvm.optionals.getOrElse
 
-object NPainting: ModuleInjector {
+object NPainting: IComponentInjector {
     /* General properties */
     private const val RENDER_DATA_FILE_EXTENSION = ".rendat"
 

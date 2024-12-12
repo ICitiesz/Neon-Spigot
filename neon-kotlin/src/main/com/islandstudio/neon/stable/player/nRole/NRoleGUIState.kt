@@ -1,13 +1,13 @@
 package com.islandstudio.neon.stable.player.nRole
 
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.database.model.RoleWithPermissionModel
 import com.islandstudio.neon.stable.core.gui.GUISession
 import com.islandstudio.neon.stable.core.gui.state.GUIState
 import com.islandstudio.neon.stable.core.gui.state.GUIStateType
 import org.koin.core.component.inject
 
-data class NRoleGUIState(private val guiSession: GUISession): GUIState(), ModuleInjector {
+data class NRoleGUIState(private val guiSession: GUISession): GUIState(), IComponentInjector {
     private val nRole by inject<NRole>()
 
     override var currentGUIStateType: GUIStateType = GUIStateType.NROLE

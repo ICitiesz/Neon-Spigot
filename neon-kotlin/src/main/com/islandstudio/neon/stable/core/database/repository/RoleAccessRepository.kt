@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.core.database.repository
 
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.database.IDatabaseContext
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.RoleAccess
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.records.DtRoleAccessRecord
@@ -11,7 +11,7 @@ import com.islandstudio.neon.stable.player.nAccessPermission.Permission
 import org.koin.core.annotation.Single
 
 @Single
-class RoleAccessRepository: ModuleInjector, IDatabaseContext {
+class RoleAccessRepository: IComponentInjector, IDatabaseContext {
     //private val dbContext by inject<DSLContext>()
     private val dbContext = getDatabaseContext()
 

@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.player.nAccessPermission
 
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.command.CommandDispatcher
 import com.islandstudio.neon.stable.core.command.CommandInterfaceProcessor
 import com.islandstudio.neon.stable.core.command.properties.CommandAlias
@@ -16,7 +16,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.koin.core.component.inject
 
-object NAccessPermission: ModuleInjector {
+object NAccessPermission: IComponentInjector {
     private val accessPermissionRepository by inject<AccessPermissionRepository>()
 
     object Handler: CommandDispatcher {

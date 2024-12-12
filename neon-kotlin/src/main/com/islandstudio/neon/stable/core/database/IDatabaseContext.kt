@@ -1,13 +1,13 @@
 package com.islandstudio.neon.stable.core.database
 
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.koin.core.component.inject
 
-interface IDatabaseContext: ModuleInjector {
+interface IDatabaseContext: IComponentInjector {
     fun getDatabaseContext(): DSLContext {
         val dbConnector by inject<DatabaseInterface>()
         val dataSource = dbConnector

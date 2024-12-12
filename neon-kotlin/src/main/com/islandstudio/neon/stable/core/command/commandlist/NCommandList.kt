@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.core.command.commandlist
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
@@ -40,7 +40,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.ceil
 
-object NCommandList: ModuleInjector {
+object NCommandList: IComponentInjector {
     private val neon by inject<Neon>()
 
     /* An ID for book identification to ensure the book that server is looking for is the correct one

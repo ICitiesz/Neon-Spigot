@@ -1,13 +1,13 @@
 package com.islandstudio.neon.stable.core.database
 
 import com.islandstudio.neon.stable.core.application.AppContext
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.koin.core.component.inject
 
 
-class DataSourceHandler: ModuleInjector {
+class DataSourceHandler: IComponentInjector {
     private val appContext by inject<AppContext>()
     private val hikariConfig: HikariConfig = HikariConfig().apply {
         // TODO: May let user decide the databRase alias name (jdbc:hsqldb:hsql://localhost/{aliasName}) in the future.

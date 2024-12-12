@@ -1,9 +1,10 @@
 package com.islandstudio.neon.stable.core.io.resource
 
 enum class ResourceType {
-    JAR,
-    JSON,
-    YAML,
-    PROPERTIES,
-    EXCEL
+    Jar,
+    Json,
+    Yaml,
+    Properties,
+    Excel,
+    Toml
 }

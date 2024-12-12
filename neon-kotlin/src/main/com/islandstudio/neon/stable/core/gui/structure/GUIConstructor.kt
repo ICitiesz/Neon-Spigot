@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.core.gui.structure
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.gui.GUISession
 import com.islandstudio.neon.stable.core.gui.state.GUIState
 import com.islandstudio.neon.stable.core.gui.state.GUIStateType
@@ -10,7 +10,7 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 import org.koin.core.component.inject
 
-abstract class GUIConstructor(private val guiSession: GUISession): InventoryHolder, ModuleInjector {
+abstract class GUIConstructor(private val guiSession: GUISession): InventoryHolder, IComponentInjector {
     private val neon by inject<Neon>()
     private lateinit var inventory: Inventory
     abstract val guiState: GUIState

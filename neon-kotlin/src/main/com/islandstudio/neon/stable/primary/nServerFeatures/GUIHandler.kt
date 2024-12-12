@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.item.NItemGlinter
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
@@ -17,7 +17,7 @@ import org.koin.core.component.inject
 import java.util.*
 import kotlin.math.ceil
 
-open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI), ModuleInjector {
+open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI), IComponentInjector {
     private val neon by inject<Neon>()
 
     private val player: Player = nGUI.getGUIOwner()

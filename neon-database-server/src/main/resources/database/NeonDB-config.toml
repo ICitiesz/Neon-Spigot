@@ -1,0 +1,31 @@
+[NeonDatabase]
+# Database folder:
+# - NeonDB-Online <= This is universal
+# - NeonDB-Online-1.20 <= This is MC version-based
+#
+# Database folder name format:
+# - Universal
+#   -> NeonDB-{onlineMode [Online/Offline]}
+#
+# - Mc version-based
+#   -> NeonDB-{onlineMode [Online/Offline]}-{mcVersion}
+
+# Define whether the database is share across MC version.
+# This means no matter what MC version within supported range, the same database will be used.
+# Default: true
+isUniversal = true
+
+    [NeonDatabase.backup]
+    # Backup not available yet
+    isEnabled = true
+    # Backup once after server initialized (Startup/Reload)
+    runOnceAfterServerInitialized = true
+    # Backup interval in minutes
+    # Default: 30 minutes [Min = 15 minutes | Max = 60 minutes]
+    backupInterval = 30
+    # Maximum backup entry will be created. Overwrite the older if reaches maximum.
+    # Default = 5 [Min = 1 | Max = 10]
+    maxBackups = 5
+    # [Experimental] Transfer and merge data over another database after database switching.
+    # This option only applicable for Mc version-based database
+    transferDataUponDatabaseChange = false

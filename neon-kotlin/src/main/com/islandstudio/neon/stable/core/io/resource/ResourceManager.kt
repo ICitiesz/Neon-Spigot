@@ -2,7 +2,7 @@ package com.islandstudio.neon.stable.core.io.resource
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.AppContext
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.extension.NeonExtensions
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import org.koin.core.component.inject
@@ -14,11 +14,11 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 
-class ResourceManager: ModuleInjector {
+class ResourceManager: IComponentInjector {
     private val neon by inject<Neon>()
     private val appContext by inject<AppContext>()
 
-    companion object: ModuleInjector {
+    companion object: IComponentInjector {
         private val neon by inject<Neon>()
         private val appContext by inject<AppContext>()
 
@@ -40,8 +40,8 @@ class ResourceManager: ModuleInjector {
 
     fun extractExtension() {
         neon.logger.info(appContext.getCodeMessage("neon.info.resource_manager.extension_init"))
-        NeonInternalResources.entries
-            .filter { it.resourceType == ResourceType.JAR }
+        NeonInternalResource.entries
+            .filter { it.resourceType == ResourceType.Jar }
             .forEach { extension ->
                 val originalResource = getNeonResourceAsUrl(extension)
                     ?: return@forEach neon.logger.warning(
@@ -93,13 +93,13 @@ class ResourceManager: ModuleInjector {
         }
     }
 
-    fun getNeonResourceAsUrl(neonResource: NeonInternalResources): URL? {
-        return neon.getPluginClassLoader().getResource(neonResource.resourceURL)
+    fun getNeonResourceAsUrl(neonInternalResource: NeonInternalResource): URL? {
+        return neon.getPluginClassLoader().getResource(neonInternalResource.resourceURL)
     }
 
-    fun getNeonResourceAsStream(neonResource: NeonInternalResources, pluginClassLoader: ClassLoader? = null): InputStream {
+    fun getNeonResourceAsStream(neonInternalResource: NeonInternalResource, pluginClassLoader: ClassLoader? = null): InputStream {
         pluginClassLoader?.let {
-            return it.getResourceAsStream(neonResource.resourceURL)
-        } ?: return neon.getPluginClassLoader().getResourceAsStream(neonResource.resourceURL)
+            return it.getResourceAsStream(neonInternalResource.resourceURL)
+        } ?: return neon.getPluginClassLoader().getResourceAsStream(neonInternalResource.resourceURL)
     }
 }

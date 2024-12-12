@@ -2,7 +2,7 @@ package com.islandstudio.neon.stable.features.nDurable
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.experimental.nEffect.NEffect
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.init.NConstructor
@@ -45,7 +45,7 @@ import org.koin.core.component.inject
 import java.util.*
 import kotlin.properties.Delegates
 
-object NDurable: ModuleInjector {
+object NDurable: IComponentInjector {
     private val plugin by inject<Neon>()
 
     private var nDurableisEnabled by Delegates.notNull<Boolean>()

@@ -1,7 +1,7 @@
 package com.islandstudio.neon.experimental.nFireworks
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import kotlinx.coroutines.*
 import net.minecraft.core.particles.DustParticleOptions
@@ -15,7 +15,7 @@ import java.io.Serializable
 import java.util.concurrent.atomic.AtomicInteger
 
 object FireworkPattern {
-    data class PixelContainer(val verticalIndex: Int): Serializable, ModuleInjector {
+    data class PixelContainer(val verticalIndex: Int): Serializable, IComponentInjector {
         val horizontalPixels: ArrayList<Pixel> = ArrayList()
 
         /**

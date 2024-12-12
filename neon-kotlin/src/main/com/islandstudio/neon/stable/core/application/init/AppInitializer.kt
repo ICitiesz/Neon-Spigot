@@ -3,7 +3,7 @@ package com.islandstudio.neon.stable.core.application.init
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.common.ColorPalette
 import com.islandstudio.neon.stable.core.application.AppContext
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.extension.NeonExtensions
 import com.islandstudio.neon.stable.core.database.DatabaseInterface
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
@@ -16,8 +16,8 @@ import org.koin.core.component.inject
 import kotlin.math.roundToInt
 
 @Single
-class AppInitializer: ModuleInjector {
-    companion object: ModuleInjector {
+class AppInitializer: IComponentInjector {
+    companion object: IComponentInjector {
         private val neon by inject<Neon>()
         private val appContext by inject<AppContext>()
 

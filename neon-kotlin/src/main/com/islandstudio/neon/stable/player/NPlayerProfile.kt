@@ -2,7 +2,7 @@ package com.islandstudio.neon.stable.player
 
 import com.islandstudio.neon.stable.common.action.ActionState
 import com.islandstudio.neon.stable.common.action.ActionStatus
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.init.AppInitializer
 import com.islandstudio.neon.stable.core.database.repository.PlayerProfileRepository
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.PlayerProfile
@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Single
-class NPlayerProfile: ModuleInjector {
+class NPlayerProfile: IComponentInjector {
     private val playerProfileRepository by inject<PlayerProfileRepository>()
 
     object Handler {
@@ -127,7 +127,7 @@ class NPlayerProfile: ModuleInjector {
         return NRole.getRoleByPlayerUUID(playerUUID)
     }
 
-    private class EventProcessor: Listener, ModuleInjector {
+    private class EventProcessor: Listener, IComponentInjector {
         private val nPlayerProfile by inject<NPlayerProfile>()
 
         @EventHandler

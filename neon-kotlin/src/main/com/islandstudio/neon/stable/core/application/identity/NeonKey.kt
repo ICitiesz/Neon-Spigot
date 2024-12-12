@@ -1,8 +1,8 @@
 package com.islandstudio.neon.stable.core.application.identity
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
-import com.islandstudio.neon.stable.core.io.resource.NeonInternalResources
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
+import com.islandstudio.neon.stable.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Entity
@@ -12,7 +12,7 @@ import org.bukkit.persistence.PersistentDataType
 import org.koin.core.component.inject
 import java.util.*
 
-object NeonKey: ModuleInjector {
+object NeonKey: IComponentInjector {
     enum class NeonKeyType {
         GENERAL,
         RECIPE
@@ -25,8 +25,8 @@ object NeonKey: ModuleInjector {
         fun run() {
             val resourceManager = ResourceManager()
 
-            neonKeyGeneralProperties.load(resourceManager.getNeonResourceAsStream(NeonInternalResources.NeonKeyGeneralProperties))
-            neonKeyRecipeProperties.load(resourceManager.getNeonResourceAsStream(NeonInternalResources.NeonKeyRecipeProperties))
+            neonKeyGeneralProperties.load(resourceManager.getNeonResourceAsStream(NeonInternalResource.NeonKeyGeneralProperties))
+            neonKeyRecipeProperties.load(resourceManager.getNeonResourceAsStream(NeonInternalResource.NeonKeyRecipeProperties))
         }
     }
 

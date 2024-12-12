@@ -3,7 +3,7 @@ package com.islandstudio.neon.stable.features.nWaypoints
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.io.nFile.FolderList
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import com.islandstudio.neon.stable.item.NItemGlinter
@@ -520,7 +520,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
     }
 
     /* This class handle GUI for nWaypoints Removal */
-    class GUIHandlerRemoval(nGUI: NGUI) : GUIBuilderRemoval(nGUI), ModuleInjector {
+    class GUIHandlerRemoval(nGUI: NGUI) : GUIBuilderRemoval(nGUI), IComponentInjector {
         companion object {
             var isClicked: Boolean = false // isClicked is used to remove the player from nGUIContainer
             var removalContainer: MutableMap<String, MutableSet<String>> = HashMap()

@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.io.nFile.FolderList
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
@@ -30,7 +30,7 @@ import java.io.BufferedWriter
 import java.io.File
 import java.util.*
 
-object NServerFeatures: ModuleInjector {
+object NServerFeatures: IComponentInjector {
     private val nServerFeatureGUISession: HashMap<UUID, HashMap<String, ServerFeature.SerializableFeature>> = HashMap()
     private val neon by inject<Neon>()
 

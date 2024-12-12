@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.core.database.repository
 
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.database.IDatabaseContext
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.Role
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.records.DtRoleRecord
@@ -10,7 +10,7 @@ import org.koin.core.annotation.Single
 import java.util.*
 
 @Single
-class RoleRepository: ModuleInjector, IDatabaseContext {
+class RoleRepository: IComponentInjector, IDatabaseContext {
     //private val dbContext by inject<DSLContext>()
     private val dbContext = getDatabaseContext()
 

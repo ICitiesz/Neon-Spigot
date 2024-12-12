@@ -1,12 +1,12 @@
 package com.islandstudio.neon.stable.core.io.nFile
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import org.koin.core.component.inject
 import java.io.File
 
 @Deprecated("Merged into NeonDataFolder")
-object NFile: ModuleInjector {
+object NFile: IComponentInjector {
     private val neon by inject<Neon>()
 
     /**

@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.features.nBundle
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
 import com.islandstudio.neon.stable.core.recipe.NRecipes
@@ -23,7 +23,7 @@ import org.bukkit.loot.LootTable
 import org.koin.core.component.inject
 import kotlin.properties.Delegates
 
-object NBundle: RecipeRegistry, ModuleInjector {
+object NBundle: RecipeRegistry, IComponentInjector {
     /* nBundle Option Value */
     private var isEnabled by Delegates.notNull<Boolean>()
     private var bundleGenerateChance by Delegates.notNull<Double>()

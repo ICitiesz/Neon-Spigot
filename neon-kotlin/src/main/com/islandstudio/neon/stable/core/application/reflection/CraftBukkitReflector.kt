@@ -1,11 +1,11 @@
 package com.islandstudio.neon.stable.core.application.reflection
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import org.bukkit.inventory.ItemStack
 import org.koin.core.component.inject
 
-object CraftBukkitReflector: ModuleInjector {
+object CraftBukkitReflector: IComponentInjector {
     private val neon by inject<Neon>()
 
     /**

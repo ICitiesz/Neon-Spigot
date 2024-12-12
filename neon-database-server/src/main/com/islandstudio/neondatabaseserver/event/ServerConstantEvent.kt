@@ -2,7 +2,7 @@ package com.islandstudio.neondatabaseserver.event
 
 import com.islandstudio.neondatabaseserver.DatabaseController
 import com.islandstudio.neondatabaseserver.NeonDatabaseServer
-import com.islandstudio.neondatabaseserver.application.di.ModuleInjector
+import com.islandstudio.neondatabaseserver.application.di.IComponentInjector
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.server.ServerCommandEvent
 import org.koin.core.component.inject
 
-class ServerConstantEvent: Listener {
+class ServerConstantEvent: Listener, IComponentInjector {
     private val reloadCommands = arrayListOf("rl", "reload", "bukkit:reload", "bukkit:rl")
     private val reloadCommandsWithConfirm = arrayListOf("rl confirm", "reload confirm", "bukkit:reload confirm", "bukkit:rl confirm")
     private val serverName = neonDbServer.server.name
@@ -21,7 +21,7 @@ class ServerConstantEvent: Listener {
         }
     }
 
-    companion object: ModuleInjector {
+    companion object: IComponentInjector {
         private val neonDbServer by inject<NeonDatabaseServer>()
 
         fun registerEvent() {
@@ -45,6 +45,8 @@ class ServerConstantEvent: Listener {
      * @param e Either [ServerCommandEvent] or [PlayerCommandPreprocessEvent]
      */
     private fun performDbShutdown(e: Event) {
+        val databaseController by inject<DatabaseController>()
+
         val command: String = when(e) {
             is ServerCommandEvent -> {
                 e.command.lowercase()
@@ -81,7 +83,7 @@ class ServerConstantEvent: Listener {
             }
         }
 
-        DatabaseController().stopDbServer()
+        databaseController.stopDbServer()
     }
 
     private class EventProcessor: Listener {

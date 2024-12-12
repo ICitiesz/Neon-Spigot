@@ -2,7 +2,7 @@ package com.islandstudio.neon.stable.core.event
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.experimental.nEffect.NEffect
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.init.AppInitializer
 import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
@@ -33,7 +33,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.koin.core.component.inject
 
-class ServerConstantEvent: ModuleInjector {
+class ServerConstantEvent: IComponentInjector {
     private val neon by inject<Neon>()
 
     private val reloadCommands = arrayListOf("rl", "reload", "bukkit:reload", "bukkit:rl")
@@ -157,7 +157,7 @@ class ServerConstantEvent: ModuleInjector {
         }
     }
 
-    private class EventProcessor: Listener, ModuleInjector {
+    private class EventProcessor: Listener, IComponentInjector {
         private val neon by inject<Neon>()
         private val serverConstantEvent = ServerConstantEvent()
 

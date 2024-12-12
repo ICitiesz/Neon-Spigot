@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.core.application.init
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import org.bukkit.ChatColor
@@ -10,7 +10,7 @@ import org.bukkit.event.Listener
 import org.koin.core.component.inject
 
 @Deprecated("Revamped to [AppInitializer]")
-object NConstructor: ModuleInjector {
+object NConstructor: IComponentInjector {
     private val neon by inject<Neon>()
     private val neonLogger = neon.logger
 

@@ -1,45 +1,50 @@
 package com.islandstudio.neon.stable.core.io.resource
 
-enum class NeonInternalResources(val resourceURL: String, val resourceType: ResourceType) {
+enum class NeonInternalResource(val resourceURL: String, val resourceType: ResourceType) {
     NeonDatabaseServer(
         "resources/extensions/neon-database-server.jar",
-        ResourceType.JAR
+        ResourceType.Jar
     ),
 
     NeonCodeMessages(
         "resources/application/code-messages.properties",
-        ResourceType.PROPERTIES
+        ResourceType.Properties
     ),
 
     NeonKeyGeneralProperties(
         "resources/application/NeonKeyProperties/NeonKeys-General.properties",
-        ResourceType.PROPERTIES
+        ResourceType.Properties
     ),
 
     NeonKeyRecipeProperties(
         "resources/application/NeonKeyProperties/NeonKeys-Recipes.properties",
-        ResourceType.PROPERTIES
+        ResourceType.Properties
     ),
 
     NeonServerFeatures(
         "resources/nServerFeatures/nServerFeatures-reduced.yml",
-        ResourceType.YAML
+        ResourceType.Yaml
     ),
 
     NeonServerOptionProperties(
         "resources/nServerFeatures/nServerFeaturesOptionProperties-v2.yml",
-        ResourceType.YAML
+        ResourceType.Yaml
     ),
 
     NeonNmsMapping(
         "resources/application/reflection/nms-mappings.xlsx",
-        ResourceType.EXCEL
+        ResourceType.Excel
     ),
 
     /* Neon Database Server Resources */
-    NeonDatabaseServerCodeMessages(
+    NeonDBServerCodeMessages(
         "resources/application/code-messages.properties",
-        ResourceType.PROPERTIES
+        ResourceType.Properties
+    ),
+
+    NeonDBServerConfig(
+        "resources/database/NeonDB-config.toml",
+        ResourceType.Toml
     )
     ;
 

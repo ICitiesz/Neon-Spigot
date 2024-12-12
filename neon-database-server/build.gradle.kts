@@ -54,20 +54,7 @@ dependencies {
     implementation("org.jooq:jooq-meta:$jooqVersion")
     implementation("org.jooq:jooq-meta-extensions:$jooqVersion")
     compileOnly("org.jooq:jooq-codegen:$jooqVersion")
-
-    implementation("org.liquibase.ext:liquibase-javalogger:3.0")
-
-    //implementation("com.mysql:mysql-connector-j:9.1.0")
     implementation("org.liquibase:liquibase-core:4.30.0")
-    implementation("com.mattbertolini:liquibase-slf4j:5.1.0")
-    implementation("org.slf4j:jul-to-slf4j:2.0.16")
-    implementation("org.slf4j:slf4j-api:2.0.16")
-    testImplementation("org.slf4j:slf4j-simple:2.0.16")
-
-
-
-    implementation("com.redgate.flyway:flyway-core:10.17.0")
-    runtimeOnly("com.redgate.flyway:flyway-database-hsqldb:10.17.0")
 
     /* Function Library */
     implementation("io.insert-koin:koin-core-jvm:4.0.0")
@@ -85,15 +72,17 @@ java.sourceSets {
     }
 }
 
-kotlin.sourceSets {
-    main {
-        kotlin.srcDir("src/main")
+kotlin {
+    sourceSets {
+        main {
+            kotlin.srcDir("src/main")
 
-        resources.srcDir("src/main/resources")
-        resources.exclude("**")
+            resources.srcDir("src/main/resources")
+            resources.exclude("**")
 
-        dependencies {
-            api("io.insert-koin:koin-annotations-jvm:2.0.0-Beta1")
+            dependencies {
+                api("io.insert-koin:koin-annotations-jvm:2.0.0-Beta1")
+            }
         }
     }
 }
@@ -154,7 +143,8 @@ jooq {
 
             target {
                 packageName = "com.islandstudio.neon.stable.core.database.schema"
-                directory = "../neon-kotlin/src/main"
+                directory = "build/generated/jooq"
+                isClean = true
             }
 
             strategy {

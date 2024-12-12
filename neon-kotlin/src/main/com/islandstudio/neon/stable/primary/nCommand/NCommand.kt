@@ -4,7 +4,7 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPainting.NPainting
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.command.commandlist.NCommandList
 import com.islandstudio.neon.stable.features.nDurable.NDurable
 import com.islandstudio.neon.stable.features.nRank.NRank
@@ -21,7 +21,7 @@ import org.bukkit.event.Listener
 import org.koin.core.component.inject
 
 class NCommand: Commands(), Listener, TabExecutor {
-    companion object: ModuleInjector {
+    companion object: IComponentInjector {
         var isModerating: Boolean = false
 
         private const val COMMAND_PREFIX: String = "neon"

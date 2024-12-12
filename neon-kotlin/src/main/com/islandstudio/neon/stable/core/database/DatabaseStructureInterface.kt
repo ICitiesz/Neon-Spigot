@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.core.database
 
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.database.model.InactiveTable
 import com.islandstudio.neon.stable.core.database.model.TableConstraint
 import com.islandstudio.neon.stable.core.database.schema.neon_data.NeonData
@@ -11,7 +11,7 @@ import org.jooq.UniqueKey
 import org.jooq.impl.DSL
 import org.jooq.meta.ForeignKeyDefinition
 
-class DatabaseStructureInterface: ModuleInjector, IDatabaseContext {
+class DatabaseStructureInterface: IComponentInjector, IDatabaseContext {
     //private val dbContext by inject<DSLContext>()
     private val dbContext = getDatabaseContext()
 

@@ -3,7 +3,7 @@ package com.islandstudio.neon.stable.features.nServerFeatures
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.common.action.ActionState
 import com.islandstudio.neon.stable.common.action.ActionStatus
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.command.CommandDispatcher
 import com.islandstudio.neon.stable.core.command.CommandInterfaceProcessor
 import com.islandstudio.neon.stable.core.command.properties.CommandAlias
@@ -13,7 +13,7 @@ import com.islandstudio.neon.stable.core.gui.NGUI
 import com.islandstudio.neon.stable.core.io.ConfigurationProperty
 import com.islandstudio.neon.stable.core.io.DataSourceType
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
-import com.islandstudio.neon.stable.core.io.resource.NeonInternalResources
+import com.islandstudio.neon.stable.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import com.islandstudio.neon.stable.features.nServerFeatures.properties.ServerFeature
 import com.islandstudio.neon.stable.features.nServerFeatures.properties.ServerFeatureDetail
@@ -37,7 +37,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-object NServerFeaturesRemastered: ModuleInjector {
+object NServerFeaturesRemastered: IComponentInjector {
     private val resourceManager = ResourceManager()
     private val neon by inject<Neon>()
 
@@ -46,7 +46,7 @@ object NServerFeaturesRemastered: ModuleInjector {
 
     private val nServerFeaturesSourceFile: YamlFile  = run {
         val readerSupplierIO = SupplierIO.Reader {
-            resourceManager.getNeonResourceAsStream(NeonInternalResources.NeonServerFeatures)!!.reader()
+            resourceManager.getNeonResourceAsStream(NeonInternalResource.NeonServerFeatures)!!.reader()
         }
 
         YamlFile.loadConfiguration(readerSupplierIO, true).apply {
@@ -57,7 +57,7 @@ object NServerFeaturesRemastered: ModuleInjector {
 
     private val optionProperties: YamlFile  = run {
         val readerSupplierIO = SupplierIO.Reader {
-            resourceManager.getNeonResourceAsStream(NeonInternalResources.NeonServerOptionProperties)!!.reader()
+            resourceManager.getNeonResourceAsStream(NeonInternalResource.NeonServerOptionProperties)!!.reader()
         }
 
         YamlFile.loadConfiguration(readerSupplierIO).apply {

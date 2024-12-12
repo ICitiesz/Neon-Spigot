@@ -3,9 +3,9 @@ package com.islandstudio.neondatabaseserver
 import com.islandstudio.neon.stable.core.application.extension.NeonAPI
 import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
-import com.islandstudio.neon.stable.core.io.resource.NeonExternalResources
+import com.islandstudio.neon.stable.core.io.resource.NeonExternalResource
 import com.islandstudio.neondatabaseserver.application.AppContext
-import com.islandstudio.neondatabaseserver.application.di.ModuleInjector
+import com.islandstudio.neondatabaseserver.application.di.IComponentInjector
 import kotlinx.coroutines.*
 import liquibase.Liquibase
 import liquibase.database.DatabaseFactory
@@ -14,6 +14,7 @@ import liquibase.resource.ClassLoaderResourceAccessor
 import org.hsqldb.DatabaseManager
 import org.hsqldb.server.Server
 import org.jooq.Configuration
+import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 import org.simpleyaml.configuration.file.YamlFile
 import org.simpleyaml.utils.SupplierIO
@@ -22,12 +23,13 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.sql.DriverManager
 
-class DatabaseController: ModuleInjector {
+@Single
+class DatabaseController: IComponentInjector {
     private val appContext by inject<AppContext>()
     private val neonDbServer by inject<NeonDatabaseServer>()
     private val dbContextConfig by inject<Configuration>()
     private val hsqldbServer by inject<Server>()
-    private val dbConfigFile = NeonDataFolder.createNewFile(NeonExternalResources.NeonDatabaseServerConfigFile)
+    private val dbConfigFile = NeonDataFolder.createNewFile(NeonExternalResource.NeonDBServerConfigFile)
 
     // TODO: Need merge into `isMcVersionBased` where the database is init based on mc version or as universal
     private val isGlobal by lazy { YamlFile.loadConfiguration(SupplierIO.Reader { dbConfigFile.reader() })
@@ -44,7 +46,7 @@ class DatabaseController: ModuleInjector {
 
         jobContext.use {
             CoroutineScope(it).async {
-                Class.forName("org.hsqldb.jdbc.JDBCDriver")
+                Class.forName(appContext.getEnvValue("DATABASE_DRIVER"))
 
                 hsqldbServer.apply {
                     this.logWriter = null
@@ -63,7 +65,6 @@ class DatabaseController: ModuleInjector {
                 }
 
                 neonDbServer.logger.info(appContext.getCodeMessage("neon_database_server.info.db_server_start_success"))
-
 
                 // Disable logger for `org.jooq.Constants`
                 System.setProperty("org.jooq.no-logo", "true")
@@ -98,7 +99,7 @@ class DatabaseController: ModuleInjector {
         }
     }
 
-    fun isHsqlDbServerRunning(): Boolean {
+    private fun isHsqlDbServerRunning(): Boolean {
         return !hsqldbServer.isNotRunning
     }
 
@@ -130,10 +131,9 @@ class DatabaseController: ModuleInjector {
                 .findCorrectDatabaseImplementation(
                     JdbcConnection(DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/neondatabase", "SA", ""))
                 ).apply {
-                    this.defaultCatalogName = ""
+                    this.defaultCatalogName = "NEON_DB"
+                    this.defaultSchemaName = "PUBLIC"
                 }
-            database.defaultCatalogName = "NEON_DB"
-            database.defaultSchemaName = "PUBLIC"
 
             val liquibase = Liquibase("resources/application/neon-database-changelog.xml",
                 ClassLoaderResourceAccessor(this::class.java.classLoader), database)

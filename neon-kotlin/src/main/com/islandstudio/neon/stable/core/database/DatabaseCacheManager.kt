@@ -3,13 +3,13 @@ package com.islandstudio.neon.stable.core.database
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
-import com.islandstudio.neon.stable.core.application.di.ModuleInjector
+import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import org.jooq.Record
 import org.jooq.Result
 import org.jooq.ResultQuery
 import java.util.concurrent.TimeUnit
 
-object DatabaseCacheManager: ModuleInjector, IDatabaseContext {
+object DatabaseCacheManager: IComponentInjector, IDatabaseContext {
     private lateinit var databaseCache: Cache<ResultQuery<*>, Result<out Record>>
     //private val dslContext by inject<DSLContext>()
     private val dslContext = getDatabaseContext()
