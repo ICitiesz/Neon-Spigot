@@ -1,4 +1,4 @@
-package com.islandstudio.neon.experimental.config.component
+package com.islandstudio.neon.stable.core.config.component
 
 open class ConfigDataRange<T>(
     val minValue: T,

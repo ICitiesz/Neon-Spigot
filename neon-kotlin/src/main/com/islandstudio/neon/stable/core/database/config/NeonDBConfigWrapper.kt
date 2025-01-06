@@ -1,8 +1,8 @@
 package com.islandstudio.neon.stable.core.database.config
 
 import com.akuleshov7.ktoml.annotations.TomlComments
-import com.islandstudio.neon.experimental.config.component.type.AbstractConfigWrapper
-import com.islandstudio.neon.experimental.config.component.type.IConfigObject
+import com.islandstudio.neon.stable.core.config.component.type.AbstractConfigWrapper
+import com.islandstudio.neon.stable.core.config.component.type.IConfigObject
 import com.islandstudio.neon.stable.core.database.config.NeonDBConfigWrapper.NeonDBConfigContainer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

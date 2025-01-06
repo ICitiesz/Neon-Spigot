@@ -1,6 +1,6 @@
-package com.islandstudio.neon.experimental.config.component.type
+package com.islandstudio.neon.stable.core.config.component.type
 
-import com.islandstudio.neon.experimental.config.component.ConfigProperty
+import com.islandstudio.neon.stable.core.config.component.ConfigProperty
 import com.islandstudio.neon.stable.utils.ObjectSerializer
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance

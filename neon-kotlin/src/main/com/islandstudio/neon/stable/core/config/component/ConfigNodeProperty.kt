@@ -1,4 +1,4 @@
-package com.islandstudio.neon.experimental.config.component
+package com.islandstudio.neon.stable.core.config.component
 
 import com.akuleshov7.ktoml.tree.nodes.TomlKeyValuePrimitive
 import com.akuleshov7.ktoml.tree.nodes.TomlNode

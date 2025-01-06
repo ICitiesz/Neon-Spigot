@@ -1,6 +1,6 @@
-package com.islandstudio.neon.experimental.config.component
+package com.islandstudio.neon.stable.core.config.component
 
-import com.islandstudio.neon.experimental.config.component.type.IConfigProperty
+import com.islandstudio.neon.stable.core.config.component.type.IConfigProperty
 import com.islandstudio.neon.stable.utils.processing.properties.DataTypes
 
 open class ConfigProperty(

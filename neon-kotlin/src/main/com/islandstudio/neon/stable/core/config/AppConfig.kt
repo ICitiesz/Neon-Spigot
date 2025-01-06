@@ -1,4 +1,4 @@
-package com.islandstudio.neon.experimental.config
+package com.islandstudio.neon.stable.core.config
 
 import com.akuleshov7.ktoml.Toml
 import com.akuleshov7.ktoml.TomlIndentation
@@ -9,14 +9,14 @@ import com.akuleshov7.ktoml.tree.nodes.TomlFile
 import com.akuleshov7.ktoml.tree.nodes.TomlKeyValuePrimitive
 import com.akuleshov7.ktoml.tree.nodes.TomlNode
 import com.akuleshov7.ktoml.tree.nodes.TomlTable
-import com.islandstudio.neon.experimental.config.component.ConfigNodeProperty
-import com.islandstudio.neon.experimental.config.component.ConfigProperty
-import com.islandstudio.neon.experimental.config.component.type.AbstractConfigWrapper
-import com.islandstudio.neon.experimental.config.component.type.IConfigObject
-import com.islandstudio.neon.experimental.config.component.type.IConfigProperty
 import com.islandstudio.neon.experimental.utils.DataUtil
 import com.islandstudio.neon.stable.core.application.exceptions.ExceptionSearchMessages
 import com.islandstudio.neon.stable.core.application.exceptions.NeonConfigException
+import com.islandstudio.neon.stable.core.config.component.ConfigNodeProperty
+import com.islandstudio.neon.stable.core.config.component.ConfigProperty
+import com.islandstudio.neon.stable.core.config.component.type.AbstractConfigWrapper
+import com.islandstudio.neon.stable.core.config.component.type.IConfigObject
+import com.islandstudio.neon.stable.core.config.component.type.IConfigProperty
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import com.islandstudio.neon.stable.core.io.resource.NeonExternalResource
 import com.islandstudio.neon.stable.utils.processing.GeneralInputProcessor

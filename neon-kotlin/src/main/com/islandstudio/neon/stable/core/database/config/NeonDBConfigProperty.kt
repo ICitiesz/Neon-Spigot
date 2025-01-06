@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.core.database.config
 
-import com.islandstudio.neon.experimental.config.component.ConfigDataRange
-import com.islandstudio.neon.experimental.config.component.ConfigProperty
+import com.islandstudio.neon.stable.core.config.component.ConfigDataRange
+import com.islandstudio.neon.stable.core.config.component.ConfigProperty
 import com.islandstudio.neon.stable.utils.processing.properties.DataTypes
 
 

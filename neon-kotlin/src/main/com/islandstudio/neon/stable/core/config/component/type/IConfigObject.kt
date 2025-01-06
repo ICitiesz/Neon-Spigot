@@ -1,4 +1,4 @@
-package com.islandstudio.neon.experimental.config.component.type
+package com.islandstudio.neon.stable.core.config.component.type
 
 import java.io.Serializable
 
