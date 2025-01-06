@@ -6,6 +6,7 @@ import com.islandstudio.neon.stable.core.application.AppContext
 import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.extension.NeonExtensions
 import com.islandstudio.neon.stable.core.database.DatabaseInterface
+import com.islandstudio.neon.stable.core.database.DatabaseStructureInitializer
 import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
@@ -139,6 +140,12 @@ class AppInitializer: IComponentInjector {
                     val databaseInterface by inject<DatabaseInterface>()
 
                     databaseInterface.connect()
+                }.await()
+
+                this.async(Dispatchers.IO) {
+                    delay(500)
+
+                    DatabaseStructureInitializer().initializeStructure()
                 }.await()
 
                 preInitAppClasses.forEachIndexed { index, appClass ->

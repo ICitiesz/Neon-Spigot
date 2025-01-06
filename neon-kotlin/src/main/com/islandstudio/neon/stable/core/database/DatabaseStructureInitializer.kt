@@ -1,5 +1,6 @@
 package com.islandstudio.neon.stable.core.database
 
+import com.islandstudio.neon.Neon
 import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.database.schema.neon_data.NeonData
 import com.islandstudio.neon.stable.core.database.schema.neon_data.keys.FK_DT_PLAYER_PROFILE_DT_ROLE_ROLE_ID
@@ -12,7 +13,6 @@ import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.refere
 import org.jooq.*
 import org.koin.core.component.inject
 import java.util.*
-import java.util.logging.Logger
 
 class DatabaseStructureInitializer: IComponentInjector, IDatabaseContext {
     //private val dbContext by inject<DSLContext>()
@@ -58,9 +58,9 @@ class DatabaseStructureInitializer: IComponentInjector, IDatabaseContext {
         }.onFailure {
             it.printStackTrace()
         }.onSuccess {
-            val neonLogger by inject<Logger>()
+            val neon by inject<Neon>()
 
-            neonLogger.info("Database initialize successful!")
+            neon.logger.info("Database initialize successful!")
         }
     }
 

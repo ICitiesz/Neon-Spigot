@@ -11,6 +11,7 @@ import org.koin.core.component.inject
 class Neon : JavaPlugin(), IComponentInjector {
     private val appInitializer: AppInitializer by lazy { AppInitializer() }
     private val appContext by inject<AppContext>()
+    private val databaseInterface by inject<DatabaseInterface>()
 
     init {
         AppModuleInjection.run()
@@ -31,8 +32,6 @@ class Neon : JavaPlugin(), IComponentInjector {
 
     override fun onDisable() {
         if (!appContext.isVersionCompatible) return
-
-        val databaseInterface by inject<DatabaseInterface>()
 
         databaseInterface.disconnect()
 
