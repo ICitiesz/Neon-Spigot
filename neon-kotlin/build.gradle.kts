@@ -11,6 +11,7 @@ val pluginShadedjarName = "neon-kotlin-shaded.jar"
 
 plugins {
     kotlin("jvm") version "2.0.20" apply true
+    kotlin("plugin.serialization") version "2.0.20" apply true
     id("com.gradleup.shadow") version "8.3.5" apply true
     id("com.google.devtools.ksp") version "2.0.20-1.0.25" apply true
 }
@@ -56,7 +57,8 @@ dependencies {
     implementation("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4")
     implementation("org.dhatim:fastexcel-reader:0.18.4")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-toml:2.18.2")
+    implementation("com.akuleshov7:ktoml-core:0.5.2")
+    implementation("com.akuleshov7:ktoml-file-jvm:0.5.2")
 
     /* Database Library */
     api("org.modelmapper:modelmapper:3.2.1")

@@ -4,5 +4,7 @@ enum class DataTypes(val dataType: String) {
     BOOLEAN("Boolean"),
     DOUBLE("Double"),
     INTEGER("Integer"),
-    STRING("String")
+    LONG("Long"),
+    STRING("String"),
+    UNSUPPORTED_DATA_TYPE("Unsupported data type!")
 }

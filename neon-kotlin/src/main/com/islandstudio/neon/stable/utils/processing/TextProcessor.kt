@@ -1,5 +1,6 @@
 package com.islandstudio.neon.stable.utils.processing
 
+import com.islandstudio.neon.stable.core.application.exceptions.ExceptionSearchMessages
 import org.bukkit.ChatColor
 import java.util.*
 import kotlin.math.pow
@@ -45,5 +46,9 @@ object TextProcessor {
 
     fun getFloatingPointCount(value: Double): Int {
         return value.toString().substringAfter(".").length
+    }
+
+    fun validateExceptionMessage(exceptionMessage: String, exceptionSearchMessages: ExceptionSearchMessages): Boolean {
+        return exceptionSearchMessages.message.all { it in exceptionMessage }
     }
 }

@@ -4,7 +4,6 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPainting.NPainting
-import com.islandstudio.neon.experimental.tomltest.TomlTest
 import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.init.AppInitializer
 import com.islandstudio.neon.stable.core.command.commandlist.NCommandList
@@ -94,7 +93,7 @@ class NCommand: Listener, TabExecutor {
                     CommandAlias.DEBUG -> {
                         CommandInterfaceProcessor.sendCommandSyntax(commander, "This is debug command!")
 
-                        TomlTest.runTomlTest()
+
                         // TODO: Multiplayer testing needed
 //                        val nPlayer = NPacketProcessor.getNPlayer(commander as Player)
 //

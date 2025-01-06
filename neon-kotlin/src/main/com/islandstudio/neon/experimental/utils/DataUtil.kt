@@ -1,28 +1,32 @@
-package com.islandstudio.neon.stable.utils.processing
+package com.islandstudio.neon.experimental.utils
 
 import com.islandstudio.neon.stable.utils.processing.properties.DataTypes
 
-object GeneralInputProcessor {
-    fun validateDataType(inputValue: String, dataType: String): Boolean {
-        return validateDataType(inputValue, DataTypes.valueOf(dataType.uppercase()))
+object DataUtil {
+    fun validateDataType(value: Any, dataType: DataTypes): Boolean {
+        return validateDataType(value.toString(), dataType)
     }
 
-    fun validateDataType(inputValue: String, dataType: DataTypes): Boolean {
+    fun validateDataType(value: String, dataType: String): Boolean {
+        return validateDataType(value, DataTypes.valueOf(dataType.uppercase()))
+    }
+
+    fun validateDataType(value: String, dataType: DataTypes): Boolean {
         when (dataType) {
             DataTypes.BOOLEAN -> {
-                inputValue.lowercase().toBooleanStrictOrNull()?.let {
+                value.lowercase().toBooleanStrictOrNull()?.let {
                     return true
                 }
             }
 
             DataTypes.DOUBLE -> {
-                 inputValue.toDoubleOrNull()?.let {
+                value.toDoubleOrNull()?.let {
                     return true
                 }
             }
 
             DataTypes.INTEGER -> {
-                inputValue.toIntOrNull()?.let {
+                value.toIntOrNull()?.let {
                     return true
                 }
             }
@@ -32,7 +36,7 @@ object GeneralInputProcessor {
             }
 
             DataTypes.LONG -> {
-                inputValue.toLongOrNull()?.let {
+                value.toLongOrNull()?.let {
                     return true
                 }
             }
@@ -45,16 +49,14 @@ object GeneralInputProcessor {
         return false
     }
 
-    fun validateDataRange(inputValue: Any, dataType: String, minValue: Any?, maxValue: Any?): Boolean {
+    fun validateDataRange(inputValue: Any, dataType: String, minValue: Any? = null, maxValue: Any? = null): Boolean {
         return validateDataRange(inputValue, DataTypes.valueOf(dataType.uppercase()), minValue, maxValue)
     }
 
-    fun validateDataRange(inputValue: Any, dataType: DataTypes, minValue: Any?, maxValue: Any?): Boolean {
+    fun validateDataRange(inputValue: Any, dataType: DataTypes, minValue: Any? = null, maxValue: Any? = null): Boolean {
         when(dataType) {
             DataTypes.BOOLEAN -> {
-                return inputValue.toString().lowercase().toBooleanStrictOrNull()?.let {
-                    true
-                } ?: false
+                inputValue.toString().lowercase().toBooleanStrictOrNull()?.let { return true } ?: return false
             }
 
             DataTypes.DOUBLE -> {
@@ -81,10 +83,22 @@ object GeneralInputProcessor {
                 return !(integerValue < minValue.toString().toInt() || integerValue > maxValue.toString().toInt())
             }
 
+            DataTypes.LONG -> {
+                val longValue = inputValue.toString().toLongOrNull() ?: return false
+
+                return !(longValue < minValue.toString().toLong() || longValue > maxValue.toString().toLong())
+            }
+
             else -> {
                 return false
             }
         }
+
+        return false
+    }
+
+    fun convertDataType(inputValue: Any, dataType: DataTypes): Any? {
+        return convertDataType(inputValue.toString(), dataType)
     }
 
     fun convertDataType(inputValue: String, dataType: String): Any? {
@@ -94,11 +108,11 @@ object GeneralInputProcessor {
     fun convertDataType(inputValue: String, dataType: DataTypes): Any? {
         when (dataType) {
             DataTypes.BOOLEAN -> {
-               return inputValue.lowercase().toBooleanStrictOrNull()
+                return inputValue.lowercase().toBooleanStrictOrNull()
             }
 
             DataTypes.DOUBLE -> {
-               return inputValue.toDoubleOrNull()
+                return inputValue.toDoubleOrNull()
             }
 
             DataTypes.INTEGER -> {

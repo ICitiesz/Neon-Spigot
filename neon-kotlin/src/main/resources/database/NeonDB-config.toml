@@ -1,4 +1,3 @@
-[NeonDatabase]
 # Database folder:
 # - NeonDB-Online <= This is universal
 # - NeonDB-Online-1.20 <= This is MC version-based
@@ -9,7 +8,7 @@
 #
 # - Mc version-based
 #   -> NeonDB-{onlineMode [Online/Offline]}-{mcVersion}
-
+[NeonDatabase]
 # Define whether the database is share across MC version.
 # This means no matter what MC version within supported range, the same database will be used.
 # Default: true
