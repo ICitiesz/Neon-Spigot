@@ -3,14 +3,33 @@ package com.islandstudio.neon.stable.core.database.config
 import com.akuleshov7.ktoml.annotations.TomlComments
 import com.islandstudio.neon.experimental.config.component.type.AbstractConfigWrapper
 import com.islandstudio.neon.experimental.config.component.type.IConfigObject
-import com.islandstudio.neon.stable.core.database.config.NeonDBConfigWrapper.NeonDBConfig
+import com.islandstudio.neon.stable.core.database.config.NeonDBConfigWrapper.NeonDBConfigContainer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-class NeonDBConfigWrapper : AbstractConfigWrapper<NeonDBConfig, NeonDBConfigProperty>(
-    NeonDBConfig(),
+class NeonDBConfigWrapper : AbstractConfigWrapper<NeonDBConfigContainer, NeonDBConfigProperty>(
+    NeonDBConfigContainer(),
     NeonDBConfigProperty::class
 ) {
+    @Serializable
+    data class NeonDBConfigContainer(
+        @Serializable
+        @SerialName("NeonDatabase")
+        @TomlComments(lines = [
+            "Database folder:",
+            "- NeonDB-Online <= This is universal",
+            "- NeonDB-Online-1.20 <= This is MC version-based",
+            "",
+            "Database folder name format:",
+            "- Universal",
+            "   -> NeonDB-{onlineMode [Online/Offline]}",
+            "",
+            "- Mc version-based",
+            "   -> NeonDB-{onlineMode [Online/Offline]}-{mcVersion}"
+        ])
+        var neonDBConfig: NeonDBConfig = NeonDBConfig()
+    ): IConfigObject
+
     @Serializable
     data class NeonDBConfig(
         @TomlComments(lines = [
@@ -22,13 +41,7 @@ class NeonDBConfigWrapper : AbstractConfigWrapper<NeonDBConfig, NeonDBConfigProp
 
         @SerialName("backup")
         var neonDBBackup: NeonDBBackup = NeonDBBackup()
-    ): IConfigObject {
-        companion object {
-            @Serializable
-            @SerialName("NeonDatabase")
-            private val neonDBConfig = NeonDBConfig()
-        }
-    }
+    ): IConfigObject
 
     @Serializable
     data class NeonDBBackup(

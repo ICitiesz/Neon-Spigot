@@ -22,7 +22,6 @@ import com.islandstudio.neon.stable.core.io.resource.NeonExternalResource
 import com.islandstudio.neon.stable.utils.processing.GeneralInputProcessor
 import com.islandstudio.neon.stable.utils.processing.TextProcessor
 import com.islandstudio.neon.stable.utils.processing.properties.DataTypes
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.serializer
 import java.io.File
 import kotlin.reflect.full.createType
@@ -269,7 +268,7 @@ class AppConfig<T: AbstractConfigWrapper<U, V>, U: IConfigObject, V: IConfigProp
     }
 
     private fun encodeToString(configObject: IConfigObject): String {
-        return tomlInstance.encodeToString(configObject)
+        return tomlInstance.encodeToString(serializer(configObject::class.createType()), configObject)
     }
 
     private fun decodeFromString(configContent: String): IConfigObject {
