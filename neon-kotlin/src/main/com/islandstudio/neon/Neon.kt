@@ -3,10 +3,10 @@ package com.islandstudio.neon
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.AppDIManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.di.module.DatabaseModule
 import com.islandstudio.neon.stable.core.application.di.module.GeneralModule
 import com.islandstudio.neon.stable.core.application.di.module.RepositoryModule
-import com.islandstudio.neon.stable.core.application.init.AppLoader
 import com.islandstudio.neon.stable.core.database.DatabaseInterface
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.inject

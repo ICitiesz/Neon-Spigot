@@ -2,6 +2,8 @@ package com.islandstudio.neon.stable.features.nServerFeatures
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.resource.NeonInternalResource
+import com.islandstudio.neon.shared.core.resource.ResourceManager
 import com.islandstudio.neon.stable.common.action.ActionState
 import com.islandstudio.neon.stable.common.action.ActionStatus
 import com.islandstudio.neon.stable.core.command.CommandDispatcher
@@ -13,8 +15,6 @@ import com.islandstudio.neon.stable.core.gui.NGUI
 import com.islandstudio.neon.stable.core.io.ConfigurationProperty
 import com.islandstudio.neon.stable.core.io.DataSourceType
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
-import com.islandstudio.neon.stable.core.io.resource.NeonInternalResource
-import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import com.islandstudio.neon.stable.features.nServerFeatures.properties.ServerFeature
 import com.islandstudio.neon.stable.features.nServerFeatures.properties.ServerFeatureDetail
 import com.islandstudio.neon.stable.features.nServerFeatures.properties.ServerFeatureOption
@@ -38,7 +38,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object NServerFeaturesRemastered: IComponentInjector {
-    private val resourceManager = ResourceManager()
     private val neon by inject<Neon>()
 
     val serverFeatureSession: ServerFeatureSession = ServerFeatureSession()
@@ -46,7 +45,7 @@ object NServerFeaturesRemastered: IComponentInjector {
 
     private val nServerFeaturesSourceFile: YamlFile  = run {
         val readerSupplierIO = SupplierIO.Reader {
-            resourceManager.getNeonResourceAsStream(NeonInternalResource.NeonServerFeatures)!!.reader()
+            ResourceManager.getNeonResourceAsStream(NeonInternalResource.NeonServerFeatures)!!.reader()
         }
 
         YamlFile.loadConfiguration(readerSupplierIO, true).apply {
@@ -57,7 +56,7 @@ object NServerFeaturesRemastered: IComponentInjector {
 
     private val optionProperties: YamlFile  = run {
         val readerSupplierIO = SupplierIO.Reader {
-            resourceManager.getNeonResourceAsStream(NeonInternalResource.NeonServerOptionProperties)!!.reader()
+            ResourceManager.getNeonResourceAsStream(NeonInternalResource.NeonServerOptionProperties)!!.reader()
         }
 
         YamlFile.loadConfiguration(readerSupplierIO).apply {

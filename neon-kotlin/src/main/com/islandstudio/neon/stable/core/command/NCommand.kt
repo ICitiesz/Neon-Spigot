@@ -5,7 +5,7 @@ import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPainting.NPainting
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.init.AppLoader
+import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.command.commandlist.NCommandList
 import com.islandstudio.neon.stable.core.command.properties.CommandAlias
 import com.islandstudio.neon.stable.core.command.properties.CommandSyntax

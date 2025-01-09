@@ -2,8 +2,8 @@ package com.islandstudio.neon.stable.core.application.identity
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.io.resource.NeonInternalResource
-import com.islandstudio.neon.stable.core.io.resource.ResourceManager
+import com.islandstudio.neon.shared.core.resource.NeonInternalResource
+import com.islandstudio.neon.shared.core.resource.ResourceManager
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
@@ -23,10 +23,8 @@ object NeonKey: IComponentInjector {
 
     object Handler {
         fun run() {
-            val resourceManager = ResourceManager()
-
-            neonKeyGeneralProperties.load(resourceManager.getNeonResourceAsStream(NeonInternalResource.NeonKeyGeneralProperties))
-            neonKeyRecipeProperties.load(resourceManager.getNeonResourceAsStream(NeonInternalResource.NeonKeyRecipeProperties))
+            neonKeyGeneralProperties.load(ResourceManager.getNeonResourceAsStream(NeonInternalResource.NeonKeyGeneralProperties))
+            neonKeyRecipeProperties.load(ResourceManager.getNeonResourceAsStream(NeonInternalResource.NeonKeyRecipeProperties))
         }
     }
 

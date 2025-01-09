@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application.init
+package com.islandstudio.neon.stable.core.application
 
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPVP.NPVP

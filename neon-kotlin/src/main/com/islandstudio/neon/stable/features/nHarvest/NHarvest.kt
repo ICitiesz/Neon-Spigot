@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.features.nHarvest
 
-import com.islandstudio.neon.stable.core.application.init.AppLoader
+import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.features.nDurable.NDurable
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import org.bukkit.Location

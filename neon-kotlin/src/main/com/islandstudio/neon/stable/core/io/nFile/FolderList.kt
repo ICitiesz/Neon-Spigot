@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.core.io.nFile
 
+import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.AppContext
 import org.koin.core.component.inject
 import java.io.File
 

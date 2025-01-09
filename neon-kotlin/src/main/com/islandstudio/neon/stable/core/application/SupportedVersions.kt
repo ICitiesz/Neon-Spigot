@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application.init
+package com.islandstudio.neon.stable.core.application
 
 @Deprecated("Migrate to [CompatibleVersions]")
 enum class SupportedVersions(val majorVersion: String, val minorVersions: Array<String>) {

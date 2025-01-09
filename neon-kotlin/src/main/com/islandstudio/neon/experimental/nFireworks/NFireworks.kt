@@ -1,9 +1,9 @@
 package com.islandstudio.neon.experimental.nFireworks
 
 //import com.mojang.math.Vector3f
+import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.core.application.init.AppLoader
 import com.islandstudio.neon.stable.core.io.nFile.FolderList
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered

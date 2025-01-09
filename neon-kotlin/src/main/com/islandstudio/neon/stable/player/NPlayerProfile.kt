@@ -3,7 +3,7 @@ package com.islandstudio.neon.stable.player
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.common.action.ActionState
 import com.islandstudio.neon.stable.common.action.ActionStatus
-import com.islandstudio.neon.stable.core.application.init.AppLoader
+import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.database.repository.PlayerProfileRepository
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.PlayerProfile
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.Role

@@ -1,8 +1,9 @@
-package com.islandstudio.neon.stable.core.application.init
+package com.islandstudio.neon.stable.core.application
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.resource.NeonExtensions
 import com.islandstudio.neon.shared.core.resource.ResourceManager
 import com.islandstudio.neon.stable.common.ColorPalette
 import com.islandstudio.neon.stable.core.database.DatabaseInterface
@@ -133,7 +134,7 @@ class AppLoader: IComponentInjector {
 
                 /* 2: Load extension */
                 this.async(Dispatchers.IO) {
-                    loadExtension(com.islandstudio.neon.shared.core.resource.NeonExtensions.NeonDatabaseExtension)
+                    loadExtension(NeonExtensions.NeonDatabaseExtension)
                     delay(200)
                 }.await()
 
@@ -292,7 +293,7 @@ class AppLoader: IComponentInjector {
         jobContext.close()
     }
 
-    fun loadExtension(neonExtension: com.islandstudio.neon.shared.core.resource.NeonExtensions) {
+    fun loadExtension(neonExtension: NeonExtensions) {
         neon.logger.info("Loading extensions......")
 
         neon.pluginLoader.loadPlugin(neonExtension).also {

@@ -2,7 +2,7 @@ package com.islandstudio.neon.stable.features.nBundle
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.init.AppLoader
+import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
 import com.islandstudio.neon.stable.core.recipe.NRecipes
 import com.islandstudio.neon.stable.core.recipe.RecipeRegistry
