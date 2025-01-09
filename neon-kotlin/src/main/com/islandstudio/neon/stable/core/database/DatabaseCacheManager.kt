@@ -3,7 +3,7 @@ package com.islandstudio.neon.stable.core.database
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import org.jooq.Record
 import org.jooq.Result
 import org.jooq.ResultQuery

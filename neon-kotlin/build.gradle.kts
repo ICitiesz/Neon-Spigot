@@ -40,6 +40,8 @@ dependencies {
     val jooqVersion = "3.19.15"
     val koinAnnotationsVersion = "2.0.0-Beta1"
 
+    implementation(project(":neon-shared"))
+
     /* Core Language Library */
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))

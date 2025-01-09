@@ -1,8 +1,8 @@
 package com.islandstudio.neon.stable.player.nRoleAccess
 
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.common.action.ActionState
 import com.islandstudio.neon.stable.common.action.ActionStatus
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
 import com.islandstudio.neon.stable.core.database.repository.RoleAccessRepository
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.AccessPermission
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.RoleAccess

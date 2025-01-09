@@ -1,9 +1,7 @@
 package com.islandstudio.neondatabaseserver
 
-import com.islandstudio.neon.stable.core.application.extension.NeonAPI
-import com.islandstudio.neon.stable.core.application.init.NConstructor
-import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
-import com.islandstudio.neon.stable.core.io.resource.NeonExternalResource
+import com.islandstudio.neon.shared.core.resource.NeonExternalResource
+import com.islandstudio.neon.shared.core.resource.folder.NeonDataFolder
 import com.islandstudio.neondatabaseserver.application.AppContext
 import com.islandstudio.neondatabaseserver.application.di.IComponentInjector
 import kotlinx.coroutines.*
@@ -26,6 +24,7 @@ import java.sql.DriverManager
 @Single
 class DatabaseController: IComponentInjector {
     private val appContext by inject<AppContext>()
+    private val appContext2 by inject<com.islandstudio.neon.shared.core.AppContext>()
     private val neonDbServer by inject<NeonDatabaseServer>()
     private val dbContextConfig by inject<Configuration>()
     private val hsqldbServer by inject<Server>()
@@ -35,6 +34,11 @@ class DatabaseController: IComponentInjector {
     private val isGlobal by lazy { YamlFile.loadConfiguration(SupplierIO.Reader { dbConfigFile.reader() })
         .getBoolean("NeonDatabase.isGlobal") }
     private val isMcVersionBased by lazy { false }
+//    private val neonDBConfig by lazy {
+//        AppConfig(NeonExternalResource.NeonDBServerConfigFile2, NeonDBConfigWrapper())
+//    }
+//    private val neonDBConfigWrapper = neonDBConfig.configWrapper
+//    private val isUniversal = neonDBConfigWrapper.getImmutableConfigObject().neonDBConfig.isUniversal
 
     @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
     fun initDatabaseServer() {
@@ -76,13 +80,15 @@ class DatabaseController: IComponentInjector {
     }
 
     private fun getDatabaseFolderName(): String {
+        //println("Test new config value: $isUniversal")
+
         return when {
             isGlobal -> {
-                "Neon-Global-${NeonAPI.getServerRunningMode().value.replaceFirstChar { chr -> chr.uppercaseChar() }}"
+                "Neon-Global-${appContext2.serverRunningMode.name}"
             }
 
             else -> {
-                "Neon-${NConstructor.getMajorVersion()}-${NeonAPI.getServerRunningMode().value.replaceFirstChar { chr -> chr.uppercaseChar() }}"
+                "Neon-${appContext2.serverMajorVersion}-${appContext2.serverRunningMode.name}"
             }
         }
     }

@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.item.NItemGlinter
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.utils.nGUI.NGUI

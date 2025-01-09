@@ -10,6 +10,7 @@ val pluginFinalJarName = "neon-database-server.jar"
 
 plugins {
     kotlin("jvm") version "2.0.20" apply true
+    kotlin("plugin.serialization") version "2.0.20" apply true
     java apply true
     id("com.gradleup.shadow") version "8.3.5" apply true
     id("com.google.devtools.ksp") version "2.0.20-1.0.25" apply true
@@ -35,7 +36,7 @@ dependencies {
     val koinAnnotationsVersion = "2.0.0-Beta1"
 
     /* Misc */
-    compileOnly(files("../neon-kotlin/build/classes/kotlin/main"))
+    implementation(files("../neon-kotlin/neon-shared/build/classes/kotlin/main"))
     implementation(files("build/classes/java/main"))
     jooqCodegen(project)
 
@@ -64,6 +65,8 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
     implementation("org.apache.logging.log4j:log4j-api:2.19.0")
     compileOnly("org.apache.logging.log4j:log4j-core:2.19.0")
+    compileOnly("com.akuleshov7:ktoml-core:0.5.2")
+    compileOnly("com.akuleshov7:ktoml-file-jvm:0.5.2")
 }
 
 java.sourceSets {
@@ -213,6 +216,8 @@ tasks.withType<KotlinCompile> {
 
 tasks.named<ShadowJar>("shadowJar") {
     this.archiveFileName.set(pluginFinalJarName)
+
+    //exclude("com/islandstudio/neon")
 
     //mergeServiceFiles()
 

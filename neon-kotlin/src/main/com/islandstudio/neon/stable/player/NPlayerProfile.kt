@@ -1,9 +1,9 @@
 package com.islandstudio.neon.stable.player
 
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.common.action.ActionState
 import com.islandstudio.neon.stable.common.action.ActionStatus
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.init.AppInitializer
+import com.islandstudio.neon.stable.core.application.init.AppLoader
 import com.islandstudio.neon.stable.core.database.repository.PlayerProfileRepository
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.PlayerProfile
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.Role
@@ -23,7 +23,7 @@ class NPlayerProfile: IComponentInjector {
     private val playerProfileRepository by inject<PlayerProfileRepository>()
 
     object Handler {
-        fun run() = AppInitializer.registerEventProcessor(EventProcessor())
+        fun run() = AppLoader.registerEventProcessor(EventProcessor())
     }
 
     private fun createPlayerProfile(player: Player) {

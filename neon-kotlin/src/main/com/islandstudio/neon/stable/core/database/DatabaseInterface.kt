@@ -1,8 +1,8 @@
 package com.islandstudio.neon.stable.core.database
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.AppContext
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
+import com.islandstudio.neon.shared.core.AppContext
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.koin.core.annotation.Single

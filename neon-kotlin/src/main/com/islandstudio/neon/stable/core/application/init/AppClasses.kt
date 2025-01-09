@@ -22,28 +22,29 @@ import com.islandstudio.neon.stable.player.nAccessPermission.NAccessPermission
 import com.islandstudio.neon.stable.player.nRole.NRole
 import com.islandstudio.neon.stable.primary.nProfile.NProfile
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
+import java.lang.reflect.Method
 
 enum class AppClasses(
     val clazz: Class<*>,
-    val initializationStage: InitializationStage,
+    val loadStage: LoadStage,
     /* Classes that not able to do async on the new thread
      * If the run() method is in the nested class, the nClassName should include the nested class name
      * E.g: NDurable.Handler.run() | nClassName: NDurable.Handler
      */
-    val isSynchronous: Boolean,
+    val isSynchronous: Boolean, // TODO: Need change to canAsycn
     val isConfigReloadable: Boolean
 ) {
     /* #################################### Pre-init Classes #################################### */
     NmsProcessorClass(
         NmsProcessor.Companion::class.java,
-        InitializationStage.PRE_INIT,
+        LoadStage.PreLoad,
         isSynchronous = false,
         isConfigReloadable = false
     ),
 
     NeonKeyClass(
         NeonKey.Handler::class.java,
-        InitializationStage.PRE_INIT,
+        LoadStage.PreLoad,
         isSynchronous = false,
         isConfigReloadable =  false
     ),
@@ -57,28 +58,28 @@ enum class AppClasses(
 
     NAccessPermissionClass(
         NAccessPermission.Handler::class.java,
-        InitializationStage.PRE_INIT,
+        LoadStage.PreLoad,
         false,
         false
     ),
 
     NServerFeatureRemasteredClass(
         NServerFeaturesRemastered.Handler::class.java,
-        InitializationStage.PRE_INIT,
+        LoadStage.PreLoad,
         false,
         false
     ),
 
     NServerFeatureClass(
         NServerFeatures.Handler::class.java,
-        InitializationStage.PRE_INIT,
+        LoadStage.PreLoad,
         false,
         false
     ),
 
     NItemGlinterClass(
         NItemGlinter.Handler::class.java,
-        InitializationStage.PRE_INIT,
+        LoadStage.PreLoad,
         false,
         false
     ),
@@ -86,98 +87,98 @@ enum class AppClasses(
     /* #################################### Post-init Classes #################################### */
     NProfileClass(
         NProfile.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         false,
         false
     ),
 
     NPlayerProfileClass(
         NPlayerProfile.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         false,
         false
     ),
 
     ServerConstantEventClass(
         ServerConstantEvent.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         false,
         false
     ),
 
     NCommandClass(
         NCommand.Companion::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         false,
         false
     ),
 
     NGUIClass(
         NGUI.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         false,
         false
     ),
 
     NRoleClass(
         NRole.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         false,
         false
     ),
 
     NRankClass(
         NRank.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         true,
         false
     ),
 
     NPVPClass(
         NPVP::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         false,
         true
     ),
 
     NWaypointsClass(
         NWaypoints.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         false,
         true
     ),
 
     NDurableClass(
         NDurable.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         true,
         true
     ),
 
     NHarvestClass(
         NHarvest.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         false,
         true
     ),
 
     NCutterClass(
         NCutter.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         true,
         true
     ),
 
     NSmelterClass(
         NSmelter.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         true,
         true
     ),
 
     NBundleClass(
         NBundle.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         true,
         true
     ),
@@ -185,15 +186,65 @@ enum class AppClasses(
     /* Experimental */
     NFireworksClass(
         NFireworks.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         false,
         true
     ),
 
     NPaintingClass(
         NPainting.Handler::class.java,
-        InitializationStage.POST_INIT,
+        LoadStage.PostLoad,
         false,
         true
-    )
+    );
+
+    companion object {
+        const val CLASS_NAME_HANDLER = "Handler"
+        const val CLASS_NAME_COMPANION = "Companion"
+        const val FUNCTION_NAME_RUN = "run"
+        const val FIELD_NAME_INSTANCE = "INSTANCE"
+
+        fun getPreLoadClasses(): ArrayList<AppClasses> {
+            return AppClasses.entries
+                .filter {
+                    it.loadStage == LoadStage.PreLoad
+                }
+                .toCollection(ArrayList())
+        }
+
+        fun getPostLoadClasses(): ArrayList<AppClasses> {
+            return AppClasses.entries
+                .filter {
+                    it.loadStage == LoadStage.PostLoad
+                }
+                .toCollection(ArrayList())
+        }
+
+        fun invokeFunction(appClazz: AppClasses): Boolean {
+            val clazz = appClazz.clazz
+
+            /* Check if the simple name of the class is equal to "Handler" or "Companion",
+            * if so, it split the canonical name and get the last 2 parts.
+            * E.g.: com.islandstudio.neon.stable.primary.nCommand.NCommand.Companion -> NCommand.Companion
+            */
+            val clazzName = clazz.simpleName.takeIf { it != CLASS_NAME_HANDLER && it != CLASS_NAME_COMPANION }
+                ?: clazz.canonicalName.split(".").let { "${it[it.size - 2]}.${it[it.size - 1]}" }
+
+            val runFunction: Method = clazz.declaredMethods.find { method ->
+                method.name == FUNCTION_NAME_RUN
+            } ?: return false
+            val invokeObject: Any
+
+            if (clazzName.contains(CLASS_NAME_COMPANION)) {
+                /* Perform invocation for `Companion` type class */
+                invokeObject = clazz.enclosingClass.getField(CLASS_NAME_COMPANION).get(null)
+            } else {
+                /* Perform invocation for `Handler` type class */
+                invokeObject = clazz.getField(FIELD_NAME_INSTANCE).get(null)
+            }
+
+            runFunction.invoke(invokeObject)
+            return true
+        }
+    }
 }

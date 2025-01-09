@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.core.database
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.database.schema.neon_data.NeonData
 import com.islandstudio.neon.stable.core.database.schema.neon_data.keys.FK_DT_PLAYER_PROFILE_DT_ROLE_ROLE_ID
 import com.islandstudio.neon.stable.core.database.schema.neon_data.keys.FK_DT_ROLE_ACCESS_PERMISSION__DT_ACCESS_PERMISSION_PERMISSION_ID

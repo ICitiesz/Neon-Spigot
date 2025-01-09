@@ -2,7 +2,7 @@ package com.islandstudio.neon.stable.features.nDurable
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.experimental.nEffect.NEffect
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.init.NConstructor

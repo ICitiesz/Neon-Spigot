@@ -1,23 +1,21 @@
 package com.islandstudio.neon.stable.core.application.init
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.shared.core.AppContext
+import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.resource.ResourceManager
 import com.islandstudio.neon.stable.common.ColorPalette
-import com.islandstudio.neon.stable.core.application.AppContext
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.extension.NeonExtensions
 import com.islandstudio.neon.stable.core.database.DatabaseInterface
 import com.islandstudio.neon.stable.core.database.DatabaseStructureInitializer
-import com.islandstudio.neon.stable.core.io.resource.ResourceManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
-import kotlin.math.roundToInt
 
 @Single
-class AppInitializer: IComponentInjector {
+class AppLoader: IComponentInjector {
     companion object: IComponentInjector {
         private val neon by inject<Neon>()
         private val appContext by inject<AppContext>()
@@ -107,90 +105,69 @@ class AppInitializer: IComponentInjector {
         }
     }
 
+
     /**
      * Pre-initialize core components that used in most of the features.
      *
      */
     @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
-    fun preInit() {
-        val appContext by inject<AppContext>()
-        val jobContext = newSingleThreadContext("Neon Initializer (Pre-Staging)")
+    fun preLoad(): Boolean {
+        appContext.loadCodeMessages()
+
+        neon.logger.info(appContext.getCodeMessage("neon.info.pre_load.start"))
+        neon.logger.info(appContext.getCodeMessage("neon.info.apploader.version_check"))
+
+        Thread.sleep(300)
+
+        appContext.ensureVersionCompatible() // Version check
+
+        val jobContext = newSingleThreadContext("Neon App Loader (Pre-load Stage)")
 
         jobContext.use { dispatcher ->
             CoroutineScope(dispatcher).async {
-                neon.logger.info(appContext.getCodeMessage("neon.info.pre_init.start"))
-
-                delay(500L)
-
-                if (!appContext.isVersionCompatible) {
-                    neon.logger.severe(appContext.getCodeMessage("neon.error.pre_init.incompatible_version"))
-                    return@async
-                }
-
-                val preInitAppClasses = AppClasses.entries
-                    .filter { it.initializationStage == InitializationStage.PRE_INIT }
-
-                this.async {
-                    ResourceManager.run()
+                /* 1: Initialize resource */
+                this.async(Dispatchers.IO) {
+                    ResourceManager().initializeResource()
+                    delay(200)
                 }.await()
 
+                /* 2: Load extension */
                 this.async(Dispatchers.IO) {
-                    delay(500)
+                    loadExtension(com.islandstudio.neon.shared.core.resource.NeonExtensions.NeonDatabaseExtension)
+                    delay(200)
+                }.await()
 
+                /* 3: Establish database connection */
+                this.async(Dispatchers.IO) {
                     val databaseInterface by inject<DatabaseInterface>()
 
                     databaseInterface.connect()
+                    delay(200)
                 }.await()
 
+                /* 4: Initialize database structure */
                 this.async(Dispatchers.IO) {
-                    delay(500)
-
                     DatabaseStructureInitializer().initializeStructure()
+                    delay(200)
                 }.await()
 
-                preInitAppClasses.forEachIndexed { index, appClass ->
-                    val clazz = appClass.clazz
-                    val loadingProgress: Int =  (((index + 1).toDouble() / preInitAppClasses.size.toDouble()) * 100).roundToInt()
+                val preLoadAppClasses = AppClasses.getPreLoadClasses()
 
-                    val className: String = with(clazz.simpleName) {
-                        if (this == "Handler" || this == "Companion") {
-                            val splitClassNames = clazz.canonicalName.split(".")
-
-                            return@with "${splitClassNames[splitClassNames.size - 2]}.${splitClassNames[splitClassNames.size - 1]}"
-                        }
-
-                        return@with this
-                    }
-
+                preLoadAppClasses.forEach { appClazz ->
                     runCatching {
-                        if (className.contains("Companion")) {
-                            val hasRunFunction = clazz.declaredMethods.map { lambdaClazz -> lambdaClazz.name }.contains("run")
-
-                            if (hasRunFunction) {
-                                clazz.getDeclaredMethod("run").invoke(clazz.enclosingClass.getField("Companion").get(null))
-                            }
-
-                            return@runCatching
-                        }
-
-                        /* For non-companion class */
-                        val hasRunFunction = clazz.declaredMethods.map { lambdaClazz -> lambdaClazz.name }.contains("run")
-
-                        if (hasRunFunction) {
-                            clazz.getDeclaredMethod("run").invoke(clazz.getField("INSTANCE").get(null))
+                        AppClasses.invokeFunction(appClazz).apply {
+                            if (!this) return@runCatching
                         }
                     }.onFailure {
                         neon.logger.severe(it.cause?.stackTraceToString())
-                        return@forEachIndexed
+                        return@forEach
                     }.onSuccess {
-                        //neon.logger.info(appContext.getFormattedCodeMessage("neon.info.pre_init.processing", loadingProgress))
-                        delay(150L)
+                        delay(120)
                     }
                 }
             }.asCompletableFuture().join().also {
-                if (appContext.isVersionCompatible) {
-                    neon.logger.info(appContext.getCodeMessage("neon.info.pre_init.complete"))
-                }
+                neon.logger.info("${ColorPalette.Green.color}${appContext.getCodeMessage("neon.info.pre_load.complete")}")
+                return true
             }
         }
     }
@@ -200,84 +177,50 @@ class AppInitializer: IComponentInjector {
      *
      */
     @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
-    fun postInit() {
-        neon.logger.info(appContext.getCodeMessage("neon.info.post_init.start"))
-        Thread.sleep(500L)
+    fun postLoad(): Boolean {
+        neon.logger.info(appContext.getCodeMessage("neon.info.post_load.start"))
+        neon.logger.info(appContext.getCodeMessage("neon.info.apploader.version_check"))
 
-        if (!appContext.isVersionCompatible) {
-            neon.logger.severe(appContext.getCodeMessage("neon.error.post_init.incompatible_version"))
-            //neon.logger.severe("Please check for the latest version of Neon plugin!")
-            //neon.logger.warning("Supported Minecraft version: 1.17.X ~ 1.20.4")
-            return
+        Thread.sleep(300)
+
+        appContext.ensureVersionCompatible() // Version check
+
+        val jobContext = newSingleThreadContext("Neon App Loader (Post-load Stage)")
+        val postLoadAppClasses = AppClasses.getPostLoadClasses()
+
+        jobContext.use { dispatcher ->
+            postLoadAppClasses.forEach { appClazz ->
+                if (appClazz.isSynchronous) {
+                    runCatching {
+                        AppClasses.invokeFunction(appClazz).apply {
+                            if (!this) return@runCatching
+                        }
+                    }.onFailure {
+                        neon.logger.severe(it.cause?.stackTraceToString())
+                        return@forEach
+                    }.onSuccess {
+                        Thread.sleep(120)
+                        return@forEach
+                    }
+                }
+
+                CoroutineScope(dispatcher).async {
+                    runCatching {
+                        AppClasses.invokeFunction(appClazz).apply {
+                            if (!this) return@runCatching
+                        }
+                    }.onFailure {
+                        neon.logger.severe(it.cause?.stackTraceToString())
+                        return@async
+                    }.onSuccess {
+                        delay(120)
+                    }
+                }.asCompletableFuture().join()
+            }
         }
 
-        val jobContext = newSingleThreadContext("Neon Initializer (Post-Staging)")
-        val postLoadAppClasses = AppClasses.entries
-            .filter { it.initializationStage == InitializationStage.POST_INIT }
-
-        postLoadAppClasses.forEachIndexed { index, appClazz ->
-            val clazz = appClazz.clazz
-            val loadingProgress: Int = (((index + 1).toDouble() / postLoadAppClasses.size.toDouble()) * 100).roundToInt()
-
-            /* Check if the simple name of the class is equal to "Handler" or "Companion",
-            * if so, it split the canonical name and get the last 2 parts.
-            * E.g.: com.islandstudio.neon.stable.primary.nCommand.NCommand.Companion -> NCommand.Companion
-            */
-            val className: String = when {
-                (clazz.simpleName == "Handler" || clazz.simpleName == "Companion") -> {
-                    val splitClassNames = clazz.canonicalName.split(".")
-                    "${splitClassNames[splitClassNames.size - 2]}.${splitClassNames[splitClassNames.size - 1]}"
-                }
-
-                else -> {
-                    clazz.simpleName
-                }
-            }
-
-            if (appClazz.isSynchronous) {
-                runCatching {
-                    when {
-                        (className.contains("Companion")) -> {
-                            clazz.getDeclaredMethod("run").invoke(clazz.enclosingClass.getField("Companion").get(null))
-                        }
-
-                        else -> {
-                            clazz.getDeclaredMethod("run").invoke(clazz.getField("INSTANCE").get(null))
-                        }
-                    }
-                }.onFailure {
-                    neon.logger.severe(it.cause?.stackTraceToString())
-                    return@forEachIndexed
-                }.onSuccess {
-                    neon.logger.info(appContext.getFormattedCodeMessage("neon.info.post_init.processing", loadingProgress))
-                    Thread.sleep(150L)
-                    return@forEachIndexed
-                }
-            }
-
-            CoroutineScope(jobContext).async {
-                runCatching {
-                    when {
-                        (className.contains("Companion")) -> {
-                            clazz.getDeclaredMethod("run").invoke(clazz.enclosingClass.getField("Companion").get(null))
-                        }
-
-                        else -> {
-                            clazz.getDeclaredMethod("run").invoke(clazz.getField("INSTANCE").get(null))
-                        }
-                    }
-                }.onFailure {
-                    neon.logger.severe(it.cause?.stackTraceToString())
-                    return@async
-                }.onSuccess {
-                    neon.logger.info(appContext.getFormattedCodeMessage("neon.info.post_init.processing", loadingProgress))
-                    delay(150L)
-                }
-            }.asCompletableFuture().get()
-        }
-
-        jobContext.close()
-        neon.logger.info(appContext.getCodeMessage("neon.info.post_init.complete"))
+        neon.logger.info(appContext.getCodeMessage("neon.info.post_load.complete"))
+        return true
     }
 
 
@@ -286,7 +229,7 @@ class AppInitializer: IComponentInjector {
         val jobContext = newSingleThreadContext("Neon Initializer (Re-staging)")
 
         AppClasses.entries
-            .filter { it.isConfigReloadable && it.initializationStage == InitializationStage.POST_INIT }
+            .filter { it.isConfigReloadable && it.loadStage == LoadStage.PostLoad }
             .forEach { appClassDetail ->
                 val clazz = appClassDetail.clazz
 
@@ -349,7 +292,7 @@ class AppInitializer: IComponentInjector {
         jobContext.close()
     }
 
-    fun loadExtension(neonExtension: NeonExtensions) {
+    fun loadExtension(neonExtension: com.islandstudio.neon.shared.core.resource.NeonExtensions) {
         neon.logger.info("Loading extensions......")
 
         neon.pluginLoader.loadPlugin(neonExtension).also {

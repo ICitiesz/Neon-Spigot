@@ -10,8 +10,8 @@ import com.akuleshov7.ktoml.tree.nodes.TomlKeyValuePrimitive
 import com.akuleshov7.ktoml.tree.nodes.TomlNode
 import com.akuleshov7.ktoml.tree.nodes.TomlTable
 import com.islandstudio.neon.experimental.utils.DataUtil
-import com.islandstudio.neon.stable.core.application.exceptions.ExceptionSearchMessages
-import com.islandstudio.neon.stable.core.application.exceptions.NeonConfigException
+import com.islandstudio.neon.shared.core.exception.ExceptionSearchMessages
+import com.islandstudio.neon.shared.core.exception.NeonConfigException
 import com.islandstudio.neon.stable.core.config.component.ConfigNodeProperty
 import com.islandstudio.neon.stable.core.config.component.ConfigProperty
 import com.islandstudio.neon.stable.core.config.component.type.AbstractConfigWrapper

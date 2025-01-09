@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.core.application.init
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import org.bukkit.ChatColor
@@ -70,7 +70,7 @@ object NConstructor: IComponentInjector {
             }
 
             val preloadAppClasses =  AppClasses.entries
-                .filter { it.initializationStage == InitializationStage.PRE_INIT }
+                .filter { it.loadStage == LoadStage.PreLoad }
 
             preloadAppClasses.forEachIndexed { index, appClazz ->
                 val clazz = appClazz.clazz
@@ -141,7 +141,7 @@ object NConstructor: IComponentInjector {
         Thread.sleep(500L)
 
         val postLoadAppClasses = AppClasses.entries
-            .filter { it.initializationStage == InitializationStage.POST_INIT }
+            .filter { it.loadStage == LoadStage.PostLoad }
 
         postLoadAppClasses.forEachIndexed { index, appClazz ->
             val clazz = appClazz.clazz
@@ -213,7 +213,7 @@ object NConstructor: IComponentInjector {
     @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
     fun rebuild() {
         AppClasses.entries
-            .filter { it.isConfigReloadable && it.initializationStage == InitializationStage.POST_INIT }
+            .filter { it.isConfigReloadable && it.loadStage == LoadStage.PostLoad }
             .forEach { applicationClassDetail ->
                 val clazz = applicationClassDetail.clazz
 

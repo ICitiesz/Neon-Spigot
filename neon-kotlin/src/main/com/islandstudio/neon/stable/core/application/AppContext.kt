@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.core.application
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.server.ServerProvider
 import com.islandstudio.neon.stable.core.application.server.ServerRunningMode
 import com.islandstudio.neon.stable.core.io.resource.NeonInternalResource

@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.core.database.repository
 
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.database.IDatabaseContext
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.pojos.Role
 import com.islandstudio.neon.stable.core.database.schema.neon_data.tables.records.DtRoleRecord

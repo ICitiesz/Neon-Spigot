@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.utils.processing
 
-import com.islandstudio.neon.stable.core.application.exceptions.ExceptionSearchMessages
+import com.islandstudio.neon.shared.core.exception.ExceptionSearchMessages
 import org.bukkit.ChatColor
 import java.util.*
 import kotlin.math.pow

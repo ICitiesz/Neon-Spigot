@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application.exceptions
+package com.islandstudio.neon.shared.core.exception
 
 enum class ExceptionSearchMessages(vararg val message: String) {
     TomlParseExceptionIncorrectFormat("Incorrect format of Key-Value pair (missing equals sign)", "<key = value>"),

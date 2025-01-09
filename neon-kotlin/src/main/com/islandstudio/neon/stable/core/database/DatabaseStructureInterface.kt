@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.core.database
 
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.database.model.InactiveTable
 import com.islandstudio.neon.stable.core.database.model.TableConstraint
 import com.islandstudio.neon.stable.core.database.schema.neon_data.NeonData

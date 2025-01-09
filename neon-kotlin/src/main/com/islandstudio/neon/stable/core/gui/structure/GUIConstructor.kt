@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.core.gui.structure
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.gui.GUISession
 import com.islandstudio.neon.stable.core.gui.state.GUIState
 import com.islandstudio.neon.stable.core.gui.state.GUIStateType

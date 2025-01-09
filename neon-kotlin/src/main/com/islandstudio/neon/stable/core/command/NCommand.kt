@@ -4,8 +4,8 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPainting.NPainting
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.init.AppInitializer
+import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.stable.core.application.init.AppLoader
 import com.islandstudio.neon.stable.core.command.commandlist.NCommandList
 import com.islandstudio.neon.stable.core.command.properties.CommandAlias
 import com.islandstudio.neon.stable.core.command.properties.CommandSyntax
@@ -38,7 +38,7 @@ class NCommand: Listener, TabExecutor {
         private val disabledServerReloadCommand: ArrayList<String> = arrayListOf("rl", "reload", "bukkit:reload", "bukkit:rl")
 
         fun run() {
-            AppInitializer.registerEventProcessor(EventProcessor())
+            AppLoader.registerEventProcessor(EventProcessor())
 
             (neon.server.getPluginCommand(COMMAND_PREFIX))?.setExecutor(NCommand()).also {
                 NCommandList.Handler.run()
@@ -93,6 +93,8 @@ class NCommand: Listener, TabExecutor {
                     CommandAlias.DEBUG -> {
                         CommandInterfaceProcessor.sendCommandSyntax(commander, "This is debug command!")
 
+                        //TestConfigDemo.testModifyConfig()
+                        //TestConfigDemo.testDI()
 
                         // TODO: Multiplayer testing needed
 //                        val nPlayer = NPacketProcessor.getNPlayer(commander as Player)

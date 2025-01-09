@@ -1,9 +1,8 @@
 package com.islandstudio.neon.stable.core.io.resource
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppContext
-import com.islandstudio.neon.stable.core.application.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.extension.NeonExtensions
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import org.koin.core.component.inject
 import java.io.File
@@ -64,7 +63,7 @@ class ResourceManager: IComponentInjector {
                 copyResource(originalResource, extensionFile)
             }
 
-        neon.getAppInitializer().loadExtension(NeonExtensions.NeonDatabaseExtension())
+        //neon.getAppInitializer().loadExtension(NeonExtensions.NeonDatabaseExtension)
     }
 
     fun verifyResourceCheckSum(originalResource: URL, destinationResource: URL): Boolean {
