@@ -2,8 +2,8 @@ package com.islandstudio.neon.shared.core
 
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonIncompatibleVersionException
-import com.islandstudio.neon.shared.core.resource.NeonInternalResource
-import com.islandstudio.neon.shared.core.resource.ResourceManager
+import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
+import com.islandstudio.neon.shared.core.io.resource.ResourceManager
 import com.islandstudio.neon.shared.core.server.ServerProvider
 import com.islandstudio.neon.shared.core.server.ServerRunningMode
 import io.github.cdimascio.dotenv.Dotenv

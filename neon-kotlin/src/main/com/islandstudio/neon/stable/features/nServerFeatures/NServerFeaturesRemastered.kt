@@ -2,8 +2,8 @@ package com.islandstudio.neon.stable.features.nServerFeatures
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.shared.core.resource.NeonInternalResource
-import com.islandstudio.neon.shared.core.resource.ResourceManager
+import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
+import com.islandstudio.neon.shared.core.io.resource.ResourceManager
 import com.islandstudio.neon.stable.common.action.ActionState
 import com.islandstudio.neon.stable.common.action.ActionStatus
 import com.islandstudio.neon.stable.core.command.CommandDispatcher

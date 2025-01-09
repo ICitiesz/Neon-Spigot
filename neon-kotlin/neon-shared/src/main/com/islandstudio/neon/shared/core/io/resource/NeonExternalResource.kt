@@ -1,6 +1,6 @@
-package com.islandstudio.neon.shared.core.resource
+package com.islandstudio.neon.shared.core.io.resource
 
-import com.islandstudio.neon.shared.core.resource.folder.NeonDataFolder
+import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 
 enum class NeonExternalResource(val neonDataFolder: NeonDataFolder, val resourceName: String, val resourceType: ResourceType) {
     NeonDBServerConfigFile(

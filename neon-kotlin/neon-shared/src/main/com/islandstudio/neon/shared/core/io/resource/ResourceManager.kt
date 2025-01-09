@@ -1,9 +1,9 @@
-package com.islandstudio.neon.shared.core.resource
+package com.islandstudio.neon.shared.core.io.resource
 
 import com.islandstudio.neon.shared.PluginAdapter
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.shared.core.resource.folder.NeonDataFolder
+import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.inject
 import java.io.File

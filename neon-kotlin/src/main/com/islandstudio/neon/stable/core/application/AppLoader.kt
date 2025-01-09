@@ -3,8 +3,8 @@ package com.islandstudio.neon.stable.core.application
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.shared.core.resource.NeonExtensions
-import com.islandstudio.neon.shared.core.resource.ResourceManager
+import com.islandstudio.neon.shared.core.io.resource.NeonExtensions
+import com.islandstudio.neon.shared.core.io.resource.ResourceManager
 import com.islandstudio.neon.stable.common.ColorPalette
 import com.islandstudio.neon.stable.core.database.DatabaseInterface
 import com.islandstudio.neon.stable.core.database.DatabaseStructureInitializer

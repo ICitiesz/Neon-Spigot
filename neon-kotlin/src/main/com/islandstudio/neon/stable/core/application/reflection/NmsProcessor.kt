@@ -2,8 +2,8 @@ package com.islandstudio.neon.stable.core.application.reflection
 
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.shared.core.resource.NeonInternalResource
-import com.islandstudio.neon.shared.core.resource.ResourceManager
+import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
+import com.islandstudio.neon.shared.core.io.resource.ResourceManager
 import com.islandstudio.neon.stable.core.application.reflection.mapping.MappingType
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsObject
 import org.dhatim.fastexcel.reader.ReadableWorkbook

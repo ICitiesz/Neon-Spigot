@@ -1,4 +1,4 @@
-package com.islandstudio.neon.shared.core.resource
+package com.islandstudio.neon.shared.core.io.resource
 
 enum class NeonInternalResource(val resourceURL: String, val resourceType: ResourceType) {
     NeonDatabaseServer(
@@ -7,7 +7,7 @@ enum class NeonInternalResource(val resourceURL: String, val resourceType: Resou
     ),
 
     NeonCodeMessages(
-        "resources/application/code-messages.properties",
+        "application/code-messages.properties",
         ResourceType.Properties
     ),
 
@@ -38,7 +38,7 @@ enum class NeonInternalResource(val resourceURL: String, val resourceType: Resou
 
     /* Neon Database Server Resources */
     NeonDBServerCodeMessages(
-        "resources/application/code-messages.properties",
+        "application/code-messages.properties",
         ResourceType.Properties
     ),
 

@@ -1,4 +1,4 @@
-package com.islandstudio.neon.shared.core.resource
+package com.islandstudio.neon.shared.core.io.resource
 
 enum class ResourceType {
     Jar,
