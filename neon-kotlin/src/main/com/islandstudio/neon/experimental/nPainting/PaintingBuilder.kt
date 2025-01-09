@@ -1,6 +1,8 @@
 package com.islandstudio.neon.experimental.nPainting
 
-import com.islandstudio.neon.stable.core.application.init.NConstructor
+import com.islandstudio.neon.shared.core.AppContext
+import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.server.ServerProvider
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import com.islandstudio.neon.stable.utils.ObjectSerializer
@@ -11,9 +13,10 @@ import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.map.MapPalette
 import org.bukkit.map.MapView
+import org.koin.core.component.inject
 import java.io.File
 
-class PaintingBuilder {
+class PaintingBuilder: IComponentInjector {
     private val world: World? = Bukkit.getWorlds().find { it.environment == World.Environment.NORMAL }
 
     @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
@@ -82,7 +85,9 @@ class PaintingBuilder {
                         this.get(paintingTile)
                     }
 
-                if (!NConstructor.isUsingPaperMC) {
+                val appContext by inject<AppContext>()
+
+                if (!appContext.validateServerProvider(ServerProvider.Paper)) {
                     applyPaintingColor(worldMapData, painting, processedMapColors, horizontalPointer, horizontalTileSize)
                 } else {
                     CoroutineScope(newSingleThreadContext("Test")).launch {

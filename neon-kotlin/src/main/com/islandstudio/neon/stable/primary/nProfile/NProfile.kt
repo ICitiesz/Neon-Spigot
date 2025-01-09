@@ -2,7 +2,7 @@ package com.islandstudio.neon.stable.primary.nProfile
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.islandstudio.neon.stable.core.application.init.NConstructor
+import com.islandstudio.neon.stable.core.application.init.AppLoader
 import com.islandstudio.neon.stable.core.io.nFile.FolderList
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import org.bukkit.entity.Player
@@ -41,7 +41,7 @@ object NProfile {
          *
          */
         fun run() {
-            NConstructor.registerEventProcessor(EventProcessor())
+            AppLoader.registerEventProcessor(EventProcessor())
         }
 
         /**

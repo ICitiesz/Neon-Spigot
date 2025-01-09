@@ -3,7 +3,7 @@ package com.islandstudio.neon.stable.core.command.commandlist
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.core.application.init.NConstructor
+import com.islandstudio.neon.stable.core.application.init.AppLoader
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import com.islandstudio.neon.stable.primary.nCommand.Commands
@@ -81,7 +81,7 @@ object NCommandList: IComponentInjector {
             initCommandUIContent()
             initCommandFilter()
 
-            NConstructor.registerEventProcessor(EventProcessor())
+            AppLoader.registerEventProcessor(EventProcessor())
         }
 
         /**

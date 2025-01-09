@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.features.nRank
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.core.application.init.NConstructor
+import com.islandstudio.neon.stable.core.application.init.AppLoader
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nProfile.NProfile
 import com.islandstudio.neon.stable.primary.nProfile.PlayerProfile
@@ -30,7 +30,7 @@ object NRank {
                 team.prefix = ranks.tagPrefix
             }
 
-            NConstructor.registerEventProcessor(EventProcessor())
+            AppLoader.registerEventProcessor(EventProcessor())
         }
     }
 

@@ -3,7 +3,7 @@ package com.islandstudio.neon.experimental.nFireworks
 //import com.mojang.math.Vector3f
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.core.application.init.NConstructor
+import com.islandstudio.neon.stable.core.application.init.AppLoader
 import com.islandstudio.neon.stable.core.io.nFile.FolderList
 import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
@@ -53,10 +53,10 @@ object NFireworks {
             isEnabled = NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nFireworks") ?: false
 
             if (!isEnabled) {
-                return NConstructor.unRegisterEventProcessor(EventProcessor())
+                return AppLoader.unregisterEventProcessor(EventProcessor())
             }
 
-            NConstructor.registerEventProcessor(EventProcessor())
+            AppLoader.registerEventProcessor(EventProcessor())
         }
 
         override fun getCommandHandler(commander: Player, args: Array<out String>) {

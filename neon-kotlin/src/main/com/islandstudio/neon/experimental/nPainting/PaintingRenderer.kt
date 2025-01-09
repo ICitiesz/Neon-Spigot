@@ -1,8 +1,10 @@
 package com.islandstudio.neon.experimental.nPainting
 
+import com.islandstudio.neon.shared.core.AppContext
+import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.server.ServerProvider
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.utils.ObjectSerializer
 import kotlinx.coroutines.*
 import org.bukkit.Bukkit
@@ -17,9 +19,10 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.MapMeta
 import org.bukkit.persistence.PersistentDataType
+import org.koin.core.component.inject
 import java.util.*
 
-class PaintingRenderer {
+class PaintingRenderer: IComponentInjector {
     @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
     fun generateRenderer(player: Player, painting: Painting, paintingId: UUID, interectedBlock: Block) {
         val renderArea = calculateAndGetRenderArea(player, painting, interectedBlock)
@@ -67,7 +70,9 @@ class PaintingRenderer {
                     )
                 }
 
-                if (!NConstructor.isUsingPaperMC) {
+                val appContext by inject<AppContext>()
+
+                if (!appContext.validateServerProvider(ServerProvider.Paper)) {
                     glowItemFrame.setItem(applyPaintingData(painting, horizontalPointer, verticalPointer))
                     return@forEachIndexed
                 }

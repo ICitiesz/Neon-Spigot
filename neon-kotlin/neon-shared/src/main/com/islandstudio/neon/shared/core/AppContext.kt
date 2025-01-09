@@ -26,7 +26,7 @@ class AppContext(): IComponentInjector {
         this.ignoreIfMissing = true
     }
 
-    val serverProvider = ServerProvider.entries.first { it.name.equals(pluginServer.name, true) }
+    private val serverProvider = ServerProvider.entries.first { it.name.equals(pluginServer.name, true) }
     val serverVersion = pluginServer.bukkitVersion.split("-").first()
     val serverMajorVersion = "${serverVersion.split(".")[0]}.${serverVersion.split(".")[1]}"
     val serverRunningMode = if (pluginServer.onlineMode) ServerRunningMode.Online else ServerRunningMode.Offline
@@ -58,5 +58,9 @@ class AppContext(): IComponentInjector {
     fun ensureVersionCompatible(): Boolean {
         if (isVersionCompatible) return true
         throw NeonIncompatibleVersionException(getCodeMessage("neon.error.apploader.incompatible_version"))
+    }
+
+    fun validateServerProvider(serverProvider: ServerProvider): Boolean {
+        return this.serverProvider == serverProvider
     }
 }

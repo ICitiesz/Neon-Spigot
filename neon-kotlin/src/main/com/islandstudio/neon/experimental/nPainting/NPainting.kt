@@ -1,10 +1,12 @@
 package com.islandstudio.neon.experimental.nPainting
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.server.ServerProvider
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.core.application.init.NConstructor
+import com.islandstudio.neon.stable.core.application.init.AppLoader
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import com.islandstudio.neon.stable.core.io.DataSourceType
@@ -51,6 +53,8 @@ object NPainting: IComponentInjector {
 
     private var isEnabled = false
 
+    private val appContext by inject<AppContext>()
+
     enum class RemovalType {
         FULL, // Full removal including the original image itself
         CACHED, // Removal of displayed painting, cached data and metadata, regeneration required
@@ -58,16 +62,16 @@ object NPainting: IComponentInjector {
         ALL_DISPLAYED // Removal of all displayed painting,
     }
 
-    object Handler: Commands(), CommandHandler  {
+    object Handler: Commands(), CommandHandler {
         fun run() {
             isEnabled = NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nPainting") ?: false
 
             if (!isEnabled) {
-                return NConstructor.unRegisterEventProcessor(EventProcessor())
+                return AppLoader.unregisterEventProcessor(EventProcessor())
             }
 
             /* TODO: Temp. disable nPainting for version 1.17.X */
-            if (NConstructor.getMajorVersion() == "1.17") {
+            if (appContext.serverMajorVersion == "1.17") {
                 NServerFeaturesRemastered.serverFeatureSession.also {
                     it.setServerFeatureToggle("nPainting", false)
 
@@ -88,7 +92,7 @@ object NPainting: IComponentInjector {
 //                return
             }
 
-            NConstructor.registerEventProcessor(EventProcessor())
+            AppLoader.registerEventProcessor(EventProcessor())
         }
 
         override fun getCommandHandler(commander: Player, args: Array<out String>) {
@@ -399,7 +403,7 @@ object NPainting: IComponentInjector {
             }
         }
 
-        if (!NConstructor.isUsingPaperMC) {
+        if (!appContext.validateServerProvider(ServerProvider.Paper)) {
             processPainting(imageFileName)
             player.inventory.addItem(paintingItem)
             return

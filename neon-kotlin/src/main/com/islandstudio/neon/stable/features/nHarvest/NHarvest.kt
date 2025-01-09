@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.features.nHarvest
 
-import com.islandstudio.neon.stable.core.application.init.NConstructor
+import com.islandstudio.neon.stable.core.application.init.AppLoader
 import com.islandstudio.neon.stable.features.nDurable.NDurable
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import org.bukkit.Location
@@ -24,11 +24,11 @@ object NHarvest {
         fun run() {
             isEnabled = (NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nHarvest") ?: false).also {
                 if (!it) {
-                    return NConstructor.unRegisterEventProcessor(EventProcessor())
+                    return AppLoader.unregisterEventProcessor(EventProcessor())
                 }
             }
 
-            NConstructor.registerEventProcessor(EventProcessor())
+            AppLoader.registerEventProcessor(EventProcessor())
         }
     }
 

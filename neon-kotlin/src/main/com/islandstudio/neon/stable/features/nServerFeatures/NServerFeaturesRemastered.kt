@@ -486,7 +486,7 @@ object NServerFeaturesRemastered: IComponentInjector {
         runCatching {
             loadServerFeatures()
             updateServerFeatureFile()
-            neon.getAppInitializer().reInit()
+            neon.getAppLoader().reInit()
         }.onFailure {
             it.printStackTrace()
             return ActionState(

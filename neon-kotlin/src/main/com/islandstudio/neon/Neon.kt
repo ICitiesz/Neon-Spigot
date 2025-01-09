@@ -49,6 +49,6 @@ class Neon : JavaPlugin(), IComponentInjector {
 
     fun getPluginClassLoader(): ClassLoader = this.classLoader
 
-    @JvmName("getNeonAppInitializer")
-    fun getAppInitializer(): AppLoader = this.appLoader
+    @JvmName("getNeonAppLoader")
+    fun getAppLoader(): AppLoader = this.appLoader
 }

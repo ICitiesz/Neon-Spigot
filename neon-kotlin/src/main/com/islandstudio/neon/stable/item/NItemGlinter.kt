@@ -1,9 +1,10 @@
 package com.islandstudio.neon.stable.item
 
 import com.islandstudio.neon.experimental.utils.CraftBukkitConverter
+import com.islandstudio.neon.shared.core.AppContext
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.core.application.init.NConstructor
 import com.islandstudio.neon.stable.core.application.init.SupportedVersions
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
 import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
@@ -15,6 +16,7 @@ import net.minecraft.core.Registry
 import net.minecraft.world.item.enchantment.Enchantment
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
+import org.koin.core.component.inject
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 import java.util.*
@@ -72,16 +74,18 @@ object NItemGlinter {
 //        );
     }
 
-    object Handler {
+    object Handler: IComponentInjector {
+        private val appContext by inject<AppContext>()
+
         fun run() {
             /* Toggle add registry entry */
             run enableAddRegistryEntry@ {
-                if (NConstructor.getMajorVersion() == SupportedVersions.V1_17.majorVersion) {
+                if (appContext.serverMajorVersion == SupportedVersions.V1_17.majorVersion) {
                     return@enableAddRegistryEntry
                 }
 
-                if (NConstructor.getMajorVersion() == SupportedVersions.V1_18.majorVersion) {
-                    if (NConstructor.getMinorVersion() != "1.18.2") {
+                if (appContext.serverMajorVersion == SupportedVersions.V1_18.majorVersion) {
+                    if (appContext.serverVersion != "1.18.2") {
                         return@enableAddRegistryEntry
                     }
                 }
@@ -96,12 +100,12 @@ object NItemGlinter {
 
             /* Revoke add registry entry */
             run disableAddRegistryEntry@ {
-                if (NConstructor.getMajorVersion() == SupportedVersions.V1_17.majorVersion) {
+                if (appContext.serverMajorVersion == SupportedVersions.V1_17.majorVersion) {
                     return@disableAddRegistryEntry
                 }
 
-                if (NConstructor.getMajorVersion() == SupportedVersions.V1_18.majorVersion) {
-                    if (NConstructor.getMinorVersion() != "1.18.2") {
+                if (appContext.serverMajorVersion == SupportedVersions.V1_18.majorVersion) {
+                    if (appContext.serverVersion != "1.18.2") {
                         return@disableAddRegistryEntry
                     }
                 }
