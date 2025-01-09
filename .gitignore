@@ -2,7 +2,7 @@
 /tools
 /local.properties
 /out/*
-/builds
+/output builds
 /.idea/*
 /nms-snapshot/*
 
@@ -13,6 +13,7 @@
 /neon-kotlin/.gradle/*
 /neon-kotlin/SpecialSource/*
 /neon-kotlin/target/*
+/neon-kotlin/neon-shared/build/*
 
 # Neon Database Server
 /neon-database-server/build/*
