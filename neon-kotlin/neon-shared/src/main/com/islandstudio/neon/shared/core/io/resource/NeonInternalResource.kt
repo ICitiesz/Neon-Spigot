@@ -43,17 +43,26 @@ enum class NeonInternalResource(val resourceURL: String, val resourceType: Resou
 
     /* Neon Database Server Resources */
     NeonDBServerCodeMessages(
-        "application/code-messages.properties",
+        "resources/application/code-messages.properties",
         ResourceType.Properties
     ),
 
     NeonDBServerConfig(
         "resources/database/NeonDB-config.toml",
         ResourceType.Toml
+    ),
+
+    NeonEnvironmentValue(
+      "/resources/application/.env",
+        ResourceType.DotEnv
     )
     ;
 
     fun getResourceName(): String {
         return this.resourceURL.substringAfterLast("/")
+    }
+
+    fun getDirectoryPath(): String {
+        return this.resourceURL.substringBeforeLast("/")
     }
 }

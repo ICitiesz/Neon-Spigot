@@ -20,8 +20,8 @@ class AppContext(): IComponentInjector {
 
     private val codeMessages = Properties()
     private val envValues: Dotenv = dotenv {
-        this.directory = "/resources/application"
-        this.filename = ".env"
+        this.directory = NeonInternalResource.NeonEnvironmentValue.getDirectoryPath()
+        this.filename = NeonInternalResource.NeonEnvironmentValue.getResourceName()
         this.ignoreIfMalformed = true
         this.ignoreIfMissing = true
     }

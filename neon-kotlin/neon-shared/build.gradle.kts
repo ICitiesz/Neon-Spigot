@@ -4,8 +4,6 @@ group = "com.islandstudio"
 version = "final"
 
 val kotlinxCoroutinesVersion = "1.9.0"
-val pluginFinalJarName = "neon-kotlin.jar"
-val pluginShadedjarName = "neon-kotlin-shaded.jar"
 
 plugins {
     kotlin("jvm") version "2.0.20" apply true
@@ -62,8 +60,6 @@ tasks.processResources {
         exclude("application/*.template")
         into("resources/")
     }
-
-    from(file("src/main/plugin.yml"))
 }
 
 tasks.withType<KotlinCompile> {

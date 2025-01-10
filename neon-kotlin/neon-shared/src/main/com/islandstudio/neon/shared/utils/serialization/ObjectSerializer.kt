@@ -70,7 +70,7 @@ object ObjectSerializer {
      * Deserialize Based64 encoded string into bukkit object.
      *
      * @param T Bukkit object
-     * @param base64EncodedObj The Base64 encoded string.
+     * @param base64EncodedBukkitObj The Base64 encoded string.
      * @return The bukkit object
      */
     fun <T> deserializeBukkitFromBase64(base64EncodedBukkitObj: String): T {

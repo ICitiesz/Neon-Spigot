@@ -1,47 +1,46 @@
-package com.islandstudio.neon.experimental.utils
+package com.islandstudio.neon.shared.utils.data
 
-import com.islandstudio.neon.stable.utils.processing.properties.DataTypes
 
 object DataUtil {
-    fun validateDataType(value: Any, dataType: DataTypes): Boolean {
+    fun validateDataType(value: Any, dataType: DataType): Boolean {
         return validateDataType(value.toString(), dataType)
     }
 
     fun validateDataType(value: String, dataType: String): Boolean {
-        return validateDataType(value, DataTypes.valueOf(dataType.uppercase()))
+        return validateDataType(value, DataType.valueOf(dataType))
     }
 
-    fun validateDataType(value: String, dataType: DataTypes): Boolean {
-        when (dataType) {
-            DataTypes.BOOLEAN -> {
+    fun validateDataType(value: String, dataType: DataType): Boolean {
+         when (dataType) {
+            DataType.Boolean -> {
                 value.lowercase().toBooleanStrictOrNull()?.let {
                     return true
                 }
             }
 
-            DataTypes.DOUBLE -> {
+            DataType.Double -> {
                 value.toDoubleOrNull()?.let {
                     return true
                 }
             }
 
-            DataTypes.INTEGER -> {
+            DataType.Integer -> {
                 value.toIntOrNull()?.let {
                     return true
                 }
             }
 
-            DataTypes.STRING -> {
-                return true
-            }
-
-            DataTypes.LONG -> {
+            DataType.Long -> {
                 value.toLongOrNull()?.let {
                     return true
                 }
             }
 
-            DataTypes.UNSUPPORTED_DATA_TYPE -> {
+            DataType.String -> {
+                return true
+            }
+
+            else -> {
                 return false
             }
         }
@@ -50,16 +49,16 @@ object DataUtil {
     }
 
     fun validateDataRange(inputValue: Any, dataType: String, minValue: Any? = null, maxValue: Any? = null): Boolean {
-        return validateDataRange(inputValue, DataTypes.valueOf(dataType.uppercase()), minValue, maxValue)
+        return validateDataRange(inputValue, DataType.valueOf(dataType), minValue, maxValue)
     }
 
-    fun validateDataRange(inputValue: Any, dataType: DataTypes, minValue: Any? = null, maxValue: Any? = null): Boolean {
+    fun validateDataRange(inputValue: Any, dataType: DataType, minValue: Any? = null, maxValue: Any? = null): Boolean {
         when(dataType) {
-            DataTypes.BOOLEAN -> {
+            DataType.Boolean  -> {
                 inputValue.toString().lowercase().toBooleanStrictOrNull()?.let { return true } ?: return false
             }
 
-            DataTypes.DOUBLE -> {
+            DataType.Double -> {
                 val doubleValue = inputValue.toString().toDoubleOrNull() ?: return false
 
 //                val doubleValue = if (inputValue::class.java.simpleName.equals(DataTypes.INTEGER.dataType)) {
@@ -71,7 +70,7 @@ object DataUtil {
                 return !(doubleValue < minValue.toString().toDouble() || doubleValue > maxValue.toString().toDouble())
             }
 
-            DataTypes.INTEGER -> {
+            DataType.Integer -> {
                 val integerValue =  inputValue.toString().toIntOrNull() ?: return false
 
 //                val integerValue =  if (inputValue::class.java.simpleName.equals(DataTypes.STRING.dataType)) {
@@ -83,7 +82,7 @@ object DataUtil {
                 return !(integerValue < minValue.toString().toInt() || integerValue > maxValue.toString().toInt())
             }
 
-            DataTypes.LONG -> {
+            DataType.Long -> {
                 val longValue = inputValue.toString().toLongOrNull() ?: return false
 
                 return !(longValue < minValue.toString().toLong() || longValue > maxValue.toString().toLong())
@@ -97,37 +96,37 @@ object DataUtil {
         return false
     }
 
-    fun convertDataType(inputValue: Any, dataType: DataTypes): Any? {
+    fun convertDataType(inputValue: Any, dataType: DataType): Any? {
         return convertDataType(inputValue.toString(), dataType)
     }
 
     fun convertDataType(inputValue: String, dataType: String): Any? {
-        return convertDataType(inputValue, DataTypes.valueOf(dataType.uppercase()))
+        return convertDataType(inputValue, DataType.valueOf(dataType.uppercase()))
     }
 
-    fun convertDataType(inputValue: String, dataType: DataTypes): Any? {
+    fun convertDataType(inputValue: String, dataType: DataType): Any? {
         when (dataType) {
-            DataTypes.BOOLEAN -> {
+            DataType.Boolean -> {
                 return inputValue.lowercase().toBooleanStrictOrNull()
             }
 
-            DataTypes.DOUBLE -> {
+            DataType.Double -> {
                 return inputValue.toDoubleOrNull()
             }
 
-            DataTypes.INTEGER -> {
+            DataType.Integer -> {
                 return inputValue.toIntOrNull()
             }
 
-            DataTypes.STRING -> {
+            DataType.String -> {
                 return inputValue
             }
 
-            DataTypes.LONG -> {
+            DataType.Long -> {
                 return inputValue.toLongOrNull()
             }
 
-            DataTypes.UNSUPPORTED_DATA_TYPE -> return null
+            else -> return null
         }
     }
 }

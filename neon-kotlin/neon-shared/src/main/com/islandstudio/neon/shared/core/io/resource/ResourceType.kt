@@ -6,5 +6,6 @@ enum class ResourceType {
     Yaml,
     Properties,
     Excel,
-    Toml
+    Toml,
+    DotEnv
 }
