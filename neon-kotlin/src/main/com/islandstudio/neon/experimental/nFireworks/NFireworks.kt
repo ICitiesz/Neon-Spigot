@@ -1,11 +1,10 @@
 package com.islandstudio.neon.experimental.nFireworks
 
 //import com.mojang.math.Vector3f
+import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.core.io.nFile.FolderList
-import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
@@ -42,9 +41,6 @@ object NFireworks {
     const val PATTERN_FRAME_INGAME_SIZE = 12.8
     const val PATTERN_FRAME_POINTER_INCREMENT_DECREMENT = 0.1
     private const val PATTERN_FRAME_INDEX = ((PATTERN_FRAME_INGAME_SIZE * 10) - 1).toInt()
-
-    private val imagesFolder = FolderList.NFIREWORKS_IMAGES.folder
-    private val patternFramesFolder = FolderList.NFIREWORKS_PATTERN_FRAMES.folder
 
     private var isEnabled = false
 
@@ -84,7 +80,7 @@ object NFireworks {
 
             if (args.size != 2) return super.getTabCompletion(commander, args)
 
-            val imageFiles = imagesFolder.listFiles()
+            val imageFiles = NeonDataFolder.NFireworkdsImageFolder.listFiles()
 
             if (imageFiles.isNullOrEmpty()) return super.getTabCompletion(commander, args)
 
@@ -105,15 +101,15 @@ object NFireworks {
          * @param imageFileName The target image.
          */
         fun createPatternFrameData(imageFileName: String) {
-            val patternFrameFile = NeonDataFolder.createNewFile(patternFramesFolder, "${imageFileName}.pixdat")
+            val patternFrameFile = NeonDataFolder.createNewFile(NeonDataFolder.NFireworksPatternFramesFolder, "${imageFileName}.pixdat")
 
-            patternFramesFolder.listFiles()?.let {
+            NeonDataFolder.NFireworksPatternFramesFolder.listFiles()?.let {
                 if (it.filter { file -> file.isFile }.contains(patternFrameFile)) return
             }
 
             val patternFrame: ArrayList<FireworkPattern.PixelContainer> = ArrayList()
 
-            val imageFile = File(FolderList.NFIREWORKS_IMAGES.folder, imageFileName)
+            val imageFile = File(NeonDataFolder.NFireworkdsImageFolder, imageFileName)
             val bufferedImageReader = ImageIO.read(imageFile)
             val alphaRaster = bufferedImageReader.alphaRaster
 
@@ -149,7 +145,7 @@ object NFireworks {
         }
 
         private fun getImageFiles(): TreeMap<String, File> {
-            val imageFiles = imagesFolder.listFiles()
+            val imageFiles = NeonDataFolder.NFireworkdsImageFolder.listFiles()
             val filteredImageFiles: TreeMap<String, File> = TreeMap()
 
             if (imageFiles.isNullOrEmpty()) return filteredImageFiles
@@ -227,7 +223,7 @@ object NFireworks {
      */
     @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
     fun renderFireworkPattern(imageFileName: String, fireworkLocation: Location, fireworkPatternFacing: BlockFace) {
-        val patternFile = File(FolderList.NFIREWORKS_PATTERN_FRAMES.folder, "${imageFileName}.pixdat")
+        val patternFile = File(NeonDataFolder.NFireworksPatternFramesFolder, "${imageFileName}.pixdat")
 
         if (!patternFile.exists()) {
             Bukkit.getServer().broadcastMessage(CommandSyntax.createSyntaxMessage(

@@ -2,8 +2,7 @@ package com.islandstudio.neon.stable.primary.nServerFeatures
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.io.nFile.FolderList
-import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
+import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.utils.DataSessionState
@@ -159,8 +158,7 @@ object NServerFeatures: IComponentInjector {
     }
 
     object Handler: CommandHandler/*, CommandDispatcher*/ {
-        private val nServerFeaturesFolder: File = FolderList.NSERVERFEATURES_FOLDER.folder
-        private val nServerFeaturesFile = File(nServerFeaturesFolder, "nServerFeatures.yml")
+        private lateinit var nServerFeaturesFile: File
 
         private val loadedServerFeatures: EnumMap<DataSessionState, String> = EnumMap(DataSessionState::class.java)
         private lateinit var optionProperties: YamlFile
@@ -178,7 +176,7 @@ object NServerFeatures: IComponentInjector {
             var isFirstGenerated = false
 
             /* Stage 1: File creation and initialization. */
-            NeonDataFolder.createNewFile(nServerFeaturesFolder, nServerFeaturesFile.name)
+            nServerFeaturesFile = NeonDataFolder.createNewFile(NeonDataFolder.NServerFeaturesFolder, "nServerFeatures.yml")
 
             /* Getting the file content size */
             val externalBufferedReader: BufferedReader = nServerFeaturesFile.bufferedReader()

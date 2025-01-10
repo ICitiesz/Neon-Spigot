@@ -2,6 +2,7 @@ package com.islandstudio.neon.stable.features.nServerFeatures
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.shared.core.io.resource.ResourceManager
 import com.islandstudio.neon.stable.common.action.ActionState
@@ -14,7 +15,6 @@ import com.islandstudio.neon.stable.core.command.properties.CommandSyntax
 import com.islandstudio.neon.stable.core.gui.NGUI
 import com.islandstudio.neon.stable.core.io.ConfigurationProperty
 import com.islandstudio.neon.stable.core.io.DataSourceType
-import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import com.islandstudio.neon.stable.features.nServerFeatures.properties.ServerFeature
 import com.islandstudio.neon.stable.features.nServerFeatures.properties.ServerFeatureDetail
 import com.islandstudio.neon.stable.features.nServerFeatures.properties.ServerFeatureOption

@@ -3,6 +3,7 @@ package com.islandstudio.neon.experimental.nPainting
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import com.islandstudio.neon.shared.core.server.ServerProvider
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
@@ -10,8 +11,6 @@ import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
 import com.islandstudio.neon.stable.core.io.DataSourceType
-import com.islandstudio.neon.stable.core.io.nFile.FolderList
-import com.islandstudio.neon.stable.core.io.nFile.NFile
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered.saveToFile
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered.toYAML
@@ -47,9 +46,10 @@ object NPainting: IComponentInjector {
     private const val RENDER_DATA_FILE_EXTENSION = ".rendat"
 
     private val supportedImageFormat = arrayOf("jpg", "jpeg", "png")
-    private val imageSourceFolder = FolderList.NPAINTING_IMAGES.folder
-    private val paintingRenderDataFolder = FolderList.NPAINTING_RENDER_DATA.folder
-    private val reusableMapIdsFile = File(FolderList.NPAINTING.folder, "reusable_map_ids.dat")
+    private val reusableMapIdsFile = NeonDataFolder.createNewFile(
+        NeonDataFolder.NPaintingFolder,
+        "reusable_map_ids.dat"
+    )
 
     private var isEnabled = false
 
@@ -249,7 +249,7 @@ object NPainting: IComponentInjector {
         override fun getTabCompletion(commander: Player, args: Array<out String>): MutableList<String> {
             if (!commander.isOp) return super.getTabCompletion(commander, args)
 
-            val imageFileNames = imageSourceFolder.listFiles()
+            val imageFileNames = NeonDataFolder.NPaintingImageFolder.listFiles()
                 ?.filter { it.isFile }
                 ?.filter { it.extension.lowercase() in supportedImageFormat }
                 ?.filter { validIamgeFileName(it.nameWithoutExtension) }
@@ -327,7 +327,11 @@ object NPainting: IComponentInjector {
          * @return The render data file
          */
         fun getPaintingRenderDataFile(imageFileName: String): File {
-            return File(paintingRenderDataFolder, "${imageFileName}${RENDER_DATA_FILE_EXTENSION}")
+            return File(NeonDataFolder.NPaintingRenderDataFolder, getPaintingRenderDataFileName(imageFileName))
+        }
+
+        fun getPaintingRenderDataFileName(imageFileName: String): String {
+            return "${imageFileName}${RENDER_DATA_FILE_EXTENSION}"
         }
 
         /**
@@ -337,7 +341,7 @@ object NPainting: IComponentInjector {
          * @return True if exists, else false
          */
         fun hasImageFile(imageFileName: String): Optional<File> {
-            File(imageSourceFolder, imageFileName).also {
+            File(NeonDataFolder.NPaintingImageFolder, imageFileName).also {
                 if (!it.exists()) return Optional.empty()
 
                 if (!it.isFile) return Optional.empty()
@@ -361,8 +365,7 @@ object NPainting: IComponentInjector {
         }
 
         fun saveReusableMapIds(reusableMapIds: HashSet<Int>) {
-            NFile.createOrGetNewFile(FolderList.NPAINTING.folder, reusableMapIdsFile)
-                .writeBytes(ObjectSerializer.serializeObjectRaw(reusableMapIds))
+            reusableMapIdsFile.writeBytes(ObjectSerializer.serializeObjectRaw(reusableMapIds))
         }
 
         /**
@@ -373,12 +376,10 @@ object NPainting: IComponentInjector {
         fun getReusableMapIds(): HashSet<Int> {
             val reusableMapIds: HashSet<Int> = HashSet()
 
-            NFile.createOrGetNewFile(FolderList.NPAINTING.folder, reusableMapIdsFile).let {
-                it.readBytes().also { bytes ->
-                    if (bytes.isEmpty()) return reusableMapIds
+            reusableMapIdsFile.readBytes().apply {
+                if (this.isEmpty()) return reusableMapIds
 
-                    reusableMapIds.addAll(ObjectSerializer.deserializeObjectRaw(it.readBytes()) as HashSet<Int>)
-                }
+                reusableMapIds.addAll(ObjectSerializer.deserializeObjectRaw(this) as HashSet<Int>)
             }
 
             return reusableMapIds
@@ -604,9 +605,10 @@ object NPainting: IComponentInjector {
      */
     private fun processPainting(imageFileName: String) {
         /* Folder & file existent check and creation */
-        val renderDataFile = NFile.createOrGetNewDirectory(paintingRenderDataFolder).run {
-            NFile.createOrGetNewFile(this, Handler.getPaintingRenderDataFile(imageFileName))
-        }.also {
+        val renderDataFile = NeonDataFolder.createNewFile(
+            NeonDataFolder.NPaintingRenderDataFolder,
+            Handler.getPaintingRenderDataFileName(imageFileName)
+        ).also {
             if (it.readBytes().isNotEmpty()) return
         }
 

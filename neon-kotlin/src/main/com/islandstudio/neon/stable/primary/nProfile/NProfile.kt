@@ -2,9 +2,8 @@ package com.islandstudio.neon.stable.primary.nProfile
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import com.islandstudio.neon.stable.core.application.AppLoader
-import com.islandstudio.neon.stable.core.io.nFile.FolderList
-import com.islandstudio.neon.stable.core.io.nFile.NeonDataFolder
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -155,7 +154,7 @@ object NProfile {
          * @return The given player profile folder.
          */
         private fun getPlayerProfileFolder(player: Player): File {
-            return File(FolderList.NPROFILE.folder, "player_${player.uniqueId}")
+            return File(NeonDataFolder.NProfileFolder, "player_${player.uniqueId}")
         }
     }
 

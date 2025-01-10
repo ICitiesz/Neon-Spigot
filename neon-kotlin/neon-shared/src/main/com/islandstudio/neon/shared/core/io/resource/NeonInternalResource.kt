@@ -36,6 +36,11 @@ enum class NeonInternalResource(val resourceURL: String, val resourceType: Resou
         ResourceType.Excel
     ),
 
+    NWaypointsGlobal(
+        "resources/nWaypoints.json",
+        ResourceType.Json
+    ),
+
     /* Neon Database Server Resources */
     NeonDBServerCodeMessages(
         "application/code-messages.properties",

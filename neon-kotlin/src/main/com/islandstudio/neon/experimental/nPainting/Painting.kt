@@ -1,6 +1,6 @@
 package com.islandstudio.neon.experimental.nPainting
 
-import com.islandstudio.neon.stable.core.io.nFile.FolderList
+import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.Serializable
@@ -25,7 +25,7 @@ data class Painting(val imageFileName: String): Serializable {
     @Transient val image: BufferedImage
 
     init {
-        val imageFile = File(FolderList.NPAINTING_IMAGES.folder, imageFileName)
+        val imageFile = File(NeonDataFolder.NPaintingImageFolder, imageFileName)
         image = ImageIO.read(imageFile)
 
         imageWidth = image.width

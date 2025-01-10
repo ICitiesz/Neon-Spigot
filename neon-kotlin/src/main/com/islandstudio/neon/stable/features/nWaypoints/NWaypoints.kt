@@ -4,7 +4,10 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.io.nFile.FolderList
+import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
+import com.islandstudio.neon.shared.core.io.resource.NeonExternalResource
+import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
+import com.islandstudio.neon.shared.core.io.resource.ResourceManager
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import com.islandstudio.neon.stable.item.NItemGlinter
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
@@ -27,7 +30,8 @@ import org.json.simple.JSONArray
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import org.koin.core.component.inject
-import java.io.*
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.util.*
 import kotlin.math.ceil
 import kotlin.properties.Delegates
@@ -56,6 +60,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
     val blockZ: Int = location.blockZ
 
     object Handler {
+        private val nWaypointsFile = NeonDataFolder.createNewFile(NeonExternalResource.NWaypointsGlobalFile)
         val waypointDataContainer: TreeMap<String, TreeMap<String, JSONObject>> = TreeMap()
 
         private val classLoader: ClassLoader = NWaypoints::class.java.classLoader
@@ -69,36 +74,12 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
          * Initialize the nWaypoints.
          */
         fun run() {
-            createNewFiles()
-
-            val fileReader = FileReader(getNWaypointsFile())
-            val clientBufferedReader = BufferedReader(fileReader)
-            val clientNWaypointsFileSize: Long = clientBufferedReader.lines().count()
-
-            fileReader.close()
-            clientBufferedReader.close()
-
-            if (clientNWaypointsFileSize == 0L) {
-                val clientFileOutputStream = FileOutputStream(getNWaypointsFile())
-                val clientBufferedWriter = BufferedWriter(OutputStreamWriter(clientFileOutputStream))
-
-                val stringBuilder = StringBuilder()
-                val inputStream: InputStream = classLoader.getResourceAsStream("resources/nWaypoints.json")!!
-                val sourceBufferedReader = BufferedReader(InputStreamReader(inputStream))
-
-                val sourceElement: Array<Any> = sourceBufferedReader.lines()!!.toArray()
-
-                sourceElement.forEach { content ->
-                    stringBuilder.append(content)
-                }
-
-                clientBufferedWriter.write(gson.toJson(jsonParser.parse(stringBuilder.toString()) as JSONObject))
-                clientBufferedWriter.close()
-                clientFileOutputStream.close()
-            }
-
             canCrossDimension =
                 (NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureOptionValue("nWaypoints", "crossDimension") as Boolean)
+
+            if (nWaypointsFile.length() > 0L) return
+
+            ResourceManager.copyResource(NeonInternalResource.NWaypointsGlobal, nWaypointsFile)
         }
 
         /**
@@ -238,10 +219,8 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
         /* Get waypoints data */
         fun getNWaypointsData(): TreeMap<String, JSONObject> {
             val waypointsData: MutableMap<String, JSONObject> = TreeMap()
-
-            val fileReader = FileReader(getNWaypointsFile())
             val jsonParser = JSONParser()
-            val waypoints: JSONObject = jsonParser.parse(fileReader) as JSONObject
+            val waypoints: JSONObject = jsonParser.parse(nWaypointsFile.reader()) as JSONObject
 
             waypoints.forEach { waypoint ->
                 val innerJsonArray: JSONArray = waypoint.value as JSONArray
@@ -250,29 +229,19 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
                 waypointsData[waypoint.key as String] = innerJsonObject
             }
 
-            fileReader.close()
-
             return waypointsData as TreeMap<String, JSONObject>
         }
 
         /* Remove waypoints operation */
         fun removeWaypoint(waypointName: String) {
-            val fileReader = FileReader(getNWaypointsFile())
-
             val jsonParser = JSONParser()
-            val waypoints: JSONObject = jsonParser.parse(fileReader) as JSONObject
+            val waypoints: JSONObject = jsonParser.parse(nWaypointsFile.reader()) as JSONObject
 
             if (waypoints.containsKey(waypointName)) {
                 waypoints.remove(waypointName)
             }
 
-            fileReader.close()
-
-            val fileOutputStream = FileOutputStream(getNWaypointsFile())
-            val bufferedWriter = BufferedWriter(OutputStreamWriter(fileOutputStream))
-
-            bufferedWriter.write(gson.toJson(waypoints))
-            bufferedWriter.close()
+            nWaypointsFile.writeText(gson.toJson(waypoints))
         }
 
         /* Deserialize the base64 encoded string into location object */
@@ -296,18 +265,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
 
         /* Add waypoints operation */
         private fun addWaypoint(waypointName: String, player: Player) {
-            val waypointsFile: File = getNWaypointsFile()
-
-            if (!waypointsFile.exists()) run()
-
-            val fileReader = FileReader(waypointsFile)
-            val clientBufferedReader = BufferedReader(waypointsFile.reader())
-            val clientNWaypointsFileSize: Long = clientBufferedReader.lines().count()
-            clientBufferedReader.close()
-
-            if (clientNWaypointsFileSize == 0L) run()
-
-            val mainParent: JSONObject = jsonParser.parse(fileReader) as JSONObject
+            val mainParent: JSONObject = jsonParser.parse(nWaypointsFile.reader()) as JSONObject
             val waypointHeader = JSONArray()
             val waypointBody = JSONObject()
 
@@ -315,30 +273,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
             waypointHeader.add(waypointBody)
             mainParent[waypointName] = waypointHeader
 
-            val fileOutputStream = FileOutputStream(waypointsFile)
-            val bufferedWriter = BufferedWriter(OutputStreamWriter(fileOutputStream))
-
-            fileReader.close()
-            bufferedWriter.write(gson.toJson(mainParent))
-            bufferedWriter.close()
-        }
-
-        /* Get waypoints file */
-        private fun getNWaypointsFile(): File {
-            return File(FolderList.NWAYPOINTS_FOLDER.folder, "nWaypoints-Global.json")
-        }
-
-        /* File generation */
-        private fun createNewFiles() {
-            val nWaypointsFile = getNWaypointsFile()
-
-            if (!FolderList.NWAYPOINTS_FOLDER.folder.exists()) {
-                FolderList.NWAYPOINTS_FOLDER.folder.mkdirs()
-            }
-
-            if (!nWaypointsFile.exists()) {
-                nWaypointsFile.createNewFile()
-            }
+            nWaypointsFile.writeText(gson.toJson(mainParent))
         }
     }
 

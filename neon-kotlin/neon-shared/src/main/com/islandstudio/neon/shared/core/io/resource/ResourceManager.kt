@@ -83,6 +83,10 @@ class ResourceManager {
             return destinationResourceFileHash == originalResourceFileHash
         }
 
+        fun copyResource(neonInternalResource: NeonInternalResource, destinationResource: File) {
+            copyResource(getNeonResourceAsUrl(neonInternalResource)!! , destinationResource)
+        }
+
         fun copyResource(originalResource: URL, destinationResource: File) {
             originalResource.openStream().use {
                 Files.copy(it, destinationResource.toPath(), StandardCopyOption.REPLACE_EXISTING)

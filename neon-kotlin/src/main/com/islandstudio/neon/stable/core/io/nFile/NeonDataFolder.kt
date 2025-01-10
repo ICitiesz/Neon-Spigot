@@ -7,6 +7,7 @@ import com.islandstudio.neon.stable.core.io.resource.NeonExternalResource
 import org.koin.core.component.inject
 import java.io.File
 
+@Deprecated("Migrated to Shared Module")
 sealed class NeonDataFolder(folder: File): File(folder.toPath().toString()) {
     companion object: IComponentInjector {
         private val neon by inject<Neon>()
