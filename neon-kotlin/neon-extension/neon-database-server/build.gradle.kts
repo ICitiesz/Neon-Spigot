@@ -36,7 +36,7 @@ dependencies {
     val koinAnnotationsVersion = "2.0.0-Beta1"
 
     /* Misc */
-    implementation(files("../neon-kotlin/neon-shared/build/classes/kotlin/main"))
+    implementation("com.islandstudio:neon-shared")
     implementation(files("build/classes/java/main"))
     jooqCodegen(project)
 
@@ -100,7 +100,7 @@ jooq {
                 /* Specify the location of your SQL script. */
                 val scriptProperty = org.jooq.meta.jaxb.Property().apply {
                     this.key = "scripts"
-                    this.value = "../neon-kotlin/src/main/resources/database/sql-scripts/NeonDatabase.sql"
+                    this.value = "../../src/main/resources/database/sql-scripts/NeonDatabase.sql"
                 }
 
                 /* The default name case for unquoted objects:

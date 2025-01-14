@@ -3,5 +3,5 @@ author: ICities
 version: '1.0'
 api-version: '1.17'
 depend: [Neon]
-main: com.islandstudio.neondatabaseserver.NeonDatabaseServer
+main: com.islandstudio.neon.NeonDatabaseServer
 description: Database server for Neon plugin. [Require Neon plugin in order to work.]

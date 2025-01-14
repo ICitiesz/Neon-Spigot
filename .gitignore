@@ -1,25 +1,27 @@
 # Project root
-/tools
+/tools/*
 /local.properties
 /out/*
 /output builds
 /.idea/*
 /nms-snapshot/*
+/misc/*
 
 # Neon Kotlin
 /neon-kotlin/Misc/*
 /neon-kotlin/build/*
 /neon-kotlin/.kotlin/*
 /neon-kotlin/.gradle/*
-/neon-kotlin/SpecialSource/*
 /neon-kotlin/target/*
 /neon-kotlin/neon-shared/build/*
+/neon-kotlin/neon-shared/.gradle/*
+/neon-kotlin/neon-extension/.gradle/*
 
 # Neon Database Server
-/neon-database-server/build/*
-/neon-database-server/target/*
-/neon-database-server/.gradle/*
-/neon-database-server/.kotlin/*
+/neon-kotlin/neon-extension/neon-database-server/build/*
+/neon-kotlin/neon-extension/neon-database-server/target/*
+/neon-kotlin/neon-extension/neon-database-server/.gradle/*
+/neon-kotlin/neon-extension/neon-database-server/.kotlin/*
 
 
 

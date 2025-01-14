@@ -1,8 +1,8 @@
-package com.islandstudio.neondatabaseserver.event
+package com.islandstudio.neon.event
 
-import com.islandstudio.neondatabaseserver.DatabaseController
-import com.islandstudio.neondatabaseserver.NeonDatabaseServer
-import com.islandstudio.neondatabaseserver.application.di.IComponentInjector
+import com.islandstudio.neon.DatabaseController
+import com.islandstudio.neon.NeonDatabaseServer
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
