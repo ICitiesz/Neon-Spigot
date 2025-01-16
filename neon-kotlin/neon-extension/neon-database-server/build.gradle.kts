@@ -35,7 +35,7 @@ dependencies {
     val jooqVersion = "3.19.15"
     val koinAnnotationsVersion = "2.0.0-Beta1"
 
-    /* Misc */
+    /* Neon Share Library */
     implementation("com.islandstudio:neon-shared")
     implementation("com.islandstudio:neon-datasource")
     implementation("com.islandstudio:neon-api")
@@ -65,14 +65,14 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
     implementation("org.apache.logging.log4j:log4j-api:2.19.0")
     compileOnly("org.apache.logging.log4j:log4j-core:2.19.0")
-    compileOnly("com.akuleshov7:ktoml-core:0.5.2")
-    compileOnly("com.akuleshov7:ktoml-file-jvm:0.5.2")
+    implementation("com.akuleshov7:ktoml-core:0.5.2")
+    implementation("com.akuleshov7:ktoml-file-jvm:0.5.2")
 }
 
 kotlin {
     sourceSets {
         main {
-            kotlin.srcDir("src/main")
+            kotlin.srcDir("src/main/kotlin")
 
             resources.srcDir("src/main/resources")
             resources.exclude("**")
