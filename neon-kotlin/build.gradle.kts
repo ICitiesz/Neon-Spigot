@@ -81,7 +81,7 @@ dependencies {
 kotlin {
     sourceSets {
         main {
-            kotlin.srcDir("src/main/")
+            kotlin.srcDir("src/main/kotlin")
 
             resources.srcDir("src/main/resources")
             resources.exclude("**")
