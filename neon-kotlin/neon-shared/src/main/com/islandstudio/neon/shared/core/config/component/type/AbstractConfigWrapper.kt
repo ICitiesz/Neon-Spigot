@@ -39,11 +39,11 @@ abstract class AbstractConfigWrapper<T: IConfigObject, U: IConfigProperty>(
         return configObjectInstance::class.createInstance()
     }
 
-    fun getAllConfigProperty(): ArrayList<ConfigProperty> {
+    fun getAllConfigProperty(): ArrayList<ConfigProperty<*>> {
         return configPropertyClass
             .sealedSubclasses
             .map {
-                it.objectInstance as ConfigProperty
+                it.objectInstance as ConfigProperty<*>
             }
             .toCollection(ArrayList())
     }

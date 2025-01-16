@@ -74,7 +74,7 @@ class AppConfig<T: AbstractConfigWrapper<U, V>, U: IConfigObject, V: IConfigProp
      * @param configProperties
      * @return
      */
-    private fun updateConfig(writableConfigFile: File, configProperties: ArrayList<ConfigProperty>): TomlFile {
+    private fun updateConfig(writableConfigFile: File, configProperties: ArrayList<ConfigProperty<*>>): TomlFile {
         val parsedConfig = parseToTomFile(writableConfigFile)
 
         return rebuildConfig(parsedConfig, configProperties)
@@ -87,7 +87,7 @@ class AppConfig<T: AbstractConfigWrapper<U, V>, U: IConfigObject, V: IConfigProp
      * @param configProperties
      * @return
      */
-    private fun rebuildConfig(parsedConfig: TomlFile, configProperties: ArrayList<ConfigProperty>): TomlFile {
+    private fun rebuildConfig(parsedConfig: TomlFile, configProperties: ArrayList<ConfigProperty<*>>): TomlFile {
         val newConfig = TomlFile()
 
         getConfigNodeProperties(parsedConfig).forEach { configNodeProperty ->
@@ -261,12 +261,12 @@ class AppConfig<T: AbstractConfigWrapper<U, V>, U: IConfigObject, V: IConfigProp
      * @param configNodeProperty
      * @param configProperty
      */
-    private fun validateConfigValue(configNodeProperty: ConfigNodeProperty, configProperty: ConfigProperty) {
+    private fun validateConfigValue(configNodeProperty: ConfigNodeProperty, configProperty: ConfigProperty<*>) {
         val configDataType = configNodeProperty.dataType()
         val configValue = configNodeProperty.value()
 
         val refConfigDataType = configProperty.dataType
-        val defaultConfigValue = configProperty.defaultValue
+        val defaultConfigValue = configProperty.defaultValue!!
         val configDataRange = configProperty.dataRange
 
         /* Validate and resolve data type if mismatch data type */
@@ -284,7 +284,7 @@ class AppConfig<T: AbstractConfigWrapper<U, V>, U: IConfigObject, V: IConfigProp
                 configDataRange.minValue,
             configDataRange.maxValue
         )) {
-            configNodeProperty.updateConfigNodeValue(configProperty.defaultValue)
+            configNodeProperty.updateConfigNodeValue(defaultConfigValue)
         }
     }
 

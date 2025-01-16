@@ -40,7 +40,11 @@ dependencies {
     val jooqVersion = "3.19.15"
     val koinAnnotationsVersion = "2.0.0-Beta1"
 
+    /* Neon Library */
     implementation(project(":neon-shared"))
+    compileOnly(project(":neon-api"))
+    compileOnly(project(":neon-datasource"))
+    compileOnly("com.islandstudio:neon-database-server")
 
     /* Core Language Library */
     implementation(kotlin("stdlib"))
@@ -125,7 +129,7 @@ tasks.named<Jar>("jar") {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     archiveFileName.set(pluginFinalJarName)
 
-    from(file("${project.projectDir}/../neon-database-server/build/libs/neon-database-server.jar")) {
+    from(file("${project.projectDir}/neon-extension/neon-database-server/build/libs/neon-database-server.jar")) {
         into("resources/extensions/")
     }
 

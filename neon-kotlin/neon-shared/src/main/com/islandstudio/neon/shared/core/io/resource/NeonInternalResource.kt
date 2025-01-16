@@ -6,11 +6,6 @@ enum class NeonInternalResource(val resourceURL: String, val resourceType: Resou
         ResourceType.Jar
     ),
 
-    NeonCodeMessages(
-        "application/code-messages.properties",
-        ResourceType.Properties
-    ),
-
     NeonKeyGeneralProperties(
         "resources/application/NeonKeyProperties/NeonKeys-General.properties",
         ResourceType.Properties
@@ -41,20 +36,26 @@ enum class NeonInternalResource(val resourceURL: String, val resourceType: Resou
         ResourceType.Json
     ),
 
-    /* Neon Database Server Resources */
-    NeonDBServerCodeMessages(
+    /* Neon Shared Resource */
+    NeonSharedEnvironmentValue(
+        "/resources/application/.env",
+        ResourceType.DotEnv
+    ),
+
+    NeonSharedCodeMessages(
         "resources/application/code-messages.properties",
         ResourceType.Properties
+    ),
+
+    /* Neon Database Server Resources */
+    NeonDBServerUpdateScript(
+        "resources/database/neon-database-changelog.xml",
+        ResourceType.XML
     ),
 
     NeonDBServerConfig(
         "resources/database/NeonDB-config.toml",
         ResourceType.Toml
-    ),
-
-    NeonEnvironmentValue(
-      "/resources/application/.env",
-        ResourceType.DotEnv
     )
     ;
 

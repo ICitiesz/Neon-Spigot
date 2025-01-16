@@ -1,7 +1,6 @@
-package com.islandstudio.neon.event
+package com.islandstudio.neon.ext.neondatabaseserver.event
 
-import com.islandstudio.neon.DatabaseController
-import com.islandstudio.neon.NeonDatabaseServer
+import com.islandstudio.neon.ext.neondatabaseserver.NeonDatabaseServer
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
@@ -45,7 +44,7 @@ class ServerConstantEvent: Listener, IComponentInjector {
      * @param e Either [ServerCommandEvent] or [PlayerCommandPreprocessEvent]
      */
     private fun performDbShutdown(e: Event) {
-        val databaseController by inject<DatabaseController>()
+        val pluginInstance by inject<NeonDatabaseServer>()
 
         val command: String = when(e) {
             is ServerCommandEvent -> {
@@ -83,7 +82,7 @@ class ServerConstantEvent: Listener, IComponentInjector {
             }
         }
 
-        databaseController.stopDbServer()
+        pluginInstance.databaseServerManager.stopDatabaseServer()
     }
 
     private class EventProcessor: Listener {

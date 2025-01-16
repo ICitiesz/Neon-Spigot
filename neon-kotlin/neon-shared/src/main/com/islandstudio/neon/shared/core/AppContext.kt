@@ -1,13 +1,17 @@
 package com.islandstudio.neon.shared.core
 
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.shared.core.exception.NeonIncompatibleVersionException
+import com.islandstudio.neon.shared.core.exception.NeonLoaderException
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
+import com.islandstudio.neon.shared.core.io.resource.PluginDetail
 import com.islandstudio.neon.shared.core.io.resource.ResourceManager
 import com.islandstudio.neon.shared.core.server.ServerProvider
 import com.islandstudio.neon.shared.core.server.ServerRunningMode
 import io.github.cdimascio.dotenv.Dotenv
 import io.github.cdimascio.dotenv.dotenv
+import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
@@ -20,8 +24,8 @@ class AppContext(): IComponentInjector {
 
     private val codeMessages = Properties()
     private val envValues: Dotenv = dotenv {
-        this.directory = NeonInternalResource.NeonEnvironmentValue.getDirectoryPath()
-        this.filename = NeonInternalResource.NeonEnvironmentValue.getResourceName()
+        this.directory = NeonInternalResource.NeonSharedEnvironmentValue.getDirectoryPath()
+        this.filename = NeonInternalResource.NeonSharedEnvironmentValue.getResourceName()
         this.ignoreIfMalformed = true
         this.ignoreIfMissing = true
     }
@@ -40,7 +44,7 @@ class AppContext(): IComponentInjector {
     fun getAppEnvValue(key: String): String = envValues.get(key)
 
     fun loadCodeMessages() {
-        ResourceManager.getNeonResourceAsStream(NeonInternalResource.NeonCodeMessages).use {
+        ResourceManager.getNeonResourceAsStream(NeonInternalResource.NeonSharedCodeMessages).use {
             codeMessages.load(it)
         }
     }
@@ -55,12 +59,43 @@ class AppContext(): IComponentInjector {
         return String.format(codeMessage, *valueReplacement)
     }
 
-    fun ensureVersionCompatible(): Boolean {
+    fun ensureVersionCompatible(codeMessage: String = getCodeMessage("neon.error.apploader.neon_load_incompatible_version")): Boolean {
         if (isVersionCompatible) return true
-        throw NeonIncompatibleVersionException(getCodeMessage("neon.error.apploader.incompatible_version"))
+        throw NeonIncompatibleVersionException(codeMessage)
     }
 
     fun validateServerProvider(serverProvider: ServerProvider): Boolean {
         return this.serverProvider == serverProvider
+    }
+
+    fun ensureParentPluginLoaded(): Boolean {
+        return ensureRequiredPluginsLoaded(PluginDetail("Neon", "com.islandstudio.neon.Neon"))
+    }
+
+    fun getParentPlugin(): Plugin {
+        return pluginServer.pluginManager.plugins.find { plugin ->
+            plugin.javaClass.name == "com.islandstudio.neon.Neon"
+        } ?: throw NeonException("Neon plugin not found!")
+    }
+
+    fun ensureRequiredPluginsLoaded(vararg pluginDetails: PluginDetail): Boolean {
+        val loadedPlugins = pluginServer.pluginManager.plugins
+
+        pluginDetails.forEach { pluginDetail ->
+            val isPluginExist = loadedPlugins.any { loadedPlugin ->
+                loadedPlugin.javaClass.name == pluginDetail.mainClassPath && loadedPlugin.name == pluginDetail.pluginName
+            }
+
+            if (isPluginExist) return@forEach
+
+            throw NeonLoaderException(
+                getFormattedCodeMessage(
+                    "neon.exception.apploader.required_plugin_not_found",
+                    pluginInstance.name, pluginDetail.pluginName
+                )
+            )
+        }
+
+        return true
     }
 }

@@ -3,5 +3,5 @@ plugins {
 }
 rootProject.name = "neon-extension"
 
-includeBuild("../neon-shared")
+includeBuild("../")
 include("neon-database-server")

@@ -30,12 +30,12 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 
     /* Function Library */
-    implementation("io.insert-koin:koin-core-jvm:4.0.0")
-    implementation("io.insert-koin:koin-annotations-jvm:$koinAnnotationsVersion")
+    compileOnly("io.insert-koin:koin-core-jvm:4.0.0")
+    compileOnly("io.insert-koin:koin-annotations-jvm:$koinAnnotationsVersion")
     ksp("io.insert-koin:koin-ksp-compiler:$koinAnnotationsVersion")
-    implementation("com.akuleshov7:ktoml-core:0.5.2")
-    implementation("com.akuleshov7:ktoml-file-jvm:0.5.2")
-    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    compileOnly("com.akuleshov7:ktoml-core:0.5.2")
+    compileOnly("com.akuleshov7:ktoml-file-jvm:0.5.2")
+    compileOnly("io.github.cdimascio:dotenv-kotlin:6.4.1")
 }
 
 kotlin {
