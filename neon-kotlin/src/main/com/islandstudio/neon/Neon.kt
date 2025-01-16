@@ -1,6 +1,6 @@
 package com.islandstudio.neon
 
-import com.islandstudio.neon.shared.core.AppContext
+import com.islandstudio.neon.ext.neondatabaseserver.NeonDatabaseServer
 import com.islandstudio.neon.shared.core.di.AppDIManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppLoader
@@ -14,7 +14,6 @@ import org.koin.ksp.generated.module
 
 class Neon : JavaPlugin(), IComponentInjector {
     private val appLoader by inject<AppLoader>()
-    private val appContext by inject<AppContext>()
     private val databaseInterface by inject<DatabaseInterface>()
     private var isPreLoaded = false
     private var isPostLoaded = false
@@ -32,22 +31,22 @@ class Neon : JavaPlugin(), IComponentInjector {
     }
 
     override fun onEnable() {
-        appLoader.postLoad().apply { isPostLoaded = this }
+//        appLoader.postLoad().apply { isPostLoaded = this }
+//
+//        if (!(isPreLoaded && isPostLoaded)) return
 
-        if (!(isPreLoaded && isPostLoaded)) return
+        val neonDatabaseServer = getPlugin(NeonDatabaseServer::class.java)
 
         server.consoleSender.sendMessage(AppLoader.NEON_ON_ENABLED_TITLE)
     }
 
     override fun onDisable() {
-        if (!(isPreLoaded && isPostLoaded)) return
+        //if (!(isPreLoaded && isPostLoaded)) return
 
-        databaseInterface.disconnect()
+        //databaseInterface.disconnect()
 
         server.consoleSender.sendMessage(AppLoader.NEON_ON_DISABLED_TITLE)
     }
-
-    fun getPluginClassLoader(): ClassLoader = this.classLoader
 
     @JvmName("getNeonAppLoader")
     fun getAppLoader(): AppLoader = this.appLoader

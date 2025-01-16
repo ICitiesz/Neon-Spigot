@@ -6,8 +6,6 @@ import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.io.resource.NeonExtensions
 import com.islandstudio.neon.shared.core.io.resource.ResourceManager
 import com.islandstudio.neon.stable.common.ColorPalette
-import com.islandstudio.neon.stable.core.database.DatabaseInterface
-import com.islandstudio.neon.stable.core.database.DatabaseStructureInitializer
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import org.bukkit.event.HandlerList
@@ -139,18 +137,20 @@ class AppLoader: IComponentInjector {
                 }.await()
 
                 /* 3: Establish database connection */
-                this.async(Dispatchers.IO) {
-                    val databaseInterface by inject<DatabaseInterface>()
+//                this.async(Dispatchers.IO) {
+//                    val databaseInterface by inject<DatabaseInterface>()
+//
+//                    databaseInterface.connect()
+//                    delay(200)
+//                }.await()
+//
+//                /* 4: Initialize database structure */
+//                this.async(Dispatchers.IO) {
+//                    DatabaseStructureInitializer().initializeStructure()
+//                    delay(200)
+//                }.await()
 
-                    databaseInterface.connect()
-                    delay(200)
-                }.await()
-
-                /* 4: Initialize database structure */
-                this.async(Dispatchers.IO) {
-                    DatabaseStructureInitializer().initializeStructure()
-                    delay(200)
-                }.await()
+                return@async
 
                 val preLoadAppClasses = AppClasses.getPreLoadClasses()
 
