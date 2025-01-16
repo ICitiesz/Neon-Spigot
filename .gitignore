@@ -16,6 +16,9 @@
 /neon-kotlin/neon-shared/build/*
 /neon-kotlin/neon-shared/.gradle/*
 /neon-kotlin/neon-extension/.gradle/*
+/neon-kotlin/neon-datasource/.gradle/*
+/neon-kotlin/neon-datasource/build/*
+/neon-kotlin/neon-api/build/*
 
 # Neon Database Server
 /neon-kotlin/neon-extension/neon-database-server/build/*
