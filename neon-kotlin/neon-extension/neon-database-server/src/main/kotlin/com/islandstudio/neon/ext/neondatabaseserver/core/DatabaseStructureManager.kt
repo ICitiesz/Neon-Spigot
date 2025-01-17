@@ -6,11 +6,10 @@ import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.shared.datasource.IDatabaseContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import liquibase.Liquibase
+import liquibase.UpdateSummaryEnum
+import liquibase.UpdateSummaryOutputEnum
 import liquibase.database.DatabaseFactory
 import liquibase.database.jvm.JdbcConnection
 import liquibase.resource.ClassLoaderResourceAccessor
@@ -24,31 +23,34 @@ class DatabaseStructureManager: IComponentInjector, IDatabaseContext {
 
     fun updateStructure() {
         CoroutineScope(Dispatchers.IO).async {
-            delay(200)
-            pluginAdapter.getPluginLogger().info(appContext.getCodeMessage("neon_database_server.info.update_db_structure"))
+            pluginAdapter.getPluginLogger()
+                .info(appContext.getCodeMessage("neon_database_server.info.update_db_structure"))
+
+            delay(100)
 
             /* Get database instance of Liquibase */
-            val databaseIntsance = DatabaseFactory
+            val databaseInstance = DatabaseFactory
                 .getInstance()
                 .findCorrectDatabaseImplementation(JdbcConnection(dbConnection()))
                 .apply {
                     this.defaultCatalogName = appContext.getAppEnvValue("DATABASE_CATALOG")
                     this.defaultSchemaName = appContext.getAppEnvValue("DATABASE_DEFAULT_SCHEMA")
-                    this.isAutoCommit = true
                 }
 
-            databaseIntsance
-                .use {
-                    val liquibase = Liquibase(
-                        NeonInternalResource.NeonDBServerUpdateScript.resourceURL,
-                        ClassLoaderResourceAccessor(this.javaClass.classLoader),
-                        it
-                    )
+            val liquibaseInstance = Liquibase(
+                NeonInternalResource.NeonDBServerUpdateScript.resourceURL,
+                ClassLoaderResourceAccessor(this.javaClass.classLoader),
+                databaseInstance
+            ).apply {
+                this.setShowSummary(UpdateSummaryEnum.SUMMARY)
+                this.setShowSummaryOutput(UpdateSummaryOutputEnum.CONSOLE)
+            }
 
-                    liquibase.use {
-                        it.update()
-                    }
-                }
+            liquibaseInstance.use {
+                it.update()
+            }
+
+            joinAll()
         }.invokeOnCompletion {
             pluginAdapter.getPluginLogger().info(appContext.getCodeMessage("neon_database_server.info.update_db_structure_success"))
         }

@@ -75,6 +75,8 @@ class DatabaseServerManager: IComponentInjector {
                     pluginAdapter.getPluginLogger().info(appContext.getCodeMessage("neon_database_server.info.start_db_server"))
                     this.start()
                 }
+
+                joinAll()
             }.invokeOnCompletion {
                 if (!isServerRunning()) {
                     it?.printStackTrace()

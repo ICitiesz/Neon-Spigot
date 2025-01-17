@@ -15,6 +15,8 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.get
 import org.koin.core.component.inject
 import org.koin.ksp.generated.module
+import java.util.logging.Filter
+import java.util.logging.LogRecord
 
 class NeonDatabaseServer: JavaPlugin(), IComponentInjector {
     val databaseServerManager by inject<DatabaseServerManager>()
@@ -32,12 +34,13 @@ class NeonDatabaseServer: JavaPlugin(), IComponentInjector {
         val appContext by inject<AppContext>()
 
         newSingleThreadContext("Neon Database Server").use { dispatcher ->
-            CoroutineScope(dispatcher).launch {
+            CoroutineScope(dispatcher).async {
                 appContext.loadCodeMessages()
 
                 this@NeonDatabaseServer.logger.info(appContext.getCodeMessage("neon.info.appcontext.parent_plugin_check"))
                 appContext.ensureParentPluginLoaded()
-                delay(200)
+
+                delay(100)
 
                 this@NeonDatabaseServer.logger.info(appContext.getCodeMessage("neon.info.apploader.version_check"))
                 appContext.ensureVersionCompatible(
@@ -46,12 +49,20 @@ class NeonDatabaseServer: JavaPlugin(), IComponentInjector {
                         this@NeonDatabaseServer.name
                     )
                 )
-                delay(200)
+                delay(100)
+
+                this@NeonDatabaseServer.server.logger.filter = object : Filter {
+                    override fun isLoggable(record: LogRecord?): Boolean {
+                        record?.let {
+                            return !it.message.contains("Nag author(s): '[ICities]' of 'Neon-Database-Server v1.0' about their usage of System.out/err.print.")
+                        }
+
+                        return false
+                    }
+                }
 
                 databaseServerManager.initializeDatabaseServer()
-                delay(200)
             }.asCompletableFuture().join()
-
         }
     }
 
