@@ -9,11 +9,10 @@ import org.koin.core.annotation.Single
 
 @Module
 @ComponentScan("com.islandstudio.neon")
-class GeneralModule {
+class NeonModule {
 
     @Single([JavaPlugin::class])
     fun provideNeon(): Neon {
         return getPlugin(Neon::class.java)
     }
-
 }

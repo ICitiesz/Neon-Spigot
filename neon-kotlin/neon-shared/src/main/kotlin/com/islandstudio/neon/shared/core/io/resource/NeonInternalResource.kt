@@ -53,6 +53,11 @@ enum class NeonInternalResource(val resourceURL: String, val resourceType: Resou
         ResourceType.XML
     ),
 
+    NeonDBInitScript(
+        "resources/database/NeonDBInitBase.sql",
+        ResourceType.SQL
+    ),
+
     NeonDBServerConfig(
         "resources/database/NeonDB-config.toml",
         ResourceType.Toml

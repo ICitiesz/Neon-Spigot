@@ -1,18 +1,16 @@
 package com.islandstudio.neon.ext.neondatabaseserver
 
-import com.islandstudio.neon.api.IAPIAdapter
+import com.islandstudio.neon.ext.neondatabaseserver.core.ConnectionManager
 import com.islandstudio.neon.ext.neondatabaseserver.core.DatabaseServerManager
 import com.islandstudio.neon.ext.neondatabaseserver.core.application.di.module.NeonDatabaseServerModule
 import com.islandstudio.neon.ext.neondatabaseserver.event.ServerConstantEvent
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.AppDIManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.shared.core.di.module.DataSourceModule
-import com.islandstudio.neon.shared.core.di.module.NeonAPIModule
+import com.islandstudio.neon.shared.core.di.SharedModule
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import org.bukkit.plugin.java.JavaPlugin
-import org.koin.core.component.get
 import org.koin.core.component.inject
 import org.koin.ksp.generated.module
 import java.util.logging.Filter
@@ -24,8 +22,7 @@ class NeonDatabaseServer: JavaPlugin(), IComponentInjector {
     init {
         AppDIManager.loadDIModule(
             NeonDatabaseServerModule().module,
-            DataSourceModule().module,
-            NeonAPIModule().module
+            SharedModule().module
         ).run()
     }
 
@@ -74,7 +71,9 @@ class NeonDatabaseServer: JavaPlugin(), IComponentInjector {
         ServerConstantEvent.Companion.unregisterEvent()
     }
 
-    fun getNeonAPIAdapter(): IAPIAdapter {
-        return get<IAPIAdapter>()
+    fun getConnectionManager(): ConnectionManager {
+        val connectionManager by inject<ConnectionManager>()
+
+        return connectionManager
     }
 }

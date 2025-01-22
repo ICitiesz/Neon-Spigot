@@ -8,5 +8,6 @@ enum class ResourceType {
     Excel,
     Toml,
     DotEnv,
-    XML
+    XML,
+    SQL
 }
