@@ -9,7 +9,6 @@ import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonLoaderException
 import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import com.islandstudio.neon.shared.core.io.resource.NeonExternalResource
-import com.islandstudio.neon.shared.datasource.ConnectionManager
 import kotlinx.coroutines.*
 import org.hsqldb.DatabaseManager
 import org.hsqldb.server.Server

@@ -30,6 +30,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 
     /* Function Library */
+    compileOnly("org.modelmapper:modelmapper:3.2.2")
     compileOnly("io.insert-koin:koin-core-jvm:4.0.0")
     compileOnly("io.insert-koin:koin-annotations-jvm:$koinAnnotationsVersion")
     ksp("io.insert-koin:koin-ksp-compiler:$koinAnnotationsVersion")

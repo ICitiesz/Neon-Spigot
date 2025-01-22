@@ -1,6 +1,7 @@
 package com.islandstudio.neon.ext.neondatabaseserver.event
 
 import com.islandstudio.neon.ext.neondatabaseserver.NeonDatabaseServer
+import com.islandstudio.neon.ext.neondatabaseserver.core.DatabaseServerManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
@@ -19,6 +20,7 @@ class ServerConstantEvent: Listener, IComponentInjector {
             (it.value as String).toBoolean()
         }
     }
+    private val databaseServerManager by inject<DatabaseServerManager>()
 
     companion object: IComponentInjector {
         private val neonDbServer by inject<NeonDatabaseServer>()
@@ -82,7 +84,7 @@ class ServerConstantEvent: Listener, IComponentInjector {
             }
         }
 
-        pluginInstance.databaseServerManager.stopDatabaseServer()
+        databaseServerManager.stopDatabaseServer()
     }
 
     private class EventProcessor: Listener {

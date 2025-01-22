@@ -37,8 +37,6 @@ dependencies {
 
     /* Neon Share Library */
     implementation("com.islandstudio:neon-shared")
-    implementation("com.islandstudio:neon-datasource")
-    implementation("com.islandstudio:neon-api")
 
     /* Core Language Library */
     implementation(kotlin("stdlib"))
@@ -59,6 +57,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core:4.30.0")
 
     /* Function Library */
+    //implementation("org.modelmapper:modelmapper:3.2.2")
     implementation("io.insert-koin:koin-core-jvm:4.0.0")
     implementation("io.insert-koin:koin-annotations-jvm:$koinAnnotationsVersion")
     ksp("io.insert-koin:koin-ksp-compiler:$koinAnnotationsVersion")

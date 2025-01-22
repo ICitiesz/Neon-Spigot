@@ -1,8 +1,9 @@
-package com.islandstudio.neon.shared.datasource
+package com.islandstudio.neon.api
 
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import org.jooq.DSLContext
 import org.koin.core.component.inject
+import java.sql.Connection
 
 interface IDatabaseContext: IComponentInjector {
     fun dbContext(): DSLContext {
@@ -11,9 +12,9 @@ interface IDatabaseContext: IComponentInjector {
         return dslContext
     }
 
-    fun dbConnection(): java.sql.Connection {
-        val databaseManager by inject<ConnectionManager>()
+    fun dbConnection(): Connection {
+        val connection by inject<Connection>()
 
-        return databaseManager.getDataSource().connection
+        return connection
     }
 }

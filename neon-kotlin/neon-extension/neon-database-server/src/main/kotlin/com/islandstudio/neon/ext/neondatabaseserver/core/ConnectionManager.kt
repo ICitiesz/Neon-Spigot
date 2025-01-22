@@ -1,4 +1,4 @@
-package com.islandstudio.neon.shared.datasource
+package com.islandstudio.neon.ext.neondatabaseserver.core
 
 import com.islandstudio.neon.shared.PluginAdapter
 import com.islandstudio.neon.shared.core.AppContext
