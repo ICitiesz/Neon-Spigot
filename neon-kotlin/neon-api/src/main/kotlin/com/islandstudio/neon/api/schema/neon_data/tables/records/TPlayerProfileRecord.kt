@@ -17,48 +17,53 @@ import java.util.*
 @Suppress("UNCHECKED_CAST")
 open class TPlayerProfileRecord() : UpdatableRecordImpl<TPlayerProfileRecord>(TPlayerProfile.T_PLAYER_PROFILE) {
 
-    open var playerUuid: UUID?
+    open var id: Long?
         set(value): Unit = set(0, value)
-        get(): UUID? = get(0) as UUID?
+        get(): Long? = get(0) as Long?
+
+    open var playerUuid: UUID?
+        set(value): Unit = set(1, value)
+        get(): UUID? = get(1) as UUID?
 
     open var playerName: String?
-        set(value): Unit = set(1, value)
-        get(): String? = get(1) as String?
+        set(value): Unit = set(2, value)
+        get(): String? = get(2) as String?
 
     open var joinAt: LocalDateTime?
-        set(value): Unit = set(2, value)
-        get(): LocalDateTime? = get(2) as LocalDateTime?
+        set(value): Unit = set(3, value)
+        get(): LocalDateTime? = get(3) as LocalDateTime?
 
     open var roleId: Long?
-        set(value): Unit = set(3, value)
-        get(): Long? = get(3) as Long?
+        set(value): Unit = set(4, value)
+        get(): Long? = get(4) as Long?
 
     open var createdAt: LocalDateTime?
-        set(value): Unit = set(4, value)
-        get(): LocalDateTime? = get(4) as LocalDateTime?
+        set(value): Unit = set(5, value)
+        get(): LocalDateTime? = get(5) as LocalDateTime?
 
     open var createdBy: String?
-        set(value): Unit = set(5, value)
-        get(): String? = get(5) as String?
+        set(value): Unit = set(6, value)
+        get(): String? = get(6) as String?
 
     open var modifiedAt: LocalDateTime?
-        set(value): Unit = set(6, value)
-        get(): LocalDateTime? = get(6) as LocalDateTime?
+        set(value): Unit = set(7, value)
+        get(): LocalDateTime? = get(7) as LocalDateTime?
 
     open var modifiedBy: String?
-        set(value): Unit = set(7, value)
-        get(): String? = get(7) as String?
+        set(value): Unit = set(8, value)
+        get(): String? = get(8) as String?
 
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
 
-    override fun key(): Record1<UUID?> = super.key() as Record1<UUID?>
+    override fun key(): Record1<Long?> = super.key() as Record1<Long?>
 
     /**
      * Create a detached, initialised TPlayerProfileRecord
      */
-    constructor(playerUuid: UUID? = null, playerName: String? = null, joinAt: LocalDateTime? = null, roleId: Long? = null, createdAt: LocalDateTime? = null, createdBy: String? = null, modifiedAt: LocalDateTime? = null, modifiedBy: String? = null): this() {
+    constructor(id: Long? = null, playerUuid: UUID? = null, playerName: String? = null, joinAt: LocalDateTime? = null, roleId: Long? = null, createdAt: LocalDateTime? = null, createdBy: String? = null, modifiedAt: LocalDateTime? = null, modifiedBy: String? = null): this() {
+        this.id = id
         this.playerUuid = playerUuid
         this.playerName = playerName
         this.joinAt = joinAt

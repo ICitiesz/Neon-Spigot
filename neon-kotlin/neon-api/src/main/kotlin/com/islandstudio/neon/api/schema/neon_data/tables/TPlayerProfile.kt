@@ -7,7 +7,7 @@ package com.islandstudio.neon.api.schema.neon_data.tables
 import com.islandstudio.neon.api.schema.neon_data.NeonData
 import com.islandstudio.neon.api.schema.neon_data.keys.FK_T_PLAYER_PROFILE_T_ROLE_ROLE_ID
 import com.islandstudio.neon.api.schema.neon_data.keys.PK_T_PLAYER_PROFILE
-import com.islandstudio.neon.api.schema.neon_data.keys.UQ_T_PLAYER_PROFILE_PLAYER_NAME
+import com.islandstudio.neon.api.schema.neon_data.keys.UQ_T_PLAYER_PROFILE_P_UUID_P_NAME
 import com.islandstudio.neon.api.schema.neon_data.tables.TRole.TRolePath
 import com.islandstudio.neon.api.schema.neon_data.tables.records.TPlayerProfileRecord
 import org.jooq.*
@@ -55,6 +55,11 @@ open class TPlayerProfile(
      * The class holding records for this type
      */
     override fun getRecordType(): Class<TPlayerProfileRecord> = TPlayerProfileRecord::class.java
+
+    /**
+     * The column <code>NEON_DATA.T_PLAYER_PROFILE.ID</code>.
+     */
+    val ID: TableField<TPlayerProfileRecord, Long?> = createField(DSL.name("ID"), SQLDataType.BIGINT.nullable(false).identity(true), this, "")
 
     /**
      * The column <code>NEON_DATA.T_PLAYER_PROFILE.PLAYER_UUID</code>.
@@ -128,8 +133,9 @@ open class TPlayerProfile(
         override fun `as`(alias: Table<*>): TPlayerProfilePath = TPlayerProfilePath(alias.qualifiedName, this)
     }
     override fun getSchema(): Schema? = if (aliased()) null else NeonData.NEON_DATA
+    override fun getIdentity(): Identity<TPlayerProfileRecord, Long?> = super.getIdentity() as Identity<TPlayerProfileRecord, Long?>
     override fun getPrimaryKey(): UniqueKey<TPlayerProfileRecord> = PK_T_PLAYER_PROFILE
-    override fun getUniqueKeys(): List<UniqueKey<TPlayerProfileRecord>> = listOf(UQ_T_PLAYER_PROFILE_PLAYER_NAME)
+    override fun getUniqueKeys(): List<UniqueKey<TPlayerProfileRecord>> = listOf(UQ_T_PLAYER_PROFILE_P_UUID_P_NAME)
     override fun getReferences(): List<ForeignKey<TPlayerProfileRecord, *>> = listOf(FK_T_PLAYER_PROFILE_T_ROLE_ROLE_ID)
 
     private lateinit var _tRole: TRolePath

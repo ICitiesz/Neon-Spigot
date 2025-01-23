@@ -20,8 +20,8 @@ import org.jooq.impl.Internal
 // UNIQUE and PRIMARY KEY definitions
 // -------------------------------------------------------------------------
 
-val PK_T_PLAYER_PROFILE: UniqueKey<TPlayerProfileRecord> = Internal.createUniqueKey(TPlayerProfile.T_PLAYER_PROFILE, DSL.name("PK_T_PLAYER_PROFILE"), arrayOf(TPlayerProfile.T_PLAYER_PROFILE.PLAYER_UUID), true)
-val UQ_T_PLAYER_PROFILE_PLAYER_NAME: UniqueKey<TPlayerProfileRecord> = Internal.createUniqueKey(TPlayerProfile.T_PLAYER_PROFILE, DSL.name("UQ_T_PLAYER_PROFILE_PLAYER_NAME"), arrayOf(TPlayerProfile.T_PLAYER_PROFILE.PLAYER_NAME), true)
+val PK_T_PLAYER_PROFILE: UniqueKey<TPlayerProfileRecord> = Internal.createUniqueKey(TPlayerProfile.T_PLAYER_PROFILE, DSL.name("PK_T_PLAYER_PROFILE"), arrayOf(TPlayerProfile.T_PLAYER_PROFILE.ID), true)
+val UQ_T_PLAYER_PROFILE_P_UUID_P_NAME: UniqueKey<TPlayerProfileRecord> = Internal.createUniqueKey(TPlayerProfile.T_PLAYER_PROFILE, DSL.name("UQ_T_PLAYER_PROFILE_P_UUID_P_NAME"), arrayOf(TPlayerProfile.T_PLAYER_PROFILE.PLAYER_UUID, TPlayerProfile.T_PLAYER_PROFILE.PLAYER_NAME), true)
 val PK_T_ROLE: UniqueKey<TRoleRecord> = Internal.createUniqueKey(TRole.T_ROLE, DSL.name("PK_T_ROLE"), arrayOf(TRole.T_ROLE.ROLE_ID), true)
 val UQ_T_ROLE_ROLE_CODE: UniqueKey<TRoleRecord> = Internal.createUniqueKey(TRole.T_ROLE, DSL.name("UQ_T_ROLE_ROLE_CODE"), arrayOf(TRole.T_ROLE.ROLE_CODE), true)
 

@@ -86,7 +86,7 @@ jooq {
                 /* Specify the location of your SQL script. */
                 val scriptProperty = org.jooq.meta.jaxb.Property()
                     .withKey("scripts")
-                    .withValue("${rootDir}/neon-shared/src/main/resources/database/NeonDBA.sql")
+                    .withValue("${rootDir}/neon-shared/src/main/resources/database/NeonDBInitBase.sql")
 
                 /* The default name case for unquoted objects:
                 * - as_is: unquoted object names are kept unquoted
