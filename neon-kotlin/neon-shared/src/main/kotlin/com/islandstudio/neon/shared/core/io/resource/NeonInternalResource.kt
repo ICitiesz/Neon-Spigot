@@ -6,6 +6,16 @@ enum class NeonInternalResource(val resourceURL: String, val resourceType: Resou
         ResourceType.Jar
     ),
 
+    NeonGeneralDataKeyProperties(
+        "resources/application/datakey/general-data-keys.properties",
+        ResourceType.Properties
+    ),
+
+    NeonRecipeDataKeyProperties(
+        "resources/application/datakey/recipe-data-keys.properties",
+        ResourceType.Properties
+    ),
+
     NeonKeyGeneralProperties(
         "resources/application/NeonKeyProperties/NeonKeys-General.properties",
         ResourceType.Properties

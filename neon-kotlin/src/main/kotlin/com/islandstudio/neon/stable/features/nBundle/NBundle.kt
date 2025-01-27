@@ -4,7 +4,7 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
-import com.islandstudio.neon.stable.core.recipe.NRecipes
+import com.islandstudio.neon.stable.core.recipe.NBundleRecipe
 import com.islandstudio.neon.stable.core.recipe.RecipeRegistry
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import org.bukkit.Material
@@ -100,19 +100,19 @@ object NBundle: RecipeRegistry, IComponentInjector {
     }
 
     override fun registerRecipe() {
-        val filteredRecipe: HashMap<String, NRecipes> = filterRecipe("NBUNDLE")
+        NBundleRecipe.Bundle.apply bundleRecipe@ {
+            val bundleRecipe = ShapedRecipe(this.dataKey, ItemStack(this.result.bukkitMaterial!!, this.resultAmount))
+                .apply {
+                    val stringItem = this@bundleRecipe.ingredients.find { it.name.startsWith("S") }!!
+                    val rabbitHideItem = this@bundleRecipe.ingredients.find { it.name.startsWith("R") }!!
 
-        if (filteredRecipe.isNotEmpty()) return
+                    this.shape("SRS", "R R", "RRR")
+                    this.setIngredient('S', stringItem.bukkitMaterial!!)
+                    this.setIngredient('R', rabbitHideItem.bukkitMaterial!!)
+                }
 
-        plugin.server.addRecipe(filteredRecipe.values.first().run {
-            val bundleRecipe = ShapedRecipe(this.key, ItemStack(this.result.bukkitMaterial!!))
-
-            bundleRecipe.shape("SRS", "R R", "RRR")
-            bundleRecipe.setIngredient('S', this.ingredients.find { it.name.startsWith("S") }!!
-                .bukkitMaterial!!)
-            bundleRecipe.setIngredient('R', this.ingredients.find { it.name.startsWith("R") }!!
-                .bukkitMaterial!!)
-        })
+            plugin.server.addRecipe(bundleRecipe)
+        }
     }
 
     /**
@@ -124,7 +124,7 @@ object NBundle: RecipeRegistry, IComponentInjector {
     fun discoverBundleRecipe(player: Player, gaveItem: net.minecraft.world.item.ItemStack? = null) {
         if (!isEnabled) return
 
-        val bundleNamespaceKey = NRecipes.NBUNDLE_BUNDLE.key
+        val bundleNamespaceKey = NBundleRecipe.Bundle.dataKey
 
         if (player.hasDiscoveredRecipe(bundleNamespaceKey)) return
 
