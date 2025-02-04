@@ -39,6 +39,12 @@ object DataContainerManager {
         target.persistentDataContainer[dataContainerType.dataKey, dataContainerType.persistentDataType] = data
     }
 
+    fun <T: PersistentDataHolder, U> getAttachedData(target: T, dataContainerType: DataContainerType<U>): U? {
+        if (!hasDataContainerAttached(target, dataContainerType)) return null
+
+        return target.persistentDataContainer.get(dataContainerType.dataKey, dataContainerType.persistentDataType)
+    }
+
     fun <T: PersistentDataHolder, U> hasDataContainerAttached(target: T, dataContainerType: DataContainerType<U>): Boolean {
         return target.persistentDataContainer.has(dataContainerType.dataKey)
     }
