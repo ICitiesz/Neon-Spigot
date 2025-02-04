@@ -1,7 +1,6 @@
 package com.islandstudio.neon.stable.core.application.datakey
 
 import org.bukkit.persistence.PersistentDataHolder
-import org.bukkit.persistence.PersistentDataType
 
 object DataContainerManager {
 
@@ -9,38 +8,38 @@ object DataContainerManager {
      * Attach data to object that contains persistent data container.
      *
      * @param T The object
-     * @param neonGeneralDataKey Neon general data key
+     * @param U The data type
      * @param data The data
-     * @param persistentDataType The persistent data type.
-     * @param target same as T
+     * @param dataContainerType The data container type.
+     * @param target Same as T
      */
-    fun <T: PersistentDataHolder> attachData(neonGeneralDataKey: NeonGeneralDataKey, data: Any, persistentDataType: PersistentDataType<*, Any>, target: T) {
-        if (hasDataAttached(target, neonGeneralDataKey, persistentDataType)) return
+    fun <T: PersistentDataHolder, U: Any> attachData(target: T, data: U, dataContainerType: DataContainerType<U>) {
+        if (hasDataContainerAttached(target, dataContainerType)) return
 
-        target.persistentDataContainer[neonGeneralDataKey.dataKey, persistentDataType] = data
+        target.persistentDataContainer[dataContainerType.dataKey, dataContainerType.persistentDataType] = data
     }
 
     /**
      * Detach data
      *
-     * @param T The object
-     * @param neonGeneralDataKey Neon general data key
-     * @param persistentDataType The persistent data type.
+     * @param T The target
+     * @param U The data type
+     * @param dataContainerType The data container type.
      * @param target same as T
      */
-    fun <T: PersistentDataHolder> detachData(neonGeneralDataKey: NeonGeneralDataKey, persistentDataType: PersistentDataType<*, *>, target: T) {
-        if (!hasDataAttached(target, neonGeneralDataKey, persistentDataType)) return
+    fun <T: PersistentDataHolder, U> detachData(target: T, dataContainerType: DataContainerType<U>) {
+        if (!hasDataContainerAttached(target, dataContainerType)) return
 
-        target.persistentDataContainer.remove(neonGeneralDataKey.dataKey)
+        target.persistentDataContainer.remove(dataContainerType.dataKey)
     }
 
-    fun <T: PersistentDataHolder> updateAttachedData(neonGeneralDataKey: NeonGeneralDataKey, data: Any, persistentDataType: PersistentDataType<*, Any>, target: T) {
-        if (!hasDataAttached(target, neonGeneralDataKey, persistentDataType)) return
+    fun <T: PersistentDataHolder, U: Any> updateAttachedData(target: T, data: U, dataContainerType: DataContainerType<U>) {
+        if (!hasDataContainerAttached(target, dataContainerType)) return
 
-        target.persistentDataContainer[neonGeneralDataKey.dataKey, persistentDataType] = data
+        target.persistentDataContainer[dataContainerType.dataKey, dataContainerType.persistentDataType] = data
     }
 
-    fun <T: PersistentDataHolder> hasDataAttached(target: T, neonGeneralDataKey: NeonGeneralDataKey, persistentDataType: PersistentDataType<*, *>): Boolean {
-        return target.persistentDataContainer.has(neonGeneralDataKey.dataKey)
+    fun <T: PersistentDataHolder, U> hasDataContainerAttached(target: T, dataContainerType: DataContainerType<U>): Boolean {
+        return target.persistentDataContainer.has(dataContainerType.dataKey)
     }
 }
