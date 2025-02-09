@@ -9,26 +9,27 @@ interface IAuditBase<T>: Serializable {
         fun defaultTime(): LocalDateTime = LocalDateTime.now(ZoneOffset.UTC)
         fun defaultAuditor(): String = "SYSTEM"
     }
+
     var createdAt: LocalDateTime
     var createdBy: String
     var modifiedAt: LocalDateTime
     var modifiedBy: String
 
-    fun updateCreated(name: String): T {
+    fun updateCreated(name: String?): T {
         createdAt = LocalDateTime.now(ZoneOffset.UTC)
-        createdBy = name
+        createdBy = name ?: defaultAuditor()
 
         return this as T
     }
 
-    fun updateModified(name: String): T {
+    fun updateModified(name: String?): T {
         modifiedAt = LocalDateTime.now(ZoneOffset.UTC)
-        modifiedBy = name
+        modifiedBy = name ?: defaultAuditor()
 
         return this as T
     }
 
-    fun updateCreatedModified(name: String): T {
+    fun updateCreatedModified(name: String?): T {
         updateCreated(name)
         updateModified(name)
 

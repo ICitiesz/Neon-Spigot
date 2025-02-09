@@ -4,9 +4,9 @@ import com.islandstudio.neon.api.entity.security.RoleEntity
 import java.util.*
 
 interface IRoleRepository {
-    fun addRole(roleEntity: RoleEntity)
+    fun addRole(roleEntity: RoleEntity): RoleEntity?
 
-    fun updateRole(roleEntity: RoleEntity)
+    fun updateRole(roleEntity: RoleEntity): RoleEntity?
 
     fun getAll(): List<RoleEntity>
 
@@ -14,7 +14,7 @@ interface IRoleRepository {
 
     fun getByRoleCode(roleCode: String): RoleEntity?
 
-    fun deleteByRoleCode(roleCode: String)
+    fun deleteByRoleCode(roleCode: String): Int
 
     fun existById(roleId: Long): Boolean
 

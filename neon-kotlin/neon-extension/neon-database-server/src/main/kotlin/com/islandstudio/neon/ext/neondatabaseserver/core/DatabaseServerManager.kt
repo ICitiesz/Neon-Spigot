@@ -101,11 +101,12 @@ class DatabaseServerManager: IComponentInjector {
         newSingleThreadContext("[NDS] Database Server Manager").use { dispatcher ->
             CoroutineScope(dispatcher).launch {
                 pluginAdapter.getPluginLogger().info("Closing Neon database......")
+                connectionManager.closeConnection()
                 DatabaseManager.closeDatabases(0)
                 databaseServer.shutdown()
-                //NeonAPI.disconnectDataSource()
-                //hikariDataSource?.close()
                 databaseServer.stop()
+
+                joinAll()
             }.invokeOnCompletion {
                 pluginAdapter.getPluginLogger().info("Neon Database closed!")
             }

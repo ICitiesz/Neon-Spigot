@@ -4,9 +4,9 @@ import com.islandstudio.neon.api.entity.player.PlayerProfileEntity
 import java.util.*
 
 interface IPlayerProfileRepository {
-    fun addPlayerProfile(playerProfileEntity: PlayerProfileEntity)
+    fun addPlayerProfile(playerProfileEntity: PlayerProfileEntity): PlayerProfileEntity?
 
-    fun updatePlayerProfile(playerProfileEntity: PlayerProfileEntity)
+    fun updatePlayerProfile(playerProfileEntity: PlayerProfileEntity): PlayerProfileEntity?
 
     fun getAll(): List<PlayerProfileEntity>
 

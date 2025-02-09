@@ -18,12 +18,12 @@ import org.koin.core.component.inject
 class PlayerProfileAdapter: IComponentInjector {
     private val playerProfileService by inject<IPlayerProfileService>()
 
-    fun createPlayerProfile(request: CreatePlayerProfileRequestDTO): IActionResult<Unit> {
-        return playerProfileService.createPlayerProfile(request)
+    fun createPlayerProfile(request: CreatePlayerProfileRequestDTO): IActionResult<PlayerProfileEntity?> {
+        return playerProfileService.createPlayerProfile(request,)
     }
 
-    fun updatePlayerProfile(request: UpdatePlayerProfileRequestDTO): IActionResult<Unit> {
-        return playerProfileService.updatePlayerProfile(request)
+    fun updatePlayerProfile(invoker: String?, request: UpdatePlayerProfileRequestDTO): IActionResult<PlayerProfileEntity?> {
+        return playerProfileService.updatePlayerProfile(invoker, request)
     }
 
     fun getPlayerProfile(request: GetPlayerProfileRequestDTO): IActionResult<PlayerProfileEntity?> {
@@ -38,10 +38,9 @@ class PlayerProfileAdapter: IComponentInjector {
             }
 
             else -> {
-                ActionResult(
-                    status = ActionStatus.Failure,
-                    logMessage = "Error while trying to get player profile: Player UUID/Name is null or empty!"
-                )
+                ActionResult<PlayerProfileEntity?>()
+                    .withStatus(ActionStatus.NULL_OR_EMPTY_FIELD)
+                    .withLogMessage("Error while trying to get player profile: Player UUID/Name is null or empty!")
             }
         }
     }
@@ -50,11 +49,11 @@ class PlayerProfileAdapter: IComponentInjector {
         return playerProfileService.getAllPlayerProfile()
     }
 
-    fun assignRole(request: AssignRoleRequestDTO): IActionResult<Unit> {
-        return playerProfileService.assignRole(request)
+    fun assignRole(invoker: String?, request: AssignRoleRequestDTO): IActionResult<Long?> {
+        return playerProfileService.assignRole(invoker, request)
     }
 
-    fun unassignRole(request: UnassignRoleRequestDTO): IActionResult<Unit> {
-        return playerProfileService.unassignRole(request)
+    fun unassignRole(invoker: String?, request: UnassignRoleRequestDTO): IActionResult<Unit> {
+        return playerProfileService.unassignRole(invoker, request)
     }
 }

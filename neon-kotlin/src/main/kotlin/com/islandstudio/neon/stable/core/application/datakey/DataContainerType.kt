@@ -8,7 +8,7 @@ sealed class DataContainerType<T>(keyName: String): AbstractDataKey(keyName), Da
         val persistentDataType: PersistentDataType<*, T>
     }
 
-    data object PlayerSessionContainer: DataContainerType<ByteArray>("neon.player.player_session_container") {
+    data object PlayerSessionContainer: DataContainerType<ByteArray>("neon.player.player_session") {
         override val neonGeneralDataKey: NeonGeneralDataKey = NeonGeneralDataKey.NeonPlayerSession()
         override val persistentDataType: PersistentDataType<*, ByteArray> = PersistentDataType.BYTE_ARRAY
     }

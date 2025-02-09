@@ -9,9 +9,9 @@ import com.islandstudio.neon.api.dto.request.security.UnassignRoleRequestDTO
 import com.islandstudio.neon.api.entity.player.PlayerProfileEntity
 
 interface IPlayerProfileService {
-    fun createPlayerProfile(request: CreatePlayerProfileRequestDTO): IActionResult<Unit>
+    fun createPlayerProfile(request: CreatePlayerProfileRequestDTO): IActionResult<PlayerProfileEntity?>
 
-    fun updatePlayerProfile(request: UpdatePlayerProfileRequestDTO): IActionResult<Unit>
+    fun updatePlayerProfile(invoker: String?, request: UpdatePlayerProfileRequestDTO): IActionResult<PlayerProfileEntity?>
 
     fun getPlayerProfileByUuid(request: GetPlayerProfileRequestDTO): IActionResult<PlayerProfileEntity?>
 
@@ -21,7 +21,7 @@ interface IPlayerProfileService {
 
     fun hasPlayerProfile(request: GetPlayerProfileRequestDTO): Boolean
 
-    fun assignRole(request: AssignRoleRequestDTO): IActionResult<Unit>
+    fun assignRole(invoker: String?, request: AssignRoleRequestDTO): IActionResult<Long?>
 
-    fun unassignRole(request: UnassignRoleRequestDTO): IActionResult<Unit>
+    fun unassignRole(invoker: String?, request: UnassignRoleRequestDTO): IActionResult<Unit>
 }

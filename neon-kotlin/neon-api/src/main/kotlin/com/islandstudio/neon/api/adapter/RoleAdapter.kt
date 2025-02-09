@@ -1,6 +1,11 @@
 package com.islandstudio.neon.api.adapter
 
+import com.islandstudio.neon.api.dto.action.ActionResult
+import com.islandstudio.neon.api.dto.action.ActionStatus
+import com.islandstudio.neon.api.dto.action.IActionResult
 import com.islandstudio.neon.api.dto.request.security.CreateRoleRequestDTO
+import com.islandstudio.neon.api.dto.request.security.role.GetRoleRequestDTO
+import com.islandstudio.neon.api.dto.request.security.role.RemoveRoleRequestDTO
 import com.islandstudio.neon.api.entity.security.RoleEntity
 import com.islandstudio.neon.api.service.IRoleService
 import com.islandstudio.neon.shared.core.di.IComponentInjector
@@ -11,11 +16,22 @@ import org.koin.core.component.inject
 class RoleAdapter: IComponentInjector {
     private val roleService by inject<IRoleService>()
 
-    fun createRole(request: CreateRoleRequestDTO) {
-        roleService.createRole(request)
+    fun createRole(invoker: String?, request: CreateRoleRequestDTO): IActionResult<RoleEntity?> {
+        return roleService.createRole(invoker, request)
     }
 
-    fun getRoleByRoleId(roleId: Long): RoleEntity? {
-        return roleService.getRoleById(roleId)
+    fun getRole(request: GetRoleRequestDTO): IActionResult<RoleEntity?> {
+        return when {
+            request.roleId != null -> roleService.getRoleById(request)
+            !request.roleCode.isNullOrEmpty() -> roleService.getRoleByRoleCode(request)
+
+            else -> ActionResult<RoleEntity?>()
+                .withStatus(ActionStatus.NULL_OR_EMPTY_FIELD)
+                .withLogMessage("Invalid request field!")
+        }
+    }
+
+    fun removeRole(request: RemoveRoleRequestDTO): IActionResult<Int> {
+        return roleService.removeRoleByRoleCode(request)
     }
 }

@@ -29,38 +29,38 @@ class DatabaseStructureManager: IComponentInjector {
 
             delay(100)
 
-                this.async {
-                    connectionManager.getDataSource().connection.use { conn ->
-                        val statement = conn.createStatement()
+            this.async {
+                connectionManager.getDataSource().connection.use { conn ->
+                    val statement = conn.createStatement()
 
-                        val createDefaultSchema = "CREATE SCHEMA IF NOT EXISTS \"${appContext.getAppEnvValue("DATABASE_SCHEMA")}\""
-                        val createDBUpdateSchema = "CREATE SCHEMA IF NOT EXISTS \"${appContext.getAppEnvValue("DATABASE_DB_UPDATE_SCHEMA")}\""
+                    val createDefaultSchema = "CREATE SCHEMA IF NOT EXISTS \"${appContext.getAppEnvValue("DATABASE_SCHEMA")}\""
+                    val createDBUpdateSchema = "CREATE SCHEMA IF NOT EXISTS \"${appContext.getAppEnvValue("DATABASE_DB_UPDATE_SCHEMA")}\""
 
-                        val alterCatalog = """
-                            ALTER CATALOG "${appContext.getAppEnvValue("DATABASE_PUBLIC_CATALOG")}" 
-                            RENAME TO "${appContext.getAppEnvValue("DATABASE_CATALOG")}"
-                        """.trimIndent()
-                        val checkPublicCatalog = """
-                            SELECT COUNT(*) FROM INFORMATION_SCHEMA.INFORMATION_SCHEMA_CATALOG_NAME
-                            WHERE CATALOG_NAME = '${appContext.getAppEnvValue("DATABASE_PUBLIC_CATALOG")}'
-                        """.trimIndent()
+                    val alterCatalog = """
+                        ALTER CATALOG "${appContext.getAppEnvValue("DATABASE_PUBLIC_CATALOG")}" 
+                        RENAME TO "${appContext.getAppEnvValue("DATABASE_CATALOG")}"
+                    """.trimIndent()
+                    val checkPublicCatalog = """
+                        SELECT COUNT(*) FROM INFORMATION_SCHEMA.INFORMATION_SCHEMA_CATALOG_NAME
+                        WHERE CATALOG_NAME = '${appContext.getAppEnvValue("DATABASE_PUBLIC_CATALOG")}'
+                    """.trimIndent()
 
-                        statement.use { stmt ->
-                            val result = stmt.executeQuery(checkPublicCatalog)
+                    statement.use { stmt ->
+                        val result = stmt.executeQuery(checkPublicCatalog)
 
-                            if (result.next()) {
-                                val publicCatalogCount =  result.getInt(1)
+                        if (result.next()) {
+                            val publicCatalogCount =  result.getInt(1)
 
-                                if (publicCatalogCount == 1) {
-                                    stmt.execute(alterCatalog)
-                                }
+                            if (publicCatalogCount == 1) {
+                                stmt.execute(alterCatalog)
                             }
-
-                            stmt.execute(createDefaultSchema)
-                            stmt.execute(createDBUpdateSchema)
                         }
+
+                        stmt.execute(createDefaultSchema)
+                        stmt.execute(createDBUpdateSchema)
                     }
-                }.asCompletableFuture().join()
+                }
+            }.asCompletableFuture().join()
 
             /* Get database instance of Liquibase */
             val databaseInstance = DatabaseFactory
@@ -83,6 +83,7 @@ class DatabaseStructureManager: IComponentInjector {
             }
 
             liquibaseInstance.use {
+                it.clearCheckSums()
                 it.update()
             }
 

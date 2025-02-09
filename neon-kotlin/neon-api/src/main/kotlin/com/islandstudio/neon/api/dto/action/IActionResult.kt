@@ -8,4 +8,28 @@ interface IActionResult<T> {
     val logMessage: String?
     val status: ActionStatus
     val neonException: NeonException?
+
+    fun onSuccess(block: (actionResult: IActionResult<T>) -> Unit = {} ): IActionResult<T> {
+        if (status == ActionStatus.SUCCESS) {
+            block(this)
+        }
+
+        return this
+    }
+
+    fun onFailure(block: (actionResult: IActionResult<T>) -> Unit = {}): IActionResult<T> {
+        if (status == ActionStatus.FAILURE) {
+            block(this)
+        }
+
+        return this
+    }
+
+    fun onOtherStatus(block: (actionResult: IActionResult<T>) -> Unit = {}): IActionResult<T> {
+        if (!(status == ActionStatus.SUCCESS || status == ActionStatus.FAILURE)) {
+            block(this)
+        }
+
+        return this
+    }
 }
