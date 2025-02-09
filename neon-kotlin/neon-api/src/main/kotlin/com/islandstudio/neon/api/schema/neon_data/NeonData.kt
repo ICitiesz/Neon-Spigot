@@ -5,8 +5,10 @@ package com.islandstudio.neon.api.schema.neon_data
 
 
 import com.islandstudio.neon.api.schema.NeonDb
+import com.islandstudio.neon.api.schema.neon_data.tables.TPermission
 import com.islandstudio.neon.api.schema.neon_data.tables.TPlayerProfile
 import com.islandstudio.neon.api.schema.neon_data.tables.TRole
+import com.islandstudio.neon.api.schema.neon_data.tables.TRolePermission
 import org.jooq.Catalog
 import org.jooq.Table
 import org.jooq.impl.SchemaImpl
@@ -26,6 +28,11 @@ open class NeonData : SchemaImpl("NEON_DATA", NeonDb.NEON_DB) {
     }
 
     /**
+     * The table <code>NEON_DATA.T_PERMISSION</code>.
+     */
+    val T_PERMISSION: TPermission get() = TPermission.T_PERMISSION
+
+    /**
      * The table <code>NEON_DATA.T_PLAYER_PROFILE</code>.
      */
     val T_PLAYER_PROFILE: TPlayerProfile get() = TPlayerProfile.T_PLAYER_PROFILE
@@ -35,10 +42,17 @@ open class NeonData : SchemaImpl("NEON_DATA", NeonDb.NEON_DB) {
      */
     val T_ROLE: TRole get() = TRole.T_ROLE
 
+    /**
+     * The table <code>NEON_DATA.T_ROLE_PERMISSION</code>.
+     */
+    val T_ROLE_PERMISSION: TRolePermission get() = TRolePermission.T_ROLE_PERMISSION
+
     override fun getCatalog(): Catalog = NeonDb.NEON_DB
 
     override fun getTables(): List<Table<*>> = listOf(
+        TPermission.T_PERMISSION,
         TPlayerProfile.T_PLAYER_PROFILE,
-        TRole.T_ROLE
+        TRole.T_ROLE,
+        TRolePermission.T_ROLE_PERMISSION
     )
 }

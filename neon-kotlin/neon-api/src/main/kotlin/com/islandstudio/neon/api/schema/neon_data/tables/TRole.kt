@@ -6,9 +6,12 @@ package com.islandstudio.neon.api.schema.neon_data.tables
 
 import com.islandstudio.neon.api.schema.neon_data.NeonData
 import com.islandstudio.neon.api.schema.neon_data.keys.FK_T_PLAYER_PROFILE_T_ROLE_ROLE_ID
+import com.islandstudio.neon.api.schema.neon_data.keys.FK_T_ROLE_PERMISSION_ROLE_ID
 import com.islandstudio.neon.api.schema.neon_data.keys.PK_T_ROLE
 import com.islandstudio.neon.api.schema.neon_data.keys.UQ_T_ROLE_ROLE_CODE
+import com.islandstudio.neon.api.schema.neon_data.tables.TPermission.TPermissionPath
 import com.islandstudio.neon.api.schema.neon_data.tables.TPlayerProfile.TPlayerProfilePath
+import com.islandstudio.neon.api.schema.neon_data.tables.TRolePermission.TRolePermissionPath
 import com.islandstudio.neon.api.schema.neon_data.tables.records.TRoleRecord
 import org.jooq.*
 import org.jooq.impl.DSL
@@ -69,11 +72,6 @@ open class TRole(
      * The column <code>NEON_DATA.T_ROLE.ROLE_CODE</code>.
      */
     val ROLE_CODE: TableField<TRoleRecord, String?> = createField(DSL.name("ROLE_CODE"), SQLDataType.VARCHAR(64).nullable(false), this, "")
-
-    /**
-     * The column <code>NEON_DATA.T_ROLE.ASSIGNED_PLAYER_COUNT</code>.
-     */
-    val ASSIGNED_PLAYER_COUNT: TableField<TRoleRecord, Long?> = createField(DSL.name("ASSIGNED_PLAYER_COUNT"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.field(DSL.raw("0"), SQLDataType.BIGINT)), this, "")
 
     /**
      * The column <code>NEON_DATA.T_ROLE.CREATED_AT</code>.
@@ -146,6 +144,29 @@ open class TRole(
 
     val tPlayerProfile: TPlayerProfilePath
         get(): TPlayerProfilePath = tPlayerProfile()
+
+    private lateinit var _tRolePermission: TRolePermissionPath
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>NEON_DATA.T_ROLE_PERMISSION</code> table
+     */
+    fun tRolePermission(): TRolePermissionPath {
+        if (!this::_tRolePermission.isInitialized)
+            _tRolePermission = TRolePermissionPath(this, null, FK_T_ROLE_PERMISSION_ROLE_ID.inverseKey)
+
+        return _tRolePermission;
+    }
+
+    val tRolePermission: TRolePermissionPath
+        get(): TRolePermissionPath = tRolePermission()
+
+    /**
+     * Get the implicit many-to-many join path to the
+     * <code>NEON_DATA.T_PERMISSION</code> table
+     */
+    val tPermission: TPermissionPath
+        get(): TPermissionPath = tRolePermission().tPermission()
     override fun getChecks(): List<Check<TRoleRecord>> = listOf(
         Internal.createCheck(this, DSL.name("T_ROLE_ENSURE_UPPER"), "\"ROLE_CODE\" = UPPER(\"ROLE_CODE\")", true)
     )

@@ -28,25 +28,21 @@ open class TRoleRecord() : UpdatableRecordImpl<TRoleRecord>(TRole.T_ROLE) {
         set(value): Unit = set(2, value)
         get(): String? = get(2) as String?
 
-    open var assignedPlayerCount: Long?
-        set(value): Unit = set(3, value)
-        get(): Long? = get(3) as Long?
-
     open var createdAt: LocalDateTime?
-        set(value): Unit = set(4, value)
-        get(): LocalDateTime? = get(4) as LocalDateTime?
+        set(value): Unit = set(3, value)
+        get(): LocalDateTime? = get(3) as LocalDateTime?
 
     open var createdBy: String?
-        set(value): Unit = set(5, value)
-        get(): String? = get(5) as String?
+        set(value): Unit = set(4, value)
+        get(): String? = get(4) as String?
 
     open var modifiedAt: LocalDateTime?
-        set(value): Unit = set(6, value)
-        get(): LocalDateTime? = get(6) as LocalDateTime?
+        set(value): Unit = set(5, value)
+        get(): LocalDateTime? = get(5) as LocalDateTime?
 
     open var modifiedBy: String?
-        set(value): Unit = set(7, value)
-        get(): String? = get(7) as String?
+        set(value): Unit = set(6, value)
+        get(): String? = get(6) as String?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -57,11 +53,10 @@ open class TRoleRecord() : UpdatableRecordImpl<TRoleRecord>(TRole.T_ROLE) {
     /**
      * Create a detached, initialised TRoleRecord
      */
-    constructor(roleId: Long? = null, roleDisplayName: String? = null, roleCode: String? = null, assignedPlayerCount: Long? = null, createdAt: LocalDateTime? = null, createdBy: String? = null, modifiedAt: LocalDateTime? = null, modifiedBy: String? = null): this() {
+    constructor(roleId: Long? = null, roleDisplayName: String? = null, roleCode: String? = null, createdAt: LocalDateTime? = null, createdBy: String? = null, modifiedAt: LocalDateTime? = null, modifiedBy: String? = null): this() {
         this.roleId = roleId
         this.roleDisplayName = roleDisplayName
         this.roleCode = roleCode
-        this.assignedPlayerCount = assignedPlayerCount
         this.createdAt = createdAt
         this.createdBy = createdBy
         this.modifiedAt = modifiedAt
