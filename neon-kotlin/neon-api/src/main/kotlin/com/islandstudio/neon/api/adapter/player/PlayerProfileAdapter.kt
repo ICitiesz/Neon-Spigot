@@ -1,4 +1,4 @@
-package com.islandstudio.neon.api.adapter
+package com.islandstudio.neon.api.adapter.player
 
 import com.islandstudio.neon.api.dto.action.ActionResult
 import com.islandstudio.neon.api.dto.action.ActionStatus
@@ -9,7 +9,7 @@ import com.islandstudio.neon.api.dto.request.player.UpdatePlayerProfileRequestDT
 import com.islandstudio.neon.api.dto.request.security.AssignRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.UnassignRoleRequestDTO
 import com.islandstudio.neon.api.entity.player.PlayerProfileEntity
-import com.islandstudio.neon.api.service.IPlayerProfileService
+import com.islandstudio.neon.api.service.player.IPlayerProfileService
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject

@@ -1,4 +1,4 @@
-package com.islandstudio.neon.api.service.impl
+package com.islandstudio.neon.api.service.security.impl
 
 import com.islandstudio.neon.api.dto.action.ActionResult
 import com.islandstudio.neon.api.dto.action.ActionStatus
@@ -8,7 +8,7 @@ import com.islandstudio.neon.api.dto.request.security.role.GetRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.RemoveRoleRequestDTO
 import com.islandstudio.neon.api.entity.security.RoleEntity
 import com.islandstudio.neon.api.repository.security.IRoleRepository
-import com.islandstudio.neon.api.service.IRoleService
+import com.islandstudio.neon.api.service.security.IRoleService
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonAPIException
 import org.koin.core.annotation.Single

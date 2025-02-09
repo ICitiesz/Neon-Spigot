@@ -1,4 +1,4 @@
-package com.islandstudio.neon.api.adapter
+package com.islandstudio.neon.api.adapter.security
 
 import com.islandstudio.neon.api.dto.action.ActionResult
 import com.islandstudio.neon.api.dto.action.ActionStatus

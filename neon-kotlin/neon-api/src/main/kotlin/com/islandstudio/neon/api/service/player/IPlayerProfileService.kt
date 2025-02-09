@@ -1,4 +1,4 @@
-package com.islandstudio.neon.api.service
+package com.islandstudio.neon.api.service.player
 
 import com.islandstudio.neon.api.dto.action.IActionResult
 import com.islandstudio.neon.api.dto.request.player.CreatePlayerProfileRequestDTO

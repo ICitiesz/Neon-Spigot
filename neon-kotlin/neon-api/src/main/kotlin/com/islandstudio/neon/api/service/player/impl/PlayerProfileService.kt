@@ -1,4 +1,4 @@
-package com.islandstudio.neon.api.service.impl
+package com.islandstudio.neon.api.service.player.impl
 
 import com.islandstudio.neon.api.dto.action.ActionResult
 import com.islandstudio.neon.api.dto.action.ActionStatus
@@ -11,7 +11,7 @@ import com.islandstudio.neon.api.dto.request.security.UnassignRoleRequestDTO
 import com.islandstudio.neon.api.entity.player.PlayerProfileEntity
 import com.islandstudio.neon.api.repository.player.IPlayerProfileRepository
 import com.islandstudio.neon.api.repository.security.IRoleRepository
-import com.islandstudio.neon.api.service.IPlayerProfileService
+import com.islandstudio.neon.api.service.player.IPlayerProfileService
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonAPIException
