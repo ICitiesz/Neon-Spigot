@@ -35,7 +35,7 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
             /* Check if the player exists */
             if (playerProfileRepository.existsByUUID(request.playerUuid)) {
                 return actionResult
-                    .withStatus(ActionStatus.DUPLICATE_RECORD)
+                    .withStatus(ActionStatus.PLAYER_PROFILE_EXIST)
             }
 
             val playerProfile = PlayerProfileEntity(
@@ -52,11 +52,6 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage(appContext.getFormattedCodeMessage(
-                    "neon.exception.api.create_record",
-                    "Player Profile",
-                    "Unhandled API exception!"
-                ))
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -68,9 +63,7 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
             val playerProfile = playerProfileRepository.getByUUID(request.playerUUID)?.apply {
                 this.playerName = request.playerName
             } ?: return actionResult
-                .withStatus(ActionStatus.RECORD_NOT_EXIST)
-                .withDisplayMessage("No such player profile found!")
-                .withLogMessage("No such player profile found!")
+                .withStatus(ActionStatus.PLAYER_PROFILE_NOT_EXIST)
 
             playerProfileRepository.updatePlayerProfile(playerProfile).run {
                 return actionResult
@@ -80,7 +73,6 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Error while trying to update player profile!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -96,12 +88,10 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
             }
 
             return actionResult
-                .withStatus(ActionStatus.RECORD_NOT_EXIST)
-                .withDisplayMessage("No such player profile found!")
+                .withStatus(ActionStatus.PLAYER_PROFILE_NOT_EXIST)
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Cannot get player profile!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -117,12 +107,10 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
             }
 
             return actionResult
-                .withStatus(ActionStatus.RECORD_NOT_EXIST)
-                .withDisplayMessage("No such player profile found!")
+                .withStatus(ActionStatus.PLAYER_PROFILE_NOT_EXIST)
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Cannot get player profile!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -139,7 +127,6 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Error while trying to get all player profile!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -166,13 +153,11 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
         runCatching {
             val playerProfile = playerProfileRepository.getByUUID(request.playerUUID)
                 ?: return actionResult
-                    .withStatus(ActionStatus.RECORD_NOT_EXIST)
-                    .withDisplayMessage("No such player profile found!")
+                    .withStatus(ActionStatus.PLAYER_PROFILE_NOT_EXIST)
 
             val role = roleRepository.getByRoleCode(request.roleCode)
                 ?: return actionResult
                     .withStatus(ActionStatus.ROLE_NOT_EXIST)
-                    .withDisplayMessage("No such role by role code!")
 
             playerProfile.roleId?.let {
                 if (it != role.roleId!!) {
@@ -181,8 +166,7 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
                 }
 
                 return actionResult
-                    .withStatus(ActionStatus.DUPLICATE_RECORD)
-                    .withDisplayMessage( "Player already assigned with the given role!")
+                    .withStatus(ActionStatus.PLAYER_ROLE_ALREADY_ASSIGN)
             }
 
             playerProfileRepository.updatePlayerProfile(playerProfile.updateModified(invoker)).run {
@@ -193,7 +177,6 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Error while trying to assign role to player!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -204,14 +187,12 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
         runCatching {
             val playerProfile = playerProfileRepository.getByUUID(request.playerUUID)
                 ?: return actionResult
-                    .withStatus(ActionStatus.RECORD_NOT_EXIST)
-                    .withDisplayMessage("No such player profile!")
+                    .withStatus(ActionStatus.PLAYER_PROFILE_NOT_EXIST)
 
             playerProfile.roleId?.let {
                 playerProfile.roleId = null
             } ?: return actionResult
                 .withStatus(ActionStatus.PLAYER_ROLE_NOT_ASSIGN)
-                .withDisplayMessage("The player don't have role assigned!")
 
             playerProfileRepository.updatePlayerProfile(playerProfile.updateModified(invoker)).run {
                 return actionResult
@@ -220,7 +201,6 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Error while trying to unassign role to player!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }

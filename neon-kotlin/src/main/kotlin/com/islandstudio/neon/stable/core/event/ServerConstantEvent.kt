@@ -6,7 +6,7 @@ import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
-import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
+import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import com.islandstudio.neon.stable.core.command.NCommand
 import com.islandstudio.neon.stable.features.nDurable.NDurable
 import com.islandstudio.neon.stable.features.nRank.NRank
@@ -85,7 +85,7 @@ class ServerConstantEvent: IComponentInjector {
      */
     @Suppress("UNCHECKED_CAST")
     private fun updatePlayerRecipe(player: Player) {
-        val mcPlayer = NPacketProcessor.getNPlayer(player)
+        val mcPlayer = ServerGamePacketManager.getMcPlayer(player)
         val mcServer = mcPlayer.javaClass.getField(NmsMap.McServer.remapped).get(mcPlayer)
         val craftingManager = mcServer.javaClass.getMethod(NmsMap.CraftingManager.remapped).invoke(mcServer)!!
 
@@ -102,7 +102,7 @@ class ServerConstantEvent: IComponentInjector {
         val recipeUpdatePacket: Any = updateRecipePacketConstructors.find { it.parameterTypes.contains(Collection::class.java) }!!
             .newInstance(recipeList as MutableCollection<*>)
 
-        NPacketProcessor.sendGamePacket(player, recipeUpdatePacket)
+        ServerGamePacketManager.sendServerGamePacket(player, recipeUpdatePacket)
 
         /* Recipe book update */
         val playerRecipeBook: Any = mcPlayer.javaClass.getMethod(NmsMap.PlayerRecipeBook.remapped).invoke(mcPlayer)
@@ -167,7 +167,7 @@ class ServerConstantEvent: IComponentInjector {
                 ServerLoadEvent.LoadType.STARTUP, ServerLoadEvent.LoadType.RELOAD -> {
                     neon.server.onlinePlayers.forEach { player ->
                         serverConstantEvent.updatePlayerRecipe(player)
-                        NPacketProcessor.reloadGamePacketListener(player)
+                        ServerGamePacketManager.reloadServerGamePacketListener(player)
                     }
                 }
             }
@@ -186,21 +186,18 @@ class ServerConstantEvent: IComponentInjector {
         @EventHandler
         private fun onPlayerJoin(e: PlayerJoinEvent) {
             with(e.player) {
-                NPacketProcessor.addGamePacketListener(this)
+                ServerGamePacketManager.registerServerGamePacketListener(this)
                 NRank.updateTag()
                 NDurable.toggleDamageProperty(NDurable.isEnabled(), this)
-                e.joinMessage = ("")
-                serverConstantEvent.broadcastPlayerNotification(this, PlayerHandshakeStatus.JOINING)
             }
         }
 
         @EventHandler
         private fun onPlayerQuit(e: PlayerQuitEvent) {
             with(e.player) {
-                NPacketProcessor.removeGamePacketListener(this)
+                ServerGamePacketManager.unregisterServerGamePacketListener(this)
                 NGUI.Handler.nGUIContainer.remove(player)
                 e.quitMessage = ""
-                serverConstantEvent.broadcastPlayerNotification(this, PlayerHandshakeStatus.LEAVING)
             }
         }
 

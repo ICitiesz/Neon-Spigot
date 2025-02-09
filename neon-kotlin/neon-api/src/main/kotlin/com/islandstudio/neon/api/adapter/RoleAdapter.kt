@@ -26,8 +26,7 @@ class RoleAdapter: IComponentInjector {
             !request.roleCode.isNullOrEmpty() -> roleService.getRoleByRoleCode(request)
 
             else -> ActionResult<RoleEntity?>()
-                .withStatus(ActionStatus.NULL_OR_EMPTY_FIELD)
-                .withLogMessage("Invalid request field!")
+                .withStatus(ActionStatus.INVALID_REQUEST_FIELD)
         }
     }
 

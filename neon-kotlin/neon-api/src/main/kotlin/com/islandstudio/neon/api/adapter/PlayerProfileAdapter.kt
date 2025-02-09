@@ -39,8 +39,7 @@ class PlayerProfileAdapter: IComponentInjector {
 
             else -> {
                 ActionResult<PlayerProfileEntity?>()
-                    .withStatus(ActionStatus.NULL_OR_EMPTY_FIELD)
-                    .withLogMessage("Error while trying to get player profile: Player UUID/Name is null or empty!")
+                    .withStatus(ActionStatus.INVALID_REQUEST_FIELD)
             }
         }
     }

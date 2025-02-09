@@ -27,8 +27,7 @@ class RolePermissionAdapter: IComponentInjector {
             request.roleId != null -> rolePermissionService.removeRolePermissionByRoleId(request)
 
             else -> ActionResult<Int>()
-                .withStatus(ActionStatus.NULL_OR_EMPTY_FIELD)
-                .withLogMessage("Invalid request field!")
+                .withStatus(ActionStatus.INVALID_REQUEST_FIELD)
         }
     }
 
@@ -38,8 +37,7 @@ class RolePermissionAdapter: IComponentInjector {
         }
 
         return ActionResult<RolePermissionEntity?>()
-            .withStatus(ActionStatus.NULL_OR_EMPTY_FIELD)
-            .withLogMessage("Invalid request field!")
+            .withStatus(ActionStatus.INVALID_REQUEST_FIELD)
     }
 
     fun getRolePermissionList(request: GetRolePermissionRequestDTO): IActionResult<RolePermissionListResponseDTO> {
@@ -48,8 +46,7 @@ class RolePermissionAdapter: IComponentInjector {
             request.permissionId != null -> rolePermissionService.getRolePermissionListByPermissionId(request)
 
             else -> ActionResult<RolePermissionListResponseDTO>()
-                .withStatus(ActionStatus.NULL_OR_EMPTY_FIELD)
-                .withLogMessage("Invalid request field!")
+                .withStatus(ActionStatus.INVALID_REQUEST_FIELD)
         }
     }
 
@@ -59,7 +56,6 @@ class RolePermissionAdapter: IComponentInjector {
         }
 
         return ActionResult<RolePermissionListResponseDTO>()
-            .withStatus(ActionStatus.NULL_OR_EMPTY_FIELD)
-            .withLogMessage("Invalid request field!")
+            .withStatus(ActionStatus.INVALID_REQUEST_FIELD)
     }
 }

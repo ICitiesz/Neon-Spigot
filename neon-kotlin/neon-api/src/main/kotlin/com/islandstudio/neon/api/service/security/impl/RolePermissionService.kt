@@ -28,22 +28,19 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
             /* Check if the role permission exist */
             if (rolePermissionRepository.existByRoleIdPermissionId(request.roleId, request.permissionId)) {
                 return actionResult
-                    .withStatus(ActionStatus.DUPLICATE_RECORD)
-                    .withDisplayMessage("Role permission already exist!")
+                    .withStatus(ActionStatus.ROLE_PERMISSION_EXIST)
             }
 
             /* Check if the role exist */
             if (!roleRepository.existById(request.roleId)) {
                 return actionResult
                     .withStatus(ActionStatus.ROLE_NOT_EXIST)
-                    .withDisplayMessage("Role not exist!")
             }
 
             /* Check if the permission exist */
             if (!permissionRepository.existById(request.permissionId)) {
                 return actionResult
                     .withStatus(ActionStatus.PERMISSION_NOT_EXIST)
-                    .withDisplayMessage("Permission not exist!")
             }
 
             request.parentRolePermissionId?.let {
@@ -51,7 +48,6 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
                 if (!permissionRepository.existById(it)) {
                     return actionResult
                         .withStatus(ActionStatus.PARENT_ROLE_PERMISSION_NOT_EXIST)
-                        .withDisplayMessage("Parent role permission not exist!")
                 }
             }
 
@@ -69,7 +65,6 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Can't add role permission!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -86,11 +81,9 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
 
             return actionResult
                 .withStatus(ActionStatus.ROLE_PERMISSION_NOT_EXIST)
-                .withDisplayMessage("Role permission not exist!")
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Can't get role permission!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -109,7 +102,6 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Can't get role permission!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -128,7 +120,6 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Can't get role permission!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -140,7 +131,6 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
             if (!rolePermissionRepository.existById(request.parentRolePermissionId!!)) {
                 return actionResult
                     .withStatus(ActionStatus.PARENT_ROLE_PERMISSION_NOT_EXIST)
-                    .withDisplayMessage("Parent role permission not exist!")
             }
 
             val result = RolePermissionListResponseDTO(
@@ -153,7 +143,6 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Can't get child role permission!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -165,7 +154,6 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
             if (!rolePermissionRepository.existById(request.rolePermissionId!!)) {
                 return actionResult
                     .withStatus(ActionStatus.ROLE_PERMISSION_NOT_EXIST)
-                    .withDisplayMessage("Role permission not exist!")
             }
 
             return actionResult
@@ -174,7 +162,6 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Can't remove role permission!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -189,7 +176,6 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Cannot remove role permission!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }

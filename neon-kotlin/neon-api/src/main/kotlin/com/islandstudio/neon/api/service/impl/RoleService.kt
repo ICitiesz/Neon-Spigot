@@ -25,8 +25,7 @@ class RoleService: IRoleService, IComponentInjector {
             /* Check if the role exist */
             if (roleRepository.existByRoleCode(request.roleCode)) {
                 return actionResult
-                    .withStatus(ActionStatus.DUPLICATE_RECORD)
-                    .withDisplayMessage("Role code by given role already exists!")
+                    .withStatus(ActionStatus.ROLE_EXIST)
             }
 
             val role = RoleEntity(
@@ -42,7 +41,6 @@ class RoleService: IRoleService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Cannot add role!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -57,13 +55,10 @@ class RoleService: IRoleService, IComponentInjector {
                     .withResult(it)
             }
 
-            return actionResult
-                .withStatus(ActionStatus.ROLE_NOT_EXIST)
-                .withDisplayMessage("Role not exist!")
+            return actionResult.withStatus(ActionStatus.ROLE_NOT_EXIST)
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Cannot get role!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -78,13 +73,10 @@ class RoleService: IRoleService, IComponentInjector {
                     .withResult(it)
             }
 
-            return actionResult
-                .withStatus(ActionStatus.ROLE_NOT_EXIST)
-                .withDisplayMessage("Role not exist!")
+            return actionResult.withStatus(ActionStatus.ROLE_NOT_EXIST)
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Cannot get role!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
@@ -99,7 +91,6 @@ class RoleService: IRoleService, IComponentInjector {
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
-                .withLogMessage("Cannot remove role!")
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
