@@ -2,7 +2,7 @@ package com.islandstudio.neon.experimental.nFireworks
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
+import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import kotlinx.coroutines.*
 import net.minecraft.core.particles.DustParticleOptions
 import org.bukkit.Bukkit
@@ -89,7 +89,7 @@ object FireworkPattern {
                                             val pixelDust = DustParticleOptions(it.pixelPos, 0.9F)
 
                                             /* Render the pixel */
-                                            NPacketProcessor.getNWorld(explodePos.world!!).sendParticles(
+                                            ServerGamePacketManager.getMcWorld(explodePos.world!!).sendParticles(
                                                 null, pixelDust, horizontalPointer, verticalPointer,
                                                 explodePos.z, 1, 0.0, 0.0, 0.0, 1.0, true
                                             )
@@ -128,7 +128,7 @@ object FireworkPattern {
                                             val pixelDust = DustParticleOptions(it.pixelPos, 0.9F)
 
                                             /* Render the pixel */
-                                            NPacketProcessor.getNWorld(explodePos.world!!).sendParticles(
+                                            ServerGamePacketManager.getMcWorld(explodePos.world!!).sendParticles(
                                                 null, pixelDust, horizontalPointer, verticalPointer,
                                                 explodePos.z, 1, 0.0, 0.0, 0.0, 1.0, true
                                             )
@@ -167,7 +167,7 @@ object FireworkPattern {
                                             val pixelDust = DustParticleOptions(it.pixelPos, 0.9F)
 
                                             /* Render the pixel */
-                                            NPacketProcessor.getNWorld(explodePos.world!!).sendParticles(
+                                            ServerGamePacketManager.getMcWorld(explodePos.world!!).sendParticles(
                                                 null, pixelDust, explodePos.x, verticalPointer,
                                                 horizontalPointer, 1, 0.0, 0.0, 0.0, 1.0, true
                                             )
@@ -206,7 +206,7 @@ object FireworkPattern {
                                             val pixelDust = DustParticleOptions(it.pixelPos, 0.9F)
 
                                             /* Render the pixel */
-                                            NPacketProcessor.getNWorld(explodePos.world!!).sendParticles(
+                                            ServerGamePacketManager.getMcWorld(explodePos.world!!).sendParticles(
                                                 null, pixelDust, explodePos.x, verticalPointer,
                                                 horizontalPointer, 1, 0.0, 0.0, 0.0, 1.0, true
                                             )

@@ -9,7 +9,7 @@ import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
 import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
-import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
+import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import com.islandstudio.neon.stable.core.command.CommandDispatcher
 import com.islandstudio.neon.stable.core.command.CommandInterfaceProcessor
 import com.islandstudio.neon.stable.core.command.properties.CommandAlias
@@ -998,7 +998,7 @@ object NDurable: IComponentInjector {
 
         val actionTitlePacket = setActionBarTextPacket.newInstance(Component.Serializer.fromJson("{\"text\":\"${alertMsg}\"}"))
 
-        NPacketProcessor.sendGamePacket(player, actionTitlePacket)
+        ServerGamePacketManager.sendServerGamePacket(player, actionTitlePacket)
     }
 
     /**

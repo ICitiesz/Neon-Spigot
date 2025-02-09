@@ -5,7 +5,7 @@ import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
 import com.islandstudio.neon.stable.core.recipe.NBundleRecipe
-import com.islandstudio.neon.stable.core.recipe.RecipeRegistry
+import com.islandstudio.neon.stable.core.recipe.component.RecipeRegistry
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import org.bukkit.Material
 import org.bukkit.entity.Player

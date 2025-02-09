@@ -8,6 +8,7 @@ val kotlinxCoroutinesVersion = "1.9.0"
 plugins {
     kotlin("jvm") version "2.0.20" apply true
     kotlin("plugin.serialization") version "2.0.20" apply true
+    kotlin("plugin.noarg") version "2.0.20" apply true
     id("com.google.devtools.ksp") version "2.0.20-1.0.25" apply true
 }
 
@@ -30,6 +31,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 
     /* Function Library */
+    compileOnly("com.github.f4b6a3:ulid-creator:5.2.3")
     compileOnly("org.modelmapper:modelmapper:3.2.2")
     compileOnly("io.insert-koin:koin-core-jvm:4.0.0")
     compileOnly("io.insert-koin:koin-annotations-jvm:$koinAnnotationsVersion")
@@ -54,6 +56,10 @@ kotlin {
             }
         }
     }
+}
+
+noArg {
+    annotation("com.islandstudio.neon.shared.annotation.NoArgConstructor")
 }
 
 tasks.processResources {

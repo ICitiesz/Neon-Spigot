@@ -4,7 +4,7 @@ import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.server.ServerProvider
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
-import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
+import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import com.islandstudio.neon.stable.utils.ObjectSerializer
 import kotlinx.coroutines.*
 import net.minecraft.resources.ResourceKey
@@ -96,7 +96,7 @@ class PaintingBuilder: IComponentInjector {
                 }
 
                 /* Set the map data in world cache */
-                NPacketProcessor.getNWorld(world).apply {
+                ServerGamePacketManager.getMcWorld(world).apply {
                     this.javaClass.getMethod(
                         NmsMap.SetWorldMapData.remapped, String::class.java,
                         MapItemSavedData::class.java).invoke(this, "map_${paintingTile.id}", worldMapData)
@@ -107,7 +107,7 @@ class PaintingBuilder: IComponentInjector {
         renderDataFile.writeBytes(ObjectSerializer.serializeObjectRaw(painting))
         NPainting.Handler.saveReusableMapIds(usableIds.toHashSet())
 
-        val worldPersistantContainer = NPacketProcessor.getNWorld(world).run {
+        val worldPersistantContainer = ServerGamePacketManager.getMcWorld(world).run {
             this.javaClass.getMethod(NmsMap.GetWorldPersistentContainer.remapped)
                 .invoke(this)
         }
@@ -129,8 +129,8 @@ class PaintingBuilder: IComponentInjector {
         if (usableIds.isEmpty()) return Bukkit.createMap(world)
 
         val usableId = usableIds.removeFirst() /* Get usable id */
-        val overworldResourceKey = NPacketProcessor.getNWorld(world).javaClass.superclass
-            .getField(NmsMap.OverworldResourceKey.remapped).get(NPacketProcessor.getNWorld(world))
+        val overworldResourceKey = ServerGamePacketManager.getMcWorld(world).javaClass.superclass
+            .getField(NmsMap.OverworldResourceKey.remapped).get(ServerGamePacketManager.getMcWorld(world))
 
         /* Construct NMS-based map data */
         val mapDataContainer = MapItemSavedData::class.java.getDeclaredConstructor(

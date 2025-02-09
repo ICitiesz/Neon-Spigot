@@ -12,6 +12,7 @@ val pluginShadedjarName = "neon-kotlin-shaded.jar"
 plugins {
     kotlin("jvm") version "2.0.20" apply true
     kotlin("plugin.serialization") version "2.0.20" apply true
+    kotlin("plugin.noarg") version "2.0.20" apply true
     id("com.gradleup.shadow") version "8.3.5" apply true
     id("com.google.devtools.ksp") version "2.0.20-1.0.25" apply true
 }
@@ -56,6 +57,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 
     /* Function Library */
+    implementation("com.github.f4b6a3:ulid-creator:5.2.3")
     implementation("io.insert-koin:koin-core-jvm:4.0.0")
     implementation("io.insert-koin:koin-annotations-jvm:$koinAnnotationsVersion")
     ksp("io.insert-koin:koin-ksp-compiler:$koinAnnotationsVersion")
@@ -64,9 +66,9 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
     implementation("com.akuleshov7:ktoml-core:0.5.2")
     implementation("com.akuleshov7:ktoml-file-jvm:0.5.2")
+    api("org.modelmapper:modelmapper:3.2.1")
 
     /* Database Library */
-    api("org.modelmapper:modelmapper:3.2.1")
     implementation("org.hsqldb:hsqldb:2.7.3")
     implementation("org.jooq:jooq:$jooqVersion")
     compileOnly("org.jooq:jooq-meta:$jooqVersion")
@@ -90,6 +92,10 @@ kotlin {
             }
         }
     }
+}
+
+noArg {
+    annotation("com.islandstudio.neon.shared.annotation.NoArgConstructor")
 }
 
 tasks.processResources {

@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.core.recipe
 
-import com.islandstudio.neon.stable.core.recipe.holder.AbstractRecipeHolder
+import com.islandstudio.neon.stable.core.recipe.component.AbstractRecipeHolder
 
 sealed class NBundleRecipe(keyname: String): AbstractRecipeHolder(keyname) {
     companion object: RecipeHolderHandler<NBundleRecipe>(NBundleRecipe::class);

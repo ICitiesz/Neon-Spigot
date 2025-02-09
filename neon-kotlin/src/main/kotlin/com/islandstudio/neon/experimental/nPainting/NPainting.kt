@@ -9,7 +9,7 @@ import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
-import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
+import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import com.islandstudio.neon.stable.core.io.DataSourceType
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered.saveToFile
@@ -484,7 +484,7 @@ object NPainting: IComponentInjector {
             Handler.saveReusableMapIds(this.toCollection(HashSet()))
         }
 
-        NPacketProcessor.getNWorld(Bukkit.getWorlds().find { it.environment == World.Environment.NORMAL }!!).let {
+        ServerGamePacketManager.getMcWorld(Bukkit.getWorlds().find { it.environment == World.Environment.NORMAL }!!).let {
             it.javaClass.getMethod(NmsMap.GetWorldPersistentContainer.remapped).invoke(it).apply worldPersistentContainer@ {
                 /* Stage 3: Remove from the cache */
                 @Suppress("UNCHECKED_CAST")

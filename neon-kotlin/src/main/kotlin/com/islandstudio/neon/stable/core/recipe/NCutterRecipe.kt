@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.core.recipe
 
-import com.islandstudio.neon.stable.core.recipe.holder.AbstractRecipeHolder
+import com.islandstudio.neon.stable.core.recipe.component.AbstractRecipeHolder
 
 sealed class NCutterRecipe(keyName: String): AbstractRecipeHolder(keyName) {
     companion object: RecipeHolderHandler<NCutterRecipe>(NCutterRecipe::class);

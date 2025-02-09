@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.recipe.holder
+package com.islandstudio.neon.stable.core.recipe.component
 
 import com.islandstudio.neon.stable.core.application.datakey.AbstractDataKey
 import com.islandstudio.neon.stable.core.recipe.NMaterial
