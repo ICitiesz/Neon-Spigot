@@ -14,7 +14,7 @@ object CommandSyntaxHandler {
      * @param args The arguments
      */
     fun sendCommandSyntax(commander: CommandSender, commandSyntax: CommandSyntax, vararg args: Any) {
-        sendCommandSyntax(commander, commandSyntax.syntax, args)
+        sendCommandSyntax(commander, commandSyntax.syntax, *args)
     }
 
     /**
