@@ -1,5 +1,6 @@
 package com.islandstudio.neon.api.repository.security
 
+import com.islandstudio.neon.api.dto.response.security.RolePermissionPermissionCodeDTO
 import com.islandstudio.neon.api.entity.security.RolePermissionEntity
 
 interface IRolePermissionRepository {
@@ -12,6 +13,8 @@ interface IRolePermissionRepository {
     fun getById(rolePermissionId: Long): RolePermissionEntity?
 
     fun getByRoleId(roleId: Long): List<RolePermissionEntity>
+
+    fun getWithPermissionCodeByRoleId(roleId: Long): List<RolePermissionPermissionCodeDTO>
 
     fun getByPermissionId(permissionId: Long): List<RolePermissionEntity>
 

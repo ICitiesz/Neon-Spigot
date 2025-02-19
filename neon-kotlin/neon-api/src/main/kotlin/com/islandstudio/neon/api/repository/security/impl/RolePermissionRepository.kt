@@ -1,9 +1,11 @@
 package com.islandstudio.neon.api.repository.security.impl
 
 import com.islandstudio.neon.api.IDatabaseContext
+import com.islandstudio.neon.api.dto.response.security.RolePermissionPermissionCodeDTO
 import com.islandstudio.neon.api.entity.security.RolePermissionEntity
 import com.islandstudio.neon.api.repository.security.IRolePermissionRepository
 import com.islandstudio.neon.api.schema.neon_data.tables.records.TRolePermissionRecord
+import com.islandstudio.neon.api.schema.neon_data.tables.references.T_PERMISSION
 import com.islandstudio.neon.api.schema.neon_data.tables.references.T_ROLE_PERMISSION
 import com.islandstudio.neon.shared.utils.data.ObjectMapper
 import org.koin.core.annotation.Single
@@ -66,6 +68,23 @@ class RolePermissionRepository: IRolePermissionRepository, IDatabaseContext {
                 .from(T_ROLE_PERMISSION)
                 .where(T_ROLE_PERMISSION.ROLE_ID.eq(roleId))
                 .fetchInto(RolePermissionEntity::class.java)
+        }.getOrThrow()
+    }
+
+    override fun getWithPermissionCodeByRoleId(roleId: Long): List<RolePermissionPermissionCodeDTO> {
+        runCatching {
+             return dbContext()
+                .select(
+                    T_ROLE_PERMISSION.ROLE_PERMISSION_ID,
+                    T_ROLE_PERMISSION.ROLE_ID,
+                    T_ROLE_PERMISSION.PERMISSION_ID,
+                    T_PERMISSION.PERMISSION_CODE,
+                    T_ROLE_PERMISSION.PARENT_ROLE_PERMISSION_ID
+                ).from(T_ROLE_PERMISSION)
+                .innerJoin(T_PERMISSION)
+                .on(T_ROLE_PERMISSION.PERMISSION_ID.eq(T_PERMISSION.PERMISSION_ID))
+                .where(T_ROLE_PERMISSION.ROLE_ID.eq(roleId))
+                 .fetchInto(RolePermissionPermissionCodeDTO::class.java)
         }.getOrThrow()
     }
 

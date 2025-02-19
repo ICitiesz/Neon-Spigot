@@ -5,7 +5,7 @@ import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
-import com.islandstudio.neon.stable.core.application.server.NPacketProcessor
+import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import com.islandstudio.neon.stable.primary.nCommand.Commands
 import com.islandstudio.neon.stable.utils.NIdGenerator
 import net.md_5.bungee.api.chat.BaseComponent
@@ -522,7 +522,7 @@ object NCommandList: IComponentInjector {
      * @return Opened UI Window.
      */
     private fun getOpenedUIWindow(player: Player): AbstractContainerMenu? {
-        val nPlayer = NPacketProcessor.getNPlayer(player)
+        val nPlayer = ServerGamePacketManager.getMcPlayer(player)
 
         val openedUI = nPlayer.javaClass.superclass.getField(NmsMap.ContainerBase.remapped)[nPlayer] as AbstractContainerMenu
         val uiView = openedUI.bukkitView
@@ -617,7 +617,7 @@ object NCommandList: IComponentInjector {
         commandUI.updateServerSideCurrentPage(newPageNumber)
         commandUISession.updateOrGetLastSeenPage(true, currentActiveUI, commandAlias)
 
-        NPacketProcessor.sendGamePacket(player, ClientboundContainerSetDataPacket(commandUI.commandUIId, 0, newPageNumber))
+        ServerGamePacketManager.sendServerGamePacket(player, ClientboundContainerSetDataPacket(commandUI.commandUIId, 0, newPageNumber))
         return
     }
 

@@ -6,6 +6,7 @@ import com.islandstudio.neon.api.dto.action.IActionResult
 import com.islandstudio.neon.api.dto.request.security.CreateRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.GetRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.RemoveRoleRequestDTO
+import com.islandstudio.neon.api.dto.response.security.RoleListResponseDTO
 import com.islandstudio.neon.api.entity.security.RoleEntity
 import com.islandstudio.neon.api.repository.security.IRoleRepository
 import com.islandstudio.neon.api.service.security.IRoleService
@@ -74,6 +75,24 @@ class RoleService: IRoleService, IComponentInjector {
             }
 
             return actionResult.withStatus(ActionStatus.ROLE_NOT_EXIST)
+        }.getOrElse {
+            return actionResult
+                .withFailureStatus()
+                .withNeonException(NeonAPIException(it.message, it))
+        }
+    }
+
+    override fun getAllRole(): IActionResult<RoleListResponseDTO> {
+        val actionResult = ActionResult<RoleListResponseDTO>()
+
+        runCatching {
+            val result = RoleListResponseDTO(
+                roleRepository.getAll()
+            )
+
+            return actionResult
+                .withSuccessStatus()
+                .withResult(result)
         }.getOrElse {
             return actionResult
                 .withFailureStatus()

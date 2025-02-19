@@ -70,7 +70,7 @@ object CommandSyntaxHandler {
 
         return sendCommandSyntax(
             commander,
-            CommandSyntax.INVALID_COMMAND,
+            CommandSyntax.INVALID_ARGUMENT,
             "${ChatColor.GOLD}...${args[actualArgIndex - 1]} ${ChatColor.UNDERLINE}$arg", (actualArgIndex + 2)
         )
     }

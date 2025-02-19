@@ -19,9 +19,7 @@ interface IPlayerProfileService {
 
     fun getAllPlayerProfile(): IActionResult<List<PlayerProfileEntity>>
 
-    fun hasPlayerProfile(request: GetPlayerProfileRequestDTO): Boolean
-
     fun assignRole(invoker: String?, request: AssignRoleRequestDTO): IActionResult<Long?>
 
-    fun unassignRole(invoker: String?, request: UnassignRoleRequestDTO): IActionResult<Unit>
+    fun unassignRole(invoker: String?, request: UnassignRoleRequestDTO): IActionResult<PlayerProfileEntity?>
 }

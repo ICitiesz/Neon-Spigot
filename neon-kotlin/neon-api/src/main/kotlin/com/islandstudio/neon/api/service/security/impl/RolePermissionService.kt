@@ -14,8 +14,10 @@ import com.islandstudio.neon.api.repository.security.IRoleRepository
 import com.islandstudio.neon.api.service.security.IRolePermissionService
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonAPIException
+import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 
+@Single
 class RolePermissionService: IRolePermissionService, IComponentInjector {
     private val rolePermissionRepository by inject<IRolePermissionRepository>()
     private val permissionRepository by inject<IPermissionRepository>()
@@ -92,9 +94,15 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
         val actionResult = ActionResult<RolePermissionListResponseDTO>()
 
         runCatching {
-            val result = RolePermissionListResponseDTO(
-                rolePermissionList = rolePermissionRepository.getByRoleId(request.roleId!!)
-            )
+            val result = if (request.includePermissionCode) {
+                RolePermissionListResponseDTO(
+                    rolePermissionPermissionCodeList = rolePermissionRepository.getWithPermissionCodeByRoleId(request.roleId!!)
+                )
+            } else {
+                RolePermissionListResponseDTO(
+                    rolePermissionList = rolePermissionRepository.getByRoleId(request.roleId!!)
+                )
+            }
 
             return actionResult
                 .withSuccessStatus()

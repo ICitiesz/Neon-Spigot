@@ -4,5 +4,6 @@ import com.islandstudio.neon.api.entity.security.RolePermissionEntity
 import java.io.Serializable
 
 data class RolePermissionListResponseDTO(
-    val rolePermissionList: List<RolePermissionEntity>
+    val rolePermissionList: List<RolePermissionEntity> = listOf(),
+    val rolePermissionPermissionCodeList: List<RolePermissionPermissionCodeDTO> = listOf()
 ): Serializable

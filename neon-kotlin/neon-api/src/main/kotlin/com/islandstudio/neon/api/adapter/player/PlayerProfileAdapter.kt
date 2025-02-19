@@ -52,7 +52,7 @@ class PlayerProfileAdapter: IComponentInjector {
         return playerProfileService.assignRole(invoker, request)
     }
 
-    fun unassignRole(invoker: String?, request: UnassignRoleRequestDTO): IActionResult<Unit> {
+    fun unassignRole(invoker: String?, request: UnassignRoleRequestDTO): IActionResult<PlayerProfileEntity?> {
         return playerProfileService.unassignRole(invoker, request)
     }
 }

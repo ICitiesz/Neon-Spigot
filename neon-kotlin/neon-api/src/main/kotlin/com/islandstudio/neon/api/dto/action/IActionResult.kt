@@ -7,7 +7,7 @@ interface IActionResult<T> {
     val status: ActionStatus
     val neonException: NeonException?
 
-    fun onSuccess(block: (actionResult: IActionResult<T>) -> Unit = {} ): IActionResult<T> {
+    fun onSuccess(block: (actionResult: IActionResult<T>) -> Unit = {}): IActionResult<T> {
         if (status == ActionStatus.SUCCESS) {
             block(this)
         }

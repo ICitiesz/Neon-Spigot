@@ -1,5 +1,6 @@
 package com.islandstudio.neon.stable.command
 
+import com.islandstudio.neon.stable.command.properties.AccessibleCommand
 import org.bukkit.command.CommandSender
 
 interface ICommandDispatcher {
@@ -9,7 +10,11 @@ interface ICommandDispatcher {
      * @param commander The player who perform the command.
      * @param args The command arguments.
      */
-    fun getCommandDispatcher(commander: CommandSender, args: Array<out String>)
+    fun getCommandDispatcher(
+        commander: CommandSender,
+        accessibleCommands: ArrayList<AccessibleCommand>,
+        args: Array<out String>
+    )
 
     /**
      * Set the tab completion for the particular command.
@@ -18,7 +23,11 @@ interface ICommandDispatcher {
      * @param args The command arguments.
      * @return A list of valid command arguments.
      */
-    fun getTabCompletion(commander: CommandSender, args: Array<out String>): MutableList<String> {
+    fun getTabCompletion(
+        commander: CommandSender,
+        accessibleCommand: ArrayList<AccessibleCommand>,
+        args: Array<out String>
+    ): MutableList<String> {
         return mutableListOf()
     }
 }

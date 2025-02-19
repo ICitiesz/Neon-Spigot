@@ -1,10 +1,9 @@
 package com.islandstudio.neon.stable.player.session
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.api.adapter.PlayerProfileAdapter
+import com.islandstudio.neon.api.adapter.player.PlayerProfileAdapter
 import com.islandstudio.neon.api.dto.action.ActionStatus
 import com.islandstudio.neon.api.dto.request.player.CreatePlayerProfileRequestDTO
-import com.islandstudio.neon.api.dto.request.player.GetPlayerProfileRequestDTO
 import com.islandstudio.neon.api.dto.request.player.UpdatePlayerProfileRequestDTO
 import com.islandstudio.neon.api.dto.request.security.AssignRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.UnassignRoleRequestDTO
@@ -15,6 +14,8 @@ import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.server.ServerRunningMode
 import com.islandstudio.neon.shared.utils.data.IObjectMapper
 import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer
+import com.islandstudio.neon.stable.command.CommandManager
+import com.islandstudio.neon.stable.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.datakey.DataContainerManager
 import com.islandstudio.neon.stable.core.application.datakey.DataContainerType
@@ -24,6 +25,7 @@ import com.islandstudio.neon.stable.core.application.server.ServerGamePacketMana
 import com.islandstudio.neon.stable.core.command.NCommand
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.ChatColor
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -32,6 +34,7 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.server.ServerLoadEvent
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
+import java.util.*
 
 @Single
 class PlayerSessionManager: IComponentInjector, IObjectMapper {
@@ -57,15 +60,18 @@ class PlayerSessionManager: IComponentInjector, IObjectMapper {
         )
 
         DataContainerManager.attachData(player, playerSessionData, DataContainerType.PlayerSessionContainer)
+        CommandManager.registerPlayerAccessibleCommands(player)
     }
 
     fun discardPlayerSession(player: Player) {
+        CommandManager.unregisterPlayerAccessibleCommands(player)
         DataContainerManager.detachData(player, DataContainerType.PlayerSessionContainer)
     }
 
     fun updatePlayerSession(player: Player, newPlayerSession: PlayerSession) {
         val playerSessionData = ObjectSerializer.serializeToByteArray(newPlayerSession)
 
+        CommandManager.updatePlayerAccessibleCommands(player)
         DataContainerManager.updateAttachedData(player, playerSessionData, DataContainerType.PlayerSessionContainer)
     }
 
@@ -76,97 +82,147 @@ class PlayerSessionManager: IComponentInjector, IObjectMapper {
         return ObjectSerializer.deserialzeFromByteArray<PlayerSession>(playerSessionData)
     }
 
-    fun assignPlayerRole(assigner: Player?, target: Player, roleCode: String) {
-        val request = AssignRoleRequestDTO(target.uniqueId, roleCode)
+    fun assignPlayerRole(commander: CommandSender, targetName: String, roleCode: String) {
+        val noPlayerProfileMsg = "${ChatColor.RED}No such player profile for '${ChatColor.WHITE}${targetName}${ChatColor.RED}'!"
+        var displayMessage: String? = null
 
-        playerProfileAdapter.assignRole(assigner?.name, request).apply {
-            when (this.status) {
-                ActionStatus.RECORD_NOT_EXIST,
-                ActionStatus.PLAYER_NOT_EXIST,
-                ActionStatus.DUPLICATE_RECORD -> {
-                    println(this.displayMessage)
-                }
+        getAllPlayerData().entries.find { it.value == targetName }
+            ?.let { playerData ->
+                val target = neon.server.getPlayer(playerData.key)
+                val request = AssignRoleRequestDTO(playerData.key, roleCode)
 
-                ActionStatus.FAILURE -> {
-                    println(this.logMessage)
-                }
+                playerProfileAdapter.assignRole(CommandManager.getCommanderName(commander), request)
+                    .onSuccess {
+                        target?.let { targetPlayer ->
+                            val playerSession = getPlayerSession(targetPlayer)
+                                ?.copy(roleId = it.result!!) ?: return@onSuccess
 
-                ActionStatus.SUCCESS -> {
-                    val newPlayerSession = getPlayerSession(target)?.copy(roleId = this.result!!) ?: return
+                            updatePlayerSession(targetPlayer, playerSession)
+                        }
 
-                    updatePlayerSession(target, newPlayerSession)
-                }
+                        displayMessage = "${ChatColor.GREEN}Role with role code '${ChatColor.WHITE}${roleCode}" +
+                                "${ChatColor.GREEN}' has been assigned to ${ChatColor.WHITE}${playerData.value}${ChatColor.GREEN}!"
+                    }
+                    .onFailure {
+                        displayMessage = "${ChatColor.RED}Error while trying to assign role to player! Please try again later!"
 
-                else -> return
+                        neon.server.logger.severe("Error while trying to assign role to player! Please try again later!")
+                        throw it.neonException!!
+                    }
+                    .onOtherStatus {
+                        displayMessage = when(it.status) {
+                            ActionStatus.PLAYER_PROFILE_NOT_EXIST -> {
+                                noPlayerProfileMsg
+                            }
+
+                            ActionStatus.PLAYER_ROLE_ALREADY_ASSIGN -> {
+                                "${ChatColor.YELLOW}The target player already assigned with the given role!"
+                            }
+
+                            ActionStatus.ROLE_NOT_EXIST -> {
+                                "${ChatColor.RED}No such role with role code as '${ChatColor.WHITE}" +
+                                        "${roleCode}${ChatColor.RED}'!"
+                            }
+
+                            else -> return@onOtherStatus
+                        }
+                    }
+            } ?: apply {
+                displayMessage = noPlayerProfileMsg
             }
+
+        displayMessage?.let {
+            CommandSyntaxHandler.sendCommandSyntax(commander, displayMessage)
         }
     }
 
-    fun unassignPlayerRole(unassigner: Player?, target: Player) {
-        val request = UnassignRoleRequestDTO(target.uniqueId)
+    fun unassignPlayerRole(commander: CommandSender, targetName: String) {
+        val noPlayerProfileMsg = "${ChatColor.RED}No such player profile for '${ChatColor.WHITE}${targetName}"
+        var displayMessage: String? = null
 
-        playerProfileAdapter.unassignRole(unassigner?.name, request).apply {
-            when (this.status) {
-                ActionStatus.RECORD_NOT_EXIST,
-                ActionStatus.PLAYER_ROLE_NOT_ASSIGN -> {
-                    println(this.displayMessage)
-                }
+        getAllPlayerData().entries.find { it.value == targetName }
+            ?.let { playerData ->
+                val target = neon.server.getPlayer(playerData.key)
+                val request = UnassignRoleRequestDTO(playerData.key)
 
-                ActionStatus.FAILURE -> {
-                    println(this.logMessage)
-                }
+                playerProfileAdapter.unassignRole(CommandManager.getCommanderName(commander), request)
+                    .onSuccess {
+                        target?.let { targetPlayer ->
+                            val playerSession = getPlayerSession(targetPlayer)
+                                ?.copy(roleId = null) ?: return@onSuccess
 
-                ActionStatus.SUCCESS -> {
-                    val newPlayerSession = getPlayerSession(target)?.copy(roleId = null) ?: return
+                            updatePlayerSession(targetPlayer, playerSession)
+                        }
 
-                    updatePlayerSession(target, newPlayerSession)
-                }
+                        displayMessage = "${ChatColor.GREEN}Role has been unassigned from player '${ChatColor.WHITE}${playerData.value}" +
+                                "${ChatColor.GREEN}'!"
+                    }
+                    .onFailure {
+                        displayMessage = "${ChatColor.RED}Error while trying to unassign role from player! Please try again later!"
 
-                else -> return
+                        neon.server.logger.severe("Error while trying to unassign role from player! Please try again later!")
+                        throw it.neonException!!
+                    }
+                    .onOtherStatus {
+                        displayMessage = when(it.status) {
+                            ActionStatus.PLAYER_PROFILE_NOT_EXIST -> {
+                                noPlayerProfileMsg
+                            }
+
+                            ActionStatus.PLAYER_ROLE_NOT_ASSIGN -> {
+                                "${ChatColor.RED}The target player has no role assigned!"
+                            }
+
+                            else -> return@onOtherStatus
+                        }
+                    }
+            } ?: apply {
+                displayMessage = noPlayerProfileMsg
             }
+
+        displayMessage?.let {
+            CommandSyntaxHandler.sendCommandSyntax(commander, displayMessage)
         }
     }
 
-    fun getAllPlayerNames(): List<String> {
-        val onlinePlayers = neon.server.onlinePlayers
+    fun getAllPlayerData(): HashMap<UUID, String> {
         val offlinePlayers = neon.server.offlinePlayers
 
-        val playerNames = ArrayList<String>()
+        val playerData = HashMap<UUID, String>()
 
-        playerNames.addAll(
-            onlinePlayers
-                .filter { it.playerProfile.name != null && it.isOnline }
-                .map { it.playerProfile.name!! }
-        )
+        offlinePlayers
+            .filter { it.name != null }
+            .forEach {
+                playerData[it.uniqueId] = it.name!!
+            }
 
-        playerNames.addAll(
-            offlinePlayers
-                .filter { it.playerProfile.name != null && !it.isOnline }
-                .map { it.playerProfile.name!! }
-        )
-
-        return playerNames
+        return playerData
     }
 
     private fun createPlayerProfile(player: Player) {
+        var displayMessage: String? = null
+
         playerProfileAdapter.createPlayerProfile(
             CreatePlayerProfileRequestDTO(player.uniqueId, player.name)
-        ).apply {
-            when(this.status) {
-                ActionStatus.SUCCESS -> {
-                    createPlayerSession(player, this.result!!)
-                }
+        ).onSuccess {
+            createPlayerSession(player, it.result!!)
+        }.onFailure {
+            displayMessage = "${ChatColor.RED}Error while trying to create player profile! Please try again later!"
 
-                ActionStatus.DUPLICATE_RECORD -> {
-                    if (appContext.serverRunningMode != ServerRunningMode.Online) return
+            neon.server.logger.severe("Error while trying to create player profile! Please try again later!")
+            throw it.neonException!!
+        }.onOtherStatus {
+            if (it.status != ActionStatus.PLAYER_PROFILE_EXIST) return@onOtherStatus
 
-                    updatePlayerProfileName(player)?.let {
-                        createPlayerSession(player, it)
-                    }
-                }
+            if (appContext.serverRunningMode != ServerRunningMode.Online) return@onOtherStatus
 
-                else -> return
+            updatePlayerProfileName(player)?.let {
+                createPlayerSession(player, it)
             }
+        }
+
+        displayMessage?.let {
+            CommandSyntaxHandler.sendCommandSyntax(player, it)
         }
     }
 
@@ -176,29 +232,21 @@ class PlayerSessionManager: IComponentInjector, IObjectMapper {
      * @param player
      */
     private fun updatePlayerProfileName(player: Player): PlayerProfileEntity? {
-        val playerProfile = playerProfileAdapter.getPlayerProfile(
-                GetPlayerProfileRequestDTO(playerUuid = player.uniqueId)
-        ).run {
-            if (this.status != ActionStatus.SUCCESS) return null
+        val request = UpdatePlayerProfileRequestDTO(player.uniqueId, player.name)
+        var playerProfile: PlayerProfileEntity? = null
 
-            this.result!!.apply {
-                if (this.playerName == player.name) return this
+        playerProfileAdapter.updatePlayerProfile(player.name, request)
+            .onSuccess {
+                playerProfile = it.result
 
-                this.playerName == player.name
+                return@onSuccess
             }
-        }
-
-        val request = UpdatePlayerProfileRequestDTO(playerProfile.playerUuid!!, playerProfile.playerName!!)
-
-        playerProfileAdapter.updatePlayerProfile(playerProfile.playerName, request).apply {
-            return when(this.status) {
-                ActionStatus.SUCCESS -> this.result
-
-                ActionStatus.RECORD_NOT_EXIST, ActionStatus.FAILURE -> null
-
-                else -> null
+            .onFailure {
+                neon.server.logger.severe("Error while trying to create player profile! Please try again later!")
+                throw it.neonException!!
             }
-        }
+
+        return playerProfile
     }
 
     /**

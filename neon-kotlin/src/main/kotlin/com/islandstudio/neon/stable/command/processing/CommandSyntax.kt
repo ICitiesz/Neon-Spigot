@@ -14,6 +14,7 @@ enum class CommandSyntax(val syntax: String) {
                 "'${ChatColor.WHITE}%s${ChatColor.YELLOW}'!"
     ),
     INVALID_CONFIRMATION("${ChatColor.RED}Invalid confirmation! Please type as same as '${ChatColor.WHITE}CONFIRM${ChatColor.RED}'!"),
-    PLAYER_NOT_FOUND("${ChatColor.RED}The target player, ${ChatColor.WHITE}%s ${ChatColor.RED}not found!")
+    PLAYER_NOT_FOUND("${ChatColor.RED}The target player, ${ChatColor.WHITE}%s ${ChatColor.RED}not found!"),
+    INVALID_REQUEST_FIELD("${ChatColor.RED}Missing argument when trying to perform such operation!")
     ;
 }

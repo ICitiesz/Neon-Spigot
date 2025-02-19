@@ -15,7 +15,6 @@ import com.islandstudio.neon.api.service.player.IPlayerProfileService
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonAPIException
-import com.islandstudio.neon.shared.core.exception.NeonException
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 import java.time.LocalDateTime
@@ -131,22 +130,6 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
         }
     }
 
-    override fun hasPlayerProfile(request: GetPlayerProfileRequestDTO): Boolean {
-       return when {
-            request.playerUuid != null -> {
-                playerProfileRepository.existsByUUID(request.playerUuid)
-            }
-
-            !request.playerName.isNullOrEmpty() -> {
-                playerProfileRepository.existsByPlayerName(request.playerName)
-            }
-
-            else -> {
-                throw NeonException("Invalid request: Empty player UUID/name")
-            }
-        }
-    }
-
     override fun assignRole(invoker: String?, request: AssignRoleRequestDTO): IActionResult<Long?> {
         val actionResult = ActionResult<Long?>()
 
@@ -181,8 +164,8 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
         }
     }
 
-    override fun unassignRole(invoker: String?, request: UnassignRoleRequestDTO): IActionResult<Unit> {
-        val actionResult = ActionResult<Unit>()
+    override fun unassignRole(invoker: String?, request: UnassignRoleRequestDTO): IActionResult<PlayerProfileEntity?> {
+        val actionResult = ActionResult<PlayerProfileEntity?>()
 
         runCatching {
             val playerProfile = playerProfileRepository.getByUUID(request.playerUUID)
@@ -197,6 +180,7 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
             playerProfileRepository.updatePlayerProfile(playerProfile.updateModified(invoker)).run {
                 return actionResult
                     .withSuccessStatus()
+                    .withResult(this)
             }
         }.getOrElse {
             return actionResult
