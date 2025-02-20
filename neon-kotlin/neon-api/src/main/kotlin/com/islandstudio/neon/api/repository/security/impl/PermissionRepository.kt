@@ -25,6 +25,20 @@ class PermissionRepository : IPermissionRepository, IDatabaseContext {
         }.getOrThrow()
     }
 
+    override fun batchAddPermission(permissionEntityList: List<PermissionEntity>): List<PermissionEntity> {
+        runCatching {
+            val recordList = permissionEntityList.map {
+                ObjectMapper.mapTo(it, TPermissionRecord::class.java)
+            }
+
+            return dbContext()
+                .insertInto(T_PERMISSION)
+                .set(recordList)
+                .returning()
+                .fetchInto(PermissionEntity::class.java)
+        }.getOrThrow()
+    }
+
     override fun updatePermission(permissionEntity: PermissionEntity): PermissionEntity? {
         runCatching {
             val record = ObjectMapper.mapTo(
@@ -79,25 +93,39 @@ class PermissionRepository : IPermissionRepository, IDatabaseContext {
         }.getOrThrow()
     }
 
-    override fun deleteById(permissionId: Long): Boolean {
+    override fun deleteById(permissionId: Long): Int {
         runCatching {
-            val deletedCount = dbContext()
+            return dbContext()
                 .deleteFrom(T_PERMISSION)
                 .where(T_PERMISSION.PERMISSION_ID.eq(permissionId))
                 .execute()
-
-            return deletedCount == 1
         }.getOrThrow()
     }
 
-    override fun deleteByPermissionCode(permissionCode: String): Boolean {
+    override fun batchDeleteById(idList: List<Long>): Int {
         runCatching {
-            val deletedCount = dbContext()
+            return dbContext()
+                .deleteFrom(T_PERMISSION)
+                .where(T_PERMISSION.PERMISSION_ID.`in`(idList))
+                .execute()
+        }.getOrThrow()
+    }
+
+    override fun deleteByPermissionCode(permissionCode: String): Int {
+        runCatching {
+            return dbContext()
                 .deleteFrom(T_PERMISSION)
                 .where(T_PERMISSION.PERMISSION_CODE.eq(permissionCode))
                 .execute()
+        }.getOrThrow()
+    }
 
-            return deletedCount == 1
+    override fun batchDeleteByPermissionCode(permissionCodeList: List<String>): Int {
+        runCatching {
+            return dbContext()
+                .deleteFrom(T_PERMISSION)
+                .where(T_PERMISSION.PERMISSION_CODE.`in`(permissionCodeList))
+                .execute()
         }.getOrThrow()
     }
 
