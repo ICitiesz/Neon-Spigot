@@ -11,7 +11,7 @@ import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.utils.TextUtil
 import com.islandstudio.neon.stable.command.CommandManager
 import com.islandstudio.neon.stable.command.ICommandDispatcher
-import com.islandstudio.neon.stable.command.option.RoleOption
+import com.islandstudio.neon.stable.command.option.RoleCommandOption
 import com.islandstudio.neon.stable.command.processing.CommandSyntax
 import com.islandstudio.neon.stable.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.stable.command.properties.AccessibleCommand
@@ -58,7 +58,7 @@ class RoleManager: IComponentInjector {
                 }
 
                 when(it) {
-                    RoleOption.Create -> {
+                    RoleCommandOption.Create -> {
                         if (!(argLength == 4 || argLength == 5)) {
                             return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
                         }
@@ -72,7 +72,7 @@ class RoleManager: IComponentInjector {
                             }
 
                             5 -> {
-                                if (!roleCommandAlias.matchOptionArgument(args[4], RoleOption.RoleOptionArgument.UnderscoreAsSpace)) {
+                                if (!roleCommandAlias.matchOptionArgument(args[4], RoleCommandOption.RoleCommandOptionArgument.UnderscoreAsSpace)) {
                                     return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
                                 }
 
@@ -85,7 +85,7 @@ class RoleManager: IComponentInjector {
                         roleManager.createRole(commander, roleCode, roleDisplayName, underscoreAsSpace)
                     }
 
-                    RoleOption.Remove -> {
+                    RoleCommandOption.Remove -> {
                         if (!(argLength == 3 || argLength == 4)) {
                             return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
                         }
@@ -109,7 +109,7 @@ class RoleManager: IComponentInjector {
                         }
                     }
 
-                    RoleOption.Assign -> {
+                    RoleCommandOption.Assign -> {
                         val argIndex = argLength - 1
 
                         if (argLength != 4) {
@@ -122,7 +122,7 @@ class RoleManager: IComponentInjector {
                         playerSessionManager.assignPlayerRole(commander, playerName, roleCode)
                     }
 
-                    RoleOption.Unassign -> {
+                    RoleCommandOption.Unassign -> {
                         val argIndex = argLength - 1
 
                         if (!(argLength == 3 || argLength == 4)) {
@@ -175,21 +175,21 @@ class RoleManager: IComponentInjector {
 
                     return roleCommandAlias.onMatchOption(args[1]) {
                         when(it) {
-                            RoleOption.Remove -> {
+                            RoleCommandOption.Remove -> {
                                 roleManager.getAllRole()
                                     .map { it.roleCode!! }
                                     .filter { it.startsWith(args[argIndex], true) }
                                     .toMutableList()
                             }
 
-                            RoleOption.Assign -> {
+                            RoleCommandOption.Assign -> {
                                 playerSessionManager.getAllPlayerData()
                                     .map { it.value }
                                     .filter { it.startsWith(args[argIndex], true) }
                                     .toMutableList()
                             }
 
-                            RoleOption.Unassign -> {
+                            RoleCommandOption.Unassign -> {
                                 playerSessionManager.getAllPlayerData()
                                     .map { it.value }
                                     .filter { it.startsWith(args[argIndex], true) }
@@ -206,7 +206,7 @@ class RoleManager: IComponentInjector {
 
                     return roleCommandAlias.onMatchOption(args[1]) {
                         when(it) {
-                            RoleOption.Assign -> {
+                            RoleCommandOption.Assign -> {
                                 roleManager.getAllRole()
                                     .map { it.roleCode!! }
                                     .filter { it.startsWith(args[argIndex], true) }
@@ -223,7 +223,7 @@ class RoleManager: IComponentInjector {
 
                     return roleCommandAlias.onMatchOption(args[1]) {
                         when(it) {
-                            RoleOption.Create -> {
+                            RoleCommandOption.Create -> {
                                 CommandAlias.getAccessibleCommandOptionArgs(
                                     commander,
                                     accessibleCommand,
