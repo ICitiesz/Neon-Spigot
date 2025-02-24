@@ -6,6 +6,8 @@ import com.islandstudio.neon.api.entity.security.RolePermissionEntity
 interface IRolePermissionRepository {
     fun addRolePermission(rolePermissionEntity: RolePermissionEntity): RolePermissionEntity?
 
+    fun batchAddRolePermission(rolePermissionEntityList: List<RolePermissionEntity>): List<RolePermissionEntity>
+
     fun updateRolePermission(rolePermissionEntity: RolePermissionEntity): RolePermissionEntity?
 
     fun getAll(): List<RolePermissionEntity>
@@ -22,7 +24,11 @@ interface IRolePermissionRepository {
 
     fun deleteById(rolePermissionId: Long): Int
 
+    fun batchDeleteById(idList: List<Long>): Int
+
     fun deleteByRoleId(roleId: Long): Int
+
+    fun batchDeleteByRoleId(roleIdList: List<Long>): Int
 
     fun deleteByPermissionId(permissionId: Long): Int
 

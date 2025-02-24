@@ -36,6 +36,5 @@ sealed class RoleOption: AbstractCommandOption<RoleOption.RoleOptionArgument>(Co
         override val option: String = "unassign"
         override val optionIndex: Int = 1
         override val inheritPermission: Boolean = true
-
     }
 }

@@ -1,6 +1,7 @@
 package com.islandstudio.neon.stable.command.properties
 
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.stable.command.option.PermissionCommandOption
 import com.islandstudio.neon.stable.command.option.RoleOption
 import com.islandstudio.neon.stable.command.properties.AccessibleCommand.AccessibleCommandOption
 import com.islandstudio.neon.stable.player.security.AccessControlManager
@@ -233,10 +234,11 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
         override val commandOptions: ArrayList<RoleOption> = getAllCommandOptions(RoleOption::class)
     }
 
-    data object PermissionAlias: CommandAlias<Nothing>() {
+    data object PermissionAlias: CommandAlias<PermissionCommandOption>() {
         override val alias: String = "permission"
         override val requiredPermissions: ArrayList<Permission> = arrayListOf(
             Permission.PermissionManagement
         )
+        override val commandOptions: ArrayList<PermissionCommandOption> = getAllCommandOptions(PermissionCommandOption::class)
     }
 }

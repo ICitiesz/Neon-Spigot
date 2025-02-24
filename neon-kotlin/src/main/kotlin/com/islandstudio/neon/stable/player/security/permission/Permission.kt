@@ -12,7 +12,7 @@ sealed class Permission(mainPermission: AbstractPermission? = null): AbstractPer
             return getAllPermission().filter { it.mainPermission != null }.toCollection(ArrayList())
         }
 
-        fun getMainPermissions(): ArrayList<Permission> {
+        fun getAllMainPermission(): ArrayList<Permission> {
             return getAllPermission().filter { it.mainPermission == null }.toCollection(ArrayList())
         }
 

@@ -6,6 +6,7 @@ import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.stable.command.properties.AccessibleCommand
 import com.islandstudio.neon.stable.command.properties.CommandAlias
+import com.islandstudio.neon.stable.player.security.AccessControlManager
 import com.islandstudio.neon.stable.player.security.role.RoleManager
 import org.bukkit.ChatColor
 import org.bukkit.command.Command
@@ -107,7 +108,7 @@ class CommandManager: TabExecutor {
                         }
 
                         CommandAlias.PermissionAlias -> {
-                            arrayListOf()
+                            AccessControlManager.getTabCompletion(commander, accessibleCommands, args)
                         }
                     }
                 }
@@ -147,7 +148,7 @@ class CommandManager: TabExecutor {
                         }
 
                         CommandAlias.PermissionAlias -> {
-
+                            AccessControlManager.getCommandDispatcher(commander, accessibleCommands, args)
                         }
                     }
                 }

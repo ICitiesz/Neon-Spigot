@@ -27,6 +27,20 @@ class RolePermissionRepository: IRolePermissionRepository, IDatabaseContext {
         }.getOrThrow()
     }
 
+    override fun batchAddRolePermission(rolePermissionEntityList: List<RolePermissionEntity>): List<RolePermissionEntity> {
+        runCatching {
+            val recordList = rolePermissionEntityList.map {
+                ObjectMapper.mapTo(it, TRolePermissionRecord::class.java)
+            }
+
+            return dbContext()
+                .insertInto(T_ROLE_PERMISSION)
+                .set(recordList)
+                .returning()
+                .fetchInto(RolePermissionEntity::class.java)
+        }.getOrThrow()
+    }
+
     override fun updateRolePermission(rolePermissionEntity: RolePermissionEntity): RolePermissionEntity? {
         runCatching {
             val record = ObjectMapper.mapTo(
@@ -117,11 +131,29 @@ class RolePermissionRepository: IRolePermissionRepository, IDatabaseContext {
         }.getOrThrow()
     }
 
+    override fun batchDeleteById(idList: List<Long>): Int {
+        runCatching {
+            return dbContext()
+                .deleteFrom(T_ROLE_PERMISSION)
+                .where(T_ROLE_PERMISSION.ROLE_PERMISSION_ID.`in`(idList))
+                .execute()
+        }.getOrThrow()
+    }
+
     override fun deleteByRoleId(roleId: Long): Int {
         runCatching {
             return dbContext()
                 .deleteFrom(T_ROLE_PERMISSION)
                 .where(T_ROLE_PERMISSION.ROLE_ID.eq(roleId))
+                .execute()
+        }.getOrThrow()
+    }
+
+    override fun batchDeleteByRoleId(roleIdList: List<Long>): Int {
+        runCatching {
+            return dbContext()
+                .deleteFrom(T_ROLE_PERMISSION)
+                .where(T_ROLE_PERMISSION.ROLE_ID.`in`(roleIdList))
                 .execute()
         }.getOrThrow()
     }

@@ -3,9 +3,7 @@ package com.islandstudio.neon.api.service.security.impl
 import com.islandstudio.neon.api.dto.action.ActionResult
 import com.islandstudio.neon.api.dto.action.ActionStatus
 import com.islandstudio.neon.api.dto.action.IActionResult
-import com.islandstudio.neon.api.dto.request.security.permission.GetRolePermissionRequestDTO
-import com.islandstudio.neon.api.dto.request.security.permission.GrantRolePermissionRequestDTO
-import com.islandstudio.neon.api.dto.request.security.permission.RevokeRolePermissionRequestDTO
+import com.islandstudio.neon.api.dto.request.security.permission.*
 import com.islandstudio.neon.api.dto.response.security.RolePermissionListResponseDTO
 import com.islandstudio.neon.api.entity.security.RolePermissionEntity
 import com.islandstudio.neon.api.repository.security.IPermissionRepository
@@ -28,7 +26,7 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
 
         runCatching {
             /* Check if the role permission exist */
-            if (rolePermissionRepository.existByRoleIdPermissionId(request.roleId, request.permissionId)) {
+            if (rolePermissionRepository.existByRoleIdPermissionId(request.roleId!!, request.permissionId)) {
                 return actionResult
                     .withStatus(ActionStatus.ROLE_PERMISSION_EXIST)
             }
@@ -64,6 +62,55 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
                     .withSuccessStatus()
                     .withResult(this)
             }
+        }.getOrElse {
+            return actionResult
+                .withFailureStatus()
+                .withNeonException(NeonAPIException(it.message, it))
+        }
+    }
+
+    override fun addRolePermission(invoker: String?, request: BatchGrantRolePermissionRequestDTO): IActionResult<RolePermissionListResponseDTO> {
+        val actionResult = ActionResult<RolePermissionListResponseDTO>()
+
+        runCatching {
+            val resultList: ArrayList<RolePermissionEntity> = arrayListOf()
+
+            val mainRecordList = request.rolePermissionList
+                .map {
+                    RolePermissionEntity(
+                        roleId = it.roleId,
+                        permissionId = it.permissionId,
+                        parentRolePermissionId = it.parentRolePermissionId
+                    ).updateCreatedModified(invoker)
+                }
+
+            rolePermissionRepository.batchAddRolePermission(mainRecordList).apply {
+                resultList.addAll(this)
+
+                val subRecordList = this.flatMap { mainRolePermissionEntity ->
+                    val mainPermission = request.rolePermissionList
+                        .filter { x -> x.subRolePermissions.isNotEmpty() }
+                        .find { x -> x.permissionId == mainRolePermissionEntity.permissionId } ?: return@apply
+
+                    mainPermission.subRolePermissions.mapTo(arrayListOf()) {
+                        RolePermissionEntity(
+                            roleId = it.roleId,
+                            permissionId = it.permissionId,
+                            parentRolePermissionId = mainRolePermissionEntity.rolePermissionId
+                        ).updateCreatedModified(invoker)
+                    }
+                }
+
+                resultList.addAll(rolePermissionRepository.batchAddRolePermission(subRecordList))
+            }
+
+            val result = RolePermissionListResponseDTO(
+                rolePermissionList = resultList
+            )
+
+            return actionResult
+                .withSuccessStatus()
+                .withResult(result)
         }.getOrElse {
             return actionResult
                 .withFailureStatus()
@@ -174,6 +221,22 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
         }
     }
 
+    override fun removeRolePermissionById(request: BatchRevokeRolePermissionRequestDTO): IActionResult<Int> {
+        val actionResult = ActionResult<Int>()
+
+        runCatching {
+            val idList = request.rolePermissionList.map { it.rolePermissionId!! }
+
+            return actionResult
+                .withSuccessStatus()
+                .withResult(rolePermissionRepository.batchDeleteById(idList))
+        }.getOrElse {
+            return actionResult
+                .withFailureStatus()
+                .withNeonException(NeonAPIException(it.message, it))
+        }
+    }
+
     override fun removeRolePermissionByRoleId(request: RevokeRolePermissionRequestDTO): IActionResult<Int> {
         val actionResult = ActionResult<Int>()
 
@@ -187,4 +250,22 @@ class RolePermissionService: IRolePermissionService, IComponentInjector {
                 .withNeonException(NeonAPIException(it.message, it))
         }
     }
+
+    override fun removkeRolePermissionByRoleId(request: BatchRevokeRolePermissionRequestDTO): IActionResult<Int> {
+        val actionResult = ActionResult<Int>()
+
+        runCatching {
+            val idList = request.rolePermissionList.map { it.roleId!! }
+
+            return actionResult
+                .withSuccessStatus()
+                .withResult(rolePermissionRepository.batchDeleteByRoleId(idList))
+        }.getOrElse {
+            return actionResult
+                .withFailureStatus()
+                .withNeonException(NeonAPIException(it.message, it))
+        }
+    }
+
+
 }

@@ -3,9 +3,7 @@ package com.islandstudio.neon.api.adapter.security
 import com.islandstudio.neon.api.dto.action.ActionResult
 import com.islandstudio.neon.api.dto.action.ActionStatus
 import com.islandstudio.neon.api.dto.action.IActionResult
-import com.islandstudio.neon.api.dto.request.security.permission.GetRolePermissionRequestDTO
-import com.islandstudio.neon.api.dto.request.security.permission.GrantRolePermissionRequestDTO
-import com.islandstudio.neon.api.dto.request.security.permission.RevokeRolePermissionRequestDTO
+import com.islandstudio.neon.api.dto.request.security.permission.*
 import com.islandstudio.neon.api.dto.response.security.RolePermissionListResponseDTO
 import com.islandstudio.neon.api.entity.security.RolePermissionEntity
 import com.islandstudio.neon.api.service.security.IRolePermissionService
@@ -21,10 +19,31 @@ class RolePermissionAdapter: IComponentInjector {
         return rolePermissionService.addRolePermission(invoker, request)
     }
 
+    fun grantRolePermission(invoker: String?, request: BatchGrantRolePermissionRequestDTO): IActionResult<RolePermissionListResponseDTO> {
+        return rolePermissionService.addRolePermission(invoker, request)
+    }
+
     fun revokeRolePermission(request: RevokeRolePermissionRequestDTO): IActionResult<Int> {
         return when {
             request.rolePermissionId != null -> rolePermissionService.removeRolePermissionById(request)
             request.roleId != null -> rolePermissionService.removeRolePermissionByRoleId(request)
+
+            else -> ActionResult<Int>()
+                .withStatus(ActionStatus.INVALID_REQUEST_FIELD)
+        }
+    }
+
+    fun revokeRolepermission(request: BatchRevokeRolePermissionRequestDTO): IActionResult<Int> {
+        return when {
+            request.rolePermissionList
+                .none { it.rolePermissionId == null } -> {
+                    rolePermissionService.removeRolePermissionById(request)
+                }
+
+            request.rolePermissionList
+                .none { it.roleId == null } -> {
+                    rolePermissionService.removkeRolePermissionByRoleId(request)
+                }
 
             else -> ActionResult<Int>()
                 .withStatus(ActionStatus.INVALID_REQUEST_FIELD)
