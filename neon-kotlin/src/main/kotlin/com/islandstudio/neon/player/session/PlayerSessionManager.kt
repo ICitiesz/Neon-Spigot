@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.player.session
+package com.islandstudio.neon.player.session
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.api.adapter.player.PlayerProfileAdapter

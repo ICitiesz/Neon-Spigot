@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.player.security.permission
+package com.islandstudio.neon.player.security.permission
 
 sealed class Permission(mainPermission: AbstractPermission? = null): AbstractPermission(mainPermission) {
     companion object {

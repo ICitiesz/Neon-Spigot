@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.player.session
+package com.islandstudio.neon.player.session
 
 import java.io.Serializable
 import java.util.*

@@ -1,12 +1,13 @@
 package com.islandstudio.neon.command.properties
 
+import com.islandstudio.neon.command.option.NWaypointsCommandOption
 import com.islandstudio.neon.command.option.PermissionCommandOption
 import com.islandstudio.neon.command.option.RoleCommandOption
 import com.islandstudio.neon.command.properties.AccessibleCommand.AccessibleCommandOption
+import com.islandstudio.neon.player.security.AccessControlManager
+import com.islandstudio.neon.player.security.permission.Permission
+import com.islandstudio.neon.player.session.PlayerSessionManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.player.security.AccessControlManager
-import com.islandstudio.neon.stable.player.security.permission.Permission
-import com.islandstudio.neon.stable.player.session.PlayerSessionManager
 import org.bukkit.command.CommandSender
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Player
@@ -240,5 +241,11 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
             Permission.PermissionManagement
         )
         override val commandOptions: ArrayList<PermissionCommandOption> = getAllCommandOptions(PermissionCommandOption::class)
+    }
+
+    data object NWaypointsAlias: CommandAlias<NWaypointsCommandOption>() {
+        override val alias: String = "waypoints"
+        override val requiredPermissions: ArrayList<Permission> = arrayListOf()
+        override val commandOptions: ArrayList<NWaypointsCommandOption> = getAllCommandOptions(NWaypointsCommandOption::class)
     }
 }

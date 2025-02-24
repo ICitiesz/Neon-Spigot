@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.player.security.role
+package com.islandstudio.neon.player.security.role
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.api.adapter.security.RoleAdapter
@@ -15,9 +15,9 @@ import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
 import com.islandstudio.neon.command.properties.CommandAlias
 import com.islandstudio.neon.command.properties.CommandFilter
+import com.islandstudio.neon.player.session.PlayerSessionManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.utils.TextUtil
-import com.islandstudio.neon.stable.player.session.PlayerSessionManager
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
 import org.koin.core.annotation.Single

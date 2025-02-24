@@ -4,10 +4,10 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
 import com.islandstudio.neon.command.properties.CommandAlias
+import com.islandstudio.neon.player.security.AccessControlManager
+import com.islandstudio.neon.player.security.role.RoleManager
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.player.security.AccessControlManager
-import com.islandstudio.neon.stable.player.security.role.RoleManager
 import org.bukkit.ChatColor
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -29,7 +29,7 @@ class CommandManager: TabExecutor {
             neon.server.getPluginCommand(COMMAND_PREFIX)?.setExecutor(CommandManager())
         }
 
-        fun isValidCommander(commander: CommandSender): Boolean {
+        private fun isValidCommander(commander: CommandSender): Boolean {
             return commander is Player || commander is ConsoleCommandSender
         }
 
@@ -110,6 +110,10 @@ class CommandManager: TabExecutor {
                         CommandAlias.PermissionAlias -> {
                             AccessControlManager.getTabCompletion(commander, accessibleCommands, args)
                         }
+
+                        CommandAlias.NWaypointsAlias -> {
+                            arrayListOf()
+                        }
                     }
                 }
         }
@@ -149,6 +153,10 @@ class CommandManager: TabExecutor {
 
                         CommandAlias.PermissionAlias -> {
                             AccessControlManager.getCommandDispatcher(commander, accessibleCommands, args)
+                        }
+
+                        CommandAlias.NWaypointsAlias -> {
+
                         }
                     }
                 }

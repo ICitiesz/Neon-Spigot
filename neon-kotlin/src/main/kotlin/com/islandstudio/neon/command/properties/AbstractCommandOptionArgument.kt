@@ -1,6 +1,6 @@
 package com.islandstudio.neon.command.properties
 
-import com.islandstudio.neon.stable.player.security.permission.Permission
+import com.islandstudio.neon.player.security.permission.Permission
 
 abstract class AbstractCommandOptionArgument(internal val commandOption: AbstractCommandOption<*>) {
     abstract val optionArg: String
