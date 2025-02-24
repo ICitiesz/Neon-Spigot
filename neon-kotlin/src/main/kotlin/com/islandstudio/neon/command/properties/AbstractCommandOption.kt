@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.command.properties
+package com.islandstudio.neon.command.properties
 
 import com.islandstudio.neon.stable.player.security.permission.Permission
 import kotlin.reflect.KClass

@@ -1,9 +1,9 @@
-package com.islandstudio.neon.stable.command.properties
+package com.islandstudio.neon.command.properties
 
+import com.islandstudio.neon.command.option.PermissionCommandOption
+import com.islandstudio.neon.command.option.RoleCommandOption
+import com.islandstudio.neon.command.properties.AccessibleCommand.AccessibleCommandOption
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.command.option.PermissionCommandOption
-import com.islandstudio.neon.stable.command.option.RoleCommandOption
-import com.islandstudio.neon.stable.command.properties.AccessibleCommand.AccessibleCommandOption
 import com.islandstudio.neon.stable.player.security.AccessControlManager
 import com.islandstudio.neon.stable.player.security.permission.Permission
 import com.islandstudio.neon.stable.player.session.PlayerSessionManager

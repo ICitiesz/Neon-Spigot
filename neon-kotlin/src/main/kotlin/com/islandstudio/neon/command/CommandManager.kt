@@ -1,11 +1,11 @@
-package com.islandstudio.neon.stable.command
+package com.islandstudio.neon.command
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.command.processing.CommandSyntaxHandler
+import com.islandstudio.neon.command.properties.AccessibleCommand
+import com.islandstudio.neon.command.properties.CommandAlias
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.command.processing.CommandSyntaxHandler
-import com.islandstudio.neon.stable.command.properties.AccessibleCommand
-import com.islandstudio.neon.stable.command.properties.CommandAlias
 import com.islandstudio.neon.stable.player.security.AccessControlManager
 import com.islandstudio.neon.stable.player.security.role.RoleManager
 import org.bukkit.ChatColor

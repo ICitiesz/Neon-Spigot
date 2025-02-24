@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.command.processing
+package com.islandstudio.neon.command.processing
 
 import org.bukkit.ChatColor
 

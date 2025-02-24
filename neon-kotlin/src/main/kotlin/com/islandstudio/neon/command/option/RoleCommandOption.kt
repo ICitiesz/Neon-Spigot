@@ -1,8 +1,8 @@
-package com.islandstudio.neon.stable.command.option
+package com.islandstudio.neon.command.option
 
-import com.islandstudio.neon.stable.command.properties.AbstractCommandOption
-import com.islandstudio.neon.stable.command.properties.AbstractCommandOptionArgument
-import com.islandstudio.neon.stable.command.properties.CommandAlias
+import com.islandstudio.neon.command.properties.AbstractCommandOption
+import com.islandstudio.neon.command.properties.AbstractCommandOptionArgument
+import com.islandstudio.neon.command.properties.CommandAlias
 
 sealed class RoleCommandOption: AbstractCommandOption<RoleCommandOption.RoleCommandOptionArgument>(CommandAlias.RoleAlias) {
     sealed class RoleCommandOptionArgument(commandOption: RoleCommandOption): AbstractCommandOptionArgument(commandOption) {

@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.command.properties
+package com.islandstudio.neon.command.properties
 
 data class AccessibleCommand(
     val command: String,

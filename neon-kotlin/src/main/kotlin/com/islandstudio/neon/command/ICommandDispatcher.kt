@@ -1,6 +1,6 @@
-package com.islandstudio.neon.stable.command
+package com.islandstudio.neon.command
 
-import com.islandstudio.neon.stable.command.properties.AccessibleCommand
+import com.islandstudio.neon.command.properties.AccessibleCommand
 import org.bukkit.command.CommandSender
 
 interface ICommandDispatcher {

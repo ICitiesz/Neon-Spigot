@@ -8,14 +8,14 @@ import com.islandstudio.neon.api.dto.request.player.UpdatePlayerProfileRequestDT
 import com.islandstudio.neon.api.dto.request.security.AssignRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.UnassignRoleRequestDTO
 import com.islandstudio.neon.api.entity.player.PlayerProfileEntity
+import com.islandstudio.neon.command.CommandManager
+import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.server.ServerRunningMode
 import com.islandstudio.neon.shared.utils.data.IObjectMapper
 import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer
-import com.islandstudio.neon.stable.command.CommandManager
-import com.islandstudio.neon.stable.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.datakey.DataContainerManager
 import com.islandstudio.neon.stable.core.application.datakey.DataContainerType
