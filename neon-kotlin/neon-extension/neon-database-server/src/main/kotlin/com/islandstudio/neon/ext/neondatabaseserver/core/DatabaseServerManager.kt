@@ -4,7 +4,8 @@ import com.islandstudio.neon.ext.neondatabaseserver.NeonDatabaseServer
 import com.islandstudio.neon.shared.PluginAdapter
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.config.AppConfig
-import com.islandstudio.neon.shared.core.config.wrapper.NeonDBConfigWrapper
+import com.islandstudio.neon.shared.core.config.obj.NeonDBConfigObject
+import com.islandstudio.neon.shared.core.config.property.NeonDBConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonLoaderException
 import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
@@ -23,10 +24,11 @@ class DatabaseServerManager: IComponentInjector {
     private val databaseServer by inject<Server>()
     private val databaseConfigHandler by lazy {
         AppConfig(NeonExternalResource.NeonDBServerConfigFile2,
-            NeonDBConfigWrapper()
+            NeonDBConfigObject(),
+            NeonDBConfigProperty::class
         )
     }
-    private val databaseConfig = databaseConfigHandler.configWrapper.getImmutableConfigObject().neonDBConfig
+    private val databaseConfig = databaseConfigHandler.getConfigWrapper().getImmutableConfigObject().neonDBConfig
 
     /* Database properties */
     private val dbFolderName = when(databaseConfig.isUniversal) {

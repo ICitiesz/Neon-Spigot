@@ -10,9 +10,8 @@ import com.akuleshov7.ktoml.tree.nodes.TomlKeyValuePrimitive
 import com.akuleshov7.ktoml.tree.nodes.TomlNode
 import com.akuleshov7.ktoml.tree.nodes.TomlTable
 import com.islandstudio.neon.shared.core.AppContext
+import com.islandstudio.neon.shared.core.config.component.AbstractConfigProperty
 import com.islandstudio.neon.shared.core.config.component.ConfigNodeProperty
-import com.islandstudio.neon.shared.core.config.component.ConfigProperty
-import com.islandstudio.neon.shared.core.config.component.type.AbstractConfigWrapper
 import com.islandstudio.neon.shared.core.config.component.type.IConfigObject
 import com.islandstudio.neon.shared.core.config.component.type.IConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
@@ -25,28 +24,35 @@ import com.islandstudio.neon.shared.utils.data.DataUtil
 import kotlinx.serialization.serializer
 import org.koin.core.component.inject
 import java.io.File
+import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-class AppConfig<T: AbstractConfigWrapper<U, V>, U: IConfigObject, V: IConfigProperty>(
+class AppConfig<T: IConfigObject, U: IConfigProperty>(
     neonExternalResource: NeonExternalResource,
-    val configWrapper: T,
+    private val configObject: T,
+    private val configPropertyClazz: KClass<U>,
     inputOption: TomlInputConfig = TomlInputConfig(true, allowEscapedQuotesInLiteralStrings = true),
     outputOption: TomlOutputConfig = TomlOutputConfig(TomlIndentation.TWO_SPACES)
 ): IComponentInjector {
     private val tomlInstance = Toml(inputOption, outputOption)
     private val configFile = NeonDataFolder.createNewFile(neonExternalResource)
+    private val configWrapper = ConfigWrapper<T, U>(configPropertyClazz)
 
     private val appContext by inject<AppContext>()
 
     init {
         initialize().apply {
             @Suppress("UNCHECKED_CAST")
-            configWrapper.initConfigObject(this as U)
+            configWrapper.initConfigObject(this as T)
         }
     }
 
     fun saveToFile(configObject: IConfigObject) {
         configFile.writeText(encodeToString(configObject))
+    }
+
+    fun getConfigWrapper(): ConfigWrapper<T, U> {
+        return configWrapper
     }
 
     /**
@@ -55,7 +61,7 @@ class AppConfig<T: AbstractConfigWrapper<U, V>, U: IConfigObject, V: IConfigProp
      */
     private fun initialize(): IConfigObject {
         if (configFile.length() == 0L) {
-            val defaultConfigObject = configWrapper.getDefaultConfigObject()
+            val defaultConfigObject = configObject
 
             saveToFile(defaultConfigObject)
 
@@ -63,7 +69,11 @@ class AppConfig<T: AbstractConfigWrapper<U, V>, U: IConfigObject, V: IConfigProp
         }
 
         updateConfig(configFile, configWrapper.getAllConfigProperty()).apply {
-            return decodeFromString(encodeToString(this))
+            val updatedConfig = decodeFromString(encodeToString(this))
+
+            saveToFile(updatedConfig)
+
+            return updatedConfig
         }
     }
 
@@ -74,7 +84,7 @@ class AppConfig<T: AbstractConfigWrapper<U, V>, U: IConfigObject, V: IConfigProp
      * @param configProperties
      * @return
      */
-    private fun updateConfig(writableConfigFile: File, configProperties: ArrayList<ConfigProperty<*>>): TomlFile {
+    private fun updateConfig(writableConfigFile: File, configProperties: ArrayList<AbstractConfigProperty<*>>): TomlFile {
         val parsedConfig = parseToTomFile(writableConfigFile)
 
         return rebuildConfig(parsedConfig, configProperties)
@@ -87,7 +97,7 @@ class AppConfig<T: AbstractConfigWrapper<U, V>, U: IConfigObject, V: IConfigProp
      * @param configProperties
      * @return
      */
-    private fun rebuildConfig(parsedConfig: TomlFile, configProperties: ArrayList<ConfigProperty<*>>): TomlFile {
+    private fun rebuildConfig(parsedConfig: TomlFile, configProperties: ArrayList<AbstractConfigProperty<*>>): TomlFile {
         val newConfig = TomlFile()
 
         getConfigNodeProperties(parsedConfig).forEach { configNodeProperty ->
@@ -261,7 +271,7 @@ class AppConfig<T: AbstractConfigWrapper<U, V>, U: IConfigObject, V: IConfigProp
      * @param configNodeProperty
      * @param configProperty
      */
-    private fun validateConfigValue(configNodeProperty: ConfigNodeProperty, configProperty: ConfigProperty<*>) {
+    private fun validateConfigValue(configNodeProperty: ConfigNodeProperty, configProperty: AbstractConfigProperty<*>) {
         val configDataType = configNodeProperty.dataType()
         val configValue = configNodeProperty.value()
 
@@ -299,7 +309,7 @@ class AppConfig<T: AbstractConfigWrapper<U, V>, U: IConfigObject, V: IConfigProp
     private fun decodeFromString(configContent: String): IConfigObject {
         return tomlInstance
             .decodeFromString(
-                serializer(configWrapper.getDefaultConfigObject()::class.createType()),
+                serializer(configObject::class.createType()),
                 configContent
             ) as IConfigObject
     }

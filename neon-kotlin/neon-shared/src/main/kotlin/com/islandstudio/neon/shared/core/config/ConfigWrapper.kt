@@ -1,13 +1,13 @@
-package com.islandstudio.neon.shared.core.config.component.type
+package com.islandstudio.neon.shared.core.config
 
-import com.islandstudio.neon.shared.core.config.component.ConfigProperty
+import com.islandstudio.neon.shared.core.config.component.AbstractConfigProperty
+import com.islandstudio.neon.shared.core.config.component.type.IConfigObject
+import com.islandstudio.neon.shared.core.config.component.type.IConfigProperty
 import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer
 import kotlin.reflect.KClass
-import kotlin.reflect.full.createInstance
 
-abstract class AbstractConfigWrapper<T: IConfigObject, U: IConfigProperty>(
-    private val configObjectInstance: T,
-    private val configPropertyClass: KClass<U>
+class ConfigWrapper<T: IConfigObject, U: IConfigProperty>(
+    private val configPropertyClazz: KClass<U>
 ) {
     private lateinit var immutableConfigObject: T
     private lateinit var mutableConfigObject: T
@@ -35,15 +35,12 @@ abstract class AbstractConfigWrapper<T: IConfigObject, U: IConfigProperty>(
         return ObjectSerializer.deserialzeFromByteArray(serializedMutableConfigObject)
     }
 
-    fun getDefaultConfigObject(): T {
-        return configObjectInstance::class.createInstance()
-    }
-
-    fun getAllConfigProperty(): ArrayList<ConfigProperty<*>> {
-        return configPropertyClass
+    fun getAllConfigProperty(): ArrayList<AbstractConfigProperty<*>> {
+        return configPropertyClazz
             .sealedSubclasses
+            .filter { it.objectInstance != null }
             .map {
-                it.objectInstance as ConfigProperty<*>
+                it.objectInstance as AbstractConfigProperty<*>
             }
             .toCollection(ArrayList())
     }

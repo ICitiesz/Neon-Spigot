@@ -1,8 +1,8 @@
-package com.islandstudio.neon.shared.core.config.wrapper.obj
+package com.islandstudio.neon.shared.core.config.obj
 
 import com.akuleshov7.ktoml.annotations.TomlComments
 import com.islandstudio.neon.shared.core.config.component.type.IConfigObject
-import com.islandstudio.neon.shared.core.config.wrapper.property.NeonDBConfigProperty
+import com.islandstudio.neon.shared.core.config.property.NeonDBConfigProperty
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
