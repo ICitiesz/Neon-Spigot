@@ -1,9 +1,13 @@
-package com.islandstudio.neon.command.properties
+package com.islandstudio.neon.command
 
 import com.islandstudio.neon.command.option.NWaypointsCommandOption
 import com.islandstudio.neon.command.option.PermissionCommandOption
 import com.islandstudio.neon.command.option.RoleCommandOption
-import com.islandstudio.neon.command.properties.AccessibleCommand.AccessibleCommandOption
+import com.islandstudio.neon.command.option.ServerFeaturesCommandOption
+import com.islandstudio.neon.command.properties.AbstractCommandAlias
+import com.islandstudio.neon.command.properties.AbstractCommandOption
+import com.islandstudio.neon.command.properties.AccessibleCommand
+import com.islandstudio.neon.command.properties.CommandFilter
 import com.islandstudio.neon.player.security.AccessControlManager
 import com.islandstudio.neon.player.security.permission.Permission
 import com.islandstudio.neon.player.session.PlayerSessionManager
@@ -75,13 +79,13 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
                                 val commandOptionArgs = it.optionArguments
 
                                 if (cmdPermissionCodes.isEmpty() || commandOptionPermissionCodes.isEmpty()) {
-                                    return@map AccessibleCommandOption(
+                                    return@map AccessibleCommand.AccessibleCommandOption(
                                         it.option,
                                         commandOptionArgs.map { it.optionArg }.toCollection(ArrayList())
                                     )
                                 }
 
-                                AccessibleCommandOption(
+                                AccessibleCommand.AccessibleCommandOption(
                                     it.option,
                                     commandOptionArgs
                                         .filter { x ->
@@ -116,7 +120,7 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
                                     .map {
                                         val commandOptionArgs = it.optionArguments.map { it.optionArg }.toCollection(ArrayList())
 
-                                        AccessibleCommandOption(it.option, commandOptionArgs)
+                                        AccessibleCommand.AccessibleCommandOption(it.option, commandOptionArgs)
                                     }
                                     .toCollection(ArrayList())
 
@@ -247,5 +251,14 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
         override val alias: String = "waypoints"
         override val requiredPermissions: ArrayList<Permission> = arrayListOf()
         override val commandOptions: ArrayList<NWaypointsCommandOption> = getAllCommandOptions(NWaypointsCommandOption::class)
+    }
+
+    data object ServerFeaturesAlias: CommandAlias<ServerFeaturesCommandOption>() {
+        override val alias: String = "serverfeatures"
+        override val requiredPermissions: ArrayList<Permission> = arrayListOf(
+            Permission.ServerFeaturesManagement
+        )
+        override val commandOptions: ArrayList<ServerFeaturesCommandOption> = getAllCommandOptions(
+            ServerFeaturesCommandOption::class)
     }
 }

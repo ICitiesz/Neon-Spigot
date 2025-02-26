@@ -1,7 +1,7 @@
 package com.islandstudio.neon.command.option
 
+import com.islandstudio.neon.command.CommandAlias
 import com.islandstudio.neon.command.properties.AbstractCommandOption
-import com.islandstudio.neon.command.properties.CommandAlias
 
 sealed class PermissionCommandOption: AbstractCommandOption<Nothing>(CommandAlias.PermissionAlias) {
     data object Grant: PermissionCommandOption() {

@@ -7,13 +7,13 @@ import com.islandstudio.neon.api.dto.request.security.CreateRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.GetRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.RemoveRoleRequestDTO
 import com.islandstudio.neon.api.entity.security.RoleEntity
+import com.islandstudio.neon.command.CommandAlias
 import com.islandstudio.neon.command.CommandManager
 import com.islandstudio.neon.command.ICommandDispatcher
 import com.islandstudio.neon.command.option.RoleCommandOption
 import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
-import com.islandstudio.neon.command.properties.CommandAlias
 import com.islandstudio.neon.command.properties.CommandFilter
 import com.islandstudio.neon.player.session.PlayerSessionManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector

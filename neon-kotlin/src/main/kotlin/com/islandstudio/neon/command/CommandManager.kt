@@ -3,7 +3,6 @@ package com.islandstudio.neon.command
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
-import com.islandstudio.neon.command.properties.CommandAlias
 import com.islandstudio.neon.player.security.AccessControlManager
 import com.islandstudio.neon.player.security.role.RoleManager
 import com.islandstudio.neon.shared.core.IRunner
@@ -114,6 +113,10 @@ class CommandManager: TabExecutor {
                         CommandAlias.NWaypointsAlias -> {
                             arrayListOf()
                         }
+
+                        CommandAlias.ServerFeaturesAlias -> {
+                            arrayListOf()
+                        }
                     }
                 }
         }
@@ -143,6 +146,10 @@ class CommandManager: TabExecutor {
         args?.let { args ->
             if (accessibleCommands.isEmpty()) return true
 
+            if (args.isEmpty()) {
+                return@let
+            }
+
             CommandAlias.getAllCommandAlias()
                 .find { it.alias.equals(args[0], true) }
                 ?.let {
@@ -158,8 +165,12 @@ class CommandManager: TabExecutor {
                         CommandAlias.NWaypointsAlias -> {
 
                         }
+
+                        CommandAlias.ServerFeaturesAlias -> {
+
+                        }
                     }
-                }
+                } ?: CommandSyntaxHandler.alertInvalidCommand(commander, args[0])
         }
 
         return true
