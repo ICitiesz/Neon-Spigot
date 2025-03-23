@@ -229,6 +229,10 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
                 else -> arrayListOf()
             }
         }
+
+        fun checkCommandOptionAccess(commandOption: AbstractCommandOption<*>, accessibleCommandOptions: ArrayList<String>): Boolean {
+            return commandOption.option in accessibleCommandOptions
+        }
     }
 
     data object RoleAlias: CommandAlias<RoleCommandOption>() {

@@ -1,6 +1,5 @@
 package com.islandstudio.neon.shared.core.config
 
-import com.islandstudio.neon.shared.core.config.component.AbstractConfigProperty
 import com.islandstudio.neon.shared.core.config.component.type.IConfigObject
 import com.islandstudio.neon.shared.core.config.component.type.IConfigProperty
 import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer
@@ -35,12 +34,12 @@ class ConfigWrapper<T: IConfigObject, U: IConfigProperty>(
         return ObjectSerializer.deserialzeFromByteArray(serializedMutableConfigObject)
     }
 
-    fun getAllConfigProperty(): ArrayList<AbstractConfigProperty<*>> {
+    fun getAllConfigProperty(): ArrayList<U> {
         return configPropertyClazz
             .sealedSubclasses
             .filter { it.objectInstance != null }
             .map {
-                it.objectInstance as AbstractConfigProperty<*>
+                it.objectInstance as U
             }
             .toCollection(ArrayList())
     }

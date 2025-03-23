@@ -19,5 +19,11 @@ enum class NeonExternalResource(val neonDataFolder: NeonDataFolder, val resource
         NeonDataFolder.NWaypointsFolder,
         "nWaypoints-Global.json",
         ResourceType.Json
+    ),
+
+    NeonServerFeaturesFile(
+        NeonDataFolder.NServerFeaturesFolder,
+        "neon-serverfeatures.toml",
+        ResourceType.Toml
     )
 }

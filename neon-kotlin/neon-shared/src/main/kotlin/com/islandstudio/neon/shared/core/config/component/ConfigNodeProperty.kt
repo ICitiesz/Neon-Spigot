@@ -4,6 +4,7 @@ import com.akuleshov7.ktoml.tree.nodes.TomlKeyValuePrimitive
 import com.akuleshov7.ktoml.tree.nodes.TomlNode
 import com.akuleshov7.ktoml.tree.nodes.pairs.values.*
 import com.islandstudio.neon.shared.utils.data.DataType
+import com.islandstudio.neon.shared.utils.data.DataUtil
 
 data class ConfigNodeProperty(private var configNode: TomlKeyValuePrimitive) {
     private var parentConfigNode = configNode.parent
@@ -25,8 +26,12 @@ data class ConfigNodeProperty(private var configNode: TomlKeyValuePrimitive) {
 
     fun inlineComment(): String? = inlineComment
 
-    fun updateConfigNodeValue(value: Any) {
-        this.value = value
+    fun updateConfigNodeValue(value: Any): Boolean {
+        DataUtil.convertDataType(value, dataType)?.let {
+            this.value = it
+
+            return true
+        } ?: return false
     }
 
     fun buildConfigNode(): TomlKeyValuePrimitive {

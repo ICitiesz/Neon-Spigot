@@ -24,6 +24,7 @@ import com.islandstudio.neon.shared.utils.data.DataUtil
 import kotlinx.serialization.serializer
 import org.koin.core.component.inject
 import java.io.File
+import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
@@ -38,16 +39,82 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
     private val configFile = NeonDataFolder.createNewFile(neonExternalResource)
     private val configWrapper = ConfigWrapper<T, U>(configPropertyClazz)
 
+    private val mainConfigObject: T
+    private var mainConfigNodeProperties: MutableList<ConfigNodeProperty> = ArrayList()
+    private val configNodePropertiesSessions: HashMap<UUID, MutableList<ConfigNodeProperty>> by lazy { HashMap() }
+
     private val appContext by inject<AppContext>()
+
+    /*
+    * Goal: Command & GUI compatible
+    * 2 approaches:
+    * [Approach 1]: Using command can directly change config to the current config nodes
+    *
+    * [Approach 2]: Using sessions (mainly for GUI usage)
+    * */
 
     init {
         initialize().apply {
+            mainConfigObject = this as T
+            setConfigNodeProperties(getConfigNodeProperties(parseToTomFile(encodeToString(this as T))))
+
             @Suppress("UNCHECKED_CAST")
             configWrapper.initConfigObject(this as T)
+            test(encodeToString(this))
         }
     }
 
-    fun saveToFile(configObject: IConfigObject) {
+
+
+    fun setConfigNodeProperties(configNodeProperties: MutableList<ConfigNodeProperty>) {
+        this.mainConfigNodeProperties = configNodeProperties
+    }
+
+    fun updateConfigNode2(configNodeProperties: MutableList<ConfigNodeProperty>, parentConfigNodeName: String, keyName: String, keyValue: Any): MutableList<ConfigNodeProperty> {
+        configNodeProperties
+            .filter { x -> x.parentConfigNode().toString().contains(parentConfigNodeName) }
+            .find { x -> x.key() == keyName }
+            ?.updateConfigNodeValue(keyValue)
+
+        return configNodeProperties
+    }
+
+    // TODO: TBD
+    fun updateConfigNode(parentConfigNodeName: String = "rootNode", keyName: String, keyValue: Any) {
+        getConfigNode(parentConfigNodeName, keyName)?.updateConfigNodeValue(keyValue)
+    }
+
+    fun getConfigNode(parentConfigNodeName: String = "rootNode", keyName: String): ConfigNodeProperty? {
+        return mainConfigNodeProperties.find { x ->
+            x.parentConfigNode().toString().contains(parentConfigNodeName) && x.key() == keyName
+        }
+    }
+
+    fun getAllConfigProperty(): ArrayList<U> {
+        return configPropertyClazz
+            .sealedSubclasses
+            .filter { it.objectInstance != null }
+            .map {
+                it.objectInstance as U
+            }
+            .toCollection(ArrayList())
+    }
+
+    fun test(data: String) {
+        //updateConfigNode("nBundle.options", "bundleMaxBuy", 64)
+
+    }
+
+    fun saveConfig() {
+        @Suppress("UNCHECKED_CAST")
+        rebuildConfig(mainConfigNodeProperties, getAllConfigProperty() as ArrayList<AbstractConfigProperty<*>>).apply {
+            val configObject = encodeToString(this).run { toConfigObject(this) }
+
+            saveToFile(configObject)
+        }
+    }
+
+    private fun saveToFile(configObject: IConfigObject) {
         configFile.writeText(encodeToString(configObject))
     }
 
@@ -69,7 +136,7 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
         }
 
         updateConfig(configFile, configWrapper.getAllConfigProperty()).apply {
-            val updatedConfig = decodeFromString(encodeToString(this))
+            val updatedConfig = toConfigObject(encodeToString(this))
 
             saveToFile(updatedConfig)
 
@@ -84,10 +151,10 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
      * @param configProperties
      * @return
      */
-    private fun updateConfig(writableConfigFile: File, configProperties: ArrayList<AbstractConfigProperty<*>>): TomlFile {
+    private fun updateConfig(writableConfigFile: File, configProperties: ArrayList<U>): TomlFile {
         val parsedConfig = parseToTomFile(writableConfigFile)
 
-        return rebuildConfig(parsedConfig, configProperties)
+        return rebuildConfig(getConfigNodeProperties(parsedConfig), configProperties as ArrayList<AbstractConfigProperty<*>>)
     }
 
     /**
@@ -97,10 +164,10 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
      * @param configProperties
      * @return
      */
-    private fun rebuildConfig(parsedConfig: TomlFile, configProperties: ArrayList<AbstractConfigProperty<*>>): TomlFile {
+    private fun rebuildConfig(configNodeProperties: List<ConfigNodeProperty>, configProperties: ArrayList<AbstractConfigProperty<*>>): TomlFile {
         val newConfig = TomlFile()
 
-        getConfigNodeProperties(parsedConfig).forEach { configNodeProperty ->
+        configNodeProperties.forEach { configNodeProperty ->
             val configKey = configNodeProperty.key()
             val parentConfigKey = configNodeProperty.parentConfigNode()?.let {
                 if (it is TomlTable) return@let it.fullTableKey.toString()
@@ -196,6 +263,10 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
 
             configContent = tryResolveParseError(configContent, parseResult)
         }
+    }
+
+    private fun parseToTomFile(tomlString: String): TomlFile {
+        return tomlInstance.tomlParser.parseString(tomlString)
     }
 
     /**
@@ -306,7 +377,7 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
         return tomlInstance.encodeToString(serializer(configObject::class.createType()), configObject)
     }
 
-    private fun decodeFromString(configContent: String): IConfigObject {
+    private fun toConfigObject(configContent: String): IConfigObject {
         return tomlInstance
             .decodeFromString(
                 serializer(configObject::class.createType()),

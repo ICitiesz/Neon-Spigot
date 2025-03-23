@@ -6,13 +6,13 @@ import com.islandstudio.neon.api.adapter.security.RolePermissionAdapter
 import com.islandstudio.neon.api.dto.request.security.permission.*
 import com.islandstudio.neon.api.dto.response.security.RolePermissionPermissionCodeDTO
 import com.islandstudio.neon.api.entity.security.PermissionEntity
+import com.islandstudio.neon.command.CommandAlias
 import com.islandstudio.neon.command.CommandManager
 import com.islandstudio.neon.command.ICommandDispatcher
 import com.islandstudio.neon.command.option.PermissionCommandOption
 import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
-import com.islandstudio.neon.command.properties.CommandAlias
 import com.islandstudio.neon.command.properties.CommandFilter
 import com.islandstudio.neon.player.security.permission.Permission
 import com.islandstudio.neon.player.security.role.RoleManager
