@@ -20,8 +20,8 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val defaultValue: Boolean = false
             override val dataRange: ConfigDataRange<Boolean> = ConfigDataRange.DataRangeBoolean
 
-            override fun <T: IConfigProperty> getConfigCustomData(): IConfigCustomData<T>? {
-                return this@NHarvestConfigProperty as IConfigCustomData<T>?
+            override fun <T: IConfigProperty> getConfigCustomData(): T? {
+                return this@NHarvestConfigProperty.customData as T?
             }
         }
     }
@@ -38,6 +38,10 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataType: DataType = DataType.Boolean
             override val defaultValue: Boolean = false
             override val dataRange: ConfigDataRange<Boolean> = ConfigDataRange.DataRangeBoolean
+
+            override fun <T: IConfigProperty> getConfigCustomData(): T? {
+                return this@NCutterConfigProperty.customData as T?
+            }
         }
     }
 
@@ -53,6 +57,10 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataType: DataType = DataType.Boolean
             override val defaultValue: Boolean = false
             override val dataRange: ConfigDataRange<Boolean> = ConfigDataRange.DataRangeBoolean
+
+            override fun <T: IConfigProperty> getConfigCustomData(): T? {
+                return this@NSmelterConfigProperty.customData as T?
+            }
         }
     }
 
@@ -68,6 +76,10 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataType: DataType = DataType.Boolean
             override val defaultValue: Boolean = false
             override val dataRange: ConfigDataRange<Boolean> = ConfigDataRange.DataRangeBoolean
+
+            override fun <T : IConfigProperty> getConfigCustomData(): T? {
+                return this@NPVPConfigProperty.customData as T?
+            }
         }
     }
 
@@ -83,6 +95,10 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataType: DataType = DataType.Boolean
             override val defaultValue: Boolean = false
             override val dataRange: ConfigDataRange<Boolean> = ConfigDataRange.DataRangeBoolean
+
+            override fun <T : IConfigProperty> getConfigCustomData(): T? {
+                return this@NWaypointsConfigProperty.customData as T?
+            }
         }
 
         data object CrossDimension: NeonServerFeaturesConfigProperty<Boolean>() {
@@ -107,6 +123,10 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataType: DataType = DataType.Boolean
             override val defaultValue: Boolean = false
             override val dataRange: ConfigDataRange<Boolean> = ConfigDataRange.DataRangeBoolean
+
+            override fun <T : IConfigProperty> getConfigCustomData(): T? {
+                return this@NDurableConfigProperty.customData as T?
+            }
         }
 
         data object ShowItemDurability: NeonServerFeaturesConfigProperty<Boolean>() {
@@ -132,6 +152,10 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataType: DataType = DataType.Boolean
             override val defaultValue: Boolean = false
             override val dataRange: ConfigDataRange<Boolean> = ConfigDataRange.DataRangeBoolean
+
+            override fun <T : IConfigProperty> getConfigCustomData(): T? {
+                return this@NBundleConfigProperty.customData as T?
+            }
         }
 
         data object BundleGenerateChance: NeonServerFeaturesConfigProperty<Double>() {
@@ -193,6 +217,10 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataType: DataType = DataType.Boolean
             override val defaultValue: Boolean = false
             override val dataRange: ConfigDataRange<Boolean> = ConfigDataRange.DataRangeBoolean
+
+            override fun <T : IConfigProperty> getConfigCustomData(): T? {
+                return this@NFireworksConfigProperty.customData as T?
+            }
         }
 
         data object ParticleSize: NeonServerFeaturesConfigProperty<Double>() {
@@ -227,6 +255,10 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataType: DataType = DataType.Boolean
             override val defaultValue: Boolean = false
             override val dataRange: ConfigDataRange<Boolean> = ConfigDataRange.DataRangeBoolean
+
+            override fun <T : IConfigProperty> getConfigCustomData(): T? {
+                return this@NPaintingConfigProperty.customData as T?
+            }
         }
     }
 }
