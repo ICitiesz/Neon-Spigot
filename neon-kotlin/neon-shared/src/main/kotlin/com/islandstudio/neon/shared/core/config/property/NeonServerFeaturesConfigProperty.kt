@@ -2,15 +2,15 @@ package com.islandstudio.neon.shared.core.config.property
 
 import com.islandstudio.neon.shared.core.config.component.AbstractConfigProperty
 import com.islandstudio.neon.shared.core.config.component.ConfigDataRange
+import com.islandstudio.neon.shared.core.config.component.type.IConfigProperty
+import com.islandstudio.neon.shared.core.config.property.custom.NeonFeatureConfigCustomData
 import com.islandstudio.neon.shared.utils.data.DataType
 
 sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
-    private interface INeonServerFeaturesConfigDetail {
-        val serverFeatureDescription: String
-    }
-
-    object NHarvestConfigProperty: INeonServerFeaturesConfigDetail {
-        override val serverFeatureDescription: String = "Makes harvesting crops much easier!"
+    object NHarvestConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
+        override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
+            "Makes harvesting crops much easier!"
+        )
 
         data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nHarvest"
@@ -19,11 +19,17 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataType: DataType = DataType.Boolean
             override val defaultValue: Boolean = false
             override val dataRange: ConfigDataRange<Boolean> = ConfigDataRange.DataRangeBoolean
+
+            override fun <T: IConfigProperty> getConfigCustomData(): IConfigCustomData<T>? {
+                return this@NHarvestConfigProperty as IConfigCustomData<T>?
+            }
         }
     }
 
-    object NCutterConfigProperty: INeonServerFeaturesConfigDetail {
-        override val serverFeatureDescription: String = "Enables stonecutter to craft some of the woord items with fewer ingredients."
+    object NCutterConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
+        override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
+            "Enables stonecutter to craft some of the woord items with fewer ingredients."
+        )
 
         data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nCutter"
@@ -35,9 +41,10 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
         }
     }
 
-    object NSmelterConfigProperty: INeonServerFeaturesConfigDetail {
-        override val serverFeatureDescription: String = "Enables blast furnace to smelft some of the " +
-                "smeltable items that only the furnace can smelt."
+    object NSmelterConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
+        override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
+            "Enables blast furnace to smelft some of the smeltable items that only the furnace can smelt."
+        )
 
         data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nSmelter"
@@ -49,8 +56,10 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
         }
     }
 
-    object NPVPConfigProperty: INeonServerFeaturesConfigDetail {
-        override val serverFeatureDescription: String = "Enables or disables PvP in the server."
+    object NPVPConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
+        override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
+            "Enables or disables PvP in the server."
+        )
 
         data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nPVP"
@@ -62,9 +71,10 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
         }
     }
 
-    object NWaypointsConfigProperty: INeonServerFeaturesConfigDetail {
-        override val serverFeatureDescription: String = "Enables to save waypoints, " +
-                "remove waypoints and teleport to waypoint in the server."
+    object NWaypointsConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
+        override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
+            "Enables to save waypoints, remove waypoints and teleport to waypoint in the server."
+        )
 
         data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nWaypoints"
@@ -85,9 +95,10 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
         }
     }
 
-    object NDurableConfigProperty: INeonServerFeaturesConfigDetail {
-        override val serverFeatureDescription: String = "Another way of handling the " +
-                "durability of the tools/weapons."
+    object NDurableConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
+        override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
+            "Another way of handling the durability of the tools/weapons."
+        )
 
         data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nDurable"
@@ -108,9 +119,11 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
         }
     }
 
-    object NBundleConfigProperty: INeonServerFeaturesConfigDetail {
-        override val serverFeatureDescription: String = "Since the bundle is unobtainable in survival mode within " +
-                "Minecraft 1.17 ~ 1.20, it is now obtainable in survival mode."
+    object NBundleConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
+        override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
+            "Since the bundle is unobtainable in survival mode within Minecraft 1.17 ~ 1.20, " +
+                    "it is now obtainable in survival mode."
+        )
 
         data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nBundle"
@@ -167,9 +180,11 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
         }
     }
 
-    object NFireworksConfigProperty: INeonServerFeaturesConfigDetail {
-        override val serverFeatureDescription: String = "[Experimental] Create custom firework pattern " +
-                "by using imported images."
+    object NFireworksConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
+        override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
+            "[Experimental] Create custom firework pattern by using imported images.",
+            true
+        )
 
         data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nFireworks"
@@ -199,9 +214,11 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
         }
     }
 
-    object NPaintingConfigProperty: INeonServerFeaturesConfigDetail {
-        override val serverFeatureDescription: String = "[Experimental] (Incompatible with Minecraft 1.17.X) " +
-                "Create custom painting by using imported images."
+    object NPaintingConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
+        override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
+            "[Experimental] (Incompatible with Minecraft 1.17.X) Create custom painting by using imported images.",
+            true
+        )
 
         data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nPainting"
