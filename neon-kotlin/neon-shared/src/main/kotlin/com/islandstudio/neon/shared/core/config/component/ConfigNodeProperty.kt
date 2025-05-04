@@ -27,20 +27,24 @@ data class ConfigNodeProperty(private var configNode: TomlKeyValuePrimitive) {
     fun inlineComment(): String? = inlineComment
 
     fun updateConfigNodeValue(value: Any): Boolean {
-        DataUtil.convertDataType(value, dataType)?.let {
+        return DataUtil.convertDataType(value, dataType)?.let {
             this.value = it
 
-            return true
-        } ?: return false
+            true
+        } ?: false
     }
 
-    fun buildConfigNode(): TomlKeyValuePrimitive {
+    fun buildConfigNode(includeParent: Boolean = false): TomlKeyValuePrimitive {
         configNode = TomlKeyValuePrimitive(
             key to value.toString(),
             configNode.lineNo,
             comments,
             inlineComment
-        )
+        ).apply {
+            if (!includeParent) return@apply
+
+            parent = parentConfigNode
+        }
 
         key = configNode.name
         value = configNode.value.content

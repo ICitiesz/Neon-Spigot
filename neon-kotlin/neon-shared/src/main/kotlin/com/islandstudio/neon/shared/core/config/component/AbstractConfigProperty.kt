@@ -11,7 +11,7 @@ abstract class AbstractConfigProperty<T>: IConfigProperty {
     abstract val defaultValue: T
     abstract val dataRange: ConfigDataRange<T>
 
-    open fun <T: IConfigProperty>getConfigCustomData(): IConfigCustomData<T>? {
+    open fun <T: IConfigProperty>getConfigCustomData(): T? {
         return null
     }
 

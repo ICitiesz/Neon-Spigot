@@ -85,7 +85,8 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
 
     object NWaypointsConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
         override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
-            "Enables to save waypoints, remove waypoints and teleport to waypoint in the server."
+            "Enables to save waypoints, remove waypoints and teleport to waypoint in the server.",
+            command = "/neon waypoints"
         )
 
         data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
@@ -207,6 +208,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
     object NFireworksConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
         override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
             "[Experimental] Create custom firework pattern by using imported images.",
+            "/neon fireworks",
             true
         )
 
@@ -245,6 +247,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
     object NPaintingConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
         override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
             "[Experimental] (Incompatible with Minecraft 1.17.X) Create custom painting by using imported images.",
+            "/neon painting",
             true
         )
 

@@ -4,5 +4,6 @@ import com.islandstudio.neon.shared.core.config.component.type.IConfigProperty
 
 data class NeonFeatureConfigCustomData(
     val featureDescription: String,
-    val isExperimental: Boolean = false
+    val command: String? = null,
+    val isExperimental: Boolean = false,
 ): IConfigProperty
