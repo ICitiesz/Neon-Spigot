@@ -1,8 +1,11 @@
 package com.islandstudio.neon.experimental.gui
 
+import com.islandstudio.neon.command.processing.CommandSyntax
+import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.player.session.PlayerSessionManager
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.stable.core.application.AppLoader
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -24,6 +27,7 @@ class GuiManager: IComponentInjector {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <T: GuiConstructor<*>>initGuiSession(player: Player, guiClass: KClass<T>): GuiSession<T> {
         return guiSessions.find { x -> x.player == player }?.let { it as GuiSession<T> } ?: GuiSession(player, guiClass).also {
             guiSessions.add(it)
@@ -76,7 +80,13 @@ class GuiManager: IComponentInjector {
 
                 if (e.currentItem == null) return
 
-                inventoryHolder.setGuiClickHandler(e)
+                runCatching {
+                    inventoryHolder.setGuiClickHandler(e)
+                }.onFailure { throwable ->
+                    player.closeInventory()
+                    CommandSyntaxHandler.sendCommandSyntax(player, CommandSyntax.UNEXPECTED_GUI_ERROR)
+                    throw NeonException(throwable.message, throwable)
+                }
             }
         }
 

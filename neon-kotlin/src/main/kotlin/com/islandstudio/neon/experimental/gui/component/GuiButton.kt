@@ -4,6 +4,7 @@ import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer
 import com.islandstudio.neon.stable.core.application.datakey.DataContainerManager
 import com.islandstudio.neon.stable.core.application.datakey.DataContainerType
 import com.islandstudio.neon.stable.item.NItemGlinter
+import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
@@ -38,6 +39,52 @@ data class GuiButton(
             return DataContainerManager.hasDataContainerAttached(clickedButtonMetaData, DataContainerType.NeonGuiButtonCustomDataContainer)
         }
 
+        fun hasConfirmationStatus(clickedButtonMetaData: ItemMeta): Boolean {
+            return DataContainerManager.hasDataContainerAttached(clickedButtonMetaData, DataContainerType.NeonGuiButtonConfirmationStatusContainer)
+        }
+
+        fun onConfirmation(clickedButtonMetaData: ItemMeta, block: (Boolean) -> Unit) {
+            if (!hasConfirmationStatus(clickedButtonMetaData)) return block(false)
+
+            val confirmationStatus = DataContainerManager.getAttachedData(
+                clickedButtonMetaData,
+                DataContainerType.NeonGuiButtonConfirmationStatusContainer
+            ) ?: return block(false)
+
+            val isConfirmed: Boolean = when(confirmationStatus) {
+                false -> {
+                    updateConfirmationStatus(clickedButtonMetaData, true)
+
+                    clickedButtonMetaData.lore = LinkedList<String>().apply {
+                        add("${ChatColor.YELLOW}Click again to confirm.")
+                    }
+                    false
+                }
+
+               true -> {
+                   updateConfirmationStatus(clickedButtonMetaData, false)
+
+                   clickedButtonMetaData.lore = null
+                   true
+               }
+            }
+
+            return block(isConfirmed)
+        }
+
+        fun resetConfirmationStatus(clickedButtonMetaData: ItemMeta) {
+            updateConfirmationStatus(clickedButtonMetaData, false)
+        }
+
+        private fun updateConfirmationStatus(clickedButtonMetaData: ItemMeta, status: Boolean) {
+            if (!hasConfirmationStatus(clickedButtonMetaData)) return
+
+            DataContainerManager.updateAttachedData(
+                clickedButtonMetaData,
+                status,
+                DataContainerType.NeonGuiButtonConfirmationStatusContainer
+            )
+        }
 
         fun <T> getCustomData(clickedButtonMetaData: ItemMeta): T? {
             if (!hasCustomData(clickedButtonMetaData)) return null
@@ -88,6 +135,10 @@ data class GuiButton(
         block(buttonNode).apply {
             DataContainerManager.attachData(buttonMetaData,  ObjectSerializer.serializeToBase64(buttonNode), DataContainerType.NeonGuiButtonCustomDataContainer)
         }
+    }
+
+    fun withConfirmationStatus() {
+        DataContainerManager.attachData(buttonMetaData, false, DataContainerType.NeonGuiButtonConfirmationStatusContainer)
     }
 
     fun getButtonItem(): ItemStack = buttonItem

@@ -16,4 +16,8 @@ sealed class DataContainerType<T>(keyName: String): AbstractDataKey(keyName) {
     data object NeonGuiButtonCustomDataContainer: DataContainerType<String>("neon.gui.button.custom_data_container") {
         override val persistentDataType: PersistentDataType<*, String> = PersistentDataType.STRING
     }
+
+    data object NeonGuiButtonConfirmationStatusContainer: DataContainerType<Boolean>("neon.gui.button.confirmation_status") {
+        override val persistentDataType: PersistentDataType<*, Boolean> = PersistentDataType.BOOLEAN
+    }
 }
