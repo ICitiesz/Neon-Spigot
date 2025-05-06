@@ -1,4 +1,4 @@
-package com.islandstudio.neon.features.serverfeature
+package com.islandstudio.neon.features.neonfeature
 
 import com.islandstudio.neon.command.CommandAlias
 import com.islandstudio.neon.command.ICommandDispatcher
@@ -7,9 +7,13 @@ import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
 import com.islandstudio.neon.command.properties.CommandFilter
+import com.islandstudio.neon.experimental.gui.GuiManager
+import com.islandstudio.neon.features.neonfeature.gui.NeonFeatureGui
+import com.islandstudio.neon.features.neonfeature.gui.NeonFeatureGuiStateData
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.config.AppConfig
 import com.islandstudio.neon.shared.core.config.component.ConfigDataRange
+import com.islandstudio.neon.shared.core.config.component.ConfigNodeProperty
 import com.islandstudio.neon.shared.core.config.obj.NeonServerFeaturesConfigObject
 import com.islandstudio.neon.shared.core.config.property.NeonServerFeaturesConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
@@ -18,11 +22,12 @@ import com.islandstudio.neon.shared.utils.data.DataType
 import com.islandstudio.neon.shared.utils.data.DataUtil
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 
 @Single
-class ServerFeaturesManager {
+class NeonFeatureManager {
     private val serverFeaturesAppConfig by lazy {
         AppConfig(
             NeonExternalResource.NeonServerFeaturesFile,
@@ -33,7 +38,7 @@ class ServerFeaturesManager {
 
     companion object: IRunner, ICommandDispatcher, IComponentInjector {
         private val serverFeaturesCommandAlias = CommandAlias.ServerFeaturesAlias
-        private val serverFeaturesManager by inject<ServerFeaturesManager>()
+        private val serverFeaturesManager by inject<NeonFeatureManager>()
 
         override fun run() {
             serverFeaturesManager.initialize()
@@ -47,7 +52,19 @@ class ServerFeaturesManager {
             val argLength = args.size.apply {
                 if (this != 1) return@apply
 
-                //TODO: GUI implementation
+                if (commander !is Player) {
+                    return CommandSyntaxHandler.sendCommandSyntax(commander, CommandSyntax.UNSUPPORTED_GUI_ACCESS)
+                }
+
+                val guiManager by inject<GuiManager>()
+
+                runCatching {
+                    guiManager.initGuiSession(commander, NeonFeatureGui::class).getGui().openGui()
+                }.onFailure {
+                    CommandSyntaxHandler.sendCommandSyntax(commander, CommandSyntax.UNEXPECTED_GUI_ERROR)
+                    it.printStackTrace()
+                }
+
                 return
             }
 
@@ -58,8 +75,7 @@ class ServerFeaturesManager {
             serverFeaturesCommandAlias.onMatchOption(args[1]) {
                 it?.let {
                     if (!CommandAlias.checkCommandOptionAccess(it, accessibleCommandOptions)) {
-                        CommandSyntaxHandler.sendCommandSyntax(commander, CommandSyntax.INVALID_PERMISSION)
-                        return@let
+                        return@let CommandSyntaxHandler.sendCommandSyntax(commander, CommandSyntax.INVALID_PERMISSION)
                     }
 
                     when(it) {
@@ -178,12 +194,12 @@ class ServerFeaturesManager {
                                     configProperty.defaultValue
                                 } else { this }
 
-                                DataUtil.convertDataType(optionValue!!, DataType.Boolean)?.let {
-                                    if (it as Boolean) {
-                                        return@with it to "${ChatColor.GREEN}true"
+                                DataUtil.convertDataType(optionValue!!, DataType.Boolean)?.let { convertedData ->
+                                    if (convertedData as Boolean) {
+                                        return@with convertedData to "${ChatColor.GREEN}true"
                                     }
 
-                                    it to "${ChatColor.RED}false"
+                                    convertedData to "${ChatColor.RED}false"
                                 } ?: (optionValue to "${ChatColor.GREEN}${optionValue}")
                             }
 
@@ -204,7 +220,7 @@ class ServerFeaturesManager {
                                 return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
                                     "${ChatColor.RED}Invalid data range! ${ChatColor.WHITE}Min: " +
                                             "${ChatColor.YELLOW}${configProperty.dataRange.minValue} ${ChatColor.WHITE}| Max: " +
-                                            "${ChatColor.YELLOW}${configProperty.dataRange.maxValue}!"
+                                            "${ChatColor.YELLOW}${configProperty.dataRange.maxValue}"
                                 )
                             }
 
@@ -336,19 +352,40 @@ class ServerFeaturesManager {
     }
 
     fun initialize() {
-
     }
 
-    fun getFeatureToggle(featureName: String): Boolean {
-        return serverFeaturesAppConfig.getConfigNode(featureName, "isEnabled")!!
-            .value() as Boolean
+    fun getFeatureToggle(featureName: String, configNodeProperties: ArrayList<ConfigNodeProperty>? = null): Boolean {
+        return configNodeProperties?.let {
+            serverFeaturesAppConfig.getConfigNode(
+                configNodeProperties,
+                featureName,
+                "isEnabled"
+            )?.value()?.let { it as Boolean } ?: false
+        }
+            ?: serverFeaturesAppConfig.getConfigNode(featureName, "isEnabled")!!.value() as Boolean
+    }
+
+    fun setFeatureToggle(configNodeProperties: ArrayList<ConfigNodeProperty>, featureName: String, toggle: Boolean): Boolean {
+        return serverFeaturesAppConfig.getConfigNode(
+            configNodeProperties,
+            featureName,
+            "isEnabled"
+        )?.updateConfigNodeValue(toggle) ?: return false
+    }
+
+    fun saveFeatureChanges(neonFeatureGuiStateData: NeonFeatureGuiStateData? = null) {
+        neonFeatureGuiStateData?.let {
+            serverFeaturesAppConfig.updateConfigNodeProperties(it.featureConfig)
+        }
+
+        serverFeaturesAppConfig.saveConfig()
     }
 
     fun setFeatureToggle(featureName: String, toggle: Boolean): Boolean {
         serverFeaturesAppConfig.getConfigNode(featureName, "isEnabled")
             ?.updateConfigNodeValue(toggle) ?: return false
 
-        serverFeaturesAppConfig.saveConfig()
+        saveFeatureChanges()
         return true
     }
 
@@ -370,8 +407,16 @@ class ServerFeaturesManager {
               }
     }
 
-    fun getServerFeatureNames(): ArrayList<String> {
+    fun getFeatureConfigProperties(): ArrayList<NeonServerFeaturesConfigProperty<*>> {
         return serverFeaturesAppConfig.getAllConfigProperty()
+    }
+
+    fun getFeatureConfigNodeProperties(): ArrayList<ConfigNodeProperty> {
+        return serverFeaturesAppConfig.cloneConfigNodeProperties() as ArrayList<ConfigNodeProperty>
+    }
+
+    fun getServerFeatureNames(): ArrayList<String> {
+        return getFeatureConfigProperties()
             .filter { !it.parentConfigKey.endsWith(".options") }
             .map { it.parentConfigKey }
             .toCollection(ArrayList())
@@ -384,7 +429,7 @@ class ServerFeaturesManager {
     }
 
     fun getServerFeatureOptions(serverFeatureName: String): ArrayList<NeonServerFeaturesConfigProperty<*>> {
-        return serverFeaturesAppConfig.getAllConfigProperty()
+        return getFeatureConfigProperties()
             .filter { it.parentConfigKey.equals("${serverFeatureName}.options", true) }
             .toCollection(ArrayList())
     }
