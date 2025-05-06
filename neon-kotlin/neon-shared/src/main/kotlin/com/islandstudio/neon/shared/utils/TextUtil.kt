@@ -1,6 +1,7 @@
 package com.islandstudio.neon.shared.utils
 
 import org.bukkit.ChatColor
+import java.util.*
 
 object TextUtil {
     fun toColorText(text: String): String {
@@ -16,5 +17,19 @@ object TextUtil {
 
             ChatColor.getByChar(colorCode).toString()
         }
+    }
+
+    /**
+     * Slice text into multiple line based on the given length per line.
+     *
+     * @param text
+     * @param sliceLength
+     * @return Sliced text lines.
+     */
+    fun sliceText(text: String, sliceLength: Int): LinkedList<String> {
+        return text.split(" ")
+            .windowed(sliceLength, sliceLength, true)
+            .map { it.joinToString(" ") }
+            .toCollection(LinkedList())
     }
 }
