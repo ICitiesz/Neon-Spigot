@@ -81,7 +81,9 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
                                 if (cmdPermissionCodes.isEmpty() || commandOptionPermissionCodes.isEmpty()) {
                                     return@map AccessibleCommand.AccessibleCommandOption(
                                         it.option,
-                                        commandOptionArgs.map { it.optionArg }.toCollection(ArrayList())
+                                        commandOptionArgs
+                                            .map { commandOptionArg -> commandOptionArg.optionArg }
+                                            .toCollection(ArrayList())
                                     )
                                 }
 
@@ -90,14 +92,14 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
                                     commandOptionArgs
                                         .filter { x ->
                                             val commandOptionArgPermissionCodes = x.requiredPermissions
-                                                .map { it.permissionCode }
+                                                .map { requiredPermission -> requiredPermission.permissionCode }
                                                 .toMutableList()
 
                                             if (commandOptionArgPermissionCodes.isEmpty()) {
                                                 return@filter true
                                             }
 
-                                            grantedSubPermissionCodes.any { it in commandOptionPermissionCodes }
+                                            grantedSubPermissionCodes.any { grantedSubPermissionCode -> grantedSubPermissionCode in commandOptionPermissionCodes }
                                         }
                                         .map { x -> x.optionArg }
                                         .toCollection(ArrayList())
@@ -117,10 +119,15 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
                         getAllCommandAlias()
                             .map {
                                 val commandOptions = it.commandOptions
-                                    .map {
-                                        val commandOptionArgs = it.optionArguments.map { it.optionArg }.toCollection(ArrayList())
+                                    .map { commandOption ->
+                                        val commandOptionArgs = commandOption.optionArguments
+                                            .map { optionArgument -> optionArgument.optionArg }
+                                            .toCollection(ArrayList())
 
-                                        AccessibleCommand.AccessibleCommandOption(it.option, commandOptionArgs)
+                                        AccessibleCommand.AccessibleCommandOption(
+                                            commandOption.option,
+                                            commandOptionArgs
+                                        )
                                     }
                                     .toCollection(ArrayList())
 
@@ -150,13 +157,17 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
                                 .filter {
                                     commandFilter?.let { argFilter ->
                                         return@filter it.optionIndex == argFilter.argIndex
-                                    } ?: true
+                                    }
+
+                                    true
                                 }
                                 .map { it.option }
                                 .filter {
                                     commandFilter?.let { argFilter ->
                                         return@filter it.startsWith(argFilter.filterRefArg, true)
-                                    } ?: true
+                                    }
+
+                                    true
                                 }
                                 .toCollection(ArrayList())
                         } ?: arrayListOf()
@@ -167,13 +178,17 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
                         .filter {
                             commandFilter?.let { cmdFilter ->
                                 return@filter it.optionIndex == cmdFilter.argIndex
-                            } ?: true
+                            }
+
+                            true
                         }
                         .map { it.option }
                         .filter {
                             commandFilter?.let { cmdFilter ->
                                 return@filter it.startsWith(cmdFilter.filterRefArg, true)
-                            } ?: true
+                            }
+
+                            true
                         }
                         .toCollection(ArrayList())
                 }
@@ -192,21 +207,32 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
                 is Player -> {
                     accessibleCommand.find { it.command.equals(targetCommandOption.commandAlias.alias, true) }
                         ?.let {
-                            it.accessibleCommandOptions.find { it.commandOption.equals(targetCommandOption.option, true) }
-                            ?.let { accessibleCommandOption ->
-                                targetCommandOption.optionArguments
-                                    .filter { it.optionArg in accessibleCommandOption.accessibleCommandOptionArgs }
-                                    .filter {
-                                        commandFilter?.let { cmdFilter ->
-                                            return@filter it.optionArgIndex == cmdFilter.argIndex
-                                        } ?: true
-                                    }.map { it.optionArg }
-                                    .filter {
-                                        commandFilter?.let { cmdFilter ->
-                                            return@filter it.startsWith(cmdFilter.filterRefArg, true)
-                                        } ?: true
-                                    }.toCollection(ArrayList())
-                            }
+                            it.accessibleCommandOptions
+                                .find { accessibleCommandOption ->
+                                    accessibleCommandOption.commandOption.equals(targetCommandOption.option, true)
+                                }
+                                ?.let { accessibleCommandOption ->
+                                    targetCommandOption.optionArguments
+                                        .filter { optionArgument ->
+                                            optionArgument.optionArg in accessibleCommandOption.accessibleCommandOptionArgs
+                                        }
+                                        .filter { abstractCommandOptionArgument ->
+                                            commandFilter?.let { cmdFilter ->
+                                                return@filter abstractCommandOptionArgument.optionArgIndex == cmdFilter.argIndex
+                                            }
+
+                                            true
+                                        }
+                                        .map { abstractCommandOptionArgument -> abstractCommandOptionArgument.optionArg }
+                                        .filter { optionArg ->
+                                            commandFilter?.let { cmdFilter ->
+                                                return@filter optionArg.startsWith(cmdFilter.filterRefArg, true)
+                                            }
+
+                                            true
+                                        }
+                                        .toCollection(ArrayList())
+                                }
                         } ?: arrayListOf()
                 }
 
@@ -215,13 +241,17 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
                         .filter {
                             commandFilter?.let { cmdFilter ->
                                 return@filter it.optionArgIndex == cmdFilter.argIndex
-                            } ?: true
+                            }
+
+                            true
                         }
                         .map { it.optionArg }
                         .filter {
                             commandFilter?.let { cmdFilter ->
                                 return@filter it.startsWith(cmdFilter.filterRefArg, true)
-                            } ?: true
+                            }
+
+                            true
                         }
                         .toCollection(ArrayList())
                 }

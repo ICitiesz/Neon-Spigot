@@ -150,6 +150,8 @@ class PlayerProfileService: IPlayerProfileService, IComponentInjector {
 
                 return actionResult
                     .withStatus(ActionStatus.PLAYER_ROLE_ALREADY_ASSIGN)
+            } ?: run {
+                playerProfile.roleId = role.roleId
             }
 
             playerProfileRepository.updatePlayerProfile(playerProfile.updateModified(invoker)).run {

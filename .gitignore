@@ -14,8 +14,10 @@
 /neon-kotlin/.gradle/*
 /neon-kotlin/target/*
 /neon-kotlin/neon-shared/build/*
+/neon-kotlin/neon-shared/.kotlin/*
 /neon-kotlin/neon-shared/.gradle/*
 /neon-kotlin/neon-extension/.gradle/*
+/neon-kotlin/neon-extension/.kotlin/*
 /neon-kotlin/neon-datasource/.gradle/*
 /neon-kotlin/neon-datasource/build/*
 /neon-kotlin/neon-api/build/*

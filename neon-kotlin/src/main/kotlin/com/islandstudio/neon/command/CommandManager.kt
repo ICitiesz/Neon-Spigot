@@ -3,7 +3,7 @@ package com.islandstudio.neon.command
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
-import com.islandstudio.neon.features.serverfeature.ServerFeaturesManager
+import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.player.security.AccessControlManager
 import com.islandstudio.neon.player.security.role.RoleManager
 import com.islandstudio.neon.shared.core.IRunner
@@ -116,7 +116,7 @@ class CommandManager: TabExecutor {
                         }
 
                         CommandAlias.ServerFeaturesAlias -> {
-                            ServerFeaturesManager.getTabCompletion(commander, accessibleCommands, args)
+                            NeonFeatureManager.getTabCompletion(commander, accessibleCommands, args)
                         }
                     }
                 }
@@ -145,7 +145,10 @@ class CommandManager: TabExecutor {
         }
 
         args?.let { args ->
-            if (accessibleCommands.isEmpty()) return true
+            if (accessibleCommands.isEmpty()) {
+                CommandSyntaxHandler.alertInvalidCommand(commander, args[0])
+                return true
+            }
 
             if (args.isEmpty()) {
                 return@let
@@ -154,6 +157,10 @@ class CommandManager: TabExecutor {
             CommandAlias.getAllCommandAlias()
                 .find { it.alias.equals(args[0], true) }
                 ?.let {
+                    if (!accessibleCommands.map { x -> x.command }.any { x -> x.equals(it.alias, true) } ) {
+                        return@let CommandSyntaxHandler.alertInvalidCommand(commander, args[0])
+                    }
+
                     when(it) {
                         CommandAlias.RoleAlias -> {
                             RoleManager.getCommandDispatcher(commander, accessibleCommands, args)
@@ -168,7 +175,7 @@ class CommandManager: TabExecutor {
                         }
 
                         CommandAlias.ServerFeaturesAlias -> {
-                            ServerFeaturesManager.getCommandDispatcher(commander, accessibleCommands, args)
+                            NeonFeatureManager.getCommandDispatcher(commander, accessibleCommands, args)
                         }
                     }
                 } ?: CommandSyntaxHandler.alertInvalidCommand(commander, args[0])

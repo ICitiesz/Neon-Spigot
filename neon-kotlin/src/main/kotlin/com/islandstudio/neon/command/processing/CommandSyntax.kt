@@ -5,6 +5,7 @@ import org.bukkit.ChatColor
 enum class CommandSyntax(val syntax: String) {
     UNSUPPORTED_COMMAND_EXECUTION("${ChatColor.YELLOW}This command doesn't support console execution!"),
     UNSUPPORTED_GUI_ACCESS("${ChatColor.YELLOW}GUI only accessible through in-game command execution!"),
+    UNEXPECTED_GUI_ERROR("${ChatColor.RED}Unexpected error while using the GUI. Please try again later."),
     INVALID_ARGUMENT("${ChatColor.RED}Invalid or missing argument: %s${ChatColor.RESET}${ChatColor.RED} <- at position %d"),
     INVALID_ARGUMENT_WITH_VALUE("${ChatColor.RED}Invalid or missing argument! -> %s"),
     INVALID_PERMISSION("${ChatColor.RED}You don't have permissicon to use this command!"),
