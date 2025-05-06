@@ -71,8 +71,8 @@ class PlayerSessionManager: IComponentInjector, IObjectMapper {
     fun updatePlayerSession(player: Player, newPlayerSession: PlayerSession) {
         val playerSessionData = ObjectSerializer.serializeToByteArray(newPlayerSession)
 
-        CommandManager.updatePlayerAccessibleCommands(player)
         DataContainerManager.updateAttachedData(player, playerSessionData, DataContainerType.PlayerSessionContainer)
+        CommandManager.updatePlayerAccessibleCommands(player)
     }
 
     fun getPlayerSession(player: Player): PlayerSession? {
