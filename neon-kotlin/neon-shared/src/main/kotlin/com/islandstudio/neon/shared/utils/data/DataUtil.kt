@@ -1,5 +1,7 @@
 package com.islandstudio.neon.shared.utils.data
 
+import kotlin.math.pow
+
 
 object DataUtil {
     fun validateDataType(value: Any, dataType: DataType): Boolean {
@@ -128,5 +130,36 @@ object DataUtil {
 
             else -> return null
         }
+    }
+
+    /**
+     * Get scale factor of Double value
+     *
+     * @param value The given Double value
+     * @param isMaxScaleFactor Determine whether the calculated scale factor should be the maximum.
+     * @return
+     */
+    fun getScaleFactorOfDouble(value: Double, isMaxScaleFactor: Boolean = false): Double {
+        return getFloatingPointCount(value).run {
+            with(1.0 / 10.0.pow(this.toDouble())) {
+                if (isMaxScaleFactor) return@with this * 10
+
+                this
+            }
+        }
+    }
+
+    /**
+     * Get floating point count of a Double value
+     *
+     * @param value The given Double value
+     * @return
+     */
+    fun getFloatingPointCount(value: Double): Int {
+        return value.toString().substringAfter(".").length
+    }
+
+    fun roundOffDouble(value: Double, floatingPointCount: Int): Double {
+        return String.format("%.${floatingPointCount}f", value).toDouble()
     }
 }

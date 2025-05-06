@@ -1,20 +1,9 @@
 package com.islandstudio.neon.stable.core.application.datakey
 
+@Deprecated("DataContainerType already included the key")
 sealed class NeonGeneralDataKey(keyName: String) : AbstractDataKey(keyName) {
-    data class NeonGuiButton(
-        private val keyName: String = "neon_gui.button.key"
-    ): NeonGeneralDataKey(keyName)
-
     data class NeonGuiHighlightButton(
         private val keyName: String = "neon_gui.button.highlight.key"
-    ): NeonGeneralDataKey(keyName)
-
-    data class NeonGuiButtonType(
-        private val keyName: String = "neon_gui.button.type.key"
-    ): NeonGeneralDataKey(keyName)
-
-    data class NeonGuiButtonDataContainer(
-        private val keyName: String = "neon_gui.button.dataContainer.key"
     ): NeonGeneralDataKey(keyName)
 
     data class NeonGuiSessionId(

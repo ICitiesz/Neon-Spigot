@@ -56,7 +56,7 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
     init {
         initialize().apply {
             mainConfigObject = this as T
-            setConfigNodeProperties(getConfigNodeProperties(parseToTomFile(encodeToString(this as T))))
+            updateConfigNodeProperties(getConfigNodeProperties(parseToTomFile(encodeToString(this as T))))
 
             @Suppress("UNCHECKED_CAST")
             configWrapper.initConfigObject(this as T)
@@ -66,7 +66,7 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
 
 
 
-    fun setConfigNodeProperties(configNodeProperties: MutableList<ConfigNodeProperty>) {
+    fun updateConfigNodeProperties(configNodeProperties: MutableList<ConfigNodeProperty>) {
         this.mainConfigNodeProperties = configNodeProperties
     }
 
@@ -88,6 +88,16 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
         return mainConfigNodeProperties.find { x ->
             x.parentConfigNode().toString().contains(parentConfigNodeName) && x.key() == keyName
         }
+    }
+
+    fun getConfigNode(configNodeProperties: ArrayList<ConfigNodeProperty>, parentConfigNodeName: String = "rootNode", keyName: String): ConfigNodeProperty? {
+        return configNodeProperties.find { x ->
+            x.parentConfigNode().toString().contains(parentConfigNodeName) && x.key() == keyName
+        }
+    }
+
+    fun cloneConfigNodeProperties(): MutableList<ConfigNodeProperty> {
+        return mainConfigNodeProperties.map { it.copy() }.toMutableList()
     }
 
     fun getAllConfigProperty(): ArrayList<U> {
@@ -284,7 +294,9 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
         if (parseException !is TomlDecodingException) {
             parseExceptionMsg?.let {
                 throw NeonConfigException(it, it.javaClass)
-            } ?: throw NeonConfigException(externalCauseBy = parseException.javaClass)
+            }
+
+            throw NeonConfigException(externalCauseBy = parseException.javaClass)
         }
 
         /* Try to get the string line number that cause parse error */
