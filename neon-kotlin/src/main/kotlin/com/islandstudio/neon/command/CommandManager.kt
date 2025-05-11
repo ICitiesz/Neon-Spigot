@@ -6,6 +6,7 @@ import com.islandstudio.neon.command.properties.AccessibleCommand
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.player.security.AccessControlManager
 import com.islandstudio.neon.player.security.role.RoleManager
+import com.islandstudio.neon.player.session.PlayerSessionManager
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import org.bukkit.ChatColor
@@ -15,13 +16,12 @@ import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
 import org.koin.core.component.inject
-import java.util.*
 
 class CommandManager: TabExecutor {
     companion object: IRunner, IComponentInjector {
         private val neon by inject<Neon>()
-        private val commandSession: HashMap<UUID, ArrayList<AccessibleCommand>> = hashMapOf()
-        private val systemAccessibleCommand = ArrayList<AccessibleCommand>()
+        private val playerSessionManager by inject<PlayerSessionManager>()
+        private val commandSession: HashMap<Player, ArrayList<AccessibleCommand>> = hashMapOf()
 
         private const val COMMAND_PREFIX = "neon"
 
@@ -43,29 +43,32 @@ class CommandManager: TabExecutor {
         }
 
         fun registerPlayerAccessibleCommands(player: Player): ArrayList<AccessibleCommand> {
-            commandSession[player.uniqueId]?.let { return it }
+            commandSession[player]?.let { return it }
 
             return CommandAlias.getAccessibleCommands(player).apply {
-                commandSession[player.uniqueId] = this
+                commandSession[player] = this
             }
-        }
-
-        fun registerSystemAccessibleCommands(commander: ConsoleCommandSender): ArrayList<AccessibleCommand> {
-            if (systemAccessibleCommand.isEmpty()) {
-                systemAccessibleCommand.addAll(CommandAlias.getAccessibleCommands(commander))
-            }
-
-            return systemAccessibleCommand
         }
 
         fun updatePlayerAccessibleCommands(player: Player) {
-            if (!commandSession.keys.contains(player.uniqueId)) return
+            if (!commandSession.keys.contains(player)) return
 
-            commandSession.replace(player.uniqueId, CommandAlias.getAccessibleCommands(player))
+            commandSession.replace(player, CommandAlias.getAccessibleCommands(player))
+        }
+
+        fun updatePlayerAccessibleCommandsByRole(roleId: Long) {
+            commandSession.keys
+                .filter { x->
+                    val playerSession = playerSessionManager.getPlayerSession(x) ?: return@filter false
+
+                    playerSession.roleId?.let { y -> y == roleId } ?: return@filter false
+                }.forEach {
+                    updatePlayerAccessibleCommands(it)
+                }
         }
 
         fun unregisterPlayerAccessibleCommands(player: Player) {
-            commandSession.remove(player.uniqueId)
+            commandSession.remove(player)
         }
     }
 
@@ -75,25 +78,28 @@ class CommandManager: TabExecutor {
         label: String,
         args: Array<out String>?
     ): List<String?>? {
-        if (!isValidCommander(commander)) {
-            CommandSyntaxHandler.sendCommandSyntax(commander, "${ChatColor.RED}Invalid commander!")
-            return null
-        }
+        if (!isValidCommander(commander)) return emptyList()
 
         if (!cmd.name.equals(COMMAND_PREFIX, true)) return emptyList()
 
-        val accessibleCommands = if (commander is Player) {
+        val playerAccessibleCommands = if (commander is Player) {
             registerPlayerAccessibleCommands(commander)
         } else {
-            registerSystemAccessibleCommands(commander as ConsoleCommandSender)
+            arrayListOf()
         }
 
         args?.let { args ->
-            if (accessibleCommands.isEmpty()) return@let
-
             if (args.size == 1) {
-                return accessibleCommands
-                    .map { it.command }
+                if (commander is Player) {
+                    return playerAccessibleCommands
+                        .map { it.command }
+                        .sorted()
+                        .filter { it.startsWith(args[0], true) }
+                        .toList()
+                }
+
+                return CommandAlias.getAllCommandAlias()
+                    .map { it.alias }
                     .sorted()
                     .filter { it.startsWith(args[0], true) }
                     .toList()
@@ -102,13 +108,27 @@ class CommandManager: TabExecutor {
             CommandAlias.getAllCommandAlias()
                 .find { it.alias.equals(args[0], true) }
                 ?.let {
+//                    val playerAccessibleCommand = with(playerAccessibleCommands) {
+//                        if (commander !is Player) return@with null
+//
+//                        return@with playerAccessibleCommands
+//                            .find { x -> x.command.equals(it.alias, true) }
+//                            ?: return@let
+//                    }
+
+                    val playerAccessibleCommand = with(playerAccessibleCommands) {
+                        return@with playerAccessibleCommands
+                            .find { x -> x.command.equals(it.alias, true) }
+                            ?: if (commander !is Player) return@with null else return@let
+                    }
+
                     return when(it) {
                         CommandAlias.RoleAlias -> {
-                            RoleManager.getTabCompletion(commander, accessibleCommands, args)
+                            RoleManager.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
 
                         CommandAlias.PermissionAlias -> {
-                            AccessControlManager.getTabCompletion(commander, accessibleCommands, args)
+                            AccessControlManager.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
 
                         CommandAlias.NWaypointsAlias -> {
@@ -116,7 +136,7 @@ class CommandManager: TabExecutor {
                         }
 
                         CommandAlias.ServerFeaturesAlias -> {
-                            NeonFeatureManager.getTabCompletion(commander, accessibleCommands, args)
+                            NeonFeatureManager.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
                     }
                 }
@@ -138,36 +158,38 @@ class CommandManager: TabExecutor {
 
         if (!cmd.name.equals(COMMAND_PREFIX, true)) return true
 
-        val accessibleCommands = if (commander is Player) {
+        val playerAccessibleCommands = if (commander is Player) {
             registerPlayerAccessibleCommands(commander)
         } else {
-            registerSystemAccessibleCommands(commander as ConsoleCommandSender)
+            arrayListOf()
         }
 
         args?.let { args ->
-            if (accessibleCommands.isEmpty()) {
+            if (args.isEmpty()) return@let
+
+            if (commander is Player && playerAccessibleCommands.isEmpty()) {
                 CommandSyntaxHandler.alertInvalidCommand(commander, args[0])
                 return true
-            }
-
-            if (args.isEmpty()) {
-                return@let
             }
 
             CommandAlias.getAllCommandAlias()
                 .find { it.alias.equals(args[0], true) }
                 ?.let {
-                    if (!accessibleCommands.map { x -> x.command }.any { x -> x.equals(it.alias, true) } ) {
-                        return@let CommandSyntaxHandler.alertInvalidCommand(commander, args[0])
+                    val playerAccessibleCommand = with(playerAccessibleCommands) {
+                        if (commander !is Player) return@with null
+
+                        return@with playerAccessibleCommands
+                            .find { x -> x.command.equals(it.alias, true) }
+                            ?: return@let CommandSyntaxHandler.alertInvalidCommand(commander, args[0])
                     }
 
                     when(it) {
                         CommandAlias.RoleAlias -> {
-                            RoleManager.getCommandDispatcher(commander, accessibleCommands, args)
+                            RoleManager.getCommandDispatcher(commander, playerAccessibleCommand, args)
                         }
 
                         CommandAlias.PermissionAlias -> {
-                            AccessControlManager.getCommandDispatcher(commander, accessibleCommands, args)
+                            AccessControlManager.getCommandDispatcher(commander, playerAccessibleCommand, args)
                         }
 
                         CommandAlias.NWaypointsAlias -> {
@@ -175,7 +197,7 @@ class CommandManager: TabExecutor {
                         }
 
                         CommandAlias.ServerFeaturesAlias -> {
-                            NeonFeatureManager.getCommandDispatcher(commander, accessibleCommands, args)
+                            NeonFeatureManager.getCommandDispatcher(commander, playerAccessibleCommand, args)
                         }
                     }
                 } ?: CommandSyntaxHandler.alertInvalidCommand(commander, args[0])

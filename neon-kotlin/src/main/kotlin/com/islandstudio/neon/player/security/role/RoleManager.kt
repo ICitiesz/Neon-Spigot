@@ -14,7 +14,6 @@ import com.islandstudio.neon.command.option.RoleCommandOption
 import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
-import com.islandstudio.neon.command.properties.CommandFilter
 import com.islandstudio.neon.player.session.PlayerSessionManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.utils.TextUtil
@@ -35,7 +34,7 @@ class RoleManager: IComponentInjector {
 
         override fun getCommandDispatcher(
             commander: CommandSender,
-            accessibleCommands: ArrayList<AccessibleCommand>,
+            playerAccessibleCommand: AccessibleCommand?,
             args: Array<out String>
         ) {
             val argLength = args.size.apply {
@@ -44,80 +43,73 @@ class RoleManager: IComponentInjector {
                 //TODO: GUI implementation
             }
 
-            val accessibleCommandOptions = CommandAlias.getAccessibleCommandOptions(
-                commander,
-                accessibleCommands,
-                roleCommandAlias
-            )
-
-            roleCommandAlias.onMatchOption(args[1]) {
-                it?.let {
-                    if (it.option !in accessibleCommandOptions) {
-                        return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander, CommandSyntax.INVALID_PERMISSION)
-                    }
-                }
-
-                when(it) {
+            roleCommandAlias.onMatchOption(commander, args[1], playerAccessibleCommand) { commandOption ->
+                when (commandOption) {
                     RoleCommandOption.Create -> {
-                        if (!(argLength == 4 || argLength == 5)) {
-                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
+                        if (!CommandAlias.validateCommandOptionArgLength(argLength, 4, 5)) {
+                            return CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                         }
 
                         val roleCode = args[2].uppercase()
                         val roleDisplayName = args[3]
 
-                        val underscoreAsSpace: Boolean = when(argLength) {
-                            4 -> {
-                                false
-                            }
-
+                        val underscoreAsSpace: Boolean = when (argLength) {
+                            4 -> false
                             5 -> {
-                                if (!roleCommandAlias.matchOptionArgument(args[4], RoleCommandOption.RoleCommandOptionArgument.UnderscoreAsSpace)) {
-                                    return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
+                                if (!RoleCommandOption.RoleCommandOptionArgument.UnderscoreAsSpace.matchOptionArgument(
+                                        commander,
+                                        playerAccessibleCommand,
+                                        args
+                                    )
+                                ) {
+                                    return@onMatchOption
                                 }
 
                                 true
                             }
 
-                            else -> return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
+                            else -> return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                         }
 
                         roleManager.createRole(commander, roleCode, roleDisplayName, underscoreAsSpace)
                     }
 
                     RoleCommandOption.Remove -> {
-                        if (!(argLength == 3 || argLength == 4)) {
-                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
+                        if (!CommandAlias.validateCommandOptionArgLength(argLength, 3, 4)) {
+                            return CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                         }
 
+                        val argIndex = argLength - 1
                         val roleCode = args[2].uppercase()
 
-                        when(argLength) {
-                            3 -> return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander, "${ChatColor.RED}Are you sure to remove the role by role code " +
-                                    "'${ChatColor.WHITE}${roleCode}${ChatColor.RED}'? Upon removal, player with this role will be unassigned. To continue, please add '${ChatColor.WHITE}confirm" +
-                                    "${ChatColor.RED}' at the end of the command.")
+                        when (argLength) {
+                            3 -> {
+                                return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(
+                                    commander, "${ChatColor.RED}Are you sure to remove the role by role code " +
+                                            "'${ChatColor.WHITE}${roleCode}${ChatColor.RED}'? Upon removal, player with this role will be unassigned. To continue, please add '${ChatColor.WHITE}confirm" +
+                                            "${ChatColor.RED}' at the end of the command."
+                                )
+                            }
 
                             4 -> {
-                                if (!args[argLength - 1].equals("confirm", true)) {
-                                    return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
+                                if (!CommandAlias.validateConfirmation(args[argIndex])) {
+                                    return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                                 }
 
                                 roleManager.removeRole(commander, roleCode)
                             }
 
-                            else -> return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
+                            else -> return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                         }
                     }
 
                     RoleCommandOption.Assign -> {
-                        val argIndex = argLength - 1
-
-                        if (argLength != 4) {
-                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argIndex)
+                        if (!CommandAlias.validateCommandOptionArgLength(argLength, 4)) {
+                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                         }
 
                         val playerName = args[2]
-                        val roleCode = args[3]
+                        val roleCode = args[3].uppercase()
 
                         playerSessionManager.assignPlayerRole(commander, playerName, roleCode)
                     }
@@ -125,37 +117,41 @@ class RoleManager: IComponentInjector {
                     RoleCommandOption.Unassign -> {
                         val argIndex = argLength - 1
 
-                        if (!(argLength == 3 || argLength == 4)) {
-                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argIndex)
+                        if (!CommandAlias.validateCommandOptionArgLength(argLength, 3, 4)) {
+                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                         }
 
                         val playerName = args[2]
 
-                        when(argLength) {
-                            3 -> return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander, "${ChatColor.RED}Are you sure to unassign role from the player " +
-                                    "'${ChatColor.WHITE}${playerName}${ChatColor.RED}'? Upon unassignment, player will not able to access certain feature based on permission that have " +
-                                    "been granted before. To continue, please add '${ChatColor.WHITE}confirm${ChatColor.RED}' at the end of the command.")
+                        when (argLength) {
+                            3 -> {
+                                return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(
+                                    commander, "${ChatColor.RED}Are you sure to unassign role from the player " +
+                                            "'${ChatColor.WHITE}${playerName}${ChatColor.RED}'? Upon unassignment, player will not able to access certain feature based on permission that have " +
+                                            "been granted before. To continue, please add '${ChatColor.WHITE}confirm${ChatColor.RED}' at the end of the command."
+                                )
+                            }
 
                             4 -> {
-                                if (!args[argLength - 1].equals("confirm", true)) {
-                                    return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argIndex)
+                                if (!CommandAlias.validateConfirmation(args[argIndex])) {
+                                    return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                                 }
 
                                 playerSessionManager.unassignPlayerRole(commander, playerName)
                             }
 
-                            else -> return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argIndex)
+                            else -> return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                         }
                     }
 
-                    else -> CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
+                    else -> CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                 }
             }
         }
 
         override fun getTabCompletion(
             commander: CommandSender,
-            accessibleCommand: ArrayList<AccessibleCommand>,
+            playerAccessibleCommand: AccessibleCommand?,
             args: Array<out String>
         ): MutableList<String> {
             return when(val argLength = args.size) {
@@ -164,39 +160,37 @@ class RoleManager: IComponentInjector {
 
                     CommandAlias.getAccessibleCommandOptions(
                         commander,
-                        accessibleCommand,
+                        args[argIndex],
                         roleCommandAlias,
-                        CommandFilter(argIndex, args[argIndex])
+                        playerAccessibleCommand
                     )
                 }
 
                 3 -> {
                     val argIndex = argLength - 1
 
-                    return roleCommandAlias.onMatchOption(args[1]) {
-                        when(it) {
+                    roleCommandAlias.onMatchOption(commander, args[1], playerAccessibleCommand) { roleCommandOption ->
+                        when (roleCommandOption) {
                             RoleCommandOption.Remove -> {
-                                roleManager.getAllRole()
-                                    .map { it.roleCode!! }
-                                    .filter { it.startsWith(args[argIndex], true) }
-                                    .toMutableList()
+                                CommandAlias.getTabCompleteSuggestion(
+                                    roleManager.getAllRole(),
+                                    args[argIndex]
+                                ) { roleEntities ->
+                                    roleEntities
+                                        .filter { x -> !x.roleCode.isNullOrEmpty() }
+                                        .map { x -> x.roleCode!! }
+                                }
                             }
 
-                            RoleCommandOption.Assign -> {
-                                playerSessionManager.getAllPlayerData()
-                                    .map { it.value }
-                                    .filter { it.startsWith(args[argIndex], true) }
-                                    .toMutableList()
-                            }
+                            RoleCommandOption.Assign -> CommandAlias.getTabCompleteSuggestion(
+                                playerSessionManager.getAllPlayerData().values, args[argIndex]
+                            ) { it }
 
-                            RoleCommandOption.Unassign -> {
-                                playerSessionManager.getAllPlayerData()
-                                    .map { it.value }
-                                    .filter { it.startsWith(args[argIndex], true) }
-                                    .toMutableList()
-                            }
+                            RoleCommandOption.Unassign -> CommandAlias.getTabCompleteSuggestion(
+                                playerSessionManager.getAllPlayerData().values, args[argIndex]
+                            ) { it }
 
-                            else -> super.getTabCompletion(commander, accessibleCommand, args)
+                            else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
                     }
                 }
@@ -204,16 +198,18 @@ class RoleManager: IComponentInjector {
                 4 -> {
                     val argIndex = argLength - 1
 
-                    return roleCommandAlias.onMatchOption(args[1]) {
-                        when(it) {
-                            RoleCommandOption.Assign -> {
-                                roleManager.getAllRole()
-                                    .map { it.roleCode!! }
-                                    .filter { it.startsWith(args[argIndex], true) }
-                                    .toMutableList()
+                    roleCommandAlias.onMatchOption(commander, args[1], playerAccessibleCommand) { roleCommandOption ->
+                        when (roleCommandOption) {
+                            RoleCommandOption.Assign -> CommandAlias.getTabCompleteSuggestion(
+                                roleManager.getAllRole(),
+                                args[argIndex]
+                            ) { roleEntities ->
+                                roleEntities
+                                    .filter { x -> !x.roleCode.isNullOrEmpty() }
+                                    .map { x -> x.roleCode!! }
                             }
 
-                            else -> super.getTabCompletion(commander, accessibleCommand, args)
+                            else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
                     }
                 }
@@ -221,23 +217,27 @@ class RoleManager: IComponentInjector {
                 5 -> {
                     val argIndex = argLength - 1
 
-                    return roleCommandAlias.onMatchOption(args[1]) {
-                        when(it) {
+                    roleCommandAlias.onMatchOption(
+                        commander,
+                        args[argIndex],
+                        playerAccessibleCommand
+                    ) { roleCommandOption ->
+                        when (roleCommandOption) {
                             RoleCommandOption.Create -> {
                                 CommandAlias.getAccessibleCommandOptionArgs(
                                     commander,
-                                    accessibleCommand,
-                                    it,
-                                    CommandFilter(argIndex, args[argIndex])
+                                    args[argIndex],
+                                    roleCommandAlias,
+                                    playerAccessibleCommand
                                 )
                             }
 
-                            else -> super.getTabCompletion(commander, accessibleCommand, args)
+                            else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
                     }
                 }
 
-                else -> super.getTabCompletion(commander, accessibleCommand, args)
+                else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
             }
         }
     }

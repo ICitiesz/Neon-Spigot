@@ -9,10 +9,8 @@ abstract class AbstractCommandOption<T: AbstractCommandOptionArgument>(val comma
     abstract val optionIndex: Int
     abstract val inheritPermission: Boolean
     open val optionArguments: ArrayList<T> = arrayListOf()
-    open val requiredPermissions: ArrayList<Permission> = if (inheritPermission) {
-        commandAlias.requiredPermissions
-    } else arrayListOf()
-
+    open val requiredPermissions: ArrayList<Permission>
+        get() = if (inheritPermission) commandAlias.requiredPermissions else arrayListOf()
 
     protected fun getAllCommandOptionArguments(clazz: KClass<T>): ArrayList<T> {
         return clazz.sealedSubclasses

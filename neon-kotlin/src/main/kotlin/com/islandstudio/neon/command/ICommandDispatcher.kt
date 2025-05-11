@@ -12,20 +12,21 @@ interface ICommandDispatcher {
      */
     fun getCommandDispatcher(
         commander: CommandSender,
-        accessibleCommands: ArrayList<AccessibleCommand>,
+        playerAccessibleCommand: AccessibleCommand?,
         args: Array<out String>
     )
 
     /**
      * Set the tab completion for the particular command.
      *
-     * @param commander The player who perform the command.
+     * @param commander The command sender who perform the command.
+     * @param playerAccessibleCommand The player accessible commands, console command sender can be null
      * @param args The command arguments.
      * @return A list of valid command arguments.
      */
     fun getTabCompletion(
         commander: CommandSender,
-        accessibleCommand: ArrayList<AccessibleCommand>,
+        playerAccessibleCommand: AccessibleCommand?,
         args: Array<out String>
     ): MutableList<String> {
         return mutableListOf()

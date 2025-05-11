@@ -6,7 +6,6 @@ import com.islandstudio.neon.command.option.ServerFeaturesCommandOption
 import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
-import com.islandstudio.neon.command.properties.CommandFilter
 import com.islandstudio.neon.experimental.gui.GuiManager
 import com.islandstudio.neon.features.neonfeature.gui.NeonFeatureGui
 import com.islandstudio.neon.features.neonfeature.gui.NeonFeatureGuiStateData
@@ -46,7 +45,7 @@ class NeonFeatureManager {
 
         override fun getCommandDispatcher(
             commander: CommandSender,
-            accessibleCommands: ArrayList<AccessibleCommand>,
+            playerAccessibleCommand: AccessibleCommand?,
             args: Array<out String>
         ) {
             val argLength = args.size.apply {
@@ -68,285 +67,281 @@ class NeonFeatureManager {
                 return
             }
 
-            val accessibleCommandOptions = CommandAlias.getAccessibleCommandOptions(
-                commander, accessibleCommands, serverFeaturesCommandAlias
-            )
+            serverFeaturesCommandAlias.onMatchOption(commander, args[1], playerAccessibleCommand) { commandOption ->
+                when(commandOption) {
+                    ServerFeaturesCommandOption.GetToggle -> {
+                        if (CommandAlias.validateCommandOptionArgLength(3)) {
+                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
+                        }
 
-            serverFeaturesCommandAlias.onMatchOption(args[1]) {
-                it?.let {
-                    if (!CommandAlias.checkCommandOptionAccess(it, accessibleCommandOptions)) {
-                        return@let CommandSyntaxHandler.sendCommandSyntax(commander, CommandSyntax.INVALID_PERMISSION)
+                        val featureName = with(args[2]) {
+                            serverFeaturesManager.getServerFeatureNames()
+                                .find { x -> x == this }
+                                ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
+                                    "${ChatColor.RED}No such server feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
+                                )
+                        }
+
+                        val featureToggleStatus = if (serverFeaturesManager.getFeatureToggle(featureName)) {
+                            "${ChatColor.GREEN}enabled"
+                        } else {
+                            "${ChatColor.RED}disabled"
+                        }
+
+                        CommandSyntaxHandler.sendCommandSyntax(commander, "${ChatColor.GOLD}${featureName} ${ChatColor.WHITE}is currently $featureToggleStatus")
                     }
 
-                    when(it) {
-                        ServerFeaturesCommandOption.GetToggle -> {
-                            if (argLength != 3) {
-                                return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
-                            }
+                    ServerFeaturesCommandOption.SetToggle -> {
+                        if (!CommandAlias.validateCommandOptionArgLength(argLength, 4)) {
+                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
+                        }
 
-                            val featureName = with(args[2]) {
-                                serverFeaturesManager.getServerFeatureNames().find { x -> x == this }
-                                    ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
+                        val featureName = with(args[2]) {
+                            serverFeaturesManager.getServerFeatureNames()
+                                .find { x -> x == this }
+                                ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
                                     "${ChatColor.RED}No such server feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
                                 )
-                            }
+                        }
 
-                            val toggleStatus = if (serverFeaturesManager.getFeatureToggle(featureName)) {
-                                "${ChatColor.GREEN}enabled"
+                        val toggleStatus = with(args[3]) {
+                            val isToggled = if (this.equals(ServerFeaturesCommandOption.ServerFeaturesCommandOptionArgument.SetToggleDefault.optionArg, true)) {
+                                serverFeaturesManager.serverFeaturesAppConfig.getAllConfigProperty()
+                                    .find { x -> x.parentConfigKey == featureName }!!.defaultValue as Boolean
                             } else {
-                                "${ChatColor.RED}disabled"
+                                DataUtil.convertDataType(this, DataType.Boolean) as Boolean?
+                                    ?: return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                             }
 
-                            CommandSyntaxHandler.sendCommandSyntax(commander, "${ChatColor.GOLD}${featureName} ${ChatColor.WHITE}is currently $toggleStatus")
+                            isToggled to if (isToggled) "${ChatColor.GREEN}enabled" else "${ChatColor.RED}disabled"
                         }
 
-                        ServerFeaturesCommandOption.SetToggle -> {
-                            if (argLength != 4) {
-                                return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
-                            }
-
-                            val featureName = with(args[2]) {
-                                serverFeaturesManager.getServerFeatureNames()
-                                    .find { x -> x == this } ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
-                                    "${ChatColor.RED}No such server feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
-                                )
-                            }
-
-                            val toggleStatus = with(args[3]) {
-                                val isToggled = if (this.equals(ServerFeaturesCommandOption.ServerFeaturesCommandOptionArgument.SetToggleDefault.optionArg, true)) {
-                                    serverFeaturesManager.serverFeaturesAppConfig.getAllConfigProperty()
-                                        .find { it.parentConfigKey == featureName }!!.defaultValue as Boolean
-                                } else {
-                                    DataUtil.convertDataType(this, DataType.Boolean) as Boolean?
-                                        ?: return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
-                                }
-
-                                isToggled to if (isToggled) "${ChatColor.GREEN}enabled" else "${ChatColor.RED}disabled"
-                            }
-
-                            serverFeaturesManager.setFeatureToggle(featureName, toggleStatus.first).also {
-                                return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
-                                    "${ChatColor.GOLD}${featureName} ${ChatColor.WHITE}has been ${toggleStatus.second}"
-                                )
-                            }
-                        }
-
-                        ServerFeaturesCommandOption.GetOption -> {
-                            if (argLength != 4) {
-                                return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
-                            }
-
-                            val featureName = with(args[2]) {
-                                serverFeaturesManager.getServerFeatureNames().find { x -> x == this }
-                                    ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
-                                    "${ChatColor.RED}No such server feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
-                                )
-                            }
-
-                            val featureOptionName = with(args[3]) {
-                                serverFeaturesManager.getServerFeatureOptionNames(featureName).find { x -> x == this }
-                                    ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
-                                    "${ChatColor.RED}No such option '${ChatColor.WHITE}${this}${ChatColor.RED}' " +
-                                            "for this server feature!"
-                                )
-                            }
-
-                            serverFeaturesManager.getFeatureOptionValue(featureName, featureOptionName)?.let {
-                                val optionValue = if (DataUtil.validateDataType(it, DataType.Boolean)) {
-                                    if (it as Boolean) "${ChatColor.GREEN}true"
-
-                                    "${ChatColor.RED}false"
-                                } else {
-                                    "${ChatColor.GREEN}${it}"
-                                }
-
-                                CommandSyntaxHandler.sendCommandSyntax(commander,
-                                    "${ChatColor.GOLD}${featureName}:${featureOptionName}${ChatColor.WHITE} is currently set to: $optionValue"
-                                )
-                            }
-                        }
-
-                        ServerFeaturesCommandOption.SetOption -> {
-                            if (argLength != 5) {
-                                return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args, argLength - 1)
-                            }
-
-                            val featureName = with(args[2]) {
-                                serverFeaturesManager.getServerFeatureNames().find { x -> x == this }
-                                    ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
-                                        "${ChatColor.RED}No such server feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
-                                    )
-                            }
-
-                            val featureOptionName = with(args[3]) {
-                                serverFeaturesManager.getServerFeatureOptionNames(featureName).find { x -> x == this }
-                                    ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
-                                        "${ChatColor.RED}No such option '${ChatColor.WHITE}${this}${ChatColor.RED}' " +
-                                                "for this server feature!"
-                                    )
-                            }
-
-                            val configProperty = serverFeaturesManager.serverFeaturesAppConfig.getAllConfigProperty()
-                                .find { x -> x.parentConfigKey == "${featureName}.options" && x.keyName == featureOptionName }!!
-
-                            val featureOptionValue = with(args[4]) {
-                                val optionValue = if (this.equals(ServerFeaturesCommandOption.ServerFeaturesCommandOptionArgument.SetOptionDefault.optionArg, true)) {
-                                    configProperty.defaultValue
-                                } else { this }
-
-                                DataUtil.convertDataType(optionValue!!, DataType.Boolean)?.let { convertedData ->
-                                    if (convertedData as Boolean) {
-                                        return@with convertedData to "${ChatColor.GREEN}true"
-                                    }
-
-                                    convertedData to "${ChatColor.RED}false"
-                                } ?: (optionValue to "${ChatColor.GREEN}${optionValue}")
-                            }
-
-                            /* Data type validation */
-                            if (!DataUtil.validateDataType(featureOptionValue.first, configProperty.dataType)) {
-                                return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
-                                    "${ChatColor.RED}Invalid data type!"
-                                )
-                            }
-
-                            /* Data range validation */
-                            if (!DataUtil.validateDataRange(
-                                    featureOptionValue.first,
-                                    configProperty.dataType,
-                                    configProperty.dataRange.minValue,
-                                    configProperty.dataRange.maxValue
-                            )) {
-                                return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
-                                    "${ChatColor.RED}Invalid data range! ${ChatColor.WHITE}Min: " +
-                                            "${ChatColor.YELLOW}${configProperty.dataRange.minValue} ${ChatColor.WHITE}| Max: " +
-                                            "${ChatColor.YELLOW}${configProperty.dataRange.maxValue}"
-                                )
-                            }
-
-                            serverFeaturesManager.setFeatureOptionValue(featureName, featureOptionName, featureOptionValue.first)
-
-                            CommandSyntaxHandler.sendCommandSyntax(commander,
-                                "${ChatColor.GOLD}${featureName}:${featureOptionName}${ChatColor.WHITE} has been set to: ${featureOptionValue.second}"
+                        serverFeaturesManager.setFeatureToggle(featureName, toggleStatus.first).also {
+                            return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
+                                "${ChatColor.GOLD}${featureName} ${ChatColor.WHITE}has been ${toggleStatus.second}"
                             )
                         }
                     }
+
+                    ServerFeaturesCommandOption.GetOption -> {
+                        if (!CommandAlias.validateCommandOptionArgLength(argLength, 4)) {
+                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
+                        }
+
+                        val featureName = with(args[2]) {
+                            serverFeaturesManager.getServerFeatureNames()
+                                .find { x -> x == this }
+                                ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
+                                    "${ChatColor.RED}No such server feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
+                                )
+                        }
+
+                        val featureOptionName = with(args[3]) {
+                            serverFeaturesManager.getServerFeatureOptionNames(featureName)
+                                .find { x -> x == this }
+                                ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
+                                    "${ChatColor.RED}No such option '${ChatColor.WHITE}${this}${ChatColor.RED}' " +
+                                            "for this server feature!"
+                                )
+                        }
+
+                        serverFeaturesManager.getFeatureOptionValue(featureName, featureOptionName)?.let {
+                            val optionValue = if (DataUtil.validateDataType(it, DataType.Boolean)) {
+                                if (it as Boolean) "${ChatColor.GREEN}true"
+
+                                "${ChatColor.RED}false"
+                            } else {
+                                "${ChatColor.GREEN}${it}"
+                            }
+
+                            CommandSyntaxHandler.sendCommandSyntax(commander,
+                                "${ChatColor.GOLD}${featureName}:${featureOptionName}${ChatColor.WHITE} is currently set to: $optionValue"
+                            )
+                        }
+                    }
+
+                    ServerFeaturesCommandOption.SetOption -> {
+                        if (!CommandAlias.validateCommandOptionArgLength(argLength, 5)) {
+                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
+                        }
+
+                        val featureName = with(args[2]) {
+                            serverFeaturesManager.getServerFeatureNames()
+                                .find { x -> x == this }
+                                ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
+                                    "${ChatColor.RED}No such server feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
+                                )
+                        }
+
+                        val featureOptionName = with(args[3]) {
+                            serverFeaturesManager.getServerFeatureOptionNames(featureName)
+                                .find { x -> x == this }
+                                ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
+                                    "${ChatColor.RED}No such option '${ChatColor.WHITE}${this}${ChatColor.RED}' " +
+                                            "for this server feature!"
+                                )
+                        }
+
+                        val configProperty = serverFeaturesManager.serverFeaturesAppConfig.getAllConfigProperty()
+                            .find { x -> x.parentConfigKey == "${featureName}.options" && x.keyName == featureOptionName }!!
+
+                        val featureOptionValue = with(args[4]) {
+                             val optionValue = if (this.equals(ServerFeaturesCommandOption.ServerFeaturesCommandOptionArgument.SetOptionDefault.optionArg, true)) {
+                                 configProperty.defaultValue!!
+                            } else { this }
+
+                            DataUtil.convertDataType(optionValue, DataType.Boolean)?.let { convertedData ->
+                                if (convertedData as Boolean) {
+                                    return@with convertedData to "${ChatColor.GREEN}true"
+                                }
+
+                                convertedData to "${ChatColor.RED}false"
+                            } ?: (optionValue to "${ChatColor.GREEN}${optionValue}")
+                        }
+
+                        /* Data type validation */
+                        if (!DataUtil.validateDataType(featureOptionValue.first, configProperty.dataType)) {
+                            return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
+                                "${ChatColor.RED}Invalid data type!"
+                            )
+                        }
+
+                        /* Data range validation */
+                        if (!DataUtil.validateDataRange(
+                                featureOptionValue.first,
+                                configProperty.dataType,
+                                configProperty.dataRange.minValue,
+                                configProperty.dataRange.maxValue
+                            )) {
+                            return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
+                                "${ChatColor.RED}Invalid data range! ${ChatColor.WHITE}Min: " +
+                                        "${ChatColor.YELLOW}${configProperty.dataRange.minValue} ${ChatColor.WHITE}| Max: " +
+                                        "${ChatColor.YELLOW}${configProperty.dataRange.maxValue}"
+                            )
+                        }
+
+                        serverFeaturesManager.setFeatureOptionValue(featureName, featureOptionName, featureOptionValue.first)
+
+                        CommandSyntaxHandler.sendCommandSyntax(commander,
+                            "${ChatColor.GOLD}${featureName}:${featureOptionName}${ChatColor.WHITE} has been set to: ${featureOptionValue.second}"
+                        )
+                    }
+
+                    else -> CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                 }
             }
         }
 
         override fun getTabCompletion(
             commander: CommandSender,
-            accessibleCommand: ArrayList<AccessibleCommand>,
+            playerAccessibleCommand: AccessibleCommand?,
             args: Array<out String>
         ): MutableList<String> {
-            val accessibleCommandOptions = CommandAlias.getAccessibleCommandOptions(
-                commander,
-                accessibleCommand,
-                serverFeaturesCommandAlias
-            )
+            val booleanValueList = buildList {
+                add("default")
+                add(ConfigDataRange.DataRangeBoolean.minValue.toString())
+                add(ConfigDataRange.DataRangeBoolean.maxValue.toString())
+            }
 
-            val argLength = args.size
-            val argIndex = argLength - 1
-
-            val booleanValueList = arrayListOf(
-                "default",
-                ConfigDataRange.DataRangeBoolean.minValue.toString(),
-                ConfigDataRange.DataRangeBoolean.maxValue.toString()
-            )
-
-            return when(argLength) {
+            return when(val argLength = args.size ) {
                 2 -> {
                     CommandAlias.getAccessibleCommandOptions(
                         commander,
-                        accessibleCommand,
+                        args[argLength - 1],
                         serverFeaturesCommandAlias,
-                        CommandFilter(argIndex, args[argIndex])
+                        playerAccessibleCommand
                     )
                 }
 
                 3 -> {
-                    serverFeaturesCommandAlias.onMatchOption(args[1]) {
-                        it?.let {
-                            if (!CommandAlias.checkCommandOptionAccess(it, accessibleCommandOptions)) return@let
-
-                            when(it) {
-                                ServerFeaturesCommandOption.GetOption,
-                                ServerFeaturesCommandOption.SetOption -> {
-                                    return@onMatchOption serverFeaturesManager.getServerFeatureNames()
-                                        .filter { x -> serverFeaturesManager.getServerFeatureOptionNames(x).isNotEmpty() }
-                                        .filter { x -> x.startsWith(args[argIndex], true) }
-                                        .toMutableList()
-                                }
-
-                                ServerFeaturesCommandOption.GetToggle,
-                                ServerFeaturesCommandOption.SetToggle -> {
-                                    return@onMatchOption serverFeaturesManager.getServerFeatureNames()
-                                        .filter { x -> x.startsWith(args[argIndex], true) }
-                                        .toMutableList()
+                    serverFeaturesCommandAlias.onMatchOption(
+                        commander,
+                        args[1],
+                        playerAccessibleCommand
+                    ) { neonFeatureCommandOption ->
+                        when (neonFeatureCommandOption) {
+                            ServerFeaturesCommandOption.GetOption,
+                            ServerFeaturesCommandOption.SetOption -> {
+                                CommandAlias.getTabCompleteSuggestion(
+                                    serverFeaturesManager.getServerFeatureNames(),
+                                    args[argLength - 1]
+                                ) {
+                                    it.filter { x -> serverFeaturesManager.getServerFeatureOptionNames(x).isNotEmpty() }
                                 }
                             }
-                        }
 
-                        super.getTabCompletion(commander, accessibleCommand, args)
+                            ServerFeaturesCommandOption.GetToggle,
+                            ServerFeaturesCommandOption.SetToggle
+                                -> {
+                                CommandAlias.getTabCompleteSuggestion(
+                                    serverFeaturesManager.getServerFeatureNames(),
+                                    args[argLength - 1]
+                                ) { it }
+                            }
+
+                            else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
+                        }
                     }
                 }
 
                 4 -> {
-                    serverFeaturesCommandAlias.onMatchOption(args[1]) {
-                        it?.let {
-                            if (!CommandAlias.checkCommandOptionAccess(it, accessibleCommandOptions)) return@let
-
-                            when(it) {
-                                ServerFeaturesCommandOption.SetToggle -> {
-                                    return@onMatchOption booleanValueList
-                                }
-
-                                ServerFeaturesCommandOption.GetOption,
-                                ServerFeaturesCommandOption.SetOption -> {
-                                    val featureName = args[2]
-
-                                    return@onMatchOption serverFeaturesManager.getServerFeatureOptionNames(featureName)
-                                }
-
-                                else -> return@let
+                    serverFeaturesCommandAlias.onMatchOption(
+                        commander,
+                        args[1],
+                        playerAccessibleCommand
+                    ) { neonFeatureCommandOption ->
+                        when (neonFeatureCommandOption) {
+                            ServerFeaturesCommandOption.SetToggle -> {
+                                CommandAlias.getTabCompleteSuggestion(booleanValueList, args[argLength - 1]) { it }
                             }
-                        }
 
-                        super.getTabCompletion(commander, accessibleCommand, args)
+                            ServerFeaturesCommandOption.GetOption,
+                            ServerFeaturesCommandOption.SetOption
+                                -> {
+                                val featureName = args[2]
+
+                                CommandAlias.getTabCompleteSuggestion(
+                                    serverFeaturesManager.getServerFeatureOptionNames(featureName),
+                                    args[argLength - 1]
+                                ) { it }
+                            }
+
+                            else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
+                        }
                     }
                 }
 
                 5 -> {
-                    serverFeaturesCommandAlias.onMatchOption(args[1]) {
-                        it?.let {
-                            if (!CommandAlias.checkCommandOptionAccess(it, accessibleCommandOptions)) return@let
+                    serverFeaturesCommandAlias.onMatchOption(
+                        commander,
+                        args[1],
+                        playerAccessibleCommand
+                    ) { neonFeatureCommandOption ->
+                        when (neonFeatureCommandOption) {
+                            ServerFeaturesCommandOption.SetOption -> {
+                                val featureName = args[2]
+                                val featureOptionName = args[3]
 
-                            when(it) {
-                                ServerFeaturesCommandOption.SetOption -> {
-                                    val featureName = args[2]
-                                    val featureOptionName = args[3]
-
-                                    serverFeaturesManager.getServerFeatureOptions(featureName)
-                                        .find { x -> x.keyName.equals(featureOptionName, true) }
-                                        ?.let {
-                                            if (it.dataType == DataType.Boolean) {
-                                                return@onMatchOption booleanValueList
+                                CommandAlias.getTabCompleteSuggestion(
+                                    serverFeaturesManager.getServerFeatureOptions(featureName), args[argLength - 1]
+                                ) {
+                                    it.filter { x -> x.keyName.equals(featureOptionName, true) }
+                                        .flatMap { x ->
+                                            if (x.dataType == DataType.Boolean) {
+                                                return@flatMap booleanValueList
                                             }
 
-                                            return@onMatchOption arrayListOf("default")
+                                            arrayListOf("default")
                                         }
                                 }
-
-                                else -> return@let
                             }
-                        }
 
-                        super.getTabCompletion(commander, accessibleCommand, args)
+                            else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
+                        }
                     }
                 }
 
-                else -> super.getTabCompletion(commander, accessibleCommand, args)
+                else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
             }
         }
     }
