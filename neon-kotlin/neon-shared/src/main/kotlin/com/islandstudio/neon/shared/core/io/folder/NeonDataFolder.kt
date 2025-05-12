@@ -101,6 +101,12 @@ sealed class NeonDataFolder(folder: File): File(folder.toPath().toString()) {
         private fun readResolve(): Any = NServerFeaturesFolder
     }
 
+    data object NeonFeatureFolder: NeonDataFolder(
+        File(ModeFolder, "NeonFeature")
+    ) {
+        private fun readResolve(): Any = NeonFeatureFolder
+    }
+
     data object NExperimentalFolder: NeonDataFolder(
         File(NServerFeaturesFolder, "nExperimental")
     ) {

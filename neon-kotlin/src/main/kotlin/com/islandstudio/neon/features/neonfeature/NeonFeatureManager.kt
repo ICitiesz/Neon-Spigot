@@ -2,7 +2,7 @@ package com.islandstudio.neon.features.neonfeature
 
 import com.islandstudio.neon.command.CommandAlias
 import com.islandstudio.neon.command.ICommandDispatcher
-import com.islandstudio.neon.command.option.ServerFeaturesCommandOption
+import com.islandstudio.neon.command.option.NeonFeatureCommandOption
 import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
@@ -13,8 +13,8 @@ import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.config.AppConfig
 import com.islandstudio.neon.shared.core.config.component.ConfigDataRange
 import com.islandstudio.neon.shared.core.config.component.ConfigNodeProperty
-import com.islandstudio.neon.shared.core.config.obj.NeonServerFeaturesConfigObject
-import com.islandstudio.neon.shared.core.config.property.NeonServerFeaturesConfigProperty
+import com.islandstudio.neon.shared.core.config.obj.NeonFeatureConfigObject
+import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.io.resource.NeonExternalResource
 import com.islandstudio.neon.shared.utils.data.DataType
@@ -27,20 +27,14 @@ import org.koin.core.component.inject
 
 @Single
 class NeonFeatureManager {
-    private val serverFeaturesAppConfig by lazy {
-        AppConfig(
-            NeonExternalResource.NeonServerFeaturesFile,
-            NeonServerFeaturesConfigObject(),
-            NeonServerFeaturesConfigProperty::class
-        )
-    }
+    private lateinit var neonFeatureAppConfig: AppConfig<NeonFeatureConfigObject, NeonFeatureConfigProperty<*>>
 
     companion object: IRunner, ICommandDispatcher, IComponentInjector {
-        private val serverFeaturesCommandAlias = CommandAlias.ServerFeaturesAlias
-        private val serverFeaturesManager by inject<NeonFeatureManager>()
+        private val neonFeatureCommandAlias = CommandAlias.NeonFeatureAlias
+        private val neonFeatureManager by inject<NeonFeatureManager>()
 
         override fun run() {
-            serverFeaturesManager.initialize()
+            neonFeatureManager.initialize()
         }
 
         override fun getCommandDispatcher(
@@ -67,22 +61,22 @@ class NeonFeatureManager {
                 return
             }
 
-            serverFeaturesCommandAlias.onMatchOption(commander, args[1], playerAccessibleCommand) { commandOption ->
+            neonFeatureCommandAlias.onMatchOption(commander, args[1], playerAccessibleCommand) { commandOption ->
                 when(commandOption) {
-                    ServerFeaturesCommandOption.GetToggle -> {
+                    NeonFeatureCommandOption.GetToggle -> {
                         if (CommandAlias.validateCommandOptionArgLength(3)) {
                             return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                         }
 
                         val featureName = with(args[2]) {
-                            serverFeaturesManager.getServerFeatureNames()
+                            neonFeatureManager.getNeonFeatureNames()
                                 .find { x -> x == this }
                                 ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
-                                    "${ChatColor.RED}No such server feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
+                                    "${ChatColor.RED}No such neon feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
                                 )
                         }
 
-                        val featureToggleStatus = if (serverFeaturesManager.getFeatureToggle(featureName)) {
+                        val featureToggleStatus = if (neonFeatureManager.getFeatureToggle(featureName)) {
                             "${ChatColor.GREEN}enabled"
                         } else {
                             "${ChatColor.RED}disabled"
@@ -91,22 +85,22 @@ class NeonFeatureManager {
                         CommandSyntaxHandler.sendCommandSyntax(commander, "${ChatColor.GOLD}${featureName} ${ChatColor.WHITE}is currently $featureToggleStatus")
                     }
 
-                    ServerFeaturesCommandOption.SetToggle -> {
+                    NeonFeatureCommandOption.SetToggle -> {
                         if (!CommandAlias.validateCommandOptionArgLength(argLength, 4)) {
                             return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                         }
 
                         val featureName = with(args[2]) {
-                            serverFeaturesManager.getServerFeatureNames()
+                            neonFeatureManager.getNeonFeatureNames()
                                 .find { x -> x == this }
                                 ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
-                                    "${ChatColor.RED}No such server feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
+                                    "${ChatColor.RED}No such neon feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
                                 )
                         }
 
                         val toggleStatus = with(args[3]) {
-                            val isToggled = if (this.equals(ServerFeaturesCommandOption.ServerFeaturesCommandOptionArgument.SetToggleDefault.optionArg, true)) {
-                                serverFeaturesManager.serverFeaturesAppConfig.getAllConfigProperty()
+                            val isToggled = if (this.equals(NeonFeatureCommandOption.NeonFeatureCommandOptionArgument.SetToggleDefault.optionArg, true)) {
+                                neonFeatureManager.neonFeatureAppConfig.getAllConfigProperty()
                                     .find { x -> x.parentConfigKey == featureName }!!.defaultValue as Boolean
                             } else {
                                 DataUtil.convertDataType(this, DataType.Boolean) as Boolean?
@@ -116,36 +110,36 @@ class NeonFeatureManager {
                             isToggled to if (isToggled) "${ChatColor.GREEN}enabled" else "${ChatColor.RED}disabled"
                         }
 
-                        serverFeaturesManager.setFeatureToggle(featureName, toggleStatus.first).also {
+                        neonFeatureManager.setFeatureToggle(featureName, toggleStatus.first).also {
                             return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
                                 "${ChatColor.GOLD}${featureName} ${ChatColor.WHITE}has been ${toggleStatus.second}"
                             )
                         }
                     }
 
-                    ServerFeaturesCommandOption.GetOption -> {
+                    NeonFeatureCommandOption.GetOption -> {
                         if (!CommandAlias.validateCommandOptionArgLength(argLength, 4)) {
                             return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                         }
 
                         val featureName = with(args[2]) {
-                            serverFeaturesManager.getServerFeatureNames()
+                            neonFeatureManager.getNeonFeatureNames()
                                 .find { x -> x == this }
                                 ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
-                                    "${ChatColor.RED}No such server feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
+                                    "${ChatColor.RED}No such neon feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
                                 )
                         }
 
                         val featureOptionName = with(args[3]) {
-                            serverFeaturesManager.getServerFeatureOptionNames(featureName)
+                            neonFeatureManager.getNeonFeatureOptionNames(featureName)
                                 .find { x -> x == this }
                                 ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
                                     "${ChatColor.RED}No such option '${ChatColor.WHITE}${this}${ChatColor.RED}' " +
-                                            "for this server feature!"
+                                            "for this neon feature!"
                                 )
                         }
 
-                        serverFeaturesManager.getFeatureOptionValue(featureName, featureOptionName)?.let {
+                        neonFeatureManager.getFeatureOptionValue(featureName, featureOptionName)?.let {
                             val optionValue = if (DataUtil.validateDataType(it, DataType.Boolean)) {
                                 if (it as Boolean) "${ChatColor.GREEN}true"
 
@@ -160,33 +154,33 @@ class NeonFeatureManager {
                         }
                     }
 
-                    ServerFeaturesCommandOption.SetOption -> {
+                    NeonFeatureCommandOption.SetOption -> {
                         if (!CommandAlias.validateCommandOptionArgLength(argLength, 5)) {
                             return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                         }
 
                         val featureName = with(args[2]) {
-                            serverFeaturesManager.getServerFeatureNames()
+                            neonFeatureManager.getNeonFeatureNames()
                                 .find { x -> x == this }
                                 ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
-                                    "${ChatColor.RED}No such server feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
+                                    "${ChatColor.RED}No such neon feature as '${ChatColor.WHITE}${this}${ChatColor.RED}'!"
                                 )
                         }
 
                         val featureOptionName = with(args[3]) {
-                            serverFeaturesManager.getServerFeatureOptionNames(featureName)
+                            neonFeatureManager.getNeonFeatureOptionNames(featureName)
                                 .find { x -> x == this }
                                 ?: return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander,
                                     "${ChatColor.RED}No such option '${ChatColor.WHITE}${this}${ChatColor.RED}' " +
-                                            "for this server feature!"
+                                            "for this neon feature!"
                                 )
                         }
 
-                        val configProperty = serverFeaturesManager.serverFeaturesAppConfig.getAllConfigProperty()
+                        val configProperty = neonFeatureManager.neonFeatureAppConfig.getAllConfigProperty()
                             .find { x -> x.parentConfigKey == "${featureName}.options" && x.keyName == featureOptionName }!!
 
                         val featureOptionValue = with(args[4]) {
-                             val optionValue = if (this.equals(ServerFeaturesCommandOption.ServerFeaturesCommandOptionArgument.SetOptionDefault.optionArg, true)) {
+                             val optionValue = if (this.equals(NeonFeatureCommandOption.NeonFeatureCommandOptionArgument.SetOptionDefault.optionArg, true)) {
                                  configProperty.defaultValue!!
                             } else { this }
 
@@ -220,7 +214,7 @@ class NeonFeatureManager {
                             )
                         }
 
-                        serverFeaturesManager.setFeatureOptionValue(featureName, featureOptionName, featureOptionValue.first)
+                        neonFeatureManager.setFeatureOptionValue(featureName, featureOptionName, featureOptionValue.first)
 
                         CommandSyntaxHandler.sendCommandSyntax(commander,
                             "${ChatColor.GOLD}${featureName}:${featureOptionName}${ChatColor.WHITE} has been set to: ${featureOptionValue.second}"
@@ -248,33 +242,33 @@ class NeonFeatureManager {
                     CommandAlias.getAccessibleCommandOptions(
                         commander,
                         args[argLength - 1],
-                        serverFeaturesCommandAlias,
+                        neonFeatureCommandAlias,
                         playerAccessibleCommand
                     )
                 }
 
                 3 -> {
-                    serverFeaturesCommandAlias.onMatchOption(
+                    neonFeatureCommandAlias.onMatchOption(
                         commander,
                         args[1],
                         playerAccessibleCommand
                     ) { neonFeatureCommandOption ->
                         when (neonFeatureCommandOption) {
-                            ServerFeaturesCommandOption.GetOption,
-                            ServerFeaturesCommandOption.SetOption -> {
+                            NeonFeatureCommandOption.GetOption,
+                            NeonFeatureCommandOption.SetOption -> {
                                 CommandAlias.getTabCompleteSuggestion(
-                                    serverFeaturesManager.getServerFeatureNames(),
+                                    neonFeatureManager.getNeonFeatureNames(),
                                     args[argLength - 1]
                                 ) {
-                                    it.filter { x -> serverFeaturesManager.getServerFeatureOptionNames(x).isNotEmpty() }
+                                    it.filter { x -> neonFeatureManager.getNeonFeatureOptionNames(x).isNotEmpty() }
                                 }
                             }
 
-                            ServerFeaturesCommandOption.GetToggle,
-                            ServerFeaturesCommandOption.SetToggle
+                            NeonFeatureCommandOption.GetToggle,
+                            NeonFeatureCommandOption.SetToggle
                                 -> {
                                 CommandAlias.getTabCompleteSuggestion(
-                                    serverFeaturesManager.getServerFeatureNames(),
+                                    neonFeatureManager.getNeonFeatureNames(),
                                     args[argLength - 1]
                                 ) { it }
                             }
@@ -285,23 +279,23 @@ class NeonFeatureManager {
                 }
 
                 4 -> {
-                    serverFeaturesCommandAlias.onMatchOption(
+                    neonFeatureCommandAlias.onMatchOption(
                         commander,
                         args[1],
                         playerAccessibleCommand
                     ) { neonFeatureCommandOption ->
                         when (neonFeatureCommandOption) {
-                            ServerFeaturesCommandOption.SetToggle -> {
+                            NeonFeatureCommandOption.SetToggle -> {
                                 CommandAlias.getTabCompleteSuggestion(booleanValueList, args[argLength - 1]) { it }
                             }
 
-                            ServerFeaturesCommandOption.GetOption,
-                            ServerFeaturesCommandOption.SetOption
+                            NeonFeatureCommandOption.GetOption,
+                            NeonFeatureCommandOption.SetOption
                                 -> {
                                 val featureName = args[2]
 
                                 CommandAlias.getTabCompleteSuggestion(
-                                    serverFeaturesManager.getServerFeatureOptionNames(featureName),
+                                    neonFeatureManager.getNeonFeatureOptionNames(featureName),
                                     args[argLength - 1]
                                 ) { it }
                             }
@@ -312,18 +306,18 @@ class NeonFeatureManager {
                 }
 
                 5 -> {
-                    serverFeaturesCommandAlias.onMatchOption(
+                    neonFeatureCommandAlias.onMatchOption(
                         commander,
                         args[1],
                         playerAccessibleCommand
                     ) { neonFeatureCommandOption ->
                         when (neonFeatureCommandOption) {
-                            ServerFeaturesCommandOption.SetOption -> {
+                            NeonFeatureCommandOption.SetOption -> {
                                 val featureName = args[2]
                                 val featureOptionName = args[3]
 
                                 CommandAlias.getTabCompleteSuggestion(
-                                    serverFeaturesManager.getServerFeatureOptions(featureName), args[argLength - 1]
+                                    neonFeatureManager.getServerFeatureOptions(featureName), args[argLength - 1]
                                 ) {
                                     it.filter { x -> x.keyName.equals(featureOptionName, true) }
                                         .flatMap { x ->
@@ -347,21 +341,22 @@ class NeonFeatureManager {
     }
 
     fun initialize() {
+        neonFeatureAppConfig = AppConfig(NeonExternalResource.NeonFeatureFile, NeonFeatureConfigObject(), NeonFeatureConfigProperty::class)
     }
 
     fun getFeatureToggle(featureName: String, configNodeProperties: ArrayList<ConfigNodeProperty>? = null): Boolean {
         return configNodeProperties?.let {
-            serverFeaturesAppConfig.getConfigNode(
+            neonFeatureAppConfig.getConfigNode(
                 configNodeProperties,
                 featureName,
                 "isEnabled"
             )?.value()?.let { it as Boolean } ?: false
         }
-            ?: serverFeaturesAppConfig.getConfigNode(featureName, "isEnabled")!!.value() as Boolean
+            ?: neonFeatureAppConfig.getConfigNode(featureName, "isEnabled")!!.value() as Boolean
     }
 
     fun setFeatureToggle(configNodeProperties: ArrayList<ConfigNodeProperty>, featureName: String, toggle: Boolean): Boolean {
-        return serverFeaturesAppConfig.getConfigNode(
+        return neonFeatureAppConfig.getConfigNode(
             configNodeProperties,
             featureName,
             "isEnabled"
@@ -370,14 +365,14 @@ class NeonFeatureManager {
 
     fun saveFeatureChanges(neonFeatureGuiStateData: NeonFeatureGuiStateData? = null) {
         neonFeatureGuiStateData?.let {
-            serverFeaturesAppConfig.updateConfigNodeProperties(it.featureConfig)
+            neonFeatureAppConfig.updateConfigNodeProperties(it.featureConfig)
         }
 
-        serverFeaturesAppConfig.saveConfig()
+        neonFeatureAppConfig.saveConfig()
     }
 
     fun setFeatureToggle(featureName: String, toggle: Boolean): Boolean {
-        serverFeaturesAppConfig.getConfigNode(featureName, "isEnabled")
+        neonFeatureAppConfig.getConfigNode(featureName, "isEnabled")
             ?.updateConfigNodeValue(toggle) ?: return false
 
         saveFeatureChanges()
@@ -385,16 +380,16 @@ class NeonFeatureManager {
     }
 
     fun getFeatureOptionValue(featureName: String, optionName: String): Any? {
-        return serverFeaturesAppConfig.getConfigNode("${featureName}.options", optionName)
+        return neonFeatureAppConfig.getConfigNode("${featureName}.options", optionName)
             ?.value()
 
     }
 
     fun setFeatureOptionValue(featureName: String, optionName: String, optionValue: Any): Boolean? {
-          return serverFeaturesAppConfig.getConfigNode("${featureName}.options", optionName)
+          return neonFeatureAppConfig.getConfigNode("${featureName}.options", optionName)
               ?.let {
                   if (it.updateConfigNodeValue(optionValue)) {
-                      serverFeaturesAppConfig.saveConfig()
+                      neonFeatureAppConfig.saveConfig()
                       return@let true
                   }
 
@@ -402,30 +397,30 @@ class NeonFeatureManager {
               }
     }
 
-    fun getFeatureConfigProperties(): ArrayList<NeonServerFeaturesConfigProperty<*>> {
-        return serverFeaturesAppConfig.getAllConfigProperty()
+    fun getFeatureConfigProperties(): ArrayList<NeonFeatureConfigProperty<*>> {
+        return neonFeatureAppConfig.getAllConfigProperty()
     }
 
     fun getFeatureConfigNodeProperties(): ArrayList<ConfigNodeProperty> {
-        return serverFeaturesAppConfig.cloneConfigNodeProperties() as ArrayList<ConfigNodeProperty>
+        return neonFeatureAppConfig.cloneConfigNodeProperties() as ArrayList<ConfigNodeProperty>
     }
 
-    fun getServerFeatureNames(): ArrayList<String> {
+    fun getNeonFeatureNames(): ArrayList<String> {
         return getFeatureConfigProperties()
             .filter { !it.parentConfigKey.endsWith(".options") }
             .map { it.parentConfigKey }
             .toCollection(ArrayList())
     }
 
-    fun getServerFeatureOptionNames(serverFeatureName: String): ArrayList<String> {
-        return getServerFeatureOptions(serverFeatureName)
+    fun getNeonFeatureOptionNames(neonFeatureName: String): ArrayList<String> {
+        return getServerFeatureOptions(neonFeatureName)
             .map { it.keyName }
             .toCollection(ArrayList())
     }
 
-    fun getServerFeatureOptions(serverFeatureName: String): ArrayList<NeonServerFeaturesConfigProperty<*>> {
+    fun getServerFeatureOptions(neonFeatureName: String): ArrayList<NeonFeatureConfigProperty<*>> {
         return getFeatureConfigProperties()
-            .filter { it.parentConfigKey.equals("${serverFeatureName}.options", true) }
+            .filter { it.parentConfigKey.equals("${neonFeatureName}.options", true) }
             .toCollection(ArrayList())
     }
 }

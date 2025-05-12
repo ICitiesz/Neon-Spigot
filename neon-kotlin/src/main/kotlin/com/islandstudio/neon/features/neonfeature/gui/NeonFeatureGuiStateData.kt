@@ -4,13 +4,13 @@ import com.islandstudio.neon.experimental.gui.state.GuiStateData
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.shared.core.config.component.ConfigDataRange
 import com.islandstudio.neon.shared.core.config.component.ConfigNodeProperty
-import com.islandstudio.neon.shared.core.config.property.NeonServerFeaturesConfigProperty
+import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.config.property.custom.NeonFeatureConfigCustomData
 
 data class NeonFeatureGuiStateData(
     private val neonFeatureManager: NeonFeatureManager
 ): GuiStateData {
-    val featureConfigReference: ArrayList<NeonServerFeaturesConfigProperty<*>> = neonFeatureManager.getFeatureConfigProperties() // NOTE: This should be at first or else everything broken
+    val featureConfigReference: ArrayList<NeonFeatureConfigProperty<*>> = neonFeatureManager.getFeatureConfigProperties() // NOTE: This should be at first or else everything broken
     val featureConfig: ArrayList<ConfigNodeProperty> = neonFeatureManager.getFeatureConfigNodeProperties()
     val features = featureConfig
         .filter { x -> !x.parentConfigNode().toString().contains(".options") }
@@ -95,7 +95,7 @@ data class NeonFeatureGuiStateData(
         return getFeatureOptionConfigReference(feautureOption)?.dataRange
     }
 
-    private fun getFeatureOptionConfigReference(featureOption: ConfigNodeProperty): NeonServerFeaturesConfigProperty<*>? {
+    private fun getFeatureOptionConfigReference(featureOption: ConfigNodeProperty): NeonFeatureConfigProperty<*>? {
         return featureConfigReference
             .find {
                 it.parentConfigKey == featureOption.parentConfigNode().toString().removeSurrounding("[", "]")

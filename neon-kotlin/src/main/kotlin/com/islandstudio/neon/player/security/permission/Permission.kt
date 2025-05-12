@@ -31,9 +31,9 @@ sealed class Permission(mainPermission: AbstractPermission? = null): AbstractPer
         override val description: String = "Ability to manage permission operation such as grant/revoke permission to the role."
     }
 
-    data object ServerFeaturesManagement: Permission() {
-        override val permissionCode: String = "SERVER_FEATURES_MANAGEMENT"
-        override val description: String = "Ability to manage server features operation such as toggle on/off server features, " +
-                "and set option of the server feature."
+    data object NeonFeatureManagement: Permission() {
+        override val permissionCode: String = "NEON_FEATURE_MANAGEMENT"
+        override val description: String = "Ability to manage neon feature operation such as toggle on/off neon features, " +
+                "and set option of the neon feature."
     }
 }

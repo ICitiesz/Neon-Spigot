@@ -1,9 +1,9 @@
 package com.islandstudio.neon.command
 
 import com.islandstudio.neon.command.option.NWaypointsCommandOption
+import com.islandstudio.neon.command.option.NeonFeatureCommandOption
 import com.islandstudio.neon.command.option.PermissionCommandOption
 import com.islandstudio.neon.command.option.RoleCommandOption
-import com.islandstudio.neon.command.option.ServerFeaturesCommandOption
 import com.islandstudio.neon.command.properties.AbstractCommandAlias
 import com.islandstudio.neon.command.properties.AbstractCommandOption
 import com.islandstudio.neon.command.properties.AccessibleCommand
@@ -179,12 +179,12 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
         override val commandOptions: ArrayList<NWaypointsCommandOption> = getAllCommandOptions(NWaypointsCommandOption::class)
     }
 
-    data object ServerFeaturesAlias: CommandAlias<ServerFeaturesCommandOption>() {
-        override val alias: String = "serverfeatures"
+    data object NeonFeatureAlias: CommandAlias<NeonFeatureCommandOption>() {
+        override val alias: String = "feature"
         override val requiredPermissions: ArrayList<Permission> = arrayListOf(
-            Permission.ServerFeaturesManagement
+            Permission.NeonFeatureManagement
         )
-        override val commandOptions: ArrayList<ServerFeaturesCommandOption> = getAllCommandOptions(
-            ServerFeaturesCommandOption::class)
+        override val commandOptions: ArrayList<NeonFeatureCommandOption> = getAllCommandOptions(
+            NeonFeatureCommandOption::class)
     }
 }

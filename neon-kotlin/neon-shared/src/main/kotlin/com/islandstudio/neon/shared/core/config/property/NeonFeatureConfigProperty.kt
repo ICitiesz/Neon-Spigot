@@ -6,13 +6,13 @@ import com.islandstudio.neon.shared.core.config.component.type.IConfigProperty
 import com.islandstudio.neon.shared.core.config.property.custom.NeonFeatureConfigCustomData
 import com.islandstudio.neon.shared.utils.data.DataType
 
-sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
+sealed class NeonFeatureConfigProperty<T>: AbstractConfigProperty<T>() {
     object NHarvestConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
         override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
             "Makes harvesting crops much easier!"
         )
 
-        data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
+        data object IsEnabled: NeonFeatureConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nHarvest"
             override val keyName: String = "isEnabled"
             override val description: String = "Toggle status."
@@ -31,7 +31,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             "Enables stonecutter to craft some of the woord items with fewer ingredients."
         )
 
-        data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
+        data object IsEnabled: NeonFeatureConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nCutter"
             override val keyName: String = "isEnabled"
             override val description: String = "Toggle status."
@@ -50,7 +50,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             "Enables blast furnace to smelft some of the smeltable items that only the furnace can smelt."
         )
 
-        data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
+        data object IsEnabled: NeonFeatureConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nSmelter"
             override val keyName: String = "isEnabled"
             override val description: String = "Toggle status."
@@ -69,7 +69,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             "Enables or disables PvP in the server."
         )
 
-        data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
+        data object IsEnabled: NeonFeatureConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nPVP"
             override val keyName: String = "isEnabled"
             override val description: String = "Toggle status."
@@ -89,7 +89,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             command = "/neon waypoints"
         )
 
-        data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
+        data object IsEnabled: NeonFeatureConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nWaypoints"
             override val keyName: String = "isEnabled"
             override val description: String = "Toggle status."
@@ -102,7 +102,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             }
         }
 
-        data object CrossDimension: NeonServerFeaturesConfigProperty<Boolean>() {
+        data object CrossDimension: NeonFeatureConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nWaypoints.options"
             override val keyName: String = "crossDimension"
             override val description: String = "Enable cross dimension teleportation."
@@ -117,7 +117,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             "Another way of handling the durability of the tools/weapons."
         )
 
-        data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
+        data object IsEnabled: NeonFeatureConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nDurable"
             override val keyName: String = "isEnabled"
             override val description: String = "Toggle status."
@@ -130,7 +130,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             }
         }
 
-        data object ShowItemDurability: NeonServerFeaturesConfigProperty<Boolean>() {
+        data object ShowItemDurability: NeonFeatureConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nDurable.options"
             override val keyName: String = "showItemDurability"
             override val description: String = "Show/hide item durability."
@@ -146,7 +146,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
                     "it is now obtainable in survival mode."
         )
 
-        data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
+        data object IsEnabled: NeonFeatureConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nBundle"
             override val keyName: String = "isEnabled"
             override val description: String = "Toggle status."
@@ -159,7 +159,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             }
         }
 
-        data object BundleGenerateChance: NeonServerFeaturesConfigProperty<Double>() {
+        data object BundleGenerateChance: NeonFeatureConfigProperty<Double>() {
             override val parentConfigKey: String = "nBundle.options"
             override val keyName: String = "bundleGenerateChance"
             override val description: String = "How frequent Bundle can generate in loot chests."
@@ -168,7 +168,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataRange: ConfigDataRange<Double> = ConfigDataRange(0.001, 1.0)
         }
 
-        data object BundleMaxBuy: NeonServerFeaturesConfigProperty<Long>() {
+        data object BundleMaxBuy: NeonFeatureConfigProperty<Long>() {
             override val parentConfigKey: String = "nBundle.options"
             override val keyName: String = "bundleMaxBuy"
             override val description: String = "How many Bundle you can buy from Tannery Villager per stock."
@@ -177,7 +177,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataRange: ConfigDataRange<Long> = ConfigDataRange(1, 64)
         }
 
-        data object BundlePrice: NeonServerFeaturesConfigProperty<Long>() {
+        data object BundlePrice: NeonFeatureConfigProperty<Long>() {
             override val parentConfigKey: String = "nBundle.options"
             override val keyName: String = "bundlePrice"
             override val description: String = "How much (emeralds) per Bundle."
@@ -186,7 +186,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataRange: ConfigDataRange<Long> = ConfigDataRange(1, 64)
         }
 
-        data object BundlePriceMultiplier: NeonServerFeaturesConfigProperty<Double>() {
+        data object BundlePriceMultiplier: NeonFeatureConfigProperty<Double>() {
             override val parentConfigKey: String = "nBundle.options"
             override val keyName: String = "bundlePriceMultiplier"
             override val description: String = "How much price will be multiplied when Bundle in demand."
@@ -195,7 +195,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataRange: ConfigDataRange<Double> = ConfigDataRange(0.1, 1.0)
         }
 
-        data object VilagerExperience: NeonServerFeaturesConfigProperty<Long>() {
+        data object VilagerExperience: NeonFeatureConfigProperty<Long>() {
             override val parentConfigKey: String = "nBundle.options"
             override val keyName: String = "villagerExperience"
             override val description: String = "How much xp will villager get per trade."
@@ -212,7 +212,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             true
         )
 
-        data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
+        data object IsEnabled: NeonFeatureConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nFireworks"
             override val keyName: String = "isEnabled"
             override val description: String = "Toggle status."
@@ -225,7 +225,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             }
         }
 
-        data object ParticleSize: NeonServerFeaturesConfigProperty<Double>() {
+        data object ParticleSize: NeonFeatureConfigProperty<Double>() {
             override val parentConfigKey: String = "nFireworks.options"
             override val keyName: String = "particleSize"
             override val description: String = ""
@@ -234,7 +234,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataRange: ConfigDataRange<Double> = ConfigDataRange(0.1, 1.0)
         }
 
-        data object ParticleSpeed: NeonServerFeaturesConfigProperty<Double>() {
+        data object ParticleSpeed: NeonFeatureConfigProperty<Double>() {
             override val parentConfigKey: String = "nFireworks.options"
             override val keyName: String = "particleSpeed"
             override val description: String = ""
@@ -251,7 +251,7 @@ sealed class NeonServerFeaturesConfigProperty<T>: AbstractConfigProperty<T>() {
             true
         )
 
-        data object IsEnabled: NeonServerFeaturesConfigProperty<Boolean>() {
+        data object IsEnabled: NeonFeatureConfigProperty<Boolean>() {
             override val parentConfigKey: String = "nPainting"
             override val keyName: String = "isEnabled"
             override val description: String = "Toggle status."

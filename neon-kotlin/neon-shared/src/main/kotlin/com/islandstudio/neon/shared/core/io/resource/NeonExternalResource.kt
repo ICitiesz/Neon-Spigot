@@ -21,9 +21,9 @@ enum class NeonExternalResource(val neonDataFolder: NeonDataFolder, val resource
         ResourceType.Json
     ),
 
-    NeonServerFeaturesFile(
-        NeonDataFolder.NServerFeaturesFolder,
-        "neon-serverfeatures.toml",
+    NeonFeatureFile(
+        NeonDataFolder.NeonFeatureFolder,
+        "neon-feature.toml",
         ResourceType.Toml
     )
 }

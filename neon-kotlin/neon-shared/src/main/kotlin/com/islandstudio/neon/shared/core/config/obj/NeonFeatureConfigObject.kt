@@ -1,11 +1,11 @@
 package com.islandstudio.neon.shared.core.config.obj
 
 import com.islandstudio.neon.shared.core.config.component.type.IConfigObject
-import com.islandstudio.neon.shared.core.config.obj.serverfeatures.*
+import com.islandstudio.neon.shared.core.config.obj.neonfeature.*
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NeonServerFeaturesConfigObject(
+data class NeonFeatureConfigObject(
     var nHarvest: NHarvestConfigObject = NHarvestConfigObject(),
     var nCutter: NCutterConfigObject = NCutterConfigObject(),
     var nSmelter: NSmelterConfigObject = NSmelterConfigObject(),

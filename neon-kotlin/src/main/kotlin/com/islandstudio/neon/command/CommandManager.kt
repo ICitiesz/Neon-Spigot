@@ -135,7 +135,7 @@ class CommandManager: TabExecutor {
                             arrayListOf()
                         }
 
-                        CommandAlias.ServerFeaturesAlias -> {
+                        CommandAlias.NeonFeatureAlias -> {
                             NeonFeatureManager.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
                     }
@@ -196,7 +196,7 @@ class CommandManager: TabExecutor {
 
                         }
 
-                        CommandAlias.ServerFeaturesAlias -> {
+                        CommandAlias.NeonFeatureAlias -> {
                             NeonFeatureManager.getCommandDispatcher(commander, playerAccessibleCommand, args)
                         }
                     }
