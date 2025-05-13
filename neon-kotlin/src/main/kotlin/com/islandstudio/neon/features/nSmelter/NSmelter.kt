@@ -1,25 +1,30 @@
-package com.islandstudio.neon.stable.features.nSmelter
+package com.islandstudio.neon.features.nSmelter
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
+import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.recipe.NSmelterRecipe
 import com.islandstudio.neon.stable.core.recipe.component.RecipeRegistry
-import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import org.bukkit.inventory.BlastingRecipe
 import org.bukkit.inventory.FurnaceRecipe
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.RecipeChoice.MaterialChoice
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin.getPlugin
+import org.koin.core.component.inject
 
 class NSmelter: RecipeRegistry {
     private val plugin: Plugin = getPlugin(Neon::class.java)
 
-    object Handler {
+    object Handler: IComponentInjector {
+        private val neonFeatureManager by inject<NeonFeatureManager>()
+
         /**
          * Initializes the nSmelter.
          */
         fun run() {
-            val isEnabled = NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nSmelter") ?: false
+            val isEnabled = neonFeatureManager.getFeatureToggle(NeonFeatureConfigProperty.NSmelterConfigProperty.IsEnabled)
 
             if (!isEnabled) return
 

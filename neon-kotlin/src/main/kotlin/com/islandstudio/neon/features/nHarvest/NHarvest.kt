@@ -1,8 +1,10 @@
-package com.islandstudio.neon.stable.features.nHarvest
+package com.islandstudio.neon.features.nHarvest
 
+import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
+import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
+import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.features.nDurable.NDurable
-import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -16,16 +18,18 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import org.koin.core.component.inject
+import kotlin.properties.Delegates
 
 object NHarvest {
-    private var isEnabled = false
+    private var isEnabled by Delegates.notNull<Boolean>()
 
-    object Handler {
+    object Handler: IComponentInjector {
+        private val neonFeatureManager by inject<NeonFeatureManager>()
+
         fun run() {
-            isEnabled = (NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nHarvest") ?: false).also {
-                if (!it) {
-                    return AppLoader.unregisterEventProcessor(EventProcessor())
-                }
+            isEnabled = neonFeatureManager.getFeatureToggle(NeonFeatureConfigProperty.NHarvestConfigProperty.IsEnabled).also {
+                if (!it) return AppLoader.unregisterEventProcessor(EventProcessor())
             }
 
             AppLoader.registerEventProcessor(EventProcessor())
