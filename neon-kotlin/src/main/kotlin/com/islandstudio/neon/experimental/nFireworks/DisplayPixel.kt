@@ -1,6 +1,6 @@
 package com.islandstudio.neon.experimental.nFireworks
 
-import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
+import com.islandstudio.neon.server.ServerGamePacketManager
 import org.bukkit.World
 import org.bukkit.scheduler.BukkitRunnable
 

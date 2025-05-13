@@ -1,10 +1,10 @@
-package com.islandstudio.neon.stable.core.application.server
+package com.islandstudio.neon.server
 
-import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
+import com.islandstudio.neon.core.nmsmapping.NmsMap
+import com.islandstudio.neon.core.nmsmapping.NmsProcessor
+import com.islandstudio.neon.features.nBundle.NBundle
+import com.islandstudio.neon.features.nDurable.NDurable
 import com.islandstudio.neon.stable.core.command.commandlist.NCommandList
-import com.islandstudio.neon.stable.features.nBundle.NBundle
-import com.islandstudio.neon.stable.features.nDurable.NDurable
 import io.netty.channel.Channel
 import io.netty.channel.ChannelDuplexHandler
 import io.netty.channel.ChannelHandlerContext

@@ -2,6 +2,7 @@ package com.islandstudio.neon.experimental.nPainting
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.core.nmsmapping.NmsMap
+import com.islandstudio.neon.server.ServerGamePacketManager
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
@@ -9,7 +10,6 @@ import com.islandstudio.neon.shared.core.server.ServerProvider
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import com.islandstudio.neon.stable.core.io.DataSourceType
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered.saveToFile

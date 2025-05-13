@@ -1,10 +1,10 @@
 package com.islandstudio.neon.features.nHarvest
 
+import com.islandstudio.neon.features.nDurable.NDurable
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppLoader
-import com.islandstudio.neon.stable.features.nDurable.NDurable
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Sound

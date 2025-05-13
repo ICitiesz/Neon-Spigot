@@ -1,20 +1,15 @@
 package com.islandstudio.neon.stable.core.event
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.core.nmsmapping.NmsMap
-import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.experimental.nEffect.NEffect
+import com.islandstudio.neon.features.nDurable.NDurable
+import com.islandstudio.neon.server.ServerGamePacketManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppLoader
-import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
-import com.islandstudio.neon.stable.core.command.NCommand
-import com.islandstudio.neon.stable.features.nDurable.NDurable
 import com.islandstudio.neon.stable.features.nRank.NRank
 import com.islandstudio.neon.stable.features.nWaypoints.NWaypoints
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
-import net.minecraft.server.level.ServerPlayer
-import org.bukkit.ChatColor
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -28,7 +23,6 @@ import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.server.ServerCommandEvent
-import org.bukkit.event.server.ServerLoadEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.koin.core.component.inject
@@ -45,69 +39,11 @@ class ServerConstantEvent: IComponentInjector {
         }
     }
 
-    private enum class PlayerHandshakeStatus {
-        JOINING,
-        LEAVING
-    }
-
     object Handler {
         fun run() {
             AppLoader.registerEventProcessor(EventProcessor())
             AppLoader.registerEventProcessor(NServerFeatures.EventProcessor())
         }
-    }
-
-    private fun broadcastPlayerNotification(player: Player, playerHandshakeStatus: PlayerHandshakeStatus) {
-        val server = neon.server
-
-        when (playerHandshakeStatus) {
-            PlayerHandshakeStatus.JOINING -> {
-                server.broadcastMessage(
-                    NCommand.COMMAND_SYNTAX_PREFIX +
-                        "${ChatColor.GOLD}Welcome back, ${ChatColor.GREEN}${player.name}${ChatColor.GOLD}!")
-                server.broadcastMessage(
-                    NCommand.COMMAND_SYNTAX_PREFIX +
-                    "${ChatColor.GREEN}${server.onlinePlayers.size}${ChatColor.GOLD} of ${ChatColor.RED}${server.maxPlayers}${ChatColor.GOLD} player(s) Online!"
-                )
-            }
-
-            PlayerHandshakeStatus.LEAVING -> {
-                server.broadcastMessage("${NCommand.COMMAND_SYNTAX_PREFIX}${ChatColor.GREEN}${player.name}${ChatColor.GOLD} left," +
-                        " ${ChatColor.GREEN}${server.onlinePlayers.size - 1}${ChatColor.GOLD} other(s) here!")
-            }
-        }
-    }
-
-    /**
-     * Update player recipes once the server reloaded.
-     *
-     * @param player The player to update the recipes for. (Player)
-     */
-    @Suppress("UNCHECKED_CAST")
-    private fun updatePlayerRecipe(player: Player) {
-        val mcPlayer = ServerGamePacketManager.getMcPlayer(player)
-        val mcServer = mcPlayer.javaClass.getField(NmsMap.McServer.remapped).get(mcPlayer)
-        val craftingManager = mcServer.javaClass.getMethod(NmsMap.CraftingManager.remapped).invoke(mcServer)!!
-
-        val serverRecipes: Map<Any, Map<Any, Any>> = craftingManager.javaClass.getField(NmsMap.ServerRecipes.remapped)
-            .get(craftingManager)!! as Map<Any, Map<Any, Any>>
-
-        val recipeList = serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }
-            .toList()!!
-
-        val updateRecipePacketConstructors = NmsProcessor().getMcClass(
-            "network.protocol.game.${NmsMap.ClientPacketUpdateRecipes.remapped}"
-        )!!.constructors.filter { it.parameters.size == 1 }
-
-        val recipeUpdatePacket: Any = updateRecipePacketConstructors.find { it.parameterTypes.contains(Collection::class.java) }!!
-            .newInstance(recipeList as MutableCollection<*>)
-
-        ServerGamePacketManager.sendServerGamePacket(player, recipeUpdatePacket)
-
-        /* Recipe book update */
-        val playerRecipeBook: Any = mcPlayer.javaClass.getMethod(NmsMap.PlayerRecipeBook.remapped).invoke(mcPlayer)
-
-        playerRecipeBook.javaClass.getMethod(NmsMap.InitRecipeBook.remapped, ServerPlayer::class.java).invoke(playerRecipeBook, mcPlayer)
     }
 
     /**
@@ -162,18 +98,6 @@ class ServerConstantEvent: IComponentInjector {
         private val serverConstantEvent = ServerConstantEvent()
 
         @EventHandler
-        private fun onServerLoad(e: ServerLoadEvent) {
-            when (e.type) {
-                ServerLoadEvent.LoadType.STARTUP, ServerLoadEvent.LoadType.RELOAD -> {
-                    neon.server.onlinePlayers.forEach { player ->
-                        serverConstantEvent.updatePlayerRecipe(player)
-                        ServerGamePacketManager.reloadServerGamePacketListener(player)
-                    }
-                }
-            }
-        }
-
-        @EventHandler
         private fun onServerCommandSend(e: ServerCommandEvent) {
             serverConstantEvent.closePlayerInventory(e)
         }
@@ -186,9 +110,7 @@ class ServerConstantEvent: IComponentInjector {
         @EventHandler
         private fun onPlayerJoin(e: PlayerJoinEvent) {
             with(e.player) {
-                ServerGamePacketManager.registerServerGamePacketListener(this)
                 NRank.updateTag()
-                NDurable.toggleDamageProperty(NDurable.isEnabled(), this)
             }
         }
 

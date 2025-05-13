@@ -1,8 +1,8 @@
 package com.islandstudio.neon.experimental.nFireworks
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.server.ServerGamePacketManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import kotlinx.coroutines.*
 import net.minecraft.core.particles.DustParticleOptions
 import org.bukkit.Bukkit

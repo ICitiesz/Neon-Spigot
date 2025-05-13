@@ -1,20 +1,22 @@
-package com.islandstudio.neon.stable.features.nDurable
+package com.islandstudio.neon.features.nDurable
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.experimental.nEffect.NEffect
+import com.islandstudio.neon.features.nDurable.NDurable.isEnabled
+import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
+import com.islandstudio.neon.server.ServerGamePacketManager
+import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
-import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import com.islandstudio.neon.stable.core.command.CommandDispatcher
 import com.islandstudio.neon.stable.core.command.CommandInterfaceProcessor
 import com.islandstudio.neon.stable.core.command.properties.CommandAlias
 import com.islandstudio.neon.stable.core.command.properties.CommandArgument
-import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import com.islandstudio.neon.stable.player.nRoleAccess.NRoleAccess
 import com.islandstudio.neon.stable.utils.ObjectSerializer
 import com.islandstudio.neon.stable.utils.processing.GeneralInputProcessor
@@ -48,7 +50,7 @@ import kotlin.properties.Delegates
 object NDurable: IComponentInjector {
     private val plugin by inject<Neon>()
 
-    private var nDurableisEnabled by Delegates.notNull<Boolean>()
+    private var isEnabled by Delegates.notNull<Boolean>()
 
     private var showItemDurability by Delegates.notNull<Boolean>()
     private var isFortuneHarvestRestricted = false
@@ -56,24 +58,24 @@ object NDurable: IComponentInjector {
     private val damagedTag = "${net.md_5.bungee.api.ChatColor.of("#ab0000")}DAMAGED"
 
 
-    object Handler: CommandDispatcher {
+    object Handler: CommandDispatcher, IComponentInjector {
+        private val neonFeatureManager by inject<NeonFeatureManager>()
+
         /**
          * Initialization for nDurable.
          *
          */
         fun run() {
-            val featureName = "nDurable"
+            isEnabled = neonFeatureManager.getFeatureToggle(NeonFeatureConfigProperty.NDurableConfigProperty.IsEnabled)
+            showItemDurability = neonFeatureManager.getFeatureToggle(NeonFeatureConfigProperty.NDurableConfigProperty.ShowItemDurability)
 
-            nDurableisEnabled = (NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle(featureName) ?: false)
-            showItemDurability = NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureOptionValue(featureName, "showItemDurability") as Boolean
-
-            if (!nDurableisEnabled) {
-                toggleDamageProperty(nDurableisEnabled)
+            if (!isEnabled) {
+                toggleDamageProperty()
 
                 return AppLoader.unregisterEventProcessor(EventProcessor())
             }
 
-            toggleDamageProperty(nDurableisEnabled)
+            toggleDamageProperty()
 
             isFortuneHarvestRestricted = true
 
@@ -131,7 +133,7 @@ object NDurable: IComponentInjector {
          * @param gaveItem The gave item in NMS-based.
          */
         fun applyDamagePropertyOnGive(gaveItem: net.minecraft.world.item.ItemStack) {
-            if (!nDurableisEnabled) return
+            if (!isEnabled) return
 
             /* Convert base Item Stack to Bukkit Item Stack */
             (CraftBukkitReflector.getCraftBukkitClass("inventory.CraftItemStack").getMethod(
@@ -166,7 +168,7 @@ object NDurable: IComponentInjector {
                     val originalIngredient = merchantRecipe.javaClass.getDeclaredField(NmsMap.MerchantRecipeResult.remapped)
                     originalIngredient.isAccessible = true
 
-                    val newIngredient = if (nDurableisEnabled) applyDamageProperty(ingredient, 0)
+                    val newIngredient = if (isEnabled) applyDamageProperty(ingredient, 0)
                     else hideDamageProperty(ingredient)
 
                     val baseItemStack = CraftBukkitReflector.getCraftBukkitClass("inventory.CraftItemStack")
@@ -179,7 +181,7 @@ object NDurable: IComponentInjector {
                 val originalResult = merchantRecipe.javaClass.getDeclaredField(NmsMap.MerchantRecipeResult.remapped)
                 originalResult.isAccessible = true
 
-                val newResult = if (nDurableisEnabled) applyDamageProperty(it.result, 0)
+                val newResult = if (isEnabled) applyDamageProperty(it.result, 0)
                 else removeDamageProperty(it.result, true)
 
                 val baseItemStack = CraftBukkitReflector.getCraftBukkitClass("inventory.CraftItemStack")
@@ -383,7 +385,7 @@ object NDurable: IComponentInjector {
         }
     }
 
-    fun isEnabled() = nDurableisEnabled
+    fun isEnabled() = isEnabled
 
     /**
      * Toggle damage property for player and villager.
@@ -391,7 +393,7 @@ object NDurable: IComponentInjector {
      * @param isEnabled The toggle status of nDurable.
      * @param player The specific player.
      */
-    fun toggleDamageProperty(isEnabled: Boolean, player: Player? = null) {
+    fun toggleDamageProperty(player: Player? = null) {
         if (player != null) {
             player.inventory.contents.filterNotNull()
                 .filter { contentItem -> contentItem.itemMeta is Damageable }
