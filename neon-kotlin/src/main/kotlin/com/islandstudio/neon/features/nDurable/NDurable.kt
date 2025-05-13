@@ -385,7 +385,7 @@ object NDurable: IComponentInjector {
         }
     }
 
-    fun isEnabled() = isEnabled
+    fun getToggleStatus() = isEnabled
 
     /**
      * Toggle damage property for player and villager.

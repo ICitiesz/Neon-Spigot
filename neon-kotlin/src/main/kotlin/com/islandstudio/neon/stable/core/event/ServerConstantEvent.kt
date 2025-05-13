@@ -128,7 +128,7 @@ class ServerConstantEvent: IComponentInjector {
             if (e.view.title == NEffect.inventoryName) return
 
             e.inventory.contents.filterNotNull().forEach {
-                if (NDurable.isEnabled()) {
+                if (NDurable.getToggleStatus()) {
                     NDurable.Handler.applyDamageProperty(it, 0)
                     return@forEach
                 }

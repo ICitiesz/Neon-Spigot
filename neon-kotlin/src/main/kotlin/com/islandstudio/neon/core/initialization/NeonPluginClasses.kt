@@ -1,51 +1,58 @@
-package com.islandstudio.neon.stable.core.application
+package com.islandstudio.neon.core.initialization
 
+import com.islandstudio.neon.command.CommandManager
+import com.islandstudio.neon.core.nmsmapping.NmsProcessor
+import com.islandstudio.neon.experimental.gui.GuiManager
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPVP.NPVP
 import com.islandstudio.neon.experimental.nPainting.NPainting
+import com.islandstudio.neon.features.nBundle.NBundle
+import com.islandstudio.neon.features.nCutter.NCutter
+import com.islandstudio.neon.features.nDurable.NDurable
+import com.islandstudio.neon.features.nHarvest.NHarvest
+import com.islandstudio.neon.features.nSmelter.NSmelter
+import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
+import com.islandstudio.neon.player.security.AccessControlManager
+import com.islandstudio.neon.player.session.PlayerSessionManager
+import com.islandstudio.neon.stable.core.application.datakey.DataKeyManager
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
-import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
-import com.islandstudio.neon.stable.core.command.NCommand
 import com.islandstudio.neon.stable.core.event.ServerConstantEvent
-import com.islandstudio.neon.stable.core.gui.NGUI
-import com.islandstudio.neon.stable.features.nBundle.NBundle
-import com.islandstudio.neon.stable.features.nCutter.NCutter
-import com.islandstudio.neon.stable.features.nDurable.NDurable
-import com.islandstudio.neon.stable.features.nHarvest.NHarvest
 import com.islandstudio.neon.stable.features.nRank.NRank
-import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
-import com.islandstudio.neon.stable.features.nSmelter.NSmelter
 import com.islandstudio.neon.stable.features.nWaypoints.NWaypoints
 import com.islandstudio.neon.stable.item.NItemGlinter
 import com.islandstudio.neon.stable.player.NPlayerProfile
-import com.islandstudio.neon.stable.player.nAccessPermission.NAccessPermission
-import com.islandstudio.neon.stable.player.nRole.NRole
 import com.islandstudio.neon.stable.primary.nProfile.NProfile
-import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import java.lang.reflect.Method
 
-enum class AppClasses(
+enum class NeonPluginClasses(
     val clazz: Class<*>,
     val loadStage: LoadStage,
     /* Classes that not able to do async on the new thread
      * If the run() method is in the nested class, the nClassName should include the nested class name
      * E.g: NDurable.Handler.run() | nClassName: NDurable.Handler
      */
-    val isSynchronous: Boolean, // TODO: Need change to canAsycn
+    val canAsync: Boolean, // TODO: Need change to canAsync
     val isConfigReloadable: Boolean
 ) {
     /* #################################### Pre-init Classes #################################### */
     NmsProcessorClass(
         NmsProcessor.Companion::class.java,
         LoadStage.PreLoad,
-        isSynchronous = false,
+        canAsync = false,
         isConfigReloadable = false
+    ),
+
+    DataKeyManagerClass(
+      DataKeyManager.Companion::class.java,
+        LoadStage.PreLoad,
+        false,
+        false
     ),
 
     NeonKeyClass(
         NeonKey.Handler::class.java,
         LoadStage.PreLoad,
-        isSynchronous = false,
+        canAsync = false,
         isConfigReloadable =  false
     ),
 
@@ -56,22 +63,15 @@ enum class AppClasses(
 //        false
 //    ),
 
-    NAccessPermissionClass(
-        NAccessPermission.Handler::class.java,
-        LoadStage.PreLoad,
+    AccessControlManagerClass(
+      AccessControlManager.Companion::class.java,
+        LoadStage.PostLoad,
         false,
         false
     ),
 
-    NServerFeatureRemasteredClass(
-        NServerFeaturesRemastered.Handler::class.java,
-        LoadStage.PreLoad,
-        false,
-        false
-    ),
-
-    NServerFeatureClass(
-        NServerFeatures.Handler::class.java,
+    NeonFeatureManagerClass(
+        NeonFeatureManager.Companion::class.java,
         LoadStage.PreLoad,
         false,
         false
@@ -85,6 +85,13 @@ enum class AppClasses(
     ),
 
     /* #################################### Post-init Classes #################################### */
+    PlayerSessionManagerClass(
+        PlayerSessionManager.Companion::class.java,
+        LoadStage.PostLoad,
+        false,
+        false
+    ),
+
     NProfileClass(
         NProfile.Handler::class.java,
         LoadStage.PostLoad,
@@ -106,22 +113,29 @@ enum class AppClasses(
         false
     ),
 
-    NCommandClass(
-        NCommand.Companion::class.java,
+//    NCommandClass(
+//        NCommand.Companion::class.java,
+//        LoadStage.PostLoad,
+//        false,
+//        false
+//    ),
+
+    CommandManagerClass(
+        CommandManager.Companion::class.java,
         LoadStage.PostLoad,
         false,
         false
     ),
 
-    NGUIClass(
-        NGUI.Handler::class.java,
-        LoadStage.PostLoad,
-        false,
-        false
-    ),
+//    NGUIClass(
+//        NGUI.Handler::class.java,
+//        LoadStage.PostLoad,
+//        false,
+//        false
+//    ),
 
-    NRoleClass(
-        NRole.Handler::class.java,
+    GuiManagerClass(
+        GuiManager.Companion::class.java,
         LoadStage.PostLoad,
         false,
         false
@@ -163,7 +177,7 @@ enum class AppClasses(
     ),
 
     NCutterClass(
-        NCutter.Handler::class.java,
+        NCutter.Companion::class.java,
         LoadStage.PostLoad,
         true,
         true
@@ -204,23 +218,23 @@ enum class AppClasses(
         const val FUNCTION_NAME_RUN = "run"
         const val FIELD_NAME_INSTANCE = "INSTANCE"
 
-        fun getPreLoadClasses(): ArrayList<AppClasses> {
-            return AppClasses.entries
+        fun getPreLoadClasses(): ArrayList<NeonPluginClasses> {
+            return NeonPluginClasses.entries
                 .filter {
                     it.loadStage == LoadStage.PreLoad
                 }
                 .toCollection(ArrayList())
         }
 
-        fun getPostLoadClasses(): ArrayList<AppClasses> {
-            return AppClasses.entries
+        fun getPostLoadClasses(): ArrayList<NeonPluginClasses> {
+            return NeonPluginClasses.entries
                 .filter {
                     it.loadStage == LoadStage.PostLoad
                 }
                 .toCollection(ArrayList())
         }
 
-        fun invokeFunction(appClazz: AppClasses): Boolean {
+        fun invokeFunction(appClazz: NeonPluginClasses): Boolean {
             val clazz = appClazz.clazz
 
             /* Check if the simple name of the class is equal to "Handler" or "Companion",
