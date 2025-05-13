@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application
+package com.islandstudio.neon.core.initialization
 
 enum class CompatibleVersions(vararg val versions: String) {
     V1_17("1.17", "1.17.1"),
