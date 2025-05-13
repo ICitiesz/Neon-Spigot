@@ -1,8 +1,8 @@
-package com.islandstudio.neon.stable.common
+package com.islandstudio.neon.util
 
 import net.md_5.bungee.api.ChatColor
 
-enum class ColorPalette(val color: ChatColor) {
+enum class ColorUtil(val color: ChatColor) {
     CyanBlue(ChatColor.of("#34baeb")),
     Orange(ChatColor.of("#f57d1f")),
     LightGreen(ChatColor.of("#9bec00")),

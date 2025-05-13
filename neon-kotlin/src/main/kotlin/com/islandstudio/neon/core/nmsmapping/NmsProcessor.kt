@@ -1,11 +1,9 @@
-package com.islandstudio.neon.stable.core.application.reflection
+package com.islandstudio.neon.core.nmsmapping
 
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.shared.core.io.resource.ResourceManager
-import com.islandstudio.neon.stable.core.application.reflection.mapping.MappingType
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsObject
 import org.dhatim.fastexcel.reader.ReadableWorkbook
 import org.dhatim.fastexcel.reader.Sheet
 import org.koin.core.component.inject
@@ -18,7 +16,7 @@ class NmsProcessor {
          * Init NmsProcessor
          */
         fun run() {
-            val nmsMappingFileStream = ResourceManager.getNeonResourceAsStream(NeonInternalResource.NeonNmsMapping)
+            val nmsMappingFileStream = ResourceManager.Companion.getNeonResourceAsStream(NeonInternalResource.NeonNmsMapping)
             val nmsMappingAsExcel = ReadableWorkbook(nmsMappingFileStream)
 
             nmsMappingFileStream.use {

@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application.reflection.mapping
+package com.islandstudio.neon.core.nmsmapping
 
 enum class MappingType {
     FIELD,

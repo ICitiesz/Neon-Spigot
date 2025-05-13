@@ -1,6 +1,4 @@
-package com.islandstudio.neon.stable.core.application.reflection.mapping
-
-import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
+package com.islandstudio.neon.core.nmsmapping
 
 enum class NmsMap(nmsObject: NmsObject?) {
     /* Field Mapping */

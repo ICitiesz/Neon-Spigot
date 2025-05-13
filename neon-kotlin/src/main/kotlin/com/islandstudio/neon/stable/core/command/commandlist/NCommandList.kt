@@ -1,10 +1,10 @@
 package com.islandstudio.neon.stable.core.command.commandlist
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import com.islandstudio.neon.stable.primary.nCommand.Commands
 import com.islandstudio.neon.stable.utils.NIdGenerator

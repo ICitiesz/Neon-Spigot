@@ -1,11 +1,11 @@
 package com.islandstudio.neon.stable.core.event
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.core.nmsmapping.NmsMap
+import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppLoader
-import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import com.islandstudio.neon.stable.core.command.NCommand
 import com.islandstudio.neon.stable.features.nDurable.NDurable

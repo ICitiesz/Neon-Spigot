@@ -1,9 +1,9 @@
 package com.islandstudio.neon.experimental.nPainting
 
+import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.server.ServerProvider
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import com.islandstudio.neon.stable.utils.ObjectSerializer
 import kotlinx.coroutines.*

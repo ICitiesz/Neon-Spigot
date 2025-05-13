@@ -10,6 +10,8 @@ import com.islandstudio.neon.api.dto.request.security.UnassignRoleRequestDTO
 import com.islandstudio.neon.api.entity.player.PlayerProfileEntity
 import com.islandstudio.neon.command.CommandManager
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
+import com.islandstudio.neon.core.nmsmapping.NmsMap
+import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
@@ -19,8 +21,6 @@ import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.datakey.DataContainerManager
 import com.islandstudio.neon.stable.core.application.datakey.DataContainerType
-import com.islandstudio.neon.stable.core.application.reflection.NmsProcessor
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
 import com.islandstudio.neon.stable.core.application.server.ServerGamePacketManager
 import com.islandstudio.neon.stable.core.command.NCommand
 import net.minecraft.server.level.ServerPlayer

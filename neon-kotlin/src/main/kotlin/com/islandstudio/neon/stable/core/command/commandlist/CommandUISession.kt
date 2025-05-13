@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.core.command.commandlist
 
-import com.islandstudio.neon.stable.core.application.reflection.mapping.NmsMap
+import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.stable.primary.nCommand.Commands
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.LecternMenu
