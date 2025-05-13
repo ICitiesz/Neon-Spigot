@@ -1,12 +1,13 @@
-package com.islandstudio.neon.stable.features.nBundle
+package com.islandstudio.neon.features.nBundle
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
+import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
 import com.islandstudio.neon.stable.core.recipe.NBundleRecipe
 import com.islandstudio.neon.stable.core.recipe.component.RecipeRegistry
-import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.entity.Villager
@@ -40,38 +41,26 @@ object NBundle: RecipeRegistry, IComponentInjector {
         DESERT_PYRAMID("desert_pyramid")
     }
 
-    object Handler {
+    object Handler: IComponentInjector {
+        private val neonFeatureManager by inject<NeonFeatureManager>()
         /**
          * Initialize the nBundle.
          */
         fun run() {
-            val featureName = "nBundle"
-
-            isEnabled = NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nBundle")!!
-
+            isEnabled = neonFeatureManager.getFeatureToggle(NeonFeatureConfigProperty.NBundleConfigProperty.IsEnabled)
 
             if (!isEnabled) {
-                    removeBundleTradingRecipe()
-                    return AppLoader.unregisterEventProcessor(EventProcessor())
+                removeBundleTradingRecipe()
+                return AppLoader.unregisterEventProcessor(EventProcessor())
             }
 
-            bundleGenerateChance = NServerFeaturesRemastered.serverFeatureSession
-                .getActiveServerFeatureOptionValue(featureName, "bundleGenerateChance") as Double
-
-            bundleMaxBuy = NServerFeaturesRemastered.serverFeatureSession
-                .getActiveServerFeatureOptionValue(featureName, "bundleMaxBuy") as Int
-
-            bundlePrice = NServerFeaturesRemastered.serverFeatureSession
-                .getActiveServerFeatureOptionValue(featureName, "bundlePrice") as Int
-
-            bundlePriceMultiplier = (NServerFeaturesRemastered.serverFeatureSession
-                .getActiveServerFeatureOptionValue(featureName, "bundlePriceMultiplier") as Double).toFloat()
-
-            villagerExperience = NServerFeaturesRemastered.serverFeatureSession
-                .getActiveServerFeatureOptionValue(featureName, "villagerExperience") as Int
+            bundleGenerateChance = neonFeatureManager.getFeatureOptionValue(NeonFeatureConfigProperty.NBundleConfigProperty.BundleGenerateChance)
+            bundleMaxBuy = neonFeatureManager.getFeatureOptionValue(NeonFeatureConfigProperty.NBundleConfigProperty.BundleMaxBuy)
+            bundlePrice = neonFeatureManager.getFeatureOptionValue(NeonFeatureConfigProperty.NBundleConfigProperty.BundlePrice)
+            bundlePriceMultiplier = neonFeatureManager.getFeatureOptionValue<Double>(NeonFeatureConfigProperty.NBundleConfigProperty.BundlePriceMultiplier).toFloat()
+            villagerExperience = neonFeatureManager.getFeatureOptionValue(NeonFeatureConfigProperty.NBundleConfigProperty.VilagerExperience)
 
             AppLoader.registerEventProcessor(EventProcessor())
-
             registerRecipe()
         }
     }

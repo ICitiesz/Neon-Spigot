@@ -344,6 +344,10 @@ class NeonFeatureManager {
         neonFeatureAppConfig = AppConfig(NeonExternalResource.NeonFeatureFile, NeonFeatureConfigObject(), NeonFeatureConfigProperty::class)
     }
 
+    fun getFeatureToggle(neonFeatureToggle: NeonFeatureConfigProperty<*>): Boolean {
+        return getFeatureToggle(neonFeatureToggle.parentConfigKey)
+    }
+
     fun getFeatureToggle(featureName: String, configNodeProperties: ArrayList<ConfigNodeProperty>? = null): Boolean {
         return configNodeProperties?.let {
             neonFeatureAppConfig.getConfigNode(
@@ -351,8 +355,7 @@ class NeonFeatureManager {
                 featureName,
                 "isEnabled"
             )?.value()?.let { it as Boolean } ?: false
-        }
-            ?: neonFeatureAppConfig.getConfigNode(featureName, "isEnabled")!!.value() as Boolean
+        } ?: neonFeatureAppConfig.getConfigNode(featureName, "isEnabled")!!.value() as Boolean
     }
 
     fun setFeatureToggle(configNodeProperties: ArrayList<ConfigNodeProperty>, featureName: String, toggle: Boolean): Boolean {
@@ -379,10 +382,17 @@ class NeonFeatureManager {
         return true
     }
 
+    fun <T> getFeatureOptionValue(neonFeatureOption: NeonFeatureConfigProperty<*>): T {
+        @Suppress("UNCHECKED_CAST")
+        return (getFeatureOptionValue(
+            neonFeatureOption.parentConfigKey.split(".").first(),
+            neonFeatureOption.keyName
+        ) ?: neonFeatureOption.defaultValue) as T
+    }
+
     fun getFeatureOptionValue(featureName: String, optionName: String): Any? {
         return neonFeatureAppConfig.getConfigNode("${featureName}.options", optionName)
             ?.value()
-
     }
 
     fun setFeatureOptionValue(featureName: String, optionName: String, optionValue: Any): Boolean? {

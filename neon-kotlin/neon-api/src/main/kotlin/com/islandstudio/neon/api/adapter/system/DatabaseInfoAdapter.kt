@@ -9,7 +9,7 @@ import org.koin.core.component.inject
 class DatabaseInfoAdapter: IComponentInjector {
     private val databaseInfoService by inject<IDatabaseInfoService>()
 
-    fun performHealthCheck(): Boolean {
+    fun cachingData(): Boolean {
         return databaseInfoService.isConnected()
     }
 }
