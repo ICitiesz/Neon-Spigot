@@ -13,6 +13,7 @@ import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.features.nDurable.NDurable
+import com.islandstudio.neon.player.security.role.RoleManager
 import com.islandstudio.neon.server.ServerGamePacketManager
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.IRunner
@@ -41,6 +42,7 @@ import java.util.*
 class PlayerSessionManager: IComponentInjector, IObjectMapper {
     private val neon by inject<Neon>()
     private val appContext by inject<AppContext>()
+    private val roleManager by inject<RoleManager>()
     private val playerProfileAdapter by inject<PlayerProfileAdapter>()
 
     companion object: IRunner {
@@ -99,6 +101,7 @@ class PlayerSessionManager: IComponentInjector, IObjectMapper {
                                 ?.copy(roleId = it.result!!) ?: return@onSuccess
 
                             updatePlayerSession(targetPlayer, playerSession)
+                            roleManager.addRoleTag(targetPlayer)
                         }
 
                         displayMessage = "${ChatColor.GREEN}Role with role code '${ChatColor.WHITE}${roleCode}" +
@@ -152,6 +155,7 @@ class PlayerSessionManager: IComponentInjector, IObjectMapper {
                             val playerSession = getPlayerSession(targetPlayer)
                                 ?.copy(roleId = null) ?: return@onSuccess
 
+                            roleManager.removeRoleTag(targetPlayer)
                             updatePlayerSession(targetPlayer, playerSession)
                         }
 
@@ -311,7 +315,7 @@ class PlayerSessionManager: IComponentInjector, IObjectMapper {
     private class EventProcessor: Listener, IComponentInjector {
         private val neon by inject<Neon>()
         private val playerSessionManager by inject<PlayerSessionManager>()
-        private val playerProfileAdapter by inject<PlayerProfileAdapter>()
+        private val roleManager by inject<RoleManager>()
 
         @EventHandler
         private fun onServerLoad(e: ServerLoadEvent) {
@@ -332,6 +336,8 @@ class PlayerSessionManager: IComponentInjector, IObjectMapper {
             ServerGamePacketManager.registerServerGamePacketListener(player)
             playerSessionManager.createPlayerProfile(player)
             NDurable.toggleDamageProperty()
+
+            roleManager.addRoleTag(player)
 
             /* Player join message */
             e.joinMessage = ""

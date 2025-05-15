@@ -15,10 +15,18 @@ import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
 import com.islandstudio.neon.player.session.PlayerSessionManager
+import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.shared.utils.TextUtil
+import com.islandstudio.neon.stable.core.application.AppLoader
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.AsyncPlayerChatEvent
+import org.bukkit.scoreboard.Scoreboard
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 
@@ -26,11 +34,18 @@ import org.koin.core.component.inject
 class RoleManager: IComponentInjector {
     private val neon by inject<Neon>()
     private val roleAdapter by inject<RoleAdapter>()
+    private lateinit var roleScoreboard: Scoreboard
 
-    companion object: ICommandDispatcher, IComponentInjector {
+    companion object: IRunner, ICommandDispatcher, IComponentInjector {
         private val roleCommandAlias = CommandAlias.RoleAlias
         private val roleManager by inject<RoleManager>()
         private val playerSessionManager by inject<PlayerSessionManager>()
+
+        override fun run() {
+            roleManager.initialize()
+
+            AppLoader.registerEventProcessor(RoleManagerEvent())
+        }
 
         override fun getCommandDispatcher(
             commander: CommandSender,
@@ -219,7 +234,7 @@ class RoleManager: IComponentInjector {
 
                     roleCommandAlias.onMatchOption(
                         commander,
-                        args[argIndex],
+                        args[1],
                         playerAccessibleCommand
                     ) { roleCommandOption ->
                         when (roleCommandOption) {
@@ -242,11 +257,64 @@ class RoleManager: IComponentInjector {
         }
     }
 
+    fun initialize() {
+        roleScoreboard = neon.server.scoreboardManager?.newScoreboard
+            ?: throw NeonException("Could not initialize role scoreboard due to world not loaded!")
+
+        roleManager.getAllRole().forEach {
+            if (!addRoleToScoreboard(it)) return@forEach
+        }
+    }
+
+    fun addRoleToScoreboard(role: RoleEntity): Boolean {
+        val roleCode = role.roleCode.run {
+            if (this.isNullOrEmpty()) return false
+
+            this
+        }
+
+        val roleDisplayName = role.roleDisplayName.run {
+            if (this.isNullOrEmpty()) return false
+
+            this
+        }
+
+        if (roleScoreboard.teams.any { x -> x.name == roleCode }) return false
+
+        roleScoreboard.registerNewTeam(roleCode).apply {
+            this.prefix = "${TextUtil.toColorText(roleDisplayName)} "
+        }
+
+        return true
+    }
+
+    fun removeRoleFromScoreboard(roleCode: String) {
+        roleScoreboard.getTeam(roleCode)?.unregister()
+    }
+
+    fun removeRoleTag(player: Player) {
+        val playerSession = playerSessionManager.getPlayerSession(player) ?: return
+        val playerRole = getRole(null, playerSession.roleId) ?: return
+
+        roleScoreboard.getTeam(playerRole.roleCode!!)?.removeEntry(player.name)
+
+        player.scoreboard = roleScoreboard
+    }
+
+    fun addRoleTag(player: Player) {
+        val playerSession = playerSessionManager.getPlayerSession(player) ?: return
+        val playerRole = getRole(null, playerSession.roleId) ?: return
+
+        roleScoreboard.getTeam(playerRole.roleCode!!)?.addEntry(player.name)
+
+        player.scoreboard = roleScoreboard
+    }
+
     /**
      * Create custom role.
      *
      * @param commander The commander who perform the command
-     * @param roleCode Readable identifier for role
+     * @param roleCode Secondary identifier for role
      * @param roleDisplayName Role name that display beside player name.
      * @param underscoreAsSpace Replace underscore with space if true
      */
@@ -257,6 +325,8 @@ class RoleManager: IComponentInjector {
 
         roleAdapter.createRole(CommandManager.getCommanderName(commander), request)
             .onSuccess {
+                addRoleToScoreboard(it.result!!)
+
                 displayMessage = "${ChatColor.GREEN}The role has been created!"
             }
             .onFailure {
@@ -285,15 +355,27 @@ class RoleManager: IComponentInjector {
         }
     }
 
+    /**
+     * Remove role
+     *
+     * @param commander The commander who perform the command
+     * @param roleCode Secondary identifier for the role
+     */
     fun removeRole(commander: CommandSender?, roleCode: String) {
         val request = RemoveRoleRequestDTO(roleCode)
         var displayMessage: String? = null
 
         roleAdapter.removeRole(request)
             .onSuccess {
-                displayMessage = if (it.result!! > 0) "${ChatColor.GREEN}Role with role code '${ChatColor.WHITE}$roleCode" +
-                        "${ChatColor.GREEN}' has been removed!"
-                else "${ChatColor.YELLOW}No such role found! May be already removed?"
+                if (it.result!! > 0) {
+                    removeRoleFromScoreboard(roleCode.uppercase())
+
+                    displayMessage = "${ChatColor.GREEN}Role with role code '${ChatColor.WHITE}$roleCode" +
+                            "${ChatColor.GREEN}' has been removed!"
+                    return@onSuccess
+                }
+
+                displayMessage = "${ChatColor.YELLOW}No such role found! May be already removed?"
             }
             .onFailure {
                 displayMessage = "${ChatColor.RED}Error while trying to remove role! Please try again later!"
@@ -307,6 +389,14 @@ class RoleManager: IComponentInjector {
         CommandSyntaxHandler.sendCommandSyntax(commander, displayMessage)
     }
 
+    /**
+     * Get role by either roldId or roleCode
+     *
+     * @param commander The commander who perform the command
+     * @param roleId
+     * @param roleCode
+     * @return
+     */
     fun getRole(commander: CommandSender?, roleId: Long? = null, roleCode: String? = null): RoleEntity? {
         val request = GetRoleRequestDTO(roleId, roleCode)
         var displayMessage: String? = null
@@ -357,5 +447,28 @@ class RoleManager: IComponentInjector {
             }
 
         return roleList
+    }
+
+    fun attachRoleTagToChat(player: Player, chatMsg: String = ""): String {
+        var chatMsgPrefix = "${ChatColor.WHITE}${player.name} > ${ChatColor.WHITE}%2\$s"
+
+
+        val playerSession = playerSessionManager.getPlayerSession(player) ?: return chatMsgPrefix
+        val playerRole = getRole(null, playerSession.roleId) ?: return chatMsgPrefix
+
+        playerRole.roleDisplayName?.let {
+            chatMsgPrefix = "${TextUtil.toColorText(it)} $chatMsgPrefix"
+        }
+
+        return chatMsgPrefix
+    }
+
+    private class RoleManagerEvent: Listener, IComponentInjector {
+        private val roleManager by inject<RoleManager>()
+
+        @EventHandler
+        private fun onPlayerChat(e: AsyncPlayerChatEvent) {
+            e.format = roleManager.attachRoleTagToChat(e.player)
+        }
     }
 }

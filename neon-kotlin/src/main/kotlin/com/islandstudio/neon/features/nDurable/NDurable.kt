@@ -67,7 +67,7 @@ object NDurable: IComponentInjector {
          */
         fun run() {
             isEnabled = neonFeatureManager.getFeatureToggle(NeonFeatureConfigProperty.NDurableConfigProperty.IsEnabled)
-            showItemDurability = neonFeatureManager.getFeatureToggle(NeonFeatureConfigProperty.NDurableConfigProperty.ShowItemDurability)
+            showItemDurability = neonFeatureManager.getFeatureOptionValue(NeonFeatureConfigProperty.NDurableConfigProperty.ShowItemDurability)
 
             if (!isEnabled) {
                 toggleDamageProperty()
