@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application.datakey
+package com.islandstudio.neon.core.datakey
 
 @Deprecated("DataContainerType already included the key")
 sealed class NeonGeneralDataKey(keyName: String) : AbstractDataKey(keyName) {

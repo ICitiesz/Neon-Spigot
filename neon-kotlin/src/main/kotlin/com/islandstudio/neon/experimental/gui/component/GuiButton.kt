@@ -1,8 +1,8 @@
 package com.islandstudio.neon.experimental.gui.component
 
+import com.islandstudio.neon.core.datakey.container.DataContainerManager
+import com.islandstudio.neon.core.datakey.container.DataContainerType
 import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer
-import com.islandstudio.neon.stable.core.application.datakey.DataContainerManager
-import com.islandstudio.neon.stable.core.application.datakey.DataContainerType
 import com.islandstudio.neon.stable.item.NItemGlinter
 import org.bukkit.ChatColor
 import org.bukkit.Material

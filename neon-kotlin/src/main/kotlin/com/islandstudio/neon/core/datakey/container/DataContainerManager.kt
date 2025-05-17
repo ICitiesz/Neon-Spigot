@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application.datakey
+package com.islandstudio.neon.core.datakey.container
 
 import org.bukkit.persistence.PersistentDataHolder
 

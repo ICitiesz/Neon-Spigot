@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application.datakey
+package com.islandstudio.neon.core.datakey
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.di.IComponentInjector

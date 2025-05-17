@@ -1,5 +1,6 @@
-package com.islandstudio.neon.stable.core.application.datakey
+package com.islandstudio.neon.core.datakey.container
 
+import com.islandstudio.neon.core.datakey.AbstractDataKey
 import org.bukkit.persistence.PersistentDataType
 
 sealed class DataContainerType<T>(keyName: String): AbstractDataKey(keyName) {
