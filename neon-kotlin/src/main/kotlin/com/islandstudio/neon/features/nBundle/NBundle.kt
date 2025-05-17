@@ -1,12 +1,12 @@
 package com.islandstudio.neon.features.nBundle
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.recipe.NBundleRecipe
 import com.islandstudio.neon.recipe.component.RecipeRegistry
 import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -51,7 +51,7 @@ object NBundle: RecipeRegistry, IComponentInjector {
 
             if (!isEnabled) {
                 removeBundleTradingRecipe()
-                return AppLoader.unregisterEventProcessor(EventProcessor())
+                return NeonPluginLoader.unregisterEventProcessor(EventProcessor())
             }
 
             bundleGenerateChance = neonFeatureManager.getFeatureOptionValue(NeonFeatureConfigProperty.NBundleConfigProperty.BundleGenerateChance)
@@ -60,7 +60,7 @@ object NBundle: RecipeRegistry, IComponentInjector {
             bundlePriceMultiplier = neonFeatureManager.getFeatureOptionValue<Double>(NeonFeatureConfigProperty.NBundleConfigProperty.BundlePriceMultiplier).toFloat()
             villagerExperience = neonFeatureManager.getFeatureOptionValue(NeonFeatureConfigProperty.NBundleConfigProperty.VilagerExperience)
 
-            AppLoader.registerEventProcessor(EventProcessor())
+            NeonPluginLoader.registerEventProcessor(EventProcessor())
             registerRecipe()
         }
     }

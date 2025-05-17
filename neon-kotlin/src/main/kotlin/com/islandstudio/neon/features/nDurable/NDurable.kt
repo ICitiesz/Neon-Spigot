@@ -1,6 +1,7 @@
 package com.islandstudio.neon.features.nDurable
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.experimental.nEffect.NEffect
@@ -9,7 +10,6 @@ import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.server.ServerGamePacketManager
 import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
@@ -72,14 +72,14 @@ object NDurable: IComponentInjector {
             if (!isEnabled) {
                 toggleDamageProperty()
 
-                return AppLoader.unregisterEventProcessor(EventProcessor())
+                return NeonPluginLoader.unregisterEventProcessor(EventProcessor())
             }
 
             toggleDamageProperty()
 
             isFortuneHarvestRestricted = true
 
-            AppLoader.registerEventProcessor(EventProcessor())
+            NeonPluginLoader.registerEventProcessor(EventProcessor())
         }
 
         /**

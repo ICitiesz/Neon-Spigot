@@ -1,13 +1,13 @@
 package com.islandstudio.neon.experimental.nPainting
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.server.ServerGamePacketManager
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import com.islandstudio.neon.shared.core.server.ServerProvider
-import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.io.DataSourceType
@@ -67,7 +67,7 @@ object NPainting: IComponentInjector {
             isEnabled = NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nPainting") ?: false
 
             if (!isEnabled) {
-                return AppLoader.unregisterEventProcessor(EventProcessor())
+                return NeonPluginLoader.unregisterEventProcessor(EventProcessor())
             }
 
             /* TODO: Temp. disable nPainting for version 1.17.X */
@@ -92,7 +92,7 @@ object NPainting: IComponentInjector {
 //                return
             }
 
-            AppLoader.registerEventProcessor(EventProcessor())
+            NeonPluginLoader.registerEventProcessor(EventProcessor())
         }
 
         override fun getCommandHandler(commander: Player, args: Array<out String>) {

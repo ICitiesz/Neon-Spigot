@@ -3,11 +3,11 @@ package com.islandstudio.neon.experimental.gui
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
+import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.player.session.PlayerSessionManager
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonException
-import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.util.ServerUtil
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -29,7 +29,7 @@ class GuiManager: IComponentInjector {
 
     companion object: IRunner {
         override fun run() {
-            AppLoader.registerEventProcessor(EventProcessor())
+            NeonPluginLoader.registerEventProcessor(EventProcessor())
         }
     }
 

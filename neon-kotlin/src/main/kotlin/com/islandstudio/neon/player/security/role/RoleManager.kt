@@ -15,12 +15,12 @@ import com.islandstudio.neon.command.option.RoleCommandOption
 import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
+import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.player.session.PlayerSessionManager
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.shared.utils.TextUtil
-import com.islandstudio.neon.stable.core.application.AppLoader
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -46,7 +46,7 @@ class RoleManager: IComponentInjector {
         override fun run() {
             roleManager.initialize()
 
-            AppLoader.registerEventProcessor(RoleManagerEvent())
+            NeonPluginLoader.registerEventProcessor(RoleManagerEvent())
         }
 
         override fun getCommandDispatcher(

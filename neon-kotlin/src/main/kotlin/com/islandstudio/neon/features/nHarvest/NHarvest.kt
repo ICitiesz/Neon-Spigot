@@ -1,10 +1,10 @@
 package com.islandstudio.neon.features.nHarvest
 
+import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.features.nDurable.NDurable
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.AppLoader
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -29,10 +29,10 @@ object NHarvest {
 
         fun run() {
             isEnabled = neonFeatureManager.getFeatureToggle(NeonFeatureConfigProperty.NHarvestConfigProperty.IsEnabled).also {
-                if (!it) return AppLoader.unregisterEventProcessor(EventProcessor())
+                if (!it) return NeonPluginLoader.unregisterEventProcessor(EventProcessor())
             }
 
-            AppLoader.registerEventProcessor(EventProcessor())
+            NeonPluginLoader.registerEventProcessor(EventProcessor())
         }
     }
 

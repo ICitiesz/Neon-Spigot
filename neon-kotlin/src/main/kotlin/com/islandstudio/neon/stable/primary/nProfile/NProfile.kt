@@ -2,8 +2,8 @@ package com.islandstudio.neon.stable.primary.nProfile
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
-import com.islandstudio.neon.stable.core.application.AppLoader
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -40,7 +40,7 @@ object NProfile {
          *
          */
         fun run() {
-            AppLoader.registerEventProcessor(EventProcessor())
+            NeonPluginLoader.registerEventProcessor(EventProcessor())
         }
 
         /**

@@ -1,11 +1,11 @@
 package com.islandstudio.neon.stable.core.event
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.features.nDurable.NDurable
 import com.islandstudio.neon.server.ServerGamePacketManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.AppLoader
 import com.islandstudio.neon.stable.features.nRank.NRank
 import com.islandstudio.neon.stable.features.nWaypoints.NWaypoints
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
@@ -41,8 +41,8 @@ class ServerConstantEvent: IComponentInjector {
 
     object Handler {
         fun run() {
-            AppLoader.registerEventProcessor(EventProcessor())
-            AppLoader.registerEventProcessor(NServerFeatures.EventProcessor())
+            NeonPluginLoader.registerEventProcessor(EventProcessor())
+            NeonPluginLoader.registerEventProcessor(NServerFeatures.EventProcessor())
         }
     }
 

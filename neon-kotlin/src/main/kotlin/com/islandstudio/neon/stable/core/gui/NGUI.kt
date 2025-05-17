@@ -1,6 +1,6 @@
 package com.islandstudio.neon.stable.core.gui
 
-import com.islandstudio.neon.stable.core.application.AppLoader
+import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.stable.core.gui.structure.GUIConstructor
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -15,7 +15,7 @@ object NGUI {
 
     object Handler {
         fun run() {
-            AppLoader.registerEventProcessor(EventProcessor())
+            NeonPluginLoader.registerEventProcessor(EventProcessor())
         }
     }
 
