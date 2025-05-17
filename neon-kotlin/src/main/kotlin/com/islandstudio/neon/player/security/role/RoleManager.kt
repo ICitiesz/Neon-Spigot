@@ -6,6 +6,7 @@ import com.islandstudio.neon.api.dto.action.ActionStatus
 import com.islandstudio.neon.api.dto.request.security.CreateRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.GetRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.RemoveRoleRequestDTO
+import com.islandstudio.neon.api.dto.request.security.role.UpdateRoleRequestDTO
 import com.islandstudio.neon.api.entity.security.RoleEntity
 import com.islandstudio.neon.command.CommandAlias
 import com.islandstudio.neon.command.CommandManager
@@ -26,6 +27,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerChatEvent
+import org.bukkit.event.server.ServerLoadEvent
 import org.bukkit.scoreboard.Scoreboard
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
@@ -71,7 +73,7 @@ class RoleManager: IComponentInjector {
                         val underscoreAsSpace: Boolean = when (argLength) {
                             4 -> false
                             5 -> {
-                                if (!RoleCommandOption.RoleCommandOptionArgument.UnderscoreAsSpace.matchOptionArgument(
+                                if (!RoleCommandOption.RoleCommandOptionArgument.CreateUnderscoreAsSpace.matchOptionArgument(
                                         commander,
                                         playerAccessibleCommand,
                                         args
@@ -159,6 +161,54 @@ class RoleManager: IComponentInjector {
                         }
                     }
 
+                    RoleCommandOption.Update -> {
+                        roleCommandAlias.onMatchOption(commander, args[2], playerAccessibleCommand) { nestedCommandOption ->
+                            when(nestedCommandOption) {
+                                RoleCommandOption.RoleCode -> {
+                                    if (!CommandAlias.validateCommandOptionArgLength(argLength, 5)) {
+                                        return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
+                                    }
+
+                                    val oldRoleCode = args[3].uppercase()
+                                    val newRoleCode = args[4].uppercase()
+
+                                    roleManager.updateRoleCode(commander, oldRoleCode, newRoleCode)
+                                }
+
+                                RoleCommandOption.RoleDisplayName -> {
+                                    if (!CommandAlias.validateCommandOptionArgLength(argLength, 5, 6)) {
+                                        return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
+                                    }
+
+                                    val roleCode = args[3].uppercase()
+                                    val newRoleDisplayName = args[4]
+
+                                    val underscoreAsSpace: Boolean = when (argLength) {
+                                        5 -> false
+                                        6 -> {
+                                            if (!RoleCommandOption.RoleCommandOptionArgument.UpdateUnderscoreAsSpace.matchOptionArgument(
+                                                    commander,
+                                                    playerAccessibleCommand,
+                                                    args
+                                                )
+                                            ) {
+                                                return@onMatchOption
+                                            }
+
+                                            true
+                                        }
+
+                                        else -> return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
+                                    }
+
+                                    roleManager.updateRoleDisplayName(commander, roleCode, newRoleDisplayName, underscoreAsSpace)
+                                }
+
+                                else -> return CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
+                            }
+                        }
+                    }
+
                     else -> CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                 }
             }
@@ -175,9 +225,9 @@ class RoleManager: IComponentInjector {
 
                     CommandAlias.getAccessibleCommandOptions(
                         commander,
-                        args[argIndex],
                         roleCommandAlias,
-                        playerAccessibleCommand
+                        playerAccessibleCommand,
+                        args[argIndex]
                     )
                 }
 
@@ -205,6 +255,14 @@ class RoleManager: IComponentInjector {
                                 playerSessionManager.getAllPlayerData().values, args[argIndex]
                             ) { it }
 
+                            RoleCommandOption.Update -> CommandAlias.getAccessibleCommandOptions(
+                                commander,
+                                roleCommandAlias,
+                                playerAccessibleCommand,
+                                args[argIndex],
+                                2
+                            )
+
                             else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
                     }
@@ -213,9 +271,33 @@ class RoleManager: IComponentInjector {
                 4 -> {
                     val argIndex = argLength - 1
 
-                    roleCommandAlias.onMatchOption(commander, args[1], playerAccessibleCommand) { roleCommandOption ->
-                        when (roleCommandOption) {
+                    roleCommandAlias.onMatchOption(commander, args[1], playerAccessibleCommand) { commandOption ->
+                        when (commandOption) {
                             RoleCommandOption.Assign -> CommandAlias.getTabCompleteSuggestion(
+                                roleManager.getAllRole(),
+                                args[argIndex]
+                            ) { roleEntities ->
+                                roleEntities
+                                    .filter { x -> !x.roleCode.isNullOrEmpty() }
+                                    .map { x -> x.roleCode!! }
+                            }
+
+                            else -> return@onMatchOption
+                        }
+                    }
+
+                    roleCommandAlias.onMatchOption(commander, args[2], playerAccessibleCommand) { commandOption ->
+                        when(commandOption) {
+                            RoleCommandOption.RoleCode -> CommandAlias.getTabCompleteSuggestion(
+                                roleManager.getAllRole(),
+                                args[argIndex]
+                            ) { roleEntities ->
+                                roleEntities
+                                    .filter { x -> !x.roleCode.isNullOrEmpty() }
+                                    .map { x -> x.roleCode!! }
+                            }
+
+                            RoleCommandOption.RoleDisplayName -> CommandAlias.getTabCompleteSuggestion(
                                 roleManager.getAllRole(),
                                 args[argIndex]
                             ) { roleEntities ->
@@ -232,20 +314,31 @@ class RoleManager: IComponentInjector {
                 5 -> {
                     val argIndex = argLength - 1
 
-                    roleCommandAlias.onMatchOption(
-                        commander,
-                        args[1],
-                        playerAccessibleCommand
-                    ) { roleCommandOption ->
-                        when (roleCommandOption) {
+                    roleCommandAlias.onMatchOption(commander, args[1], playerAccessibleCommand) { commandOption ->
+                        when(commandOption) {
                             RoleCommandOption.Create -> {
                                 CommandAlias.getAccessibleCommandOptionArgs(
                                     commander,
                                     args[argIndex],
-                                    roleCommandAlias,
+                                    commandOption,
                                     playerAccessibleCommand
                                 )
                             }
+
+                            else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
+                        }
+                    }
+                }
+
+                6 -> {
+                    roleCommandAlias.onMatchOption(commander, args[2], playerAccessibleCommand) { commandOption ->
+                        when(commandOption) {
+                            RoleCommandOption.RoleDisplayName -> CommandAlias.getAccessibleCommandOptionArgs(
+                                commander,
+                                args[argLength - 1],
+                                commandOption,
+                                playerAccessibleCommand
+                            )
 
                             else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
@@ -355,6 +448,96 @@ class RoleManager: IComponentInjector {
         }
     }
 
+    fun updateRoleCode(commander: CommandSender, oldRoleCode: String, newRoleCode: String) {
+        val role = getRole(commander, roleCode = oldRoleCode) ?: return
+
+        val request = UpdateRoleRequestDTO(role.roleId!!, newRoleCode.uppercase(), role.roleDisplayName!!)
+        var displayMessage: String? = null
+
+        roleAdapter.updateRole(CommandManager.getCommanderName(commander), request)
+            .onSuccess {
+                val playerEntries = roleScoreboard.getTeam(oldRoleCode)?.entries
+
+                it.result?.let { x ->
+                    if (!addRoleToScoreboard(x)) return@let
+
+                    val roleTeam = roleScoreboard.getTeam(x.roleCode!!)
+
+                    playerEntries?.let { entries ->
+                        entries.forEach { entry ->
+                            roleTeam?.addEntry(entry)
+                        }
+                    }
+                }
+
+                removeRoleFromScoreboard(oldRoleCode)
+
+                displayMessage = "${ChatColor.GREEN}The role has been updated!"
+            }
+            .onFailure {
+                displayMessage = "${ChatColor.RED}Error while trying to update role! Please try again later!"
+
+                neon.server.logger.severe("Error while trying to update role! Please try again later!")
+                throw it.neonException!!
+            }
+            .onOtherStatus {
+                displayMessage = when(it.status) {
+                    ActionStatus.ROLE_EXIST -> {
+                        "${ChatColor.YELLOW}The new role code '${ChatColor.WHITE}${newRoleCode.uppercase()}" +
+                                "${ChatColor.YELLOW}' already exists!"
+                    }
+
+                    ActionStatus.ROLE_NOT_EXIST -> {
+                        "${ChatColor.RED}The given role not exist"
+                    }
+
+                    else -> return@onOtherStatus
+                }
+            }
+
+        displayMessage?.let {
+            CommandSyntaxHandler.sendCommandSyntax(commander, it)
+        }
+    }
+
+    fun updateRoleDisplayName(commander: CommandSender, roleCode: String, newRoleDisplayName: String, underscoreAsSpace: Boolean = false) {
+        val role = getRole(commander, roleCode = roleCode) ?: return
+
+        val updatedRoleDisplayName = if (underscoreAsSpace) newRoleDisplayName.replace('_', ' ') else newRoleDisplayName
+        val request = UpdateRoleRequestDTO(role.roleId!!, null, updatedRoleDisplayName)
+        var displayMessage: String? = null
+
+        roleAdapter.updateRole(CommandManager.getCommanderName(commander), request)
+            .onSuccess {
+                it.result?.let {
+                    roleScoreboard.getTeam(roleCode)?.let { roleTeam ->
+                        roleTeam.prefix = "${TextUtil.toColorText(it.roleDisplayName!!)} "
+                    }
+                }
+
+                displayMessage = "${ChatColor.GREEN}The role has been updated!"
+            }
+            .onFailure {
+                displayMessage = "${ChatColor.RED}Error while trying to update role! Please try again later!"
+
+                neon.server.logger.severe("Error while trying to update role! Please try again later!")
+                throw it.neonException!!
+            }
+            .onOtherStatus {
+                displayMessage = when(it.status) {
+                    ActionStatus.ROLE_NOT_EXIST -> {
+                        "${ChatColor.RED}The given role not exist"
+                    }
+
+                    else -> return@onOtherStatus
+                }
+            }
+
+        displayMessage?.let {
+            CommandSyntaxHandler.sendCommandSyntax(commander, it)
+        }
+    }
+
     /**
      * Remove role
      *
@@ -449,9 +632,8 @@ class RoleManager: IComponentInjector {
         return roleList
     }
 
-    fun attachRoleTagToChat(player: Player, chatMsg: String = ""): String {
+    fun attachRoleTagToChat(player: Player): String {
         var chatMsgPrefix = "${ChatColor.WHITE}${player.name} > ${ChatColor.WHITE}%2\$s"
-
 
         val playerSession = playerSessionManager.getPlayerSession(player) ?: return chatMsgPrefix
         val playerRole = getRole(null, playerSession.roleId) ?: return chatMsgPrefix
@@ -464,11 +646,21 @@ class RoleManager: IComponentInjector {
     }
 
     private class RoleManagerEvent: Listener, IComponentInjector {
+        private val neon by inject<Neon>()
         private val roleManager by inject<RoleManager>()
 
         @EventHandler
         private fun onPlayerChat(e: AsyncPlayerChatEvent) {
             e.format = roleManager.attachRoleTagToChat(e.player)
+        }
+
+        @EventHandler
+        private fun onServerLoad(e: ServerLoadEvent) {
+            if (e.type != ServerLoadEvent.LoadType.RELOAD) return
+
+            neon.server.onlinePlayers.forEach {
+                roleManager.addRoleTag(it)
+            }
         }
     }
 }

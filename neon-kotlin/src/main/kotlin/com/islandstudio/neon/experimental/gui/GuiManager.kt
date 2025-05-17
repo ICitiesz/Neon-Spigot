@@ -1,5 +1,6 @@
 package com.islandstudio.neon.experimental.gui
 
+import com.islandstudio.neon.Neon
 import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.player.session.PlayerSessionManager
@@ -7,17 +8,22 @@ import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.stable.core.application.AppLoader
+import com.islandstudio.neon.util.ServerUtil
 import org.bukkit.entity.Player
+import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.player.PlayerCommandPreprocessEvent
+import org.bukkit.event.server.ServerCommandEvent
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 import kotlin.reflect.KClass
 
 @Single
 class GuiManager: IComponentInjector {
+    private val neon by inject<Neon>()
     private val guiSessions: HashSet<GuiSession<*>> = hashSetOf()
     private val playerSessionManager by inject<PlayerSessionManager>()
 
@@ -59,6 +65,14 @@ class GuiManager: IComponentInjector {
         }
     }
 
+    private fun forceCloseAllPlayerInventory(commandEvent: Event) {
+        ServerUtil.onServerReload(commandEvent) {
+            neon.server.onlinePlayers.forEach {
+                it.closeInventory()
+            }
+        }
+    }
+
     private class EventProcessor: Listener, IComponentInjector {
         private val guiManager by inject<GuiManager>()
 
@@ -93,6 +107,16 @@ class GuiManager: IComponentInjector {
         @EventHandler
         private fun onInventoryClose(e: InventoryCloseEvent) {
             guiManager.discardGuiSession(e)
+        }
+
+        @EventHandler
+        private fun onServerCommandExecute(e: ServerCommandEvent) {
+            guiManager.forceCloseAllPlayerInventory(e)
+        }
+
+        @EventHandler
+        private fun onPlayerCommandPreExecute(e: PlayerCommandPreprocessEvent) {
+            guiManager.forceCloseAllPlayerInventory(e)
         }
     }
 }

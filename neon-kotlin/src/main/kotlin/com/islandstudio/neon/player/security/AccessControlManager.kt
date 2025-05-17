@@ -194,9 +194,9 @@ class AccessControlManager: IComponentInjector {
                 argLength == 2 -> {
                     CommandAlias.getAccessibleCommandOptions(
                         commander,
-                        args[argLength - 1],
                         permissionCommandAlias,
-                        playerAccessibleCommand
+                        playerAccessibleCommand,
+                        args[argLength - 1]
                     )
                 }
 

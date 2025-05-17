@@ -6,6 +6,7 @@ import com.islandstudio.neon.api.dto.action.IActionResult
 import com.islandstudio.neon.api.dto.request.security.CreateRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.GetRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.RemoveRoleRequestDTO
+import com.islandstudio.neon.api.dto.request.security.role.UpdateRoleRequestDTO
 import com.islandstudio.neon.api.dto.response.security.RoleListResponseDTO
 import com.islandstudio.neon.api.entity.security.RoleEntity
 import com.islandstudio.neon.api.service.security.IRoleService
@@ -19,6 +20,17 @@ class RoleAdapter: IComponentInjector {
 
     fun createRole(invoker: String?, request: CreateRoleRequestDTO): IActionResult<RoleEntity?> {
         return roleService.createRole(invoker, request)
+    }
+
+    fun updateRole(invoker: String?, request: UpdateRoleRequestDTO): IActionResult<RoleEntity?> {
+        return when {
+            !request.roleCode.isNullOrEmpty() -> roleService.updateRoleCode(invoker, request)
+
+            !request.roleDisplayName.isNullOrEmpty() -> roleService.updateRoleDisplayName(invoker, request)
+
+            else -> ActionResult<RoleEntity?>()
+                .withStatus(ActionStatus.INVALID_REQUEST_FIELD)
+        }
     }
 
     fun getRole(request: GetRoleRequestDTO): IActionResult<RoleEntity?> {

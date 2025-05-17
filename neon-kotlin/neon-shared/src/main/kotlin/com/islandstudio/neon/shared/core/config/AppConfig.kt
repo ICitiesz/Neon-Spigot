@@ -54,13 +54,11 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
     * */
 
     init {
+        @Suppress("UNCHECKED_CAST")
         initialize().apply {
             mainConfigObject = this as T
             updateConfigNodeProperties(getConfigNodeProperties(parseToTomFile(encodeToString(this as T))))
-
-            @Suppress("UNCHECKED_CAST")
-            configWrapper.initConfigObject(this as T)
-            test(encodeToString(this))
+            configWrapper.initConfigObject(this)
         }
     }
 
@@ -108,11 +106,6 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
                 it.objectInstance as U
             }
             .toCollection(ArrayList())
-    }
-
-    fun test(data: String) {
-        //updateConfigNode("nBundle.options", "bundleMaxBuy", 64)
-
     }
 
     fun saveConfig() {

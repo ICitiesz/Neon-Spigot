@@ -108,31 +108,46 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
             }
         }
 
-        fun getAccessibleCommandOptions(commander: CommandSender, argValue: String, commandAlias: CommandAlias<*>, playerAccessibleCommand: AccessibleCommand?): MutableList<String> {
+        fun getAccessibleCommandOptions(commander: CommandSender, commandAlias: CommandAlias<*>, playerAccessibleCommand: AccessibleCommand?, argValue: String, commandOptionIndex: Int = 1): MutableList<String> {
            return if (commander is Player) {
-                playerAccessibleCommand?.accessibleCommandOptions
-                    ?.map { x -> x.commandOption }
-                    ?.filter { x -> x.startsWith(argValue, true) }
-                    ?.toMutableList() ?: mutableListOf()
+               playerAccessibleCommand?.let {
+                   val accessibleCommandOption = it.accessibleCommandOptions.map { x -> x.commandOption }
+
+                   commandAlias.commandOptions
+                       .filter { x -> x.optionIndex == commandOptionIndex }
+                       .filter { x -> x.option in accessibleCommandOption }
+                       .filter { x -> x.option.startsWith(argValue, true) }
+                       .map { x -> x.option }
+                       .toMutableList()
+               } ?: mutableListOf()
            } else {
                commandAlias.commandOptions
+                   .filter { x -> x.optionIndex == commandOptionIndex }
+                   .filter { x -> x.option.startsWith(argValue, true) }
                    .map { x -> x.option }
-                   .filter { x -> x.startsWith(argValue, true) }
                    .toMutableList()
            }
         }
 
-        fun getAccessibleCommandOptionArgs(commander: CommandSender, argValue: String, commandAlias: CommandAlias<*>, playerAccessibleCommand: AccessibleCommand?): MutableList<String> {
+        fun getAccessibleCommandOptionArgs(commander: CommandSender, argValue: String, commandOption: AbstractCommandOption<*>, playerAccessibleCommand: AccessibleCommand?): MutableList<String> {
             return if (commander is Player) {
-                playerAccessibleCommand?.accessibleCommandOptions
-                    ?.flatMap { x -> x.accessibleCommandOptionArgs }
-                    ?.filter { x -> x.startsWith(argValue, true) }
-                    ?.toMutableList() ?: mutableListOf()
+                playerAccessibleCommand?.let {
+                    if (!it.command.equals(commandOption.commandAlias.alias, true)) return mutableListOf()
+
+                    val accessibleCommandOption = it.accessibleCommandOptions.find { x ->
+                        x.commandOption.equals(commandOption.option, true)
+                    } ?: return mutableListOf()
+
+                    commandOption.optionArguments
+                        .filter { x -> x.optionArg in accessibleCommandOption.accessibleCommandOptionArgs }
+                        .filter { x -> x.optionArg.startsWith(argValue, true) }
+                        .map { x -> x.optionArg }
+                        .toMutableList()
+                } ?: mutableListOf()
             } else {
-                commandAlias.commandOptions
-                    .flatMap { x -> x.optionArguments }
+                commandOption.optionArguments
+                    .filter { x -> x.optionArg.startsWith(argValue, true) }
                     .map { x -> x.optionArg}
-                    .filter { x -> x.startsWith(argValue, true) }
                     .toMutableList()
             }
         }

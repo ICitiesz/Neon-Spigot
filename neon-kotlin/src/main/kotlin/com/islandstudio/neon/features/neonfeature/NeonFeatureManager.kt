@@ -241,9 +241,9 @@ class NeonFeatureManager {
                 2 -> {
                     CommandAlias.getAccessibleCommandOptions(
                         commander,
-                        args[argLength - 1],
                         neonFeatureCommandAlias,
-                        playerAccessibleCommand
+                        playerAccessibleCommand,
+                        args[argLength - 1]
                     )
                 }
 

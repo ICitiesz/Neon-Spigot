@@ -4,11 +4,16 @@ import com.islandstudio.neon.api.dto.action.IActionResult
 import com.islandstudio.neon.api.dto.request.security.CreateRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.GetRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.RemoveRoleRequestDTO
+import com.islandstudio.neon.api.dto.request.security.role.UpdateRoleRequestDTO
 import com.islandstudio.neon.api.dto.response.security.RoleListResponseDTO
 import com.islandstudio.neon.api.entity.security.RoleEntity
 
 interface IRoleService {
     fun createRole(invoker: String?, request: CreateRoleRequestDTO): IActionResult<RoleEntity?>
+
+    fun updateRoleCode(invoker: String?, request: UpdateRoleRequestDTO): IActionResult<RoleEntity?>
+
+    fun updateRoleDisplayName(invoker: String?, request: UpdateRoleRequestDTO): IActionResult<RoleEntity?>
 
     fun getRoleById(request: GetRoleRequestDTO): IActionResult<RoleEntity?>
 

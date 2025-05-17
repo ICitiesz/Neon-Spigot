@@ -6,6 +6,7 @@ import com.islandstudio.neon.api.dto.action.IActionResult
 import com.islandstudio.neon.api.dto.request.security.CreateRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.GetRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.role.RemoveRoleRequestDTO
+import com.islandstudio.neon.api.dto.request.security.role.UpdateRoleRequestDTO
 import com.islandstudio.neon.api.dto.response.security.RoleListResponseDTO
 import com.islandstudio.neon.api.entity.security.RoleEntity
 import com.islandstudio.neon.api.repository.security.IRoleRepository
@@ -35,6 +36,59 @@ class RoleService: IRoleService, IComponentInjector {
             ).updateCreatedModified(invoker)
 
             roleRepository.addRole(role).run {
+                return actionResult
+                    .withSuccessStatus()
+                    .withResult(this)
+            }
+        }.getOrElse {
+            return actionResult
+                .withFailureStatus()
+                .withNeonException(NeonAPIException(it.message, it))
+        }
+    }
+
+    override fun updateRoleCode(
+        invoker: String?,
+        request: UpdateRoleRequestDTO,
+    ): IActionResult<RoleEntity?> {
+        val actionResult = ActionResult<RoleEntity?>()
+
+        runCatching {
+            val role = roleRepository.getById(request.roleId)?.apply {
+                if (roleRepository.existByRoleCode(request.roleCode!!)) {
+                    return actionResult
+                        .withStatus(ActionStatus.ROLE_EXIST)
+                }
+
+                this.roleCode = request.roleCode
+            } ?: return actionResult
+                    .withStatus(ActionStatus.ROLE_NOT_EXIST)
+
+            roleRepository.updateRole(role.updateModified(invoker)).run {
+                return actionResult
+                    .withSuccessStatus()
+                    .withResult(this)
+            }
+        }.getOrElse {
+            return actionResult
+                .withFailureStatus()
+                .withNeonException(NeonAPIException(it.message, it))
+        }
+    }
+
+    override fun updateRoleDisplayName(
+        invoker: String?,
+        request: UpdateRoleRequestDTO,
+    ): IActionResult<RoleEntity?> {
+        val actionResult = ActionResult<RoleEntity?>()
+
+        runCatching {
+            val role = roleRepository.getById(request.roleId)?.apply {
+                this.roleDisplayName = request.roleDisplayName
+            } ?: return actionResult
+                .withStatus(ActionStatus.ROLE_NOT_EXIST)
+
+            roleRepository.updateRole(role.updateModified(invoker)).run {
                 return actionResult
                     .withSuccessStatus()
                     .withResult(this)
