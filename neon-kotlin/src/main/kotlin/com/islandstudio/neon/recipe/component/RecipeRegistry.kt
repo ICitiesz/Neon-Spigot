@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.recipe.component
+package com.islandstudio.neon.recipe.component
 
 interface RecipeRegistry {
     /**

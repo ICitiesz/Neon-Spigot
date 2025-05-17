@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.recipe
+package com.islandstudio.neon.recipe
 
 import org.bukkit.Material
 

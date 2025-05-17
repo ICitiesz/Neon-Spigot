@@ -1,7 +1,7 @@
-package com.islandstudio.neon.stable.core.recipe.component
+package com.islandstudio.neon.recipe.component
 
 import com.islandstudio.neon.core.datakey.AbstractDataKey
-import com.islandstudio.neon.stable.core.recipe.NMaterial
+import com.islandstudio.neon.recipe.NMaterial
 import kotlin.reflect.KClass
 
 abstract class AbstractRecipeHolder(keyName: String): AbstractDataKey(keyName) {

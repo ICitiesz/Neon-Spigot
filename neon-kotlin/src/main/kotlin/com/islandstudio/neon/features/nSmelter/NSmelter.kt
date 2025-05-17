@@ -2,10 +2,10 @@ package com.islandstudio.neon.features.nSmelter
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
+import com.islandstudio.neon.recipe.NSmelterRecipe
+import com.islandstudio.neon.recipe.component.RecipeRegistry
 import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.recipe.NSmelterRecipe
-import com.islandstudio.neon.stable.core.recipe.component.RecipeRegistry
 import org.bukkit.inventory.BlastingRecipe
 import org.bukkit.inventory.FurnaceRecipe
 import org.bukkit.inventory.ItemStack

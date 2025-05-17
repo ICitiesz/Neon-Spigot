@@ -1,6 +1,6 @@
-package com.islandstudio.neon.stable.core.recipe
+package com.islandstudio.neon.recipe
 
-import com.islandstudio.neon.stable.core.recipe.component.AbstractRecipeHolder
+import com.islandstudio.neon.recipe.component.AbstractRecipeHolder
 
 sealed class NSmelterRecipe(keyName: String): AbstractRecipeHolder(keyName) {
     companion object : RecipeHolderHandler<NSmelterRecipe>(NSmelterRecipe::class);
