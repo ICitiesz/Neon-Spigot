@@ -1,11 +1,13 @@
 package com.islandstudio.neon.stable.core.application
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.core.initialization.LoadStage
+import com.islandstudio.neon.core.initialization.NeonPluginClasses
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.io.resource.NeonExtensions
 import com.islandstudio.neon.shared.core.io.resource.ResourceManager
-import com.islandstudio.neon.stable.common.ColorPalette
+import com.islandstudio.neon.util.ColorUtil
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import org.bukkit.event.HandlerList
@@ -19,7 +21,7 @@ class AppLoader: IComponentInjector {
         private val neon by inject<Neon>()
         private val appContext by inject<AppContext>()
 
-        private val neonVersionText = "${ColorPalette.CyanBlue.color}${ColorPalette.Bold.color}v${neon.description.version}${ColorPalette.Reset.color}"
+        private val neonVersionText = "${ColorUtil.CyanBlue.color}${ColorUtil.Bold.color}v${neon.description.version}${ColorUtil.Reset.color}"
         /*
         *        _____                                                      _____
                 {_____}                                                    {_____}
@@ -42,39 +44,39 @@ class AppLoader: IComponentInjector {
         * */
 
         val NEON_ON_ENABLED_TITLE = "\n" + """
-                 ${ColorPalette.Yellow.color}_____                                                                _____ 
-                ${ColorPalette.Yellow.color}{_____}                                                              {_____}
-                 ${ColorPalette.Purple.color}| ~ |${ColorPalette.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorPalette.Purple.color}| ~ | 
-                 ${ColorPalette.Purple.color}| ~ |  ${ColorPalette.LightGreen.color}+==========================================================+  ${ColorPalette.Purple.color}| ~ | 
-                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░███    ░██ ░███████    ░███    ░███    ░██           ${ColorPalette.Purple.color}| ~ | 
-                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░████   ░██ ░██       ░██  ░██  ░████   ░██           ${ColorPalette.Purple.color}| ~ |
-                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░██ ░██ ░██ ░██████  ░██    ░██ ░██ ░██ ░██           ${ColorPalette.Purple.color}| ~ | 
-                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░██   ░████ ░██       ░██  ░██  ░██   ░████           ${ColorPalette.Purple.color}| ~ |
-                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░██    ░███ ░███████    ░███    ░██    ░███           ${ColorPalette.Purple.color}| ~ | 
-                 ${ColorPalette.Purple.color}| ~ |  ${ColorPalette.LightGreen.color}+==========================================================+  ${ColorPalette.Purple.color}| ~ |
-                 ${ColorPalette.Purple.color}|___|${ColorPalette.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorPalette.Purple.color}|___| 
-                ${ColorPalette.Yellow.color}{_____}${ColorPalette.Reset.color}                  ()                     ()                   ${ColorPalette.Yellow.color}{_____}${ColorPalette.Reset.color}
+                 ${ColorUtil.Yellow.color}_____                                                                _____ 
+                ${ColorUtil.Yellow.color}{_____}                                                              {_____}
+                 ${ColorUtil.Purple.color}| ~ |${ColorUtil.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorUtil.Purple.color}| ~ | 
+                 ${ColorUtil.Purple.color}| ~ |  ${ColorUtil.LightGreen.color}+==========================================================+  ${ColorUtil.Purple.color}| ~ | 
+                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░███    ░██ ░███████    ░███    ░███    ░██           ${ColorUtil.Purple.color}| ~ | 
+                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░████   ░██ ░██       ░██  ░██  ░████   ░██           ${ColorUtil.Purple.color}| ~ |
+                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░██ ░██ ░██ ░██████  ░██    ░██ ░██ ░██ ░██           ${ColorUtil.Purple.color}| ~ | 
+                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░██   ░████ ░██       ░██  ░██  ░██   ░████           ${ColorUtil.Purple.color}| ~ |
+                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░██    ░███ ░███████    ░███    ░██    ░███           ${ColorUtil.Purple.color}| ~ | 
+                 ${ColorUtil.Purple.color}| ~ |  ${ColorUtil.LightGreen.color}+==========================================================+  ${ColorUtil.Purple.color}| ~ |
+                 ${ColorUtil.Purple.color}|___|${ColorUtil.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorUtil.Purple.color}|___| 
+                ${ColorUtil.Yellow.color}{_____}${ColorUtil.Reset.color}                  ()                     ()                   ${ColorUtil.Yellow.color}{_____}${ColorUtil.Reset.color}
                                          ++=====================++
-                                         ||     ~ ${ColorPalette.Green.color}${ColorPalette.Bold.color}STARTED${ColorPalette.Reset.color} ~     ||
+                                         ||     ~ ${ColorUtil.Green.color}${ColorUtil.Bold.color}STARTED${ColorUtil.Reset.color} ~     ||
                                          ||   ~ $neonVersionText ~   ||
                                          ++=====================++
         """.trimIndent() + "\n"
 
         val NEON_ON_DISABLED_TITLE = "\n" + """
-                 ${ColorPalette.Yellow.color}_____                                                                _____ 
-                ${ColorPalette.Yellow.color}{_____}                                                              {_____}
-                 ${ColorPalette.Purple.color}| ~ |${ColorPalette.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorPalette.Purple.color}| ~ | 
-                 ${ColorPalette.Purple.color}| ~ |  ${ColorPalette.LightGreen.color}+==========================================================+  ${ColorPalette.Purple.color}| ~ | 
-                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░███    ░██ ░███████    ░███    ░███    ░██           ${ColorPalette.Purple.color}| ~ | 
-                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░████   ░██ ░██       ░██  ░██  ░████   ░██           ${ColorPalette.Purple.color}| ~ |
-                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░██ ░██ ░██ ░██████  ░██    ░██ ░██ ░██ ░██           ${ColorPalette.Purple.color}| ~ | 
-                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░██   ░████ ░██       ░██  ░██  ░██   ░████           ${ColorPalette.Purple.color}| ~ |
-                 ${ColorPalette.Purple.color}| ~ |          ${ColorPalette.CyanBlue.color}░██    ░███ ░███████    ░███    ░██    ░███           ${ColorPalette.Purple.color}| ~ | 
-                 ${ColorPalette.Purple.color}| ~ |  ${ColorPalette.LightGreen.color}+==========================================================+  ${ColorPalette.Purple.color}| ~ |
-                 ${ColorPalette.Purple.color}|___|${ColorPalette.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorPalette.Purple.color}|___| 
-                ${ColorPalette.Yellow.color}{_____}${ColorPalette.Reset.color}                  ()                     ()                   ${ColorPalette.Yellow.color}{_____}${ColorPalette.Reset.color}
+                 ${ColorUtil.Yellow.color}_____                                                                _____ 
+                ${ColorUtil.Yellow.color}{_____}                                                              {_____}
+                 ${ColorUtil.Purple.color}| ~ |${ColorUtil.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorUtil.Purple.color}| ~ | 
+                 ${ColorUtil.Purple.color}| ~ |  ${ColorUtil.LightGreen.color}+==========================================================+  ${ColorUtil.Purple.color}| ~ | 
+                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░███    ░██ ░███████    ░███    ░███    ░██           ${ColorUtil.Purple.color}| ~ | 
+                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░████   ░██ ░██       ░██  ░██  ░████   ░██           ${ColorUtil.Purple.color}| ~ |
+                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░██ ░██ ░██ ░██████  ░██    ░██ ░██ ░██ ░██           ${ColorUtil.Purple.color}| ~ | 
+                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░██   ░████ ░██       ░██  ░██  ░██   ░████           ${ColorUtil.Purple.color}| ~ |
+                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░██    ░███ ░███████    ░███    ░██    ░███           ${ColorUtil.Purple.color}| ~ | 
+                 ${ColorUtil.Purple.color}| ~ |  ${ColorUtil.LightGreen.color}+==========================================================+  ${ColorUtil.Purple.color}| ~ |
+                 ${ColorUtil.Purple.color}|___|${ColorUtil.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorUtil.Purple.color}|___| 
+                ${ColorUtil.Yellow.color}{_____}${ColorUtil.Reset.color}                  ()                     ()                   ${ColorUtil.Yellow.color}{_____}${ColorUtil.Reset.color}
                                          ++=====================++
-                                         ||     ~ ${ColorPalette.Red.color}${ColorPalette.Bold.color}DISABLED${ColorPalette.Reset.color} ~    ||
+                                         ||     ~ ${ColorUtil.Red.color}${ColorUtil.Bold.color}DISABLED${ColorUtil.Reset.color} ~    ||
                                          ||   ~ $neonVersionText ~   ||
                                          ++=====================++
         """.trimIndent() + "\n"
@@ -150,13 +152,15 @@ class AppLoader: IComponentInjector {
 //                    delay(200)
 //                }.await()
 
-                return@async
-
-                val preLoadAppClasses = AppClasses.getPreLoadClasses()
+                val preLoadAppClasses = NeonPluginClasses.getPreLoadClasses()
+                    .filter { it in arrayListOf(
+                        NeonPluginClasses.NmsProcessorClass, NeonPluginClasses.DataKeyManagerClass,
+                        NeonPluginClasses.AccessControlManagerClass, NeonPluginClasses.NeonFeatureManagerClass
+                    , NeonPluginClasses.NItemGlinterClass, NeonPluginClasses.NeonKeyClass) }
 
                 preLoadAppClasses.forEach { appClazz ->
                     runCatching {
-                        AppClasses.invokeFunction(appClazz).apply {
+                        NeonPluginClasses.invokeFunction(appClazz).apply {
                             if (!this) return@runCatching
                         }
                     }.onFailure {
@@ -167,7 +171,7 @@ class AppLoader: IComponentInjector {
                     }
                 }
             }.asCompletableFuture().join().also {
-                neon.logger.info("${ColorPalette.Green.color}${appContext.getCodeMessage("neon.info.pre_load.complete")}")
+                neon.logger.info("${ColorUtil.Green.color}${appContext.getCodeMessage("neon.info.pre_load.complete")}")
                 return true
             }
         }
@@ -187,13 +191,18 @@ class AppLoader: IComponentInjector {
         appContext.ensureVersionCompatible() // Version check
 
         val jobContext = newSingleThreadContext("Neon App Loader (Post-load Stage)")
-        val postLoadAppClasses = AppClasses.getPostLoadClasses()
+        val postLoadAppClasses = NeonPluginClasses.getPostLoadClasses().filter {
+            it in arrayListOf(
+                NeonPluginClasses.PlayerSessionManagerClass, NeonPluginClasses.CommandManagerClass, NeonPluginClasses.NCutterClass,
+                NeonPluginClasses.AccessControlManagerClass, NeonPluginClasses.GuiManagerClass, NeonPluginClasses.NBundleClass,
+                NeonPluginClasses.NDurableClass, NeonPluginClasses.RoleManagerClass)
+        }
 
         jobContext.use { dispatcher ->
             postLoadAppClasses.forEach { appClazz ->
-                if (appClazz.isSynchronous) {
+                if (appClazz.canAsync) {
                     runCatching {
-                        AppClasses.invokeFunction(appClazz).apply {
+                        NeonPluginClasses.invokeFunction(appClazz).apply {
                             if (!this) return@runCatching
                         }
                     }.onFailure {
@@ -207,7 +216,7 @@ class AppLoader: IComponentInjector {
 
                 CoroutineScope(dispatcher).async {
                     runCatching {
-                        AppClasses.invokeFunction(appClazz).apply {
+                        NeonPluginClasses.invokeFunction(appClazz).apply {
                             if (!this) return@runCatching
                         }
                     }.onFailure {
@@ -229,7 +238,7 @@ class AppLoader: IComponentInjector {
     fun reInit() {
         val jobContext = newSingleThreadContext("Neon Initializer (Re-staging)")
 
-        AppClasses.entries
+        NeonPluginClasses.entries
             .filter { it.isConfigReloadable && it.loadStage == LoadStage.PostLoad }
             .forEach { appClassDetail ->
                 val clazz = appClassDetail.clazz
@@ -249,7 +258,7 @@ class AppLoader: IComponentInjector {
                     }
                 }
 
-                if (appClassDetail.isSynchronous) {
+                if (appClassDetail.canAsync) {
                     runCatching {
                         when {
                             (className.contains("Companion")) -> {
