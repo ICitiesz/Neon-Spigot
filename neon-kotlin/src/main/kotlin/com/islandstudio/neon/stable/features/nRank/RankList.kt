@@ -2,6 +2,7 @@ package com.islandstudio.neon.stable.features.nRank
 
 import org.bukkit.ChatColor
 
+@Deprecated("Reworked to RoleManager")
 enum class RankList(val tagPrefix: String) {
     OWNER(ChatColor.AQUA.toString() + "" + ChatColor.BOLD + "[" + ChatColor.GOLD + "" + ChatColor.BOLD + "OWNER" + ChatColor.AQUA + "" + ChatColor.BOLD + "] "),
     VIP_PLUS(ChatColor.WHITE.toString() + "" + ChatColor.BOLD + "[" + ChatColor.GOLD + "" + ChatColor.BOLD + "VIP" + ChatColor.GREEN + "+" + ChatColor.WHITE + "" + ChatColor.BOLD + "] "),

@@ -1,6 +1,7 @@
 package com.islandstudio.neon.core.initialization
 
 import com.islandstudio.neon.command.CommandManager
+import com.islandstudio.neon.core.datakey.DataKeyManager
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.experimental.gui.GuiManager
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
@@ -13,8 +14,8 @@ import com.islandstudio.neon.features.nHarvest.NHarvest
 import com.islandstudio.neon.features.nSmelter.NSmelter
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.player.security.AccessControlManager
+import com.islandstudio.neon.player.security.role.RoleManager
 import com.islandstudio.neon.player.session.PlayerSessionManager
-import com.islandstudio.neon.stable.core.application.datakey.DataKeyManager
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.event.ServerConstantEvent
 import com.islandstudio.neon.stable.features.nRank.NRank
@@ -31,15 +32,15 @@ enum class NeonPluginClasses(
      * If the run() method is in the nested class, the nClassName should include the nested class name
      * E.g: NDurable.Handler.run() | nClassName: NDurable.Handler
      */
-    val canAsync: Boolean, // TODO: Need change to canAsync
+    val canAsync: Boolean, // Commit b5b6607 - Previously is `isSynchronous`, if change to `canAsync`, those data previously was true should be false now
     val isConfigReloadable: Boolean
 ) {
     /* #################################### Pre-init Classes #################################### */
     NmsProcessorClass(
         NmsProcessor.Companion::class.java,
         LoadStage.PreLoad,
-        canAsync = false,
-        isConfigReloadable = false
+        false,
+        false
     ),
 
     DataKeyManagerClass(
@@ -138,6 +139,13 @@ enum class NeonPluginClasses(
         GuiManager.Companion::class.java,
         LoadStage.PostLoad,
         false,
+        false
+    ),
+
+    RoleManagerClass(
+        RoleManager.Companion::class.java,
+        LoadStage.PostLoad,
+        true,
         false
     ),
 

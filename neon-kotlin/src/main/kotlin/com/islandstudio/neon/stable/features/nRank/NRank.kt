@@ -16,6 +16,7 @@ import org.bukkit.scoreboard.Scoreboard
 import org.bukkit.scoreboard.Team
 import java.util.*
 
+@Deprecated("Reworked to RoleManager")
 object NRank {
     private val plugin: Plugin = getPlugin(Neon::class.java)
     private val scoreboard: Scoreboard = plugin.server.scoreboardManager!!.newScoreboard
