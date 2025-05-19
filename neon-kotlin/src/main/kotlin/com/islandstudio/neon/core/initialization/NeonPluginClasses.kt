@@ -4,25 +4,17 @@ import com.islandstudio.neon.command.CommandManager
 import com.islandstudio.neon.core.datakey.DataKeyManager
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.experimental.gui.GuiManager
-import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPVP.NPVP
-import com.islandstudio.neon.experimental.nPainting.NPainting
 import com.islandstudio.neon.features.nBundle.NBundle
 import com.islandstudio.neon.features.nCutter.NCutter
 import com.islandstudio.neon.features.nDurable.NDurable
 import com.islandstudio.neon.features.nHarvest.NHarvest
 import com.islandstudio.neon.features.nSmelter.NSmelter
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
+import com.islandstudio.neon.item.EnchantmentManager
 import com.islandstudio.neon.player.security.AccessControlManager
 import com.islandstudio.neon.player.security.role.RoleManager
 import com.islandstudio.neon.player.session.PlayerSessionManager
-import com.islandstudio.neon.stable.core.application.identity.NeonKey
-import com.islandstudio.neon.stable.core.event.ServerConstantEvent
-import com.islandstudio.neon.stable.features.nRank.NRank
-import com.islandstudio.neon.stable.features.nWaypoints.NWaypoints
-import com.islandstudio.neon.stable.item.NItemGlinter
-import com.islandstudio.neon.stable.player.NPlayerProfile
-import com.islandstudio.neon.stable.primary.nProfile.NProfile
 import java.lang.reflect.Method
 
 enum class NeonPluginClasses(
@@ -39,23 +31,23 @@ enum class NeonPluginClasses(
     NmsProcessorClass(
         NmsProcessor.Companion::class.java,
         LoadStage.PreLoad,
-        false,
+        true,
         false
     ),
 
     DataKeyManagerClass(
       DataKeyManager.Companion::class.java,
         LoadStage.PreLoad,
-        false,
+        true,
         false
     ),
 
-    NeonKeyClass(
-        NeonKey.Handler::class.java,
-        LoadStage.PreLoad,
-        canAsync = false,
-        isConfigReloadable =  false
-    ),
+//    NeonKeyClass(
+//        NeonKey.Handler::class.java,
+//        LoadStage.PreLoad,
+//        true,
+//        false
+//    ),
 
 //    DatabaseCacheManagerClass(
 //        DatabaseCacheManager.Handler::class.java,
@@ -67,52 +59,59 @@ enum class NeonPluginClasses(
     AccessControlManagerClass(
       AccessControlManager.Companion::class.java,
         LoadStage.PostLoad,
-        false,
+        true,
         false
     ),
 
     NeonFeatureManagerClass(
         NeonFeatureManager.Companion::class.java,
         LoadStage.PreLoad,
-        false,
+        true,
         false
     ),
 
-    NItemGlinterClass(
-        NItemGlinter.Handler::class.java,
+    EnchantmentManagerClass(
+        EnchantmentManager.Companion::class.java,
         LoadStage.PreLoad,
-        false,
+        true,
         false
     ),
+
+//    NItemGlinterClass(
+//        NItemGlinter.Handler::class.java,
+//        LoadStage.PreLoad,
+//        true,
+//        false
+//    ),
 
     /* #################################### Post-init Classes #################################### */
     PlayerSessionManagerClass(
         PlayerSessionManager.Companion::class.java,
         LoadStage.PostLoad,
-        false,
+        true,
         false
     ),
 
-    NProfileClass(
-        NProfile.Handler::class.java,
-        LoadStage.PostLoad,
-        false,
-        false
-    ),
+//    NProfileClass(
+//        NProfile.Handler::class.java,
+//        LoadStage.PostLoad,
+//        true,
+//        false
+//    ),
 
-    NPlayerProfileClass(
-        NPlayerProfile.Handler::class.java,
-        LoadStage.PostLoad,
-        false,
-        false
-    ),
+//    NPlayerProfileClass(
+//        NPlayerProfile.Handler::class.java,
+//        LoadStage.PostLoad,
+//        true,
+//        false
+//    ),
 
-    ServerConstantEventClass(
-        ServerConstantEvent.Handler::class.java,
-        LoadStage.PostLoad,
-        false,
-        false
-    ),
+//    ServerConstantEventClass(
+//        ServerConstantEvent.Handler::class.java,
+//        LoadStage.PostLoad,
+//        true,
+//        false
+//    ),
 
 //    NCommandClass(
 //        NCommand.Companion::class.java,
@@ -124,7 +123,7 @@ enum class NeonPluginClasses(
     CommandManagerClass(
         CommandManager.Companion::class.java,
         LoadStage.PostLoad,
-        false,
+        true,
         false
     ),
 
@@ -138,87 +137,87 @@ enum class NeonPluginClasses(
     GuiManagerClass(
         GuiManager.Companion::class.java,
         LoadStage.PostLoad,
-        false,
+        true,
         false
     ),
 
     RoleManagerClass(
         RoleManager.Companion::class.java,
         LoadStage.PostLoad,
-        true,
+        false,
         false
     ),
 
-    NRankClass(
-        NRank.Handler::class.java,
-        LoadStage.PostLoad,
-        true,
-        false
-    ),
+//    NRankClass(
+//        NRank.Handler::class.java,
+//        LoadStage.PostLoad,
+//        false,
+//        false
+//    ),
 
     NPVPClass(
         NPVP::class.java,
         LoadStage.PostLoad,
-        false,
+        true,
         true
     ),
 
-    NWaypointsClass(
-        NWaypoints.Handler::class.java,
-        LoadStage.PostLoad,
-        false,
-        true
-    ),
+//    NWaypointsClass(
+//        NWaypoints.Handler::class.java,
+//        LoadStage.PostLoad,
+//        true,
+//        true
+//    ),
 
     NDurableClass(
         NDurable.Handler::class.java,
         LoadStage.PostLoad,
-        true,
+        false,
         true
     ),
 
     NHarvestClass(
         NHarvest.Handler::class.java,
         LoadStage.PostLoad,
-        false,
+        true,
         true
     ),
 
     NCutterClass(
         NCutter.Companion::class.java,
         LoadStage.PostLoad,
-        true,
+        false,
         true
     ),
 
     NSmelterClass(
         NSmelter.Handler::class.java,
         LoadStage.PostLoad,
-        true,
+        false,
         true
     ),
 
     NBundleClass(
         NBundle.Handler::class.java,
         LoadStage.PostLoad,
-        true,
+        false,
         true
     ),
 
     /* Experimental */
-    NFireworksClass(
+/*    NFireworksClass(
         NFireworks.Handler::class.java,
         LoadStage.PostLoad,
-        false,
+        true,
         true
     ),
 
     NPaintingClass(
         NPainting.Handler::class.java,
         LoadStage.PostLoad,
-        false,
+        true,
         true
-    );
+    )*/;
 
     companion object {
         const val CLASS_NAME_HANDLER = "Handler"
@@ -242,8 +241,8 @@ enum class NeonPluginClasses(
                 .toCollection(ArrayList())
         }
 
-        fun invokeFunction(appClazz: NeonPluginClasses): Boolean {
-            val clazz = appClazz.clazz
+        fun invokeFunction(neonPluginClass: NeonPluginClasses): Boolean {
+            val clazz = neonPluginClass.clazz
 
             /* Check if the simple name of the class is equal to "Handler" or "Companion",
             * if so, it split the canonical name and get the last 2 parts.

@@ -2,7 +2,6 @@ package com.islandstudio.neon.experimental.nPVP
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import org.koin.core.component.inject
 import kotlin.properties.Delegates
 
@@ -16,7 +15,7 @@ object NPVP: IComponentInjector {
      *
      */
     fun run() {
-        isEnabled = NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nPVP") ?: false
+        isEnabled = /*NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nPVP") ?:*/ false
 
         serverWorlds.forEach {
             if (isEnabled) {

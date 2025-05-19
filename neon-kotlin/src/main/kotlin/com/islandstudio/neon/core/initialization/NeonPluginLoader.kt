@@ -120,7 +120,7 @@ class NeonPluginLoader: IComponentInjector {
 
         appContext.ensureVersionCompatible() // Version check
 
-        val jobContext = newSingleThreadContext("Neon App Loader (Pre-load Stage)")
+        val jobContext = newSingleThreadContext("Neon Plugin Loader (Pre-load Stage)")
 
         jobContext.use { dispatcher ->
             CoroutineScope(dispatcher).async {
@@ -151,10 +151,10 @@ class NeonPluginLoader: IComponentInjector {
 //                }.await()
 
                 val preLoadAppClasses = NeonPluginClasses.getPreLoadClasses()
-                    .filter { it in arrayListOf(
-                        NeonPluginClasses.NmsProcessorClass, NeonPluginClasses.DataKeyManagerClass,
-                        NeonPluginClasses.AccessControlManagerClass, NeonPluginClasses.NeonFeatureManagerClass
-                    , NeonPluginClasses.NItemGlinterClass, NeonPluginClasses.NeonKeyClass) }
+//                    .filter { it in arrayListOf(
+//                        NeonPluginClasses.NmsProcessorClass, NeonPluginClasses.DataKeyManagerClass,
+//                        NeonPluginClasses.AccessControlManagerClass, NeonPluginClasses.NeonFeatureManagerClass
+//                    , NeonPluginClasses.NItemGlinterClass, NeonPluginClasses.NeonKeyClass) }
 
                 preLoadAppClasses.forEach { appClazz ->
                     runCatching {
@@ -188,17 +188,17 @@ class NeonPluginLoader: IComponentInjector {
 
         appContext.ensureVersionCompatible() // Version check
 
-        val jobContext = newSingleThreadContext("Neon App Loader (Post-load Stage)")
-        val postLoadAppClasses = NeonPluginClasses.getPostLoadClasses().filter {
+        val jobContext = newSingleThreadContext("Neon Plugin Loader (Post-load Stage)")
+        val postLoadAppClasses = NeonPluginClasses.getPostLoadClasses()/*.filter {
             it in arrayListOf(
                 NeonPluginClasses.PlayerSessionManagerClass, NeonPluginClasses.CommandManagerClass, NeonPluginClasses.NCutterClass,
                 NeonPluginClasses.AccessControlManagerClass, NeonPluginClasses.GuiManagerClass, NeonPluginClasses.NBundleClass,
                 NeonPluginClasses.NDurableClass, NeonPluginClasses.RoleManagerClass)
-        }
+        }*/
 
         jobContext.use { dispatcher ->
             postLoadAppClasses.forEach { appClazz ->
-                if (appClazz.canAsync) {
+                if (!appClazz.canAsync) {
                     runCatching {
                         NeonPluginClasses.invokeFunction(appClazz).apply {
                             if (!this) return@runCatching

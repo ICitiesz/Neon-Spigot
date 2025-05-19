@@ -1,5 +1,6 @@
 package com.islandstudio.neon.shared.utils.data
 
+import com.islandstudio.neon.shared.core.exception.NeonException
 import kotlin.math.pow
 
 
@@ -161,5 +162,11 @@ object DataUtil {
 
     fun roundOffDouble(value: Double, floatingPointCount: Int): Double {
         return String.format("%.${floatingPointCount}f", value).toDouble()
+    }
+
+    inline fun <reified T> asType(value: Any): T {
+        if (value !is T) throw NeonException("Error while trying to convert value to targeted type!", TypeCastException())
+
+        return value
     }
 }
