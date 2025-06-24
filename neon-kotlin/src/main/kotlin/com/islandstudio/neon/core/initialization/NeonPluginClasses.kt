@@ -5,9 +5,9 @@ import com.islandstudio.neon.core.datakey.DataKeyManager
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.experimental.gui.GuiManager
 import com.islandstudio.neon.experimental.nPVP.NPVP
+import com.islandstudio.neon.features.durabilityplus.DurabilityPlus
 import com.islandstudio.neon.features.nBundle.NBundle
 import com.islandstudio.neon.features.nCutter.NCutter
-import com.islandstudio.neon.features.nDurable.NDurable
 import com.islandstudio.neon.features.nHarvest.NHarvest
 import com.islandstudio.neon.features.nSmelter.NSmelter
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
@@ -169,8 +169,15 @@ enum class NeonPluginClasses(
 //        true
 //    ),
 
-    NDurableClass(
-        NDurable.Handler::class.java,
+//    NDurableClass(
+//        NDurable.Handler::class.java,
+//        LoadStage.PostLoad,
+//        false,
+//        true
+//    ),
+
+    DurabilityPlusClass(
+        DurabilityPlus.Companion::class.java,
         LoadStage.PostLoad,
         false,
         true

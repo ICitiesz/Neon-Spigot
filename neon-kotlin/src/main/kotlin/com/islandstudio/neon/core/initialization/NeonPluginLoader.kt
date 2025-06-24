@@ -19,7 +19,7 @@ class NeonPluginLoader: IComponentInjector {
         private val neon by inject<Neon>()
         private val appContext by inject<AppContext>()
 
-        private val neonVersionText = "${ColorUtil.CyanBlue.color}${ColorUtil.Bold.color}v${neon.description.version}${ColorUtil.Reset.color}"
+        private val neonVersionText = "${ColorUtil.DefinedColor.CyanBlue.color}${ColorUtil.DefinedColor.Bold.color}v${neon.description.version}${ColorUtil.DefinedColor.Reset.color}"
         /*
         *        _____                                                      _____
                 {_____}                                                    {_____}
@@ -42,39 +42,39 @@ class NeonPluginLoader: IComponentInjector {
         * */
 
         val NEON_ON_ENABLED_TITLE = "\n" + """
-                 ${ColorUtil.Yellow.color}_____                                                                _____ 
-                ${ColorUtil.Yellow.color}{_____}                                                              {_____}
-                 ${ColorUtil.Purple.color}| ~ |${ColorUtil.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorUtil.Purple.color}| ~ | 
-                 ${ColorUtil.Purple.color}| ~ |  ${ColorUtil.LightGreen.color}+==========================================================+  ${ColorUtil.Purple.color}| ~ | 
-                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░███    ░██ ░███████    ░███    ░███    ░██           ${ColorUtil.Purple.color}| ~ | 
-                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░████   ░██ ░██       ░██  ░██  ░████   ░██           ${ColorUtil.Purple.color}| ~ |
-                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░██ ░██ ░██ ░██████  ░██    ░██ ░██ ░██ ░██           ${ColorUtil.Purple.color}| ~ | 
-                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░██   ░████ ░██       ░██  ░██  ░██   ░████           ${ColorUtil.Purple.color}| ~ |
-                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░██    ░███ ░███████    ░███    ░██    ░███           ${ColorUtil.Purple.color}| ~ | 
-                 ${ColorUtil.Purple.color}| ~ |  ${ColorUtil.LightGreen.color}+==========================================================+  ${ColorUtil.Purple.color}| ~ |
-                 ${ColorUtil.Purple.color}|___|${ColorUtil.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorUtil.Purple.color}|___| 
-                ${ColorUtil.Yellow.color}{_____}${ColorUtil.Reset.color}                  ()                     ()                   ${ColorUtil.Yellow.color}{_____}${ColorUtil.Reset.color}
+                 ${ColorUtil.DefinedColor.Yellow.color}_____                                                                _____ 
+                ${ColorUtil.DefinedColor.Yellow.color}{_____}                                                              {_____}
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |${ColorUtil.DefinedColor.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorUtil.DefinedColor.Purple.color}| ~ | 
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |  ${ColorUtil.DefinedColor.LightGreen.color}+==========================================================+  ${ColorUtil.DefinedColor.Purple.color}| ~ | 
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |          ${ColorUtil.DefinedColor.CyanBlue.color}░███    ░██ ░███████    ░███    ░███    ░██           ${ColorUtil.DefinedColor.Purple.color}| ~ | 
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |          ${ColorUtil.DefinedColor.CyanBlue.color}░████   ░██ ░██       ░██  ░██  ░████   ░██           ${ColorUtil.DefinedColor.Purple.color}| ~ |
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |          ${ColorUtil.DefinedColor.CyanBlue.color}░██ ░██ ░██ ░██████  ░██    ░██ ░██ ░██ ░██           ${ColorUtil.DefinedColor.Purple.color}| ~ | 
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |          ${ColorUtil.DefinedColor.CyanBlue.color}░██   ░████ ░██       ░██  ░██  ░██   ░████           ${ColorUtil.DefinedColor.Purple.color}| ~ |
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |          ${ColorUtil.DefinedColor.CyanBlue.color}░██    ░███ ░███████    ░███    ░██    ░███           ${ColorUtil.DefinedColor.Purple.color}| ~ | 
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |  ${ColorUtil.DefinedColor.LightGreen.color}+==========================================================+  ${ColorUtil.DefinedColor.Purple.color}| ~ |
+                 ${ColorUtil.DefinedColor.Purple.color}|___|${ColorUtil.DefinedColor.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorUtil.DefinedColor.Purple.color}|___| 
+                ${ColorUtil.DefinedColor.Yellow.color}{_____}${ColorUtil.DefinedColor.Reset.color}                  ()                     ()                   ${ColorUtil.DefinedColor.Yellow.color}{_____}${ColorUtil.DefinedColor.Reset.color}
                                          ++=====================++
-                                         ||     ~ ${ColorUtil.Green.color}${ColorUtil.Bold.color}STARTED${ColorUtil.Reset.color} ~     ||
+                                         ||     ~ ${ColorUtil.DefinedColor.Green.color}${ColorUtil.DefinedColor.Bold.color}STARTED${ColorUtil.DefinedColor.Reset.color} ~     ||
                                          ||   ~ $neonVersionText ~   ||
                                          ++=====================++
         """.trimIndent() + "\n"
 
         val NEON_ON_DISABLED_TITLE = "\n" + """
-                 ${ColorUtil.Yellow.color}_____                                                                _____ 
-                ${ColorUtil.Yellow.color}{_____}                                                              {_____}
-                 ${ColorUtil.Purple.color}| ~ |${ColorUtil.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorUtil.Purple.color}| ~ | 
-                 ${ColorUtil.Purple.color}| ~ |  ${ColorUtil.LightGreen.color}+==========================================================+  ${ColorUtil.Purple.color}| ~ | 
-                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░███    ░██ ░███████    ░███    ░███    ░██           ${ColorUtil.Purple.color}| ~ | 
-                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░████   ░██ ░██       ░██  ░██  ░████   ░██           ${ColorUtil.Purple.color}| ~ |
-                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░██ ░██ ░██ ░██████  ░██    ░██ ░██ ░██ ░██           ${ColorUtil.Purple.color}| ~ | 
-                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░██   ░████ ░██       ░██  ░██  ░██   ░████           ${ColorUtil.Purple.color}| ~ |
-                 ${ColorUtil.Purple.color}| ~ |          ${ColorUtil.CyanBlue.color}░██    ░███ ░███████    ░███    ░██    ░███           ${ColorUtil.Purple.color}| ~ | 
-                 ${ColorUtil.Purple.color}| ~ |  ${ColorUtil.LightGreen.color}+==========================================================+  ${ColorUtil.Purple.color}| ~ |
-                 ${ColorUtil.Purple.color}|___|${ColorUtil.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorUtil.Purple.color}|___| 
-                ${ColorUtil.Yellow.color}{_____}${ColorUtil.Reset.color}                  ()                     ()                   ${ColorUtil.Yellow.color}{_____}${ColorUtil.Reset.color}
+                 ${ColorUtil.DefinedColor.Yellow.color}_____                                                                _____ 
+                ${ColorUtil.DefinedColor.Yellow.color}{_____}                                                              {_____}
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |${ColorUtil.DefinedColor.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorUtil.DefinedColor.Purple.color}| ~ | 
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |  ${ColorUtil.DefinedColor.LightGreen.color}+==========================================================+  ${ColorUtil.DefinedColor.Purple.color}| ~ | 
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |          ${ColorUtil.DefinedColor.CyanBlue.color}░███    ░██ ░███████    ░███    ░███    ░██           ${ColorUtil.DefinedColor.Purple.color}| ~ | 
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |          ${ColorUtil.DefinedColor.CyanBlue.color}░████   ░██ ░██       ░██  ░██  ░████   ░██           ${ColorUtil.DefinedColor.Purple.color}| ~ |
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |          ${ColorUtil.DefinedColor.CyanBlue.color}░██ ░██ ░██ ░██████  ░██    ░██ ░██ ░██ ░██           ${ColorUtil.DefinedColor.Purple.color}| ~ | 
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |          ${ColorUtil.DefinedColor.CyanBlue.color}░██   ░████ ░██       ░██  ░██  ░██   ░████           ${ColorUtil.DefinedColor.Purple.color}| ~ |
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |          ${ColorUtil.DefinedColor.CyanBlue.color}░██    ░███ ░███████    ░███    ░██    ░███           ${ColorUtil.DefinedColor.Purple.color}| ~ | 
+                 ${ColorUtil.DefinedColor.Purple.color}| ~ |  ${ColorUtil.DefinedColor.LightGreen.color}+==========================================================+  ${ColorUtil.DefinedColor.Purple.color}| ~ |
+                 ${ColorUtil.DefinedColor.Purple.color}|___|${ColorUtil.DefinedColor.Orange.color}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${ColorUtil.DefinedColor.Purple.color}|___| 
+                ${ColorUtil.DefinedColor.Yellow.color}{_____}${ColorUtil.DefinedColor.Reset.color}                  ()                     ()                   ${ColorUtil.DefinedColor.Yellow.color}{_____}${ColorUtil.DefinedColor.Reset.color}
                                          ++=====================++
-                                         ||     ~ ${ColorUtil.Red.color}${ColorUtil.Bold.color}DISABLED${ColorUtil.Reset.color} ~    ||
+                                         ||     ~ ${ColorUtil.DefinedColor.Red.color}${ColorUtil.DefinedColor.Bold.color}DISABLED${ColorUtil.DefinedColor.Reset.color} ~    ||
                                          ||   ~ $neonVersionText ~   ||
                                          ++=====================++
         """.trimIndent() + "\n"
@@ -169,7 +169,7 @@ class NeonPluginLoader: IComponentInjector {
                     }
                 }
             }.asCompletableFuture().join().also {
-                neon.logger.info("${ColorUtil.Green.color}${appContext.getCodeMessage("neon.info.pre_load.complete")}")
+                neon.logger.info("${ColorUtil.DefinedColor.Green.color}${appContext.getCodeMessage("neon.info.pre_load.complete")}")
                 return true
             }
         }

@@ -1,6 +1,8 @@
 package com.islandstudio.neon.features.nDurable
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.core.datakey.container.DataContainerManager
+import com.islandstudio.neon.core.datakey.container.DataContainerType
 import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
@@ -10,6 +12,7 @@ import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.server.ServerGamePacketManager
 import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
@@ -18,7 +21,6 @@ import com.islandstudio.neon.stable.core.command.CommandInterfaceProcessor
 import com.islandstudio.neon.stable.core.command.properties.CommandAlias
 import com.islandstudio.neon.stable.core.command.properties.CommandArgument
 import com.islandstudio.neon.stable.player.nRoleAccess.NRoleAccess
-import com.islandstudio.neon.stable.utils.ObjectSerializer
 import com.islandstudio.neon.stable.utils.processing.GeneralInputProcessor
 import com.islandstudio.neon.stable.utils.processing.properties.DataTypes
 import net.minecraft.network.chat.Component
@@ -50,13 +52,12 @@ import kotlin.properties.Delegates
 object NDurable: IComponentInjector {
     private val plugin by inject<Neon>()
 
-    private var isEnabled by Delegates.notNull<Boolean>()
+    private var isEnabled = false
 
     private var showItemDurability by Delegates.notNull<Boolean>()
     private var isFortuneHarvestRestricted = false
 
     private val damagedTag = "${net.md_5.bungee.api.ChatColor.of("#ab0000")}DAMAGED"
-
 
     object Handler: CommandDispatcher, IComponentInjector {
         private val neonFeatureManager by inject<NeonFeatureManager>()
@@ -92,7 +93,6 @@ object NDurable: IComponentInjector {
         fun applyDamageProperty(itemStack: ItemStack, damagePerformed: Int): ItemStack {
             if (!isItemMatch(itemStack)) return itemStack
 
-            val nDurableContainerHeader = NeonKeyGeneral.NDURABLE_PROPERTY_HEADER.key
             val itemMaxDamage = itemStack.type.maxDurability
             val damageableItemMeta = itemStack.itemMeta as Damageable
             val itemDamage = damageableItemMeta.damage
@@ -106,19 +106,15 @@ object NDurable: IComponentInjector {
                 damageableItemMeta.damage = itemMaxDamage.toInt()
             }
 
-            var damagePropertyContainer: HashMap<String, Any> = hashMapOf(
-                NeonKey.getNeonKeyNameWithNamespace(
-                NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key) to finalItemDamage)
+            val damageProperty = getDamageProperty2(damageableItemMeta)?.let {
+                it.itemDamage = finalItemDamage
+            } ?: DamageProperty(finalItemDamage)
 
-            if (NeonKey.hasNeonKey(nDurableContainerHeader, PersistentDataType.STRING, damageableItemMeta)) {
-                damagePropertyContainer = getDamageProperty(damageableItemMeta)
-
-                damagePropertyContainer[NeonKey.getNeonKeyNameWithNamespace(NeonKeyGeneral.NDURABLE_PROPERTY_DAMAGE.key)] = finalItemDamage
-            }
-
-            NeonKey.updateNeonKey(
-                ObjectSerializer.serializeObjectEncoded(damagePropertyContainer),
-                nDurableContainerHeader, PersistentDataType.STRING, damageableItemMeta)
+            DataContainerManager.updateAttachedData(
+                damageableItemMeta,
+                ObjectSerializer.serializeToBase64(damageProperty),
+                DataContainerType.NDurableDamagePropertyContainer
+            )
 
             itemStack.itemMeta = damageableItemMeta
 
@@ -230,9 +226,15 @@ object NDurable: IComponentInjector {
             }
 
             @Suppress("UNCHECKED_CAST")
-            return ObjectSerializer.deserializeObjectEncoded(
+            return ObjectSerializer.deserialzeFromBase64(
                 NeonKey.getNeonKeyValue(NeonKeyGeneral.NDURABLE_PROPERTY_HEADER.key, PersistentDataType.STRING, damageableItemMeta) as String)
                     as HashMap<String, Any>
+        }
+
+        fun getDamageProperty2(damageableItemMeta: Damageable): DamageProperty? {
+            val damagePropertyData = DataContainerManager.getAttachedData(damageableItemMeta, DataContainerType.NDurableDamagePropertyContainer) ?: return null
+
+            return ObjectSerializer.deserialzeFromBase64(damagePropertyData)
         }
 
         override fun getCommandDispatcher(commander: CommandSender, args: Array<out String>) {

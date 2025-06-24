@@ -12,8 +12,8 @@ sealed class NeonEnchantment(keyName: String): AbstractDataKey(keyName), ICompon
     private val enchantmentManager by inject<EnchantmentManager>()
 
     protected abstract val enchantmentRarity: net.minecraft.world.item.enchantment.Enchantment.Rarity
-    protected abstract val enchantmentCategory: EnchantmentCategory?
-    protected abstract val enchantmentEquipmentSlots: Array<EquipmentSlot>?
+    protected abstract val enchantmentCategory: EnchantmentCategory
+    protected abstract val enchantmentEquipmentSlots: Array<EquipmentSlot>
 
     fun register() {
         enchantmentManager.registerEnchantment(this, enchantmentManager.buildMcEnchantment(this.enchantmentRarity, this.enchantmentCategory, this.enchantmentEquipmentSlots))
@@ -43,7 +43,7 @@ sealed class NeonEnchantment(keyName: String): AbstractDataKey(keyName), ICompon
 
     data object NeonGuiButtonHighlight: NeonEnchantment("neon.gui.button.highlight") {
         override val enchantmentRarity: net.minecraft.world.item.enchantment.Enchantment.Rarity = net.minecraft.world.item.enchantment.Enchantment.Rarity.RARE
-        override val enchantmentCategory: EnchantmentCategory? = null
-        override val enchantmentEquipmentSlots: Array<EquipmentSlot>? = null
+        override val enchantmentCategory: EnchantmentCategory = EnchantmentCategory.VANISHABLE
+        override val enchantmentEquipmentSlots: Array<EquipmentSlot> = emptyArray()
     }
 }
