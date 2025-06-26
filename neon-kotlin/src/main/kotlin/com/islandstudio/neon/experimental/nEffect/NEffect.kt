@@ -1,8 +1,6 @@
 package com.islandstudio.neon.experimental.nEffect
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
-import com.islandstudio.neon.stable.primary.nProfile.PlayerProfile
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -87,19 +85,19 @@ object NEffect: Listener {
     }
 
     fun setCommandHandler(commander: Player) {
-        val playerProfile = PlayerProfile(commander)
-
-        if (commander.isOp || playerProfile.playerRank.equals("OWNER", true) || playerProfile.playerRank.equals("VIP_PLUS", true)) {
-            if (commander.isSleeping) {
-                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}You can't use nEffect while sleeping!"))
-                return
-            }
-
-            openEffectManager(commander)
-        } else {
-            commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
-            return
-        }
+//        val playerProfile = PlayerProfile(commander)
+//
+//        if (commander.isOp || playerProfile.playerRank.equals("OWNER", true) || playerProfile.playerRank.equals("VIP_PLUS", true)) {
+//            if (commander.isSleeping) {
+//                commander.sendMessage(CommandSyntax.createSyntaxMessage("${ChatColor.YELLOW}You can't use nEffect while sleeping!"))
+//                return
+//            }
+//
+//            openEffectManager(commander)
+//        } else {
+//            commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
+//            return
+//        }
     }
 
     fun setEventHandler(e: InventoryClickEvent) {

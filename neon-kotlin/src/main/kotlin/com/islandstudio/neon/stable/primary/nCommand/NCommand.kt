@@ -1,7 +1,6 @@
 package com.islandstudio.neon.stable.primary.nCommand
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPainting.NPainting
 import com.islandstudio.neon.features.nDurable.NDurable
@@ -215,7 +214,7 @@ class NCommand: Commands(), Listener, TabExecutor {
             }
 
             CommandAlias.EFFECT.aliasName -> {
-                NEffect.setCommandHandler(commander)
+                //NEffect.setCommandHandler(commander)
             }
 
             CommandAlias.DURABILITY.aliasName -> {

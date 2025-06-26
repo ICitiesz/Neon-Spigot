@@ -95,6 +95,7 @@ object NPainting: IComponentInjector {
             NeonPluginLoader.registerEventProcessor(EventProcessor())
         }
 
+        @OptIn(ExperimentalStdlibApi::class)
         override fun getCommandHandler(commander: Player, args: Array<out String>) {
             if (!commander.isOp) {
                 return commander.sendMessage(CommandSyntax.INVALID_PERMISSION.syntaxMessage)
@@ -296,6 +297,7 @@ object NPainting: IComponentInjector {
                         return super.getTabCompletion(commander, args)
                     }
 
+                    @OptIn(ExperimentalStdlibApi::class)
                     val renderedPaintingIds = getPaintingRenderData(args[2])
                         .getOrElse { return super.getTabCompletion(commander, args) }.renderedPainting
 
@@ -426,6 +428,7 @@ object NPainting: IComponentInjector {
      * @param removalType The removal type (Full, Cached, Display)
      * @return True if the removal sucess, else false
      */
+    @OptIn(ExperimentalStdlibApi::class)
     fun removePainting(imageFileName: String, renderId: Optional<UUID> = Optional.empty(), removalType: RemovalType): Boolean {
         val neon by inject<Neon>()
         val painting = Handler.getPaintingRenderData(imageFileName).getOrElse { return false }
@@ -617,6 +620,7 @@ object NPainting: IComponentInjector {
         paintingBuilder.generatePainting(Painting(imageFileName), renderDataFile)
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     fun renderPainting(player: Player, interectedBlock: Block) {
         val paintingItemMeta = player.inventory.itemInMainHand.let {
             if (it.type == Material.AIR || it.type != Material.PAPER) return
