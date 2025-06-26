@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application.di.module
+package com.islandstudio.neon.core.di.module
 
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module

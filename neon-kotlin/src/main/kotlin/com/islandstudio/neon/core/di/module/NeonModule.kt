@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.application.di.module
+package com.islandstudio.neon.core.di.module
 
 import com.islandstudio.neon.Neon
 import org.bukkit.plugin.java.JavaPlugin
