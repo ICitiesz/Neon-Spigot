@@ -2,6 +2,7 @@ package com.islandstudio.neon.core.initialization
 
 import com.islandstudio.neon.command.CommandManager
 import com.islandstudio.neon.core.datakey.DataKeyManager
+import com.islandstudio.neon.core.nmsmapping.NmsManager
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.experimental.gui.GuiManager
 import com.islandstudio.neon.experimental.nPVP.NPVP
@@ -28,6 +29,13 @@ enum class NeonPluginClasses(
     val isConfigReloadable: Boolean
 ) {
     /* #################################### Pre-init Classes #################################### */
+    NmsManagerClass(
+        NmsManager::class.java,
+        LoadStage.PreLoad,
+        true,
+        false
+    ),
+
     NmsProcessorClass(
         NmsProcessor.Companion::class.java,
         LoadStage.PreLoad,

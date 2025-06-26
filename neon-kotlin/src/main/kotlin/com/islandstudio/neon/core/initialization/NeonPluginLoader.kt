@@ -102,6 +102,13 @@ class NeonPluginLoader: IComponentInjector {
                 HandlerList.unregisterAll(it.listener)
             }
         }
+
+        fun displayInitMessage(code: String, displayTime: Long) {
+            val infoMessage = appContext.getCodeMessage(code)
+
+            neon.logger.info(infoMessage)
+            Thread.sleep(displayTime)
+        }
     }
 
 

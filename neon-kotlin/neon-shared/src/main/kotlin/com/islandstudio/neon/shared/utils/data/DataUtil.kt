@@ -165,7 +165,7 @@ object DataUtil {
     }
 
     inline fun <reified T> asType(value: Any): T {
-        if (value !is T) throw NeonException("Error while trying to convert value to targeted type!", TypeCastException())
+        if (value !is T) throw NeonException("Error while trying to cast value as ${T::class.java.name}!")
 
         return value
     }

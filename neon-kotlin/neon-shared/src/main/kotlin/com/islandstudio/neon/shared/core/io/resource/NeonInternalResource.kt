@@ -41,6 +41,11 @@ enum class NeonInternalResource(val resourceURL: String, val resourceType: Resou
         ResourceType.Excel
     ),
 
+    NeonNmsMapping2(
+        "resources/application/reflection/nms-mappings.csv",
+        ResourceType.Excel
+    ),
+
     NWaypointsGlobal(
         "resources/nWaypoints.json",
         ResourceType.Json

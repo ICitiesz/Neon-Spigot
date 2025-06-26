@@ -67,6 +67,7 @@ dependencies {
     implementation("com.akuleshov7:ktoml-core:0.5.2")
     implementation("com.akuleshov7:ktoml-file-jvm:0.5.2")
     api("org.modelmapper:modelmapper:3.2.1")
+    implementation("com.jsoizo:kotlin-csv-jvm:1.10.0")
 
     /* Database Library */
     implementation("org.hsqldb:hsqldb:2.7.3")

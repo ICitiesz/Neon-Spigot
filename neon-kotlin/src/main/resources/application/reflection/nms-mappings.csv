@@ -1,0 +1,82 @@
+Nms Object Type,Object Name,Remapped Name,Versions
+NmsField,PlayerContainer,bV,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2
+NmsField,PlayerContainer,bT,1.19; 1.19.1; 1.19.2; 1.19.3
+NmsField,PlayerContainer,bO,1.19.4
+NmsField,PlayerContainer,bQ,1.20; 1.20.1
+NmsField,PlayerContainer,bR,1.20.2; 1.20.3; 1.20.4
+NmsField,ContainerBase,bV,1.17; 1.17.1; 1.18.2
+NmsField,ContainerBase,bW,1.18; 1.18.1
+NmsField,ContainerBase,bU,1.19; 1.19.1; 1.19.2; 1.19.3
+NmsField,ContainerBase,bP,1.19.4
+NmsField,ContainerBase,bR,1.20; 1.20.1
+NmsField,ContainerBase,bS,1.20.2; 1.20.3; 1.20.4
+NmsField,ServerRecipes,c,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsField,McServer,c,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4
+NmsField,McServer,d,1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsField,MerchantRecipeResult,c,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsField,PlayerConnection,b,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4
+NmsField,PlayerConnection,c,1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsField,NetworkManager,a,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2
+NmsField,NetworkManager,b,1.19; 1.19.1; 1.19.2; 1.19.3
+NmsField,NetworkManager,h,1.19.4; 1.20; 1.20.1
+NmsField,NetworkManager,c,1.20.2; 1.20.3; 1.20.4
+NmsField,Channel,k,1.17; 1.17.1; 1.18; 1.18.1
+NmsField,Channel,m,1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1
+NmsField,Channel,n,1.20.2; 1.20.3; 1.20.4
+NmsField,ButtonID,b,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsField,Slot,d,1.17
+NmsField,Slot,e,1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsField,WorldCache,b,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsField,OverworldResourceKey,e,1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3
+NmsField,OverworldResourceKey,f,1.17; 1.17.1; 1.18; 1.18.1
+NmsField,OverworldResourceKey,h,1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsField,WorldMapData,worldMap,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsField,WorldMapDataId,id,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsField,WorldMapDataMapView,mapView,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsField,WorldMapDataColors,g,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsField,EnchantmentRegistry,X,1.17; 1.17.1
+NmsField,EnchantmentRegistry,Y,1.18; 1.18.1
+NmsField,EnchantmentRegistry,V,1.18.2
+NmsField,EnchantmentRegistry,W,1.19; 1.19.1; 1.19.2
+NmsField,EnchantmentRegistry,g,1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2
+NmsField,EnchantmentRegistry,f,1.20.3; 1.20.4
+NmsField,RegistryEntryToggleState,bL,1.18.2
+NmsField,RegistryEntryToggleState,ca,1.19; 1.19.1; 1.19.2
+NmsField,RegistryEntryToggleState,l,1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsMethod,CraftingManager,getCraftingManager,1.17; 1.17.1
+NmsMethod,CraftingManager,aC,1.18; 1.18.1; 1.18.2
+NmsMethod,CraftingManager,aE,1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2
+NmsMethod,CraftingManager,aG,1.20.3; 1.20.4
+NmsMethod,PlayerRecipeBook,getRecipeBook,1.17; 1.17.1
+NmsMethod,PlayerRecipeBook,E,1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1
+NmsMethod,PlayerRecipeBook,G,1.20.2
+NmsMethod,PlayerRecipeBook,I,1.20.3; 1.20.4
+NmsMethod,InitRecipeBook,a,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsMethod,SendPacket,sendPacket,1.17; 1.17.1
+NmsMethod,SendPacket,a,1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1
+NmsMethod,SendPacket,b,1.20.2; 1.20.3; 1.20.4
+NmsMethod,GetBukkitEntity,getBukkitEntity,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsMethod,SetContainerData,setContainerData,1.17; 1.17.1
+NmsMethod,SetContainerData,a,1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsMethod,GetWorldPersistentContainer,getWorldPersistentData,1.17; 1.17.1
+NmsMethod,GetWorldPersistentContainer,u,1.18; 1.18.1; 1.20.3; 1.20.4
+NmsMethod,GetWorldPersistentContainer,s,1.19.4; 1.20; 1.20.1; 1.20.2
+NmsMethod,GetWorldPersistentContainer,t,1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3
+NmsMethod,GetMapDataFile,a,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsMethod,SetWorldMapData,a,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsMethod,SaveWorldCache,a,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsMethod,GetSetSlotItemStack,d,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1
+NmsMethod,GetSetSlotItemStack,e,1.20.2; 1.20.3; 1.20.4
+NmsMethod,ApplyEnchantment,addEnchantment,1.17; 1.17.1
+NmsMethod,ApplyEnchantment,a,1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsMethod,GetEnchantmentByNamespacedKey,get,1.17; 1.17.1
+NmsMethod,GetEnchantmentByNamespacedKey,a,1.20.4
+NmsMethod,RegisterEnchantment,a,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsMethod,RevokeRegistryEntry,j,1.18.2
+NmsMethod,RevokeRegistryEntry,k,1.19; 1.19.1; 1.19.2
+NmsMethod,RevokeRegistryEntry,l,1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsMethod,LecternBookPage,j,1.17
+NmsMethod,LecternBookPage,m,1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsConstructor,ClientPacketUpdateRecipes,PacketPlayOutRecipeUpdate,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsConstructor,ClientPacketSetActionBarText,ClientboundSetActionBarTextPacket,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
+NmsClass,Packet,Packet,1.17; 1.17.1; 1.18; 1.18.1; 1.18.2; 1.19; 1.19.1; 1.19.2; 1.19.3; 1.19.4; 1.20; 1.20.1; 1.20.2; 1.20.3; 1.20.4
