@@ -1,6 +1,6 @@
 package com.islandstudio.neon.experimental.nFireworks
 
-import com.islandstudio.neon.stable.item.NItemGlinter
+import com.islandstudio.neon.item.NeonEnchantment
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import org.bukkit.ChatColor
 import org.bukkit.FireworkEffect
@@ -53,7 +53,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
                 val imageFileName = "${ChatColor.GOLD}${imageFileNames[itemIndex]}"
 
                 if (fireworkEffects.imageName.isNotEmpty() && imageFileNames[itemIndex] == fireworkEffects.imageName) {
-                    imageFileItemMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0, true)
+                    imageFileItemMeta.addEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment(), 0, true)
                 }
 
                 imageFileItemMeta.setDisplayName(imageFileName)
@@ -80,7 +80,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
 
             propertyBtnMeta.setDisplayName(propertyBtnNames[it])
             propertyBtnMeta.persistentDataContainer.set(buttonIDKey, PersistentDataType.STRING, it)
-            propertyBtnMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0, true)
+            propertyBtnMeta.addEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment(), 0, true)
 
             val minValueText = "${ChatColor.GRAY}[${ChatColor.GOLD}Min${ChatColor.GRAY}: ${ChatColor.GREEN}"
             val maxValueText = "${ChatColor.GRAY}, ${ChatColor.GOLD}Max${ChatColor.GRAY}: ${ChatColor.GREEN}"
@@ -177,7 +177,7 @@ class GUIHandler(nGUI: NGUI): GUIBuilder(nGUI) {
 
                 if (!imageFileNames.contains(clickedItemDisplayName)) return
 
-                if (clickedItemMeta.hasEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint)) return
+                if (clickedItemMeta.hasEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment())) return
 
                 fireworkEffects.imageName = clickedItemDisplayName
 

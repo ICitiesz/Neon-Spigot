@@ -225,4 +225,77 @@ class EnchantmentManager {
     fun buildMcEnchantment(rarity: Enchantment.Rarity, enchanmentCategory: EnchantmentCategory?, equipmentSlot: Array<EquipmentSlot>?): Enchantment {
         return object: net.minecraft.world.item.enchantment.Enchantment(rarity, enchanmentCategory, equipmentSlot) {}
     }
+
+    /* Legacy unused code (May useful in the future, may remove once reach v1.11 full release) */
+    /* Temporary unused */
+//    /**
+//     * Get the item glinter by NeonKey.
+//     *
+//     * @return The item glinter as enchantment
+//     */
+//    fun getItemGlinter(neonKeyGeneral: NeonKeyGeneral): Enchantment? {
+//        val itemGlinter: Enchantment? = registriesBaseClass.getMethod(NMSRemapped.Mapping.NMS_GET_ENCHANTMENT_BY_NAMESPACEDKEY.remapped, ResourceLocation::class.java)
+//            .invoke(enchantmentRegistry, ResourceLocation::class.java.getConstructor(String::class.java)
+//                .newInstance(NeonKey.getNeonKeyNameWithNamespace(neonKeyGeneral.key)))?.let {
+//                it as Enchantment
+//            }
+//
+//        return itemGlinter
+//    }
+
+//    /**
+//     * Apply item glinter to the target item.
+//     *
+//     * @param itemStack The target item.
+//     * @param itemGlinterType The item glinter type needed for apply.
+//     * @return Updated item meta
+//     */
+//    /* [Temporary unused] */
+//    fun applyItemGlinter(itemStack: ItemStack, itemGlinterType: ItemGlinterType): ItemMeta {
+//        itemStack.itemMeta.run {
+//            if (hasItemGlinter(this!!, itemGlinterType)) return this
+//        }
+//
+//        /* ItemStack convertion (Bukkit => NMS) */
+//        val nmsItemStack = CraftBukkitConverter.bukkitItemStackToNMSItemStack(itemStack)
+//        val craftItemStack = CraftBukkitReflector.getCraftItemStackClass()
+//
+//        /* Apply enchantment (Item Glinter) */
+//        nmsItemStack.javaClass.getMethod(
+//            NmsMap.ApplyEnchantment.remapped,
+//            Enchantment::class.java,
+//            Int::class.java
+//        ).invoke(
+//            nmsItemStack,
+//            itemGlinterType.glint,
+//            0)
+//
+//        /* Get the item meta from the NMS ItemStack */
+//        val itemMeta = craftItemStack.getMethod("getItemMeta", net.minecraft.world.item.ItemStack::class.java)
+//            .invoke(null, nmsItemStack) as ItemMeta
+//
+//        return itemMeta
+//    }
+//
+//    /**
+//     * Used to remove item glinter from the target item.
+//     *
+//     * @param itemMeta The item meta of the target item.
+//     * @param itemGlinterType The item glinter type
+//     * @return Updated item meta.
+//     */
+//    /* Temporary unused */
+//    fun removeItemGlinter(itemMeta: ItemMeta, itemGlinterType: ItemGlinterType): ItemMeta {
+//        /* Check if the item has the target item glinter */
+//        if (!hasItemGlinter(itemMeta, itemGlinterType)) return itemMeta
+//
+//        /* Get the target item glinter as Bukkit enchantment */
+//        val targetItemGlinter = itemMeta.enchants.keys.find {
+//            it.javaClass.getMethod("getHandle").invoke(it) == itemGlinterType.glint
+//        }!!
+//
+//        itemMeta.removeEnchant(targetItemGlinter)
+//
+//        return itemMeta
+//    }
 }

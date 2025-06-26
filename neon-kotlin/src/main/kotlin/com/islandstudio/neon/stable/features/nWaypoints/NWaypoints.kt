@@ -3,13 +3,13 @@ package com.islandstudio.neon.stable.features.nWaypoints
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.item.NeonEnchantment
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import com.islandstudio.neon.shared.core.io.resource.NeonExternalResource
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.shared.core.io.resource.ResourceManager
 import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
-import com.islandstudio.neon.stable.item.NItemGlinter
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
@@ -523,7 +523,7 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
 
             val currentItem: ItemStack = e.currentItem!!
             val currentItemMeta: ItemMeta = currentItem.itemMeta!!
-            val itemGlinter = NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint
+            val itemGlinter = NeonEnchantment.NeonGuiButtonHighlight.getEnchantment()
             val persistentDataContainer: PersistentDataContainer = currentItemMeta.persistentDataContainer
 
             when (currentItem.type) {

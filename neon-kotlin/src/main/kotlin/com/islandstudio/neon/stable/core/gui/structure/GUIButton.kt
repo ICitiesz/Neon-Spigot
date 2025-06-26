@@ -1,8 +1,8 @@
 package com.islandstudio.neon.stable.core.gui.structure
 
+import com.islandstudio.neon.item.NeonEnchantment
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.item.NItemGlinter
 import com.islandstudio.neon.stable.utils.ObjectSerializer
 import org.bukkit.ChatColor
 import org.bukkit.inventory.ItemStack
@@ -61,11 +61,11 @@ data class GUIButton(
 
         fun updateIsGlint(clickedButtonMeta: ItemMeta, isGlint: Boolean) {
             if (isGlint) {
-                clickedButtonMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0, true)
+                clickedButtonMeta.addEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment(), 0, true)
                 return
             }
 
-            clickedButtonMeta.removeEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint)
+            clickedButtonMeta.removeEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment())
         }
 
         fun onConfirm(applyBtnMeta: ItemMeta) {
@@ -110,7 +110,7 @@ data class GUIButton(
 
         /* Add item glint */
         if (isGlint) {
-            buttonMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0, true)
+            buttonMeta.addEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment(), 0, true)
         }
 
         return this

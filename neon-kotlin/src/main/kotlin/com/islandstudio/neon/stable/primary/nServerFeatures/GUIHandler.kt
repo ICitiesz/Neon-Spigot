@@ -1,8 +1,8 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.item.NeonEnchantment
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.item.NItemGlinter
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import org.bukkit.ChatColor
@@ -56,7 +56,7 @@ open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI), IComponentInjector {
 
             if (editableToggleStatus) {
                 serverFeatureDetailsContainer.add("${ChatColor.GRAY}Status: ${ChatColor.GREEN}Enabled!")
-                serverFeatureItemMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0, true)
+                serverFeatureItemMeta.addEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment(), 0, true)
             } else {
                 serverFeatureDetailsContainer.add("${ChatColor.GRAY}Status: ${ChatColor.RED}Disabled!")
             }
@@ -183,14 +183,14 @@ open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI), IComponentInjector {
                         NServerFeatures.setToggle(editableServerFeature[clickedItemDisplayName]!!, false)
 
                         clickedItemLore[clickedItemLore.indexOf(statusEnabled)] = statusDisabled
-                        clickedItemMeta.removeEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint)
+                        clickedItemMeta.removeEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment())
                     }
 
                     clickedItemLore.contains(statusDisabled) -> {
                         NServerFeatures.setToggle(editableServerFeature[clickedItemDisplayName]!!, true)
 
                         clickedItemLore[clickedItemLore.indexOf(statusDisabled)] = statusEnabled
-                        clickedItemMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0, true)
+                        clickedItemMeta.addEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment(), 0, true)
                     }
                 }
 
@@ -267,14 +267,14 @@ open class GUIHandler (nGUI: NGUI): GUIBuilder(nGUI), IComponentInjector {
                                 isOptionVisible = false
                                 clickedItemLore[clickedItemLore.indexOf(statusVisible)] = statusHidden
 
-                                clickedItemMeta.removeEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint)
+                                clickedItemMeta.removeEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment())
                             }
 
                             false -> {
                                 isOptionVisible = true
                                 clickedItemLore[clickedItemLore.indexOf(statusHidden)] = statusVisible
 
-                                clickedItemMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0, true)
+                                clickedItemMeta.addEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment(), 0, true)
                             }
                         }
 

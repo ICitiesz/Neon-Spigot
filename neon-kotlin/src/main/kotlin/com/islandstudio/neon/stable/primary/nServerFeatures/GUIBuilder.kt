@@ -1,7 +1,7 @@
 package com.islandstudio.neon.stable.primary.nServerFeatures
 
+import com.islandstudio.neon.item.NeonEnchantment
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.item.NItemGlinter
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
 import org.bukkit.ChatColor
@@ -124,11 +124,11 @@ abstract class GUIBuilder(ngui: NGUI): NGUIConstructor(ngui) {
 
         when (isOptionVisible) {
             true -> {
-                toggleOptionButtonMeta.addEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint, 0 , true)
+                toggleOptionButtonMeta.addEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment(), 0 , true)
             }
 
             false -> {
-                toggleOptionButtonMeta.removeEnchant(NItemGlinter.ItemGlinterType.NGUI_BUTTON_GLINT.glint)
+                toggleOptionButtonMeta.removeEnchant(NeonEnchantment.NeonGuiButtonHighlight.getEnchantment())
             }
         }
 
