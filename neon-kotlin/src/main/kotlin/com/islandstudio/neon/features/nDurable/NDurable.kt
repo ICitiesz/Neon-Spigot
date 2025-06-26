@@ -4,6 +4,7 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.core.datakey.container.DataContainerManager
 import com.islandstudio.neon.core.datakey.container.DataContainerType
 import com.islandstudio.neon.core.initialization.NeonPluginLoader
+import com.islandstudio.neon.core.nmsmapping.NmsManager
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.experimental.nEffect.NEffect
@@ -15,7 +16,6 @@ import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
 import com.islandstudio.neon.stable.core.command.CommandDispatcher
 import com.islandstudio.neon.stable.core.command.CommandInterfaceProcessor
 import com.islandstudio.neon.stable.core.command.properties.CommandAlias
@@ -132,10 +132,7 @@ object NDurable: IComponentInjector {
             if (!isEnabled) return
 
             /* Convert base Item Stack to Bukkit Item Stack */
-            (CraftBukkitReflector.getCraftBukkitClass("inventory.CraftItemStack").getMethod(
-                "asCraftMirror",
-                net.minecraft.world.item.ItemStack::class.java
-            ).invoke(null, gaveItem) as ItemStack).apply {
+            NmsManager.toBukkitItemStack(gaveItem).apply {
                 applyDamageProperty(this, 0)
             }
         }
@@ -167,8 +164,7 @@ object NDurable: IComponentInjector {
                     val newIngredient = if (isEnabled) applyDamageProperty(ingredient, 0)
                     else hideDamageProperty(ingredient)
 
-                    val baseItemStack = CraftBukkitReflector.getCraftBukkitClass("inventory.CraftItemStack")
-                        .getMethod("asNMSCopy", ItemStack::class.java).invoke(null, newIngredient)
+                    val baseItemStack = NmsManager.toNmsItemStack(newIngredient)
 
                     originalIngredient.set(merchantRecipe, baseItemStack)
                 }
@@ -180,8 +176,7 @@ object NDurable: IComponentInjector {
                 val newResult = if (isEnabled) applyDamageProperty(it.result, 0)
                 else removeDamageProperty(it.result, true)
 
-                val baseItemStack = CraftBukkitReflector.getCraftBukkitClass("inventory.CraftItemStack")
-                    .getMethod("asNMSCopy", ItemStack::class.java).invoke(null, newResult)
+                val baseItemStack = NmsManager.toNmsItemStack(newResult)
 
                 originalResult.set(merchantRecipe, baseItemStack)
             }

@@ -2,12 +2,12 @@ package com.islandstudio.neon.features.nBundle
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.core.initialization.NeonPluginLoader
+import com.islandstudio.neon.core.nmsmapping.NmsManager
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.recipe.NBundleRecipe
 import com.islandstudio.neon.recipe.component.RecipeRegistry
 import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.entity.Villager
@@ -119,8 +119,7 @@ object NBundle: RecipeRegistry, IComponentInjector {
 
         /* This section for player who using /give command or picked up the item */
         gaveItem?.let { itemStack ->
-            (CraftBukkitReflector.getCraftBukkitClass("inventory.CraftItemStack").getMethod("asCraftMirror",
-                net.minecraft.world.item.ItemStack::class.java).invoke(null, itemStack) as ItemStack).also {
+            NmsManager.toBukkitItemStack(itemStack).also {
                 if (!(it.type == Material.RABBIT_HIDE || it.type == Material.BUNDLE)) return
 
                 plugin.server.scheduler.runTask(plugin, Runnable {

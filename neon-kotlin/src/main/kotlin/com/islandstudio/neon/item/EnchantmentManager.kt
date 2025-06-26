@@ -1,13 +1,13 @@
 package com.islandstudio.neon.item
 
 import com.islandstudio.neon.core.initialization.CompatibleVersions
+import com.islandstudio.neon.core.nmsmapping.NmsManager
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.shared.core.AppContext
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.utils.data.DataUtil
-import com.islandstudio.neon.stable.core.application.reflection.CraftBukkitReflector
 import net.minecraft.core.Holder
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.HolderOwner
@@ -180,7 +180,7 @@ class EnchantmentManager {
 
         if (bukkitAcceptingNew == null || bukkitRegisterEnchanment == null) return
 
-        val craftBukkitEnchant = CraftBukkitReflector.getCraftBukkitClass("enchantments.CraftEnchantment")
+        val craftBukkitEnchant = NmsManager.getCraftBukkitClass("enchantments.CraftEnchantment")
             .getConstructor(Enchantment::class.java).newInstance(registeredItemGlintType)
 
         bukkitAcceptingNew.apply {
