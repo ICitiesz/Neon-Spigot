@@ -1,9 +1,12 @@
 package com.islandstudio.neon.server
 
+import com.islandstudio.neon.core.nmsmapping.NmsManager
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
-import com.islandstudio.neon.features.nBundle.NBundle
-import com.islandstudio.neon.features.nDurable.NDurable
+import com.islandstudio.neon.core.nmsmapping.type.NmsMethod
+import com.islandstudio.neon.features.durabilityplus.DurabilityPlus
+import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.utils.data.DataUtil
 import com.islandstudio.neon.stable.core.command.commandlist.NCommandList
 import io.netty.channel.Channel
 import io.netty.channel.ChannelDuplexHandler
@@ -16,8 +19,9 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import org.bukkit.World
 import org.bukkit.entity.Player
+import org.koin.core.component.inject
 
-object ServerGamePacketManager {
+object ServerGamePacketManager: IComponentInjector, NmsManager.INmsMapper {
     private val nmsProcessor = NmsProcessor()
 
     /**
@@ -154,11 +158,14 @@ object ServerGamePacketManager {
                         val bukkitPlayer = mcPlayer.javaClass.getMethod(NmsMap.GetBukkitEntity.remapped)
                             .invoke(mcPlayer) as Player
 
-                        val mcItemStack = serverGamePacket.javaClass.getMethod(NmsMap.GetSetSlotItemStack.remapped)
-                            .invoke(serverGamePacket)
+                        val nmsItemStack = DataUtil.asType<ItemStack>(
+                            serverGamePacket.javaClass.getMethod(mapMethod(NmsMethod.GetSetSlotItemStack)).invoke(serverGamePacket)
+                        )
 
-                        NDurable.Handler.applyDamagePropertyOnGive(mcItemStack as ItemStack)
-                        NBundle.discoverBundleRecipe(bukkitPlayer, mcItemStack)
+                        val durabilityPlus by inject<DurabilityPlus>()
+
+                        durabilityPlus.updateDurabilityStateOnGive(nmsItemStack)
+                        //NBundle.discoverBundleRecipe(bukkitPlayer, mcItemStack)
                     }
                 }
 

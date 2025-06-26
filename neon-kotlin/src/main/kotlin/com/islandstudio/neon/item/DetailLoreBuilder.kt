@@ -13,4 +13,8 @@ abstract class DetailLoreBuilder {
 
         itemMeta.lore = detailLore
     }
+
+    fun removeDetailLore(itemMeta: ItemMeta) {
+        itemMeta.lore = null
+    }
 }

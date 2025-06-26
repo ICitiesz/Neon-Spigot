@@ -2,18 +2,20 @@ package com.islandstudio.neon.features.durabilityplus
 
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.core.initialization.NeonPluginLoader
+import com.islandstudio.neon.core.nmsmapping.NmsManager
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
+import com.islandstudio.neon.core.nmsmapping.type.NmsField
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.server.ServerGamePacketManager
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.utils.data.DataUtil
 import net.minecraft.network.chat.Component
+import net.minecraft.world.item.trading.MerchantOffer
 import org.bukkit.*
-import org.bukkit.entity.Creeper
-import org.bukkit.entity.Player
-import org.bukkit.entity.Villager
+import org.bukkit.entity.*
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -35,13 +37,21 @@ import org.koin.core.component.inject
 import java.util.*
 
 @Single
-class DurabilityPlus: IComponentInjector {
+class DurabilityPlus: NmsManager.INmsMapper {
+    private val villagerProfessions = arrayOf(
+        Villager.Profession.TOOLSMITH,
+        Villager.Profession.WEAPONSMITH,
+        Villager.Profession.FISHERMAN,
+        Villager.Profession.FLETCHER
+    )
+
     companion object: IRunner, IComponentInjector {
         private val neon by inject<Neon>()
         private val neonFeatureManager by inject<NeonFeatureManager>()
         private val durabilityPlus by inject<DurabilityPlus>()
 
-        private val isEnabled = neonFeatureManager.getFeatureToggle(NeonFeatureConfigProperty.NDurableConfigProperty.IsEnabled)
+        //private val isEnabled = neonFeatureManager.getFeatureToggle(NeonFeatureConfigProperty.NDurableConfigProperty.IsEnabled)
+        private val isEnabled = true
         private val showItemDurability = neonFeatureManager.getFeatureOptionValue<Boolean>(NeonFeatureConfigProperty.NDurableConfigProperty.ShowItemDurability)
         private var restrictFortuneHarvest = false
 
@@ -49,7 +59,7 @@ class DurabilityPlus: IComponentInjector {
             NeonPluginLoader.registerEventProcessor(DurabilityPlusEvent())
 
             togglePlayerItemDamageProperty()
-//            toggleVillagerItemDamageProperty()
+            toggleVillagerItemDamageProperty()
 //
 //            if (isEnabled) {
 //                restrictFortuneHarvest = true
@@ -66,7 +76,7 @@ class DurabilityPlus: IComponentInjector {
                     .filter { contentItem -> contentItem.itemMeta is Damageable }
                     .filter { damageableItem -> DamageableItemMatcher.matchesItem(damageableItem) }
                     .forEach { damageableItem ->
-                        durabilityPlus.updateDamageProperty(player, damageableItem, 0)
+                        durabilityPlus.updateDurabilityState(damageableItem, 0)
                     }
 
                 return
@@ -77,7 +87,7 @@ class DurabilityPlus: IComponentInjector {
                     .filter { contentItem -> contentItem.itemMeta is Damageable }
                     .filter { damageableItem ->  DamageableItemMatcher.matchesItem(damageableItem) }
                     .forEach { damageableItem ->
-                        durabilityPlus.updateDamageProperty(onlinePlayer, damageableItem, 0)
+                        durabilityPlus.updateDurabilityState( damageableItem, 0)
                     }
             }
         }
@@ -88,52 +98,124 @@ class DurabilityPlus: IComponentInjector {
             /* Remove and hide damage property display from all tool smith villager & weapon smith villager */
             neon.server.worlds.forEach {
                 it.entities.parallelStream()
-                    .filter { entity -> entity is Villager }
-                    .filter { entity -> (entity as Villager).profession == Villager.Profession.TOOLSMITH
-                            || entity.profession == Villager.Profession.WEAPONSMITH }
-                    .forEach { entity ->
-                        //Handler.applyDamagePropertyOnTrading(entity as Villager)
+                    .filter { entity -> entity is Villager || entity is WanderingTrader }
+                    .filter { entity ->
+                        when (entity) {
+                            is Villager -> entity.profession in durabilityPlus.villagerProfessions
+
+                            is WanderingTrader -> true
+
+                            else -> false
+                        }
+                    }.forEach { entity ->
+                        durabilityPlus.updateDurabilityStateOnTrading(entity as Villager)
                     }
             }
         }
     }
 
-    fun updateDamageProperty(player: Player, itemStack: ItemStack, durabilityConsumed: Int): ItemStack {
-        if (!DamageableItemMatcher.matchesItem(itemStack)) return itemStack
+    fun updateDurabilityStateOnGive(gaveItem: net.minecraft.world.item.ItemStack) {
+        if (!isEnabled) return
 
+        val bukkitItemStack = NmsManager.toBukkitItemStack(gaveItem)
+
+        updateDurabilityState(bukkitItemStack, 0)
+    }
+
+    private fun updateVillagerTradeResult(e: PlayerInteractEntityEvent) {
+        with(e.rightClicked) {
+            if (this !is Villager) return
+
+            updateDurabilityStateOnTrading(this)
+        }
+    }
+
+    private fun updateDurabilityStateOnTrading(villager: AbstractVillager) {
+        /* Villager profession check */
+        if (villager is Villager && villager.profession !in villagerProfessions) return
+
+        villager.recipes
+            .filter { merchantRecipe -> DamageableItemMatcher.matchesItem(merchantRecipe.result) }
+            .forEach { merchantRecipe ->
+                updateDurabilityState(merchantRecipe.result, 0).also { durabilityState ->
+                    /* Get the nms trade recipe */
+                    val nmsMerchantRecipe = DataUtil.asType<MerchantOffer>(
+                        merchantRecipe.javaClass.getDeclaredField("handle").run {
+                            this.isAccessible = true
+                            this.get(merchantRecipe)
+                        }
+                    )
+
+                    /* Replace the recipe result with updated durability detail */
+                    nmsMerchantRecipe.javaClass.getDeclaredField(mapField(NmsField.MerchantRecipeResult)).apply {
+                        this.isAccessible = true
+                        this.set(nmsMerchantRecipe, NmsManager.toNmsItemStack(durabilityState.itemStack))
+                    }
+                }
+            }
+    }
+
+    private fun updateDurabilityState(itemStack: ItemStack, durabilityConsumed: Int, player: Player? = null): DurabilityState {
+        var isItemBroken = false
+
+        /* Check if the item matches the supported tools/weapons */
+        if (!DamageableItemMatcher.matchesItem(itemStack)) return DurabilityState(itemStack, false)
+
+        /* Durability info */
         val damageableItemMeta = itemStack.itemMeta as Damageable
         val itemMaxDamageCount = itemStack.type.maxDurability.toInt() // max durability act as item maximum damage count before it break
         val currentItemDamageCount = damageableItemMeta.damage
+        val durabilityDetailLore =  DurabilityDetailLore(isEnabled, showItemDurability)
 
-        calculateDamageCount(currentItemDamageCount, durabilityConsumed).also {
-            if (!isItemBroken(it, itemMaxDamageCount)) {
-                DurabilityDetailsLore(isEnabled, showItemDurability, it, itemMaxDamageCount)
-                    .setDetailLore(damageableItemMeta, false)
-                return@also
+        if (isEnabled) {
+            /* Calculate the damage done */
+            calculateDamageCount(currentItemDamageCount, durabilityConsumed).also { calculatedDamageCount ->
+                if (!isItemBroken(calculatedDamageCount, itemMaxDamageCount)) {
+                    durabilityDetailLore
+                        .withDurabilityDetail(calculatedDamageCount, itemMaxDamageCount)
+                        .setDetailLore(damageableItemMeta, false)
+                    return@also
+                }
+
+                isItemBroken = true
+                damageableItemMeta.damage = itemMaxDamageCount
+                durabilityDetailLore
+                    .withDurabilityDetail(damageableItemMeta.damage, itemMaxDamageCount)
+                    .setDetailLore(damageableItemMeta, true)
+
+                player?.let {
+                    /* Check if it is required to play item break sound */
+                    if (shouldPlayItemBreakSound(currentItemDamageCount, itemMaxDamageCount)) {
+                        it.world.playSound(it.location, Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f)
+                        return@let
+                    }
+
+                    sendItemBrokenWarning(it, itemStack)
+                }
             }
-
-            damageableItemMeta.damage = itemMaxDamageCount
-            DurabilityDetailsLore(isEnabled, showItemDurability, damageableItemMeta.damage, itemMaxDamageCount)
-                .setDetailLore(damageableItemMeta, true)
-
-            player.world.playSound(player.location, Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f)
-            sendItemBrokenWarning(player, itemStack)
+        } else {
+            durabilityDetailLore.removeDetailLore(damageableItemMeta)
         }
 
         itemStack.itemMeta = damageableItemMeta
-        return itemStack
+
+        return DurabilityState(itemStack, isItemBroken)
     }
 
-    fun calculateDamageCount(currentItemDamageCount: Int, durabilityConsumed: Int): Int {
+    private fun calculateDamageCount(currentItemDamageCount: Int, durabilityConsumed: Int): Int {
         return currentItemDamageCount + durabilityConsumed
     }
 
-    fun isItemBroken(itemDamageCount: Int, itemMaxDurability: Int): Boolean {
+    private fun isItemBroken(itemDamageCount: Int, itemMaxDurability: Int): Boolean {
         return itemDamageCount >= itemMaxDurability
     }
 
+    private fun shouldPlayItemBreakSound(beforeItemDamageCount: Int, itemMaxDurability: Int): Boolean {
+        return beforeItemDamageCount < itemMaxDurability
+    }
+
     /**
-     * Restrict any attack done by the player with broken items.
+     * Restrict any attack done by the player on broken items.
      *
      * @param e EntityDamageByEntityEvent
      */
@@ -162,6 +244,11 @@ class DurabilityPlus: IComponentInjector {
         sendItemBrokenWarning(attacker, damageableItem)
     }
 
+    /**
+     * Restrict block breaking on broken items
+     *
+     * @param e BlockBreakEvent
+     */
     private fun restrictBlockBreakingOnBroken(e: BlockBreakEvent) {
         val player = e.player.also {
             if (it.gameMode == GameMode.CREATIVE) return
@@ -190,6 +277,11 @@ class DurabilityPlus: IComponentInjector {
         sendItemBrokenWarning(player, damageableItem)
     }
 
+    /**
+     * Restrict creeper ignition on broken Flint & Steel
+     *
+     * @param e PlayerInteractEntityEvent
+     */
     private fun restrictCreeperIgnitionOnBroken(e: PlayerInteractEntityEvent) {
         val player = e.player.also {
             if (it.gameMode == GameMode.CREATIVE) return
@@ -215,6 +307,11 @@ class DurabilityPlus: IComponentInjector {
         sendItemBrokenWarning(player, flintAndSteelItem)
     }
 
+    /**
+     * Restrict wool shearing on broken Shears
+     *
+     * @param e PlayerShearEntityEvent
+     */
     private fun restrictWoolShearingOnBroken(e: PlayerShearEntityEvent) {
         val player = e.player.also {
             if (it.gameMode == GameMode.CREATIVE) return
@@ -231,6 +328,11 @@ class DurabilityPlus: IComponentInjector {
         sendItemBrokenWarning(player, shears)
     }
 
+    /**
+     * Restrict bow shooting on broken bow
+     *
+     * @param e EntityShootBowEvent
+     */
     private fun restrictBowShootingOnBroken(e: EntityShootBowEvent) {
         val player = e.entity.run {
             if (this !is Player) return
@@ -253,7 +355,12 @@ class DurabilityPlus: IComponentInjector {
         sendItemBrokenWarning(player, bow)
     }
 
-    private fun restrictInteractiveUse(e: PlayerInteractEvent) {
+    /**
+     * Restrict interactive use on broken items
+     *
+     * @param e PlayerInteractEvent
+     */
+    private fun restrictInteractiveUseOnBroken(e: PlayerInteractEvent) {
         val player = e.player.also {
             if (it.gameMode == GameMode.CREATIVE) return
         }
@@ -359,8 +466,8 @@ class DurabilityPlus: IComponentInjector {
                 }
             }
 
-            /* Crossbow reload */
-            DamageableItemMatcher.matchesBowWeaponItems(usedItem, Material.CROSSBOW) -> {
+            /* Drawing crossbow/bow */
+            DamageableItemMatcher.matchesBowWeaponItems(usedItem) -> {
                 if (!isItemBroken(usedItemItemMeta.damage, usedItem.type.maxDurability.toInt())) return
 
                 if (!(e.action == Action.RIGHT_CLICK_AIR || e.action == Action.RIGHT_CLICK_BLOCK)) return
@@ -389,6 +496,11 @@ class DurabilityPlus: IComponentInjector {
         }
     }
 
+    /**
+     * Restrict block ignition on broken Flint & Steel
+     *
+     * @param e BlockIgniteEvent
+     */
     private fun restrictBlockIgnitionOnBroken(e: BlockIgniteEvent) {
         if (e.cause != BlockIgniteEvent.IgniteCause.FLINT_AND_STEEL) return
 
@@ -416,6 +528,11 @@ class DurabilityPlus: IComponentInjector {
         sendItemBrokenWarning(player, flintAndSteel)
     }
 
+    /**
+     * Restrict fire on block on broken items
+     *
+     * @param e BlockPlaceEvent
+     */
     private fun restrictPlaceFireOnBroken(e: BlockPlaceEvent) {
         val player = e.player.also {
             if (it.gameMode == GameMode.CREATIVE) return
@@ -435,6 +552,12 @@ class DurabilityPlus: IComponentInjector {
         sendItemBrokenWarning(player, flintAndSteel)
     }
 
+    /**
+     * Send item broken warning
+     *
+     * @param player
+     * @param damagedItem
+     */
     private fun sendItemBrokenWarning(player: Player, damagedItem: ItemStack) {
         val warningMessage = "${ChatColor.GOLD}${getDamageableItemName(damagedItem)} " +
                 "${ChatColor.RED}has been broken!"
@@ -449,6 +572,12 @@ class DurabilityPlus: IComponentInjector {
         ServerGamePacketManager.sendServerGamePacket(player,actionTitlePacket)
     }
 
+    /**
+     * Get damageable item name
+     *
+     * @param damageableItem
+     * @return
+     */
     private fun getDamageableItemName(damageableItem: ItemStack): String {
         val damageableItemMeta = damageableItem.itemMeta ?: return ""
 
@@ -486,16 +615,15 @@ class DurabilityPlus: IComponentInjector {
         private fun onPlayerItemDamage(e: PlayerItemDamageEvent) {
             val player = e.player
             val item = e.item
-            val itemMeta = item.itemMeta as Damageable
-            val itemDamage = itemMeta.damage
-            val itemMaxDurability = item.type.maxDurability.toInt()
 
-            durabilityPlus.updateDamageProperty(player, item, e.damage)
+            durabilityPlus.updateDurabilityState(item, e.damage, player).also {
+                println("PlayerItemDamageEvent called")
+                if (it.isBroken) {
+                    e.isCancelled = true
 
-            durabilityPlus.calculateDamageCount(itemDamage, e.damage).also {
-                if (!durabilityPlus.isItemBroken(it, itemMaxDurability)) return@also
-
-                e.isCancelled = true
+//                    player.world.playSound(player.location, Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f)
+//                    durabilityPlus.sendItemBrokenWarning(player, it.itemStack)
+                }
             }
         }
 
@@ -506,7 +634,10 @@ class DurabilityPlus: IComponentInjector {
         private fun onEntityDamageByPlayer(e: EntityDamageByEntityEvent) = durabilityPlus.restrictAttackOnBroken(e)
 
         @EventHandler
-        private fun onPlayerInteractEntity(e: PlayerInteractEntityEvent) = durabilityPlus.restrictCreeperIgnitionOnBroken(e)
+        private fun onPlayerInteractEntity(e: PlayerInteractEntityEvent) {
+            durabilityPlus.restrictCreeperIgnitionOnBroken(e)
+            durabilityPlus.updateVillagerTradeResult(e)
+        }
 
         @EventHandler
         private fun onBlockIgnite(e: BlockIgniteEvent) = durabilityPlus.restrictBlockIgnitionOnBroken(e)
@@ -521,6 +652,6 @@ class DurabilityPlus: IComponentInjector {
         private fun onBowShooting(e: EntityShootBowEvent) = durabilityPlus.restrictBowShootingOnBroken(e)
 
         @EventHandler
-        private fun onPlayerInteract(e: PlayerInteractEvent) = durabilityPlus.restrictInteractiveUse(e)
+        private fun onPlayerInteract(e: PlayerInteractEvent) = durabilityPlus.restrictInteractiveUseOnBroken(e)
     }
 }

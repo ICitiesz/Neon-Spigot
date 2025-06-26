@@ -15,6 +15,7 @@ import com.islandstudio.neon.core.datakey.container.DataContainerType
 import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
+import com.islandstudio.neon.features.durabilityplus.DurabilityPlus
 import com.islandstudio.neon.features.nDurable.NDurable
 import com.islandstudio.neon.player.security.role.RoleManager
 import com.islandstudio.neon.server.ServerGamePacketManager
@@ -335,6 +336,7 @@ class PlayerSessionManager: IComponentInjector, IObjectMapper {
 
             ServerGamePacketManager.registerServerGamePacketListener(player)
             playerSessionManager.createPlayerProfile(player)
+            DurabilityPlus.togglePlayerItemDamageProperty(player)
             NDurable.toggleDamageProperty()
 
             roleManager.addRoleTag(player)

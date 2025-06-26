@@ -6,13 +6,20 @@ import com.islandstudio.neon.util.ColorUtil
 import org.bukkit.ChatColor
 import org.bukkit.inventory.meta.ItemMeta
 
-data class DurabilityDetailsLore(
+data class DurabilityDetailLore(
     val isEnabled: Boolean,
     val showItemDurability: Boolean,
-    val itemDamageCount: Int,
-    val itemMaxDurability: Int,
 ): DetailLoreBuilder(), IComponentInjector {
     private val damageTag = "${ColorUtil.fromHex("#ab0000")}BROKEN"
+    private var itemDamageCount: Int = 0
+    private var itemMaxDurability: Int = 0
+
+    fun withDurabilityDetail(itemDamageCount: Int, itemMaxDurability: Int): DurabilityDetailLore {
+        this.itemDamageCount = itemDamageCount
+        this.itemMaxDurability = itemMaxDurability
+
+        return this
+    }
 
     override fun setDetailLore(itemMeta: ItemMeta, isBroken: Boolean) {
         val detailLoreText = buildString {
