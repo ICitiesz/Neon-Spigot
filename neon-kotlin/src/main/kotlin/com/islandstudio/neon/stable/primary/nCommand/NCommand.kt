@@ -7,7 +7,6 @@ import com.islandstudio.neon.experimental.nPainting.NPainting
 import com.islandstudio.neon.features.nDurable.NDurable
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.stable.core.command.commandlist.NCommandList
-import com.islandstudio.neon.stable.features.nRank.NRank
 import com.islandstudio.neon.stable.features.nWaypoints.NWaypoints
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.utils.processing.TextProcessor
@@ -65,11 +64,6 @@ class NCommand: Commands(), Listener, TabExecutor {
         }
 
         when (args[0].lowercase()) {
-            CommandAlias.RANK.aliasName -> {
-                NRank.setCommandHandler(commander, args, pluginName)
-                return true
-            }
-
             CommandAlias.WAYPOINTS.aliasName -> {
                 NWaypoints.Handler.setCommandHandler(commander, args)
                 return true
@@ -253,10 +247,6 @@ class NCommand: Commands(), Listener, TabExecutor {
             .sorted().map { it.aliasName }.filter { it.startsWith(args[0], true) }.toMutableList()
 
         when (args[0].lowercase()) {
-            CommandAlias.RANK.aliasName -> {
-                return NRank.tabCompletion(commander, args)
-            }
-
             CommandAlias.WAYPOINTS.aliasName -> {
                 return NWaypoints.Handler.tabCompletion(commander, args)
             }

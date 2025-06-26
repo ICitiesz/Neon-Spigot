@@ -52,8 +52,6 @@ enum class CommandAlias(val command: Command) {
 
     NWAYPOINTS(Command("waypoints", null)),
 
-    NRANK(Command("rank", null)),
-
     DEBUG(Command("debug", null)),
 
     GAMEMODE(Command("gm", null)),

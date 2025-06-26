@@ -4,9 +4,7 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.experimental.nEffect.NEffect
 import com.islandstudio.neon.features.nDurable.NDurable
-import com.islandstudio.neon.server.ServerGamePacketManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.features.nRank.NRank
 import com.islandstudio.neon.stable.features.nWaypoints.NWaypoints
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
@@ -20,7 +18,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.player.PlayerDropItemEvent
-import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.server.ServerCommandEvent
 import org.bukkit.inventory.ItemStack
@@ -108,16 +105,8 @@ class ServerConstantEvent: IComponentInjector {
         }
 
         @EventHandler
-        private fun onPlayerJoin(e: PlayerJoinEvent) {
-            with(e.player) {
-                NRank.updateTag()
-            }
-        }
-
-        @EventHandler
         private fun onPlayerQuit(e: PlayerQuitEvent) {
             with(e.player) {
-                ServerGamePacketManager.unregisterServerGamePacketListener(this)
                 NGUI.Handler.nGUIContainer.remove(player)
                 e.quitMessage = ""
             }

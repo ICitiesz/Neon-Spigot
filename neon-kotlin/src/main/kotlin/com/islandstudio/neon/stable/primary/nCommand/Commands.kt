@@ -11,7 +11,6 @@ open class Commands {
 
     enum class CommandAlias(val aliasName: String) {
         WAYPOINTS("waypoints"),
-        RANK("rank"),
         DEBUG("debug"),
         GM("gm"),
         REGEN("regen"),
