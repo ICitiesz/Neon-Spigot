@@ -5,7 +5,6 @@ import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
@@ -46,7 +45,7 @@ object NFireworks {
 
     object Handler: CommandHandler {
         fun run() {
-            isEnabled = NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nFireworks") ?: false
+            isEnabled = false
 
             if (!isEnabled) {
                 return NeonPluginLoader.unregisterEventProcessor(EventProcessor())

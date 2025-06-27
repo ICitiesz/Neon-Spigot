@@ -1,8 +1,6 @@
 package com.islandstudio.neon.stable.core.database
 
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.database.model.InactiveTable
-import com.islandstudio.neon.stable.core.database.model.TableConstraint
 import com.islandstudio.neon.stable.core.database.schema.neon_data.NeonData
 import org.jooq.DSLContext
 import org.jooq.Record
@@ -95,26 +93,26 @@ class DatabaseStructureInterface: IComponentInjector, IDatabaseContext {
             .select(tableCatalogField, tableSchemaField, tableNameField, constraintNameField, constraintTypeField)
             .from(DSL.table("INFORMATION_SCHEMA.TABLE_CONSTRAINTS"))
 
-        val inactiveTables = dbContext.fetch(inactiveTableQuery)
-            .into(InactiveTable::class.java)
-            .apply {
-                inactiveTableNames.addAll(this.map { table -> table.tableName!! })
-            }
-
-        val tableConstraints = dbContext.fetch(
-            tableConstraintQuery.where(tableCatalogField.eq("NEON_DB")
-                .and(tableSchemaField.eq("PUBLIC"))
-                .and(constraintTypeField.eq("FOREIGN KEY"))
-                .and(tableNameField.`in`(inactiveTableNames))
-            )).into(TableConstraint::class.java)
-
-        tableConstraints.forEach { constraint ->
-            dbContext.alterTable(DSL.table(constraint.tableName))
-                .drop(DSL.constraint(constraint.constraintName)).execute()
-        }
-
-        inactiveTables.forEach { table ->
-            dbContext.dropTableIfExists(DSL.table(table.tableName)).execute()
-        }
+//        val inactiveTables = dbContext.fetch(inactiveTableQuery)
+//            .into(InactiveTable::class.java)
+//            .apply {
+//                inactiveTableNames.addAll(this.map { table -> table.tableName!! })
+//            }
+//
+//        val tableConstraints = dbContext.fetch(
+//            tableConstraintQuery.where(tableCatalogField.eq("NEON_DB")
+//                .and(tableSchemaField.eq("PUBLIC"))
+//                .and(constraintTypeField.eq("FOREIGN KEY"))
+//                .and(tableNameField.`in`(inactiveTableNames))
+//            )).into(TableConstraint::class.java)
+//
+//        tableConstraints.forEach { constraint ->
+//            dbContext.alterTable(DSL.table(constraint.tableName))
+//                .drop(DSL.constraint(constraint.constraintName)).execute()
+//        }
+//
+//        inactiveTables.forEach { table ->
+//            dbContext.dropTableIfExists(DSL.table(table.tableName)).execute()
+//        }
     }
 }

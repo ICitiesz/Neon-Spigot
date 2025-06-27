@@ -10,10 +10,6 @@ import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import com.islandstudio.neon.shared.core.server.ServerProvider
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.core.io.DataSourceType
-import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
-import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered.saveToFile
-import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered.toYAML
 import com.islandstudio.neon.stable.primary.nCommand.CommandHandler
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.primary.nCommand.Commands
@@ -64,7 +60,7 @@ object NPainting: IComponentInjector {
 
     object Handler: Commands(), CommandHandler {
         fun run() {
-            isEnabled = NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureToggle("nPainting") ?: false
+            isEnabled = false
 
             if (!isEnabled) {
                 return NeonPluginLoader.unregisterEventProcessor(EventProcessor())
@@ -72,11 +68,11 @@ object NPainting: IComponentInjector {
 
             /* TODO: Temp. disable nPainting for version 1.17.X */
             if (appContext.serverMajorVersion == "1.17") {
-                NServerFeaturesRemastered.serverFeatureSession.also {
-                    it.setServerFeatureToggle("nPainting", false)
-
-                    saveToFile(toYAML(it.getServerFeatureList(DataSourceType.EXTERNAL_SOURCE)))
-                }
+//                NServerFeaturesRemastered.serverFeatureSession.also {
+//                    it.setServerFeatureToggle("nPainting", false)
+//
+//                    saveToFile(toYAML(it.getServerFeatureList(DataSourceType.EXTERNAL_SOURCE)))
+//                }
 
                 isEnabled = false
                 return
