@@ -3,7 +3,7 @@ package com.islandstudio.neon.util
 import com.islandstudio.neon.shared.core.exception.NeonException
 import net.md_5.bungee.api.ChatColor
 
-object ColorUtil {
+object NeonColor {
     enum class DefinedColor(val color: ChatColor) {
         CyanBlue(fromHex("#34baeb")),
         Orange(fromHex("#f57d1f")),

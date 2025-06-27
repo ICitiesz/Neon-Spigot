@@ -21,6 +21,7 @@ import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.shared.utils.TextUtil
+import com.islandstudio.neon.util.NeonColor
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -63,12 +64,22 @@ class RoleManager: IComponentInjector {
             roleCommandAlias.onMatchOption(commander, args[1], playerAccessibleCommand) { commandOption ->
                 when (commandOption) {
                     RoleCommandOption.Create -> {
+                        val maxInputLength = 64
+
                         if (!CommandAlias.validateCommandOptionArgLength(argLength, 4, 5)) {
                             return CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
                         }
 
-                        val roleCode = args[2].uppercase()
-                        val roleDisplayName = args[3]
+                        val roleCode = args[2].uppercase().also {
+                            if (it.length > maxInputLength) {
+                                return CommandSyntaxHandler.sendCommandSyntax(commander, "${NeonColor.DefinedColor.Red}Role code should not exceed 64 characters!")
+                            }
+                        }
+                        val roleDisplayName = args[3].also {
+                            if (it.length > maxInputLength) {
+                                return CommandSyntaxHandler.sendCommandSyntax(commander, "${NeonColor.DefinedColor.Red}Role display name should not exceed 64 characters!")
+                            }
+                        }
 
                         val underscoreAsSpace: Boolean = when (argLength) {
                             4 -> false

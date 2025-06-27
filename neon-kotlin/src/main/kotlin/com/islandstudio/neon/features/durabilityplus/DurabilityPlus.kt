@@ -124,7 +124,7 @@ class DurabilityPlus: NmsManager.INmsMapper {
 
     private fun updateVillagerTradeResult(e: PlayerInteractEntityEvent) {
         with(e.rightClicked) {
-            if (this !is Villager) return
+            if (this !is AbstractVillager) return
 
             updateDurabilityStateOnTrading(this)
         }
@@ -187,7 +187,6 @@ class DurabilityPlus: NmsManager.INmsMapper {
                     /* Check if it is required to play item break sound */
                     if (shouldPlayItemBreakSound(currentItemDamageCount, itemMaxDamageCount)) {
                         it.world.playSound(it.location, Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f)
-                        return@let
                     }
 
                     sendItemBrokenWarning(it, itemStack)
@@ -408,6 +407,7 @@ class DurabilityPlus: NmsManager.INmsMapper {
                     if (!DurabilityConsumerBlockMatcher.matchesPathBlockITems(blockItem)) return
 
                     e.setUseItemInHand(Event.Result.DENY)
+                    updateDurabilityState(usedItem, 0, player)
                     sendItemBrokenWarning(player, usedItem)
                 }
             }
@@ -424,6 +424,7 @@ class DurabilityPlus: NmsManager.INmsMapper {
                     if (!DurabilityConsumerBlockMatcher.matchesPathBlockITems(blockItem)) return
 
                     e.setUseItemInHand(Event.Result.DENY)
+                    updateDurabilityState(usedItem, 0, player)
                     sendItemBrokenWarning(player, usedItem)
                 }
             }
@@ -435,6 +436,7 @@ class DurabilityPlus: NmsManager.INmsMapper {
                 if (!(playerUseAction == Action.RIGHT_CLICK_AIR || playerUseAction == Action.RIGHT_CLICK_BLOCK)) return
 
                 e.setUseItemInHand(Event.Result.DENY)
+                updateDurabilityState(usedItem, 0, player)
                 sendItemBrokenWarning(player, usedItem)
             }
 
@@ -473,6 +475,7 @@ class DurabilityPlus: NmsManager.INmsMapper {
                 if (!(e.action == Action.RIGHT_CLICK_AIR || e.action == Action.RIGHT_CLICK_BLOCK)) return
 
                 e.setUseItemInHand(Event.Result.DENY)
+                updateDurabilityState(usedItem, 0, player)
 
                 when(e.action) {
                     Action.RIGHT_CLICK_AIR -> {
@@ -617,13 +620,7 @@ class DurabilityPlus: NmsManager.INmsMapper {
             val item = e.item
 
             durabilityPlus.updateDurabilityState(item, e.damage, player).also {
-                println("PlayerItemDamageEvent called")
-                if (it.isBroken) {
-                    e.isCancelled = true
-
-//                    player.world.playSound(player.location, Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f)
-//                    durabilityPlus.sendItemBrokenWarning(player, it.itemStack)
-                }
+                if (it.isBroken) e.isCancelled = true
             }
         }
 
