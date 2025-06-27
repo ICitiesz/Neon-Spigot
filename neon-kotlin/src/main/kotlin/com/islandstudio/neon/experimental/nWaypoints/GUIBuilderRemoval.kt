@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.features.nWaypoints
+package com.islandstudio.neon.experimental.nWaypoints
 
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
 import com.islandstudio.neon.stable.utils.nGUI.NGUI

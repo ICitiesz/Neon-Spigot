@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.features.nWaypoints
+package com.islandstudio.neon.experimental.nWaypoints
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -9,7 +9,6 @@ import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
 import com.islandstudio.neon.shared.core.io.resource.NeonExternalResource
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.shared.core.io.resource.ResourceManager
-import com.islandstudio.neon.stable.features.nServerFeatures.NServerFeaturesRemastered
 import com.islandstudio.neon.stable.primary.nCommand.CommandSyntax
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import com.islandstudio.neon.stable.utils.nGUI.NGUIConstructor
@@ -74,8 +73,8 @@ data class NWaypoints(private val waypointData: Map.Entry<String, JSONObject>) {
          * Initialize the nWaypoints.
          */
         fun run() {
-            canCrossDimension =
-                (NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureOptionValue("nWaypoints", "crossDimension") as Boolean)
+            canCrossDimension = false
+                //(NServerFeaturesRemastered.serverFeatureSession.getActiveServerFeatureOptionValue("nWaypoints", "crossDimension") as Boolean)
 
             if (nWaypointsFile.length() > 0L) return
 

@@ -3,9 +3,9 @@ package com.islandstudio.neon.stable.core.event
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.experimental.nEffect.NEffect
+import com.islandstudio.neon.experimental.nWaypoints.NWaypoints
 import com.islandstudio.neon.features.nDurable.NDurable
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.features.nWaypoints.NWaypoints
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.utils.nGUI.NGUI
 import org.bukkit.entity.Item

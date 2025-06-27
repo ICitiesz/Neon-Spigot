@@ -1,5 +1,6 @@
 package com.islandstudio.neon.server
 
+import com.islandstudio.neon.command.commandlist.NCommandList
 import com.islandstudio.neon.core.nmsmapping.NmsManager
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
@@ -7,7 +8,6 @@ import com.islandstudio.neon.core.nmsmapping.type.NmsMethod
 import com.islandstudio.neon.features.durabilityplus.DurabilityPlus
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.utils.data.DataUtil
-import com.islandstudio.neon.stable.core.command.commandlist.NCommandList
 import io.netty.channel.Channel
 import io.netty.channel.ChannelDuplexHandler
 import io.netty.channel.ChannelHandlerContext

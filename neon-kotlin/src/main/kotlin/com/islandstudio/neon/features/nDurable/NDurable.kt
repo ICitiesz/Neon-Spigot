@@ -1,6 +1,8 @@
 package com.islandstudio.neon.features.nDurable
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.command.ICommandDispatcher
+import com.islandstudio.neon.command.properties.AccessibleCommand
 import com.islandstudio.neon.core.datakey.container.DataContainerManager
 import com.islandstudio.neon.core.datakey.container.DataContainerType
 import com.islandstudio.neon.core.initialization.NeonPluginLoader
@@ -16,13 +18,6 @@ import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer
 import com.islandstudio.neon.stable.core.application.identity.NeonKey
 import com.islandstudio.neon.stable.core.application.identity.NeonKeyGeneral
-import com.islandstudio.neon.stable.core.command.CommandDispatcher
-import com.islandstudio.neon.stable.core.command.CommandInterfaceProcessor
-import com.islandstudio.neon.stable.core.command.properties.CommandAlias
-import com.islandstudio.neon.stable.core.command.properties.CommandArgument
-import com.islandstudio.neon.stable.player.nRoleAccess.NRoleAccess
-import com.islandstudio.neon.stable.utils.processing.GeneralInputProcessor
-import com.islandstudio.neon.stable.utils.processing.properties.DataTypes
 import net.minecraft.network.chat.Component
 import org.bukkit.*
 import org.bukkit.block.Block
@@ -59,7 +54,7 @@ object NDurable: IComponentInjector {
 
     private val damagedTag = "${net.md_5.bungee.api.ChatColor.of("#ab0000")}DAMAGED"
 
-    object Handler: CommandDispatcher, IComponentInjector {
+    object Handler: ICommandDispatcher, IComponentInjector {
         private val neonFeatureManager by inject<NeonFeatureManager>()
 
         /**
@@ -232,153 +227,162 @@ object NDurable: IComponentInjector {
             return ObjectSerializer.deserialzeFromBase64(damagePropertyData)
         }
 
-        override fun getCommandDispatcher(commander: CommandSender, args: Array<out String>) {
-            val command = CommandAlias.NDURABLE.command
-            val roleAccess = NRoleAccess.getCommandSenderRoleAccess(commander, command.permission).also {
-                if (!command.isCommandAccessible(commander, it)) {
-                    return CommandInterfaceProcessor.notifyInvalidCommand(commander, args[0])
-                }
-            }
-            val argLength = args.size
-
-            /* Process execution for each of the commandArg */
-            command.getCommandArgument(args[1])?.let { commandArg ->
-                if (!command.isArgumentAccessible(commander, commandArg, roleAccess)) {
-                    return CommandInterfaceProcessor.notifyInvalidCommand(commander, args[0])
-                }
-
-                if (commandArg != CommandArgument.REMOVE_DAMAGE_PROPERTY) {
-                    return CommandInterfaceProcessor.notifyInvalidArgument(commander, args, 1)
-                }
-
-                if (!(argLength == 3 || argLength == 4)) {
-                    return CommandInterfaceProcessor.notifyInvalidArgument(commander, args)
-                }
-
-                val isForceRemoval = with(args[2].lowercase()) {
-                    if (!GeneralInputProcessor.validateDataType(this, DataTypes.BOOLEAN)) {
-                        return CommandInterfaceProcessor.sendCommandSyntax(
-                            commander,
-                            "Invalid data type!",
-                        )
-                    }
-
-                    return@with this.lowercase().toBoolean()
-                }
-
-                if (argLength == 3) {
-                    if (commander !is Player) {
-                        CommandInterfaceProcessor.sendCommandSyntax(
-                            commander,
-                            "${ChatColor.RED}Remove damage property from self-equipped item unavailable in console!"
-                        )
-
-                        CommandInterfaceProcessor.sendCommandSyntax(
-                            commander,
-                        "${ChatColor.YELLOW}If you wish to remove damage property from specific player equipped item, please specific a player name!")
-
-                        return
-                    }
-
-                    val damageableItem = commander.inventory.itemInMainHand
-
-                    /* Check if the player has the tool/weapon selected within their main hand. */
-                    if (damageableItem.type == Material.AIR) {
-                        return CommandInterfaceProcessor.sendCommandSyntax(
-                            commander,
-                            "${ChatColor.RED}No tool/weapon has been selected by your main hand!"
-                        )
-                    }
-
-                    if (!isItemMatch(damageableItem)) {
-                        return CommandInterfaceProcessor.sendCommandSyntax(
-                            commander,
-                            "${ChatColor.RED}Unsupported tool/weapon as damageable item!"
-                        )
-                    }
-
-                    removeDamageProperty(damageableItem, isForceRemoval)
-
-                    return CommandInterfaceProcessor.sendCommandSyntax(
-                        commander,
-                        "${ChatColor.GREEN}Damage property for " +
-                                "${ChatColor.GOLD}${getDamageableItemName(damageableItem)}${ChatColor.GREEN} has been removed!"
-                    )
-                }
-
-                /* Remove all damage property from the target player */
-                with(args[3]) {
-                    plugin.server.onlinePlayers.find { it.name == this }?.let {
-                        it.inventory.contents
-                            .filterNotNull()
-                            .filter { contentItem -> isItemMatch(contentItem) }
-                            .forEach { damageableItem ->
-                                removeDamageProperty(damageableItem, isForceRemoval)
-                            }
-
-                        return CommandInterfaceProcessor.sendCommandSyntax(
-                            commander,
-                            "${ChatColor.GREEN}Damage property for tool(s)/weapon(s) in ${ChatColor.GOLD}" +
-                                    "${this}${ChatColor.GREEN}'s inventory has been validated and removed!"
-                        )
-                    } ?: return CommandInterfaceProcessor.sendCommandSyntax(
-                        commander,
-                        "${ChatColor.RED}No such player as ${ChatColor.GRAY}'${ChatColor.WHITE}" +
-                                "${this}${ChatColor.GRAY}'${ChatColor.YELLOW}!"
-                    )
-                }
-            }
+        override fun getCommandDispatcher(
+            commander: CommandSender,
+            playerAccessibleCommand: AccessibleCommand?,
+            args: Array<out String>,
+        ) {
+//            val command = CommandAlias.NDURABLE.command
+//            val roleAccess = NRoleAccess.getCommandSenderRoleAccess(commander, command.permission).also {
+//                if (!command.isCommandAccessible(commander, it)) {
+//                    return CommandInterfaceProcessor.notifyInvalidCommand(commander, args[0])
+//                }
+//            }
+//            val argLength = args.size
+//
+//            /* Process execution for each of the commandArg */
+//            command.getCommandArgument(args[1])?.let { commandArg ->
+//                if (!command.isArgumentAccessible(commander, commandArg, roleAccess)) {
+//                    return CommandInterfaceProcessor.notifyInvalidCommand(commander, args[0])
+//                }
+//
+//                if (commandArg != CommandArgument.REMOVE_DAMAGE_PROPERTY) {
+//                    return CommandInterfaceProcessor.notifyInvalidArgument(commander, args, 1)
+//                }
+//
+//                if (!(argLength == 3 || argLength == 4)) {
+//                    return CommandInterfaceProcessor.notifyInvalidArgument(commander, args)
+//                }
+//
+//                val isForceRemoval = with(args[2].lowercase()) {
+//                    if (!GeneralInputProcessor.validateDataType(this, DataTypes.BOOLEAN)) {
+//                        return CommandInterfaceProcessor.sendCommandSyntax(
+//                            commander,
+//                            "Invalid data type!",
+//                        )
+//                    }
+//
+//                    return@with this.lowercase().toBoolean()
+//                }
+//
+//                if (argLength == 3) {
+//                    if (commander !is Player) {
+//                        CommandInterfaceProcessor.sendCommandSyntax(
+//                            commander,
+//                            "${ChatColor.RED}Remove damage property from self-equipped item unavailable in console!"
+//                        )
+//
+//                        CommandInterfaceProcessor.sendCommandSyntax(
+//                            commander,
+//                        "${ChatColor.YELLOW}If you wish to remove damage property from specific player equipped item, please specific a player name!")
+//
+//                        return
+//                    }
+//
+//                    val damageableItem = commander.inventory.itemInMainHand
+//
+//                    /* Check if the player has the tool/weapon selected within their main hand. */
+//                    if (damageableItem.type == Material.AIR) {
+//                        return CommandInterfaceProcessor.sendCommandSyntax(
+//                            commander,
+//                            "${ChatColor.RED}No tool/weapon has been selected by your main hand!"
+//                        )
+//                    }
+//
+//                    if (!isItemMatch(damageableItem)) {
+//                        return CommandInterfaceProcessor.sendCommandSyntax(
+//                            commander,
+//                            "${ChatColor.RED}Unsupported tool/weapon as damageable item!"
+//                        )
+//                    }
+//
+//                    removeDamageProperty(damageableItem, isForceRemoval)
+//
+//                    return CommandInterfaceProcessor.sendCommandSyntax(
+//                        commander,
+//                        "${ChatColor.GREEN}Damage property for " +
+//                                "${ChatColor.GOLD}${getDamageableItemName(damageableItem)}${ChatColor.GREEN} has been removed!"
+//                    )
+//                }
+//
+//                /* Remove all damage property from the target player */
+//                with(args[3]) {
+//                    plugin.server.onlinePlayers.find { it.name == this }?.let {
+//                        it.inventory.contents
+//                            .filterNotNull()
+//                            .filter { contentItem -> isItemMatch(contentItem) }
+//                            .forEach { damageableItem ->
+//                                removeDamageProperty(damageableItem, isForceRemoval)
+//                            }
+//
+//                        return CommandInterfaceProcessor.sendCommandSyntax(
+//                            commander,
+//                            "${ChatColor.GREEN}Damage property for tool(s)/weapon(s) in ${ChatColor.GOLD}" +
+//                                    "${this}${ChatColor.GREEN}'s inventory has been validated and removed!"
+//                        )
+//                    } ?: return CommandInterfaceProcessor.sendCommandSyntax(
+//                        commander,
+//                        "${ChatColor.RED}No such player as ${ChatColor.GRAY}'${ChatColor.WHITE}" +
+//                                "${this}${ChatColor.GRAY}'${ChatColor.YELLOW}!"
+//                    )
+//                }
+//            }
         }
 
-        override fun getTabCompletion(commander: CommandSender, args: Array<out String>): MutableList<String> {
-            val command = CommandAlias.NDURABLE.command
-            val roleAccess = NRoleAccess.getCommandSenderRoleAccess(commander, command.permission)
-            val commandArguments by lazy { command.getAllCommandArgument() }
-
-            when (val argLength = args.size) {
-                2 -> {
-                    return command.getCommandArgument(commander, argLength - 1, args[1], roleAccess = roleAccess)
-                }
-
-                3 -> {
-                    val argIndex = argLength - 1
-
-                    commandArguments.find { it.argName.equals(args[1], true) }?.let {
-                        if (!command.isArgumentAccessible(commander, it, roleAccess)) {
-                            return super.getTabCompletion(commander, args)
-                        }
-
-                        if (it != CommandArgument.REMOVE_DAMAGE_PROPERTY) {
-                            return super.getTabCompletion(commander, args)
-                        }
-
-                        return listOf("true", "false")
-                            .filter { boolValue -> boolValue.startsWith(args[argIndex], true) }
-                            .toMutableList()
-                    }
-                }
-
-                4 -> {
-                    val argIndex = argLength - 1
-
-                    commandArguments.find { it.argName.equals(args[1], true) }?.let {
-                        if (!command.isArgumentAccessible(commander, it, roleAccess)) {
-                            return super.getTabCompletion(commander, args)
-                        }
-
-                        if (it != CommandArgument.REMOVE_DAMAGE_PROPERTY) {
-                            return super.getTabCompletion(commander, args)
-                        }
-
-                        return plugin.server.onlinePlayers
-                            .map { player -> player.name }
-                            .filter { playerName -> playerName.startsWith(args[argIndex]) }
-                            .toMutableList()
-                    }
-                }
-            }
-
-            return super.getTabCompletion(commander, args)
+        override fun getTabCompletion(
+            commander: CommandSender,
+            playerAccessibleCommand: AccessibleCommand?,
+            args: Array<out String>,
+        ): MutableList<String> {
+            return super.getTabCompletion(commander, playerAccessibleCommand, args)
+//            val command = CommandAlias.NDURABLE.command
+//            val roleAccess = NRoleAccess.getCommandSenderRoleAccess(commander, command.permission)
+//            val commandArguments by lazy { command.getAllCommandArgument() }
+//
+//            when (val argLength = args.size) {
+//                2 -> {
+//                    return command.getCommandArgument(commander, argLength - 1, args[1], roleAccess = roleAccess)
+//                }
+//
+//                3 -> {
+//                    val argIndex = argLength - 1
+//
+//                    commandArguments.find { it.argName.equals(args[1], true) }?.let {
+//                        if (!command.isArgumentAccessible(commander, it, roleAccess)) {
+//                            return super.getTabCompletion(commander, args)
+//                        }
+//
+//                        if (it != CommandArgument.REMOVE_DAMAGE_PROPERTY) {
+//                            return super.getTabCompletion(commander, args)
+//                        }
+//
+//                        return listOf("true", "false")
+//                            .filter { boolValue -> boolValue.startsWith(args[argIndex], true) }
+//                            .toMutableList()
+//                    }
+//                }
+//
+//                4 -> {
+//                    val argIndex = argLength - 1
+//
+//                    commandArguments.find { it.argName.equals(args[1], true) }?.let {
+//                        if (!command.isArgumentAccessible(commander, it, roleAccess)) {
+//                            return super.getTabCompletion(commander, args)
+//                        }
+//
+//                        if (it != CommandArgument.REMOVE_DAMAGE_PROPERTY) {
+//                            return super.getTabCompletion(commander, args)
+//                        }
+//
+//                        return plugin.server.onlinePlayers
+//                            .map { player -> player.name }
+//                            .filter { playerName -> playerName.startsWith(args[argIndex]) }
+//                            .toMutableList()
+//                    }
+//                }
+//            }
+//
+//            return super.getTabCompletion(commander, args)
         }
     }
 

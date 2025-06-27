@@ -25,7 +25,6 @@ import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.server.ServerRunningMode
 import com.islandstudio.neon.shared.utils.data.IObjectMapper
 import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer
-import com.islandstudio.neon.stable.core.command.NCommand
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
@@ -293,16 +292,16 @@ class PlayerSessionManager: IComponentInjector, IObjectMapper {
         when(playerSessionState) {
             PlayerSessionState.OnJoining ->  {
                 server.broadcastMessage(
-                    NCommand.Companion.COMMAND_SYNTAX_PREFIX +
+                    CommandSyntaxHandler.COMMAND_SYNTAX_PREFIX +
                             "${ChatColor.GOLD}Welcome back, ${ChatColor.GREEN}${player.name}${ChatColor.GOLD}!")
                 server.broadcastMessage(
-                    NCommand.Companion.COMMAND_SYNTAX_PREFIX +
+                    CommandSyntaxHandler.COMMAND_SYNTAX_PREFIX +
                             "${ChatColor.GREEN}${server.onlinePlayers.size}${ChatColor.GOLD} of ${ChatColor.RED}${server.maxPlayers}${ChatColor.GOLD} player(s) Online!"
                 )
             }
 
             PlayerSessionState.OnLeaving -> {
-                server.broadcastMessage("${NCommand.Companion.COMMAND_SYNTAX_PREFIX}${ChatColor.GREEN}${player.name}${ChatColor.GOLD} left," +
+                server.broadcastMessage("${CommandSyntaxHandler.COMMAND_SYNTAX_PREFIX}${ChatColor.GREEN}${player.name}${ChatColor.GOLD} left," +
                         " ${ChatColor.GREEN}${server.onlinePlayers.size - 1}${ChatColor.GOLD} other(s) here!")
             }
         }

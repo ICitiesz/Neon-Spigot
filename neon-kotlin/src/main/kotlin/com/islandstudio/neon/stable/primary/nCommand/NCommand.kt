@@ -1,12 +1,11 @@
 package com.islandstudio.neon.stable.primary.nCommand
 
 import com.islandstudio.neon.Neon
+import com.islandstudio.neon.command.commandlist.NCommandList
 import com.islandstudio.neon.experimental.nFireworks.NFireworks
 import com.islandstudio.neon.experimental.nPainting.NPainting
-import com.islandstudio.neon.features.nDurable.NDurable
+import com.islandstudio.neon.experimental.nWaypoints.NWaypoints
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.stable.core.command.commandlist.NCommandList
-import com.islandstudio.neon.stable.features.nWaypoints.NWaypoints
 import com.islandstudio.neon.stable.primary.nServerFeatures.NServerFeatures
 import com.islandstudio.neon.stable.utils.processing.TextProcessor
 import org.bukkit.ChatColor
@@ -260,7 +259,7 @@ class NCommand: Commands(), Listener, TabExecutor {
             }
 
             CommandAlias.DURABILITY.aliasName -> {
-                return NDurable.Handler.getTabCompletion(commander, args)
+                //return NDurable.Handler.getTabCompletion(commander, args)
             }
 
             CommandAlias.NPAINTING.aliasName -> {

@@ -1,4 +1,4 @@
-package com.islandstudio.neon.stable.core.command.commandlist
+package com.islandstudio.neon.command.commandlist
 
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.stable.primary.nCommand.Commands
