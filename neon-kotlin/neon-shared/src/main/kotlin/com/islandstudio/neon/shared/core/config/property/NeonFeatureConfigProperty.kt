@@ -112,13 +112,13 @@ sealed class NeonFeatureConfigProperty<T>: AbstractConfigProperty<T>() {
         }
     }
 
-    object NDurableConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
+    object DurabilityPlusConfigProperty: IConfigCustomData<NeonFeatureConfigCustomData> {
         override val customData: NeonFeatureConfigCustomData = NeonFeatureConfigCustomData(
             "Another way of handling the durability of the tools/weapons."
         )
 
         data object IsEnabled: NeonFeatureConfigProperty<Boolean>() {
-            override val parentConfigKey: String = "nDurable"
+            override val parentConfigKey: String = "DurabilityPlus"
             override val keyName: String = "isEnabled"
             override val description: String = "Toggle status."
             override val dataType: DataType = DataType.Boolean
@@ -126,12 +126,12 @@ sealed class NeonFeatureConfigProperty<T>: AbstractConfigProperty<T>() {
             override val dataRange: ConfigDataRange<Boolean> = ConfigDataRange.DataRangeBoolean
 
             override fun <T : IConfigProperty> getConfigCustomData(): T? {
-                return this@NDurableConfigProperty.customData as T?
+                return this@DurabilityPlusConfigProperty.customData as T?
             }
         }
 
         data object ShowItemDurability: NeonFeatureConfigProperty<Boolean>() {
-            override val parentConfigKey: String = "nDurable.options"
+            override val parentConfigKey: String = "DurabilityPlus.options"
             override val keyName: String = "showItemDurability"
             override val description: String = "Show/hide item durability."
             override val dataType: DataType = DataType.Boolean

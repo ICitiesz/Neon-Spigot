@@ -7,6 +7,7 @@ import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.core.nmsmapping.type.NmsField
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
+import com.islandstudio.neon.item.NeonItemMaterial
 import com.islandstudio.neon.server.ServerGamePacketManager
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
@@ -50,23 +51,22 @@ class DurabilityPlus: NmsManager.INmsMapper {
         private val neonFeatureManager by inject<NeonFeatureManager>()
         private val durabilityPlus by inject<DurabilityPlus>()
 
-        //private val isEnabled = neonFeatureManager.getFeatureToggle(NeonFeatureConfigProperty.NDurableConfigProperty.IsEnabled)
-        private val isEnabled = true
-        private val showItemDurability = neonFeatureManager.getFeatureOptionValue<Boolean>(NeonFeatureConfigProperty.NDurableConfigProperty.ShowItemDurability)
+        private val isEnabled = neonFeatureManager.getFeatureToggle(NeonFeatureConfigProperty.DurabilityPlusConfigProperty.IsEnabled)
+        private val showItemDurability = neonFeatureManager.getFeatureOptionValue<Boolean>(NeonFeatureConfigProperty.DurabilityPlusConfigProperty.ShowItemDurability)
         private var restrictFortuneHarvest = false
 
         override fun run() {
-            NeonPluginLoader.registerEventProcessor(DurabilityPlusEvent())
+            val durabilityPlusEvent = DurabilityPlusEvent()
 
             togglePlayerItemDamageProperty()
             toggleVillagerItemDamageProperty()
-//
-//            if (isEnabled) {
-//                restrictFortuneHarvest = true
-//                //NeonPluginLoader.registerEventProcessor(EventProcessor())
-//            } else {
-//                //NeonPluginLoader.unregisterEventProcessor(EventProcessor())
-//            }
+
+            if (isEnabled) {
+                //restrictFortuneHarvest = true
+                NeonPluginLoader.registerEventProcessor(durabilityPlusEvent)
+            } else {
+                NeonPluginLoader.unregisterEventProcessor(durabilityPlusEvent)
+            }
         }
 
         fun togglePlayerItemDamageProperty(player: Player? = null) {
@@ -95,7 +95,7 @@ class DurabilityPlus: NmsManager.INmsMapper {
         fun toggleVillagerItemDamageProperty() {
             if (isEnabled) return
 
-            /* Remove and hide damage property display from all tool smith villager & weapon smith villager */
+            /* Remove and hide damage property display from supported villager */
             neon.server.worlds.forEach {
                 it.entities.parallelStream()
                     .filter { entity -> entity is Villager || entity is WanderingTrader }
@@ -255,7 +255,11 @@ class DurabilityPlus: NmsManager.INmsMapper {
         val damageableItem = player.inventory.itemInMainHand.also {
             if (!DamageableItemMatcher.matchesItem(it)) return
 
-            if (DamageableItemMatcher.matchesGeneralToolItems(it, Material.FISHING_ROD, Material.FLINT_AND_STEEL)) return
+            if (DamageableItemMatcher.matchesGeneralToolItems(it,
+                    Material.FISHING_ROD,
+                    Material.FLINT_AND_STEEL,
+                    NeonItemMaterial.BRUSH)
+                ) return
 
             if (DamageableItemMatcher.matchesBowWeaponItems(it)) return
         }
@@ -373,24 +377,30 @@ class DurabilityPlus: NmsManager.INmsMapper {
         val playerUseOnBlock = e.clickedBlock
 
         when {
-            /* Axes interactive Use */
+            /* Axes interactive uses */
             DamageableItemMatcher.matchesAxeItems(usedItem) -> {
                 if (!isItemBroken(usedItemItemMeta.damage, usedItem.type.maxDurability.toInt())) return
 
                 if (playerUseAction != Action.RIGHT_CLICK_BLOCK) return
 
                 playerUseOnBlock?.let { block ->
-                    val blockItem = ItemStack(block.type)
-
-                    if (!(DurabilityConsumerBlockMatcher.matchesNonStrippedWoodBlockItems(blockItem)
-                            || DurabilityConsumerBlockMatcher.matchesExposedCopperBlockItems(blockItem)
-                            || DurabilityConsumerBlockMatcher.matchesWeatheredCopperBlockItems(blockItem)
-                            || DurabilityConsumerBlockMatcher.matchesOxidizedCopperBlockItems(blockItem)
-                            || DurabilityConsumerBlockMatcher.matchesWaxedCopperBlockItems(blockItem))) {
-                        return
-                    }
+                    if (!DurabilityConsumerBlockMatcher.matchesAxeInteractiveBlocks(block.type)) return
 
                     e.setUseInteractedBlock(Event.Result.DENY)
+                    sendItemBrokenWarning(player, usedItem)
+                }
+            }
+
+            /* Brushing sand/gravel */
+            DamageableItemMatcher.matchesGeneralToolItems(usedItem, NeonItemMaterial.BRUSH) -> {
+                if (!isItemBroken(usedItemItemMeta.damage, usedItem.type.maxDurability.toInt())) return
+
+                if (playerUseAction != Action.RIGHT_CLICK_BLOCK) return
+
+                playerUseOnBlock?.let { block ->
+                    if (!DurabilityConsumerBlockMatcher.matchesBrushableBlocks(block.type)) return
+
+                    e.isCancelled = true
                     sendItemBrokenWarning(player, usedItem)
                 }
             }
@@ -402,9 +412,7 @@ class DurabilityPlus: NmsManager.INmsMapper {
                 if (playerUseAction != Action.RIGHT_CLICK_BLOCK) return
 
                 playerUseOnBlock?.let { block ->
-                    val blockItem = ItemStack(block.type)
-
-                    if (!DurabilityConsumerBlockMatcher.matchesPathBlockITems(blockItem)) return
+                    if (!DurabilityConsumerBlockMatcher.matchesPathBlocks(block.type)) return
 
                     e.setUseItemInHand(Event.Result.DENY)
                     updateDurabilityState(usedItem, 0, player)
@@ -419,9 +427,7 @@ class DurabilityPlus: NmsManager.INmsMapper {
                 if (playerUseAction != Action.RIGHT_CLICK_BLOCK) return
 
                 playerUseOnBlock?.let { block ->
-                    val blockItem = ItemStack(block.type)
-
-                    if (!DurabilityConsumerBlockMatcher.matchesPathBlockITems(blockItem)) return
+                    if (!DurabilityConsumerBlockMatcher.matchesPathBlocks(block.type)) return
 
                     e.setUseItemInHand(Event.Result.DENY)
                     updateDurabilityState(usedItem, 0, player)
@@ -447,7 +453,7 @@ class DurabilityPlus: NmsManager.INmsMapper {
                 if (playerUseAction != Action.RIGHT_CLICK_BLOCK) return
 
                 playerUseOnBlock?.let { block ->
-                    if (block.type != Material.PUMPKIN) return
+                    if (!DurabilityConsumerBlockMatcher.matchesShearsInteractiveBlocks(block.type)) return
 
                     e.isCancelled = true
                     sendItemBrokenWarning(player, usedItem)
@@ -483,9 +489,9 @@ class DurabilityPlus: NmsManager.INmsMapper {
                     }
 
                     Action.RIGHT_CLICK_BLOCK -> {
-                        playerUseOnBlock?.let {
-                            val isBlockConditionValid = DurabilityConsumerBlockMatcher.matchesCreativeOnlyBlockItems(ItemStack(it.type))
-                                    || !it.type.isInteractable || e.useInteractedBlock() == Event.Result.DENY
+                        playerUseOnBlock?.let { block ->
+                            val isBlockConditionValid = DurabilityConsumerBlockMatcher.matchesCreativeOnlyBlocks(block.type)
+                                    || !block.type.isInteractable || e.useInteractedBlock() == Event.Result.DENY
 
                             if (player.isSneaking || isBlockConditionValid) {
                                 sendItemBrokenWarning(player, usedItem)

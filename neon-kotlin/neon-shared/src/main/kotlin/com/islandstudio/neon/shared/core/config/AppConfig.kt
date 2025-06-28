@@ -57,7 +57,7 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
         @Suppress("UNCHECKED_CAST")
         initialize().apply {
             mainConfigObject = this as T
-            updateConfigNodeProperties(getConfigNodeProperties(parseToTomFile(encodeToString(this as T))))
+            updateConfigNodeProperties(getConfigNodeProperties(parseToTomFile(encodeToString(this))))
             configWrapper.initConfigObject(this)
         }
     }
@@ -157,13 +157,13 @@ class AppConfig<T: IConfigObject, U: IConfigProperty>(
     private fun updateConfig(writableConfigFile: File, configProperties: ArrayList<U>): TomlFile {
         val parsedConfig = parseToTomFile(writableConfigFile)
 
-        return rebuildConfig(getConfigNodeProperties(parsedConfig), configProperties as ArrayList<AbstractConfigProperty<*>>)
+        return rebuildConfig(getConfigNodeProperties(parsedConfig), DataUtil.asType(configProperties))
     }
 
     /**
      * Rebuild config to Toml File with resolved config value.
      *
-     * @param parsedConfig
+     * @param configNodeProperties
      * @param configProperties
      * @return
      */

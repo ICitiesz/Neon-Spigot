@@ -12,6 +12,8 @@ import org.bukkit.Material
  */
 object NeonItemMaterial {
     val BRUSH = fromBukkitMaterial("brush")
+    val SUSPICIOUS_SAND = fromBukkitMaterial("suspicious_sand")
+    val SUSPICIOUS_GRAVEL = fromBukkitMaterial("suspicious_gravel")
 
     private fun fromBukkitMaterial(materialName: String): Material {
         return Material.matchMaterial(materialName) ?: Material.AIR

@@ -21,35 +21,41 @@ object DurabilityConsumerBlockMatcher {
         add(Material.STRUCTURE_BLOCK)
     }
 
-    private val nonStrippedWoodBlocks = NeonItemMaterial.buildItemMaterialList {
+    private val axeInteractiveBlocks = NeonItemMaterial.buildItemMaterialList {
+        /* Non-stripped wood blocks */
         addAll(Material.entries
             .filter { x -> Tag.LOGS.isTagged(x) }
             .filterNot { x -> x.name.startsWith("stripped_", true) }
         )
-    }
 
-    private val exposedCopperBlocks = NeonItemMaterial.buildItemMaterialList {
+        /* Exposed copper blocks */
         addAll(Material.entries.filter { x ->
             x.name.startsWith("exposed_", true) && x.name.contains("copper", true)
         })
-    }
 
-    private val weatheredCopperBlocks = NeonItemMaterial.buildItemMaterialList {
+        /* Weather copper block */
         addAll(Material.entries.filter { x ->
             x.name.startsWith("weathered_", true) && x.name.contains("copper", true)
         })
-    }
 
-    private val oxidizedCopperBlocks = NeonItemMaterial.buildItemMaterialList {
+        /* Oxidized copper block */
         addAll(Material.entries.filter { x ->
             x.name.startsWith("oxidized_", true) && x.name.contains("copper", true)
         })
-    }
 
-    private val waxedCopperBlocks = NeonItemMaterial.buildItemMaterialList {
+        /* Waxed copper blocks */
         addAll(Material.entries.filter { x ->
             x.name.startsWith("waxed_", true) && x.name.contains("copper", true)
         })
+    }
+
+    private val shearsInteractiveBlocks = NeonItemMaterial.buildItemMaterialList {
+        add(Material.PUMPKIN)
+    }
+
+    private val brushableBlocks = NeonItemMaterial.buildItemMaterialList {
+        add(NeonItemMaterial.SUSPICIOUS_SAND)
+        add(NeonItemMaterial.SUSPICIOUS_GRAVEL)
     }
 
     private val pathBlocks = NeonItemMaterial.buildItemMaterialList {
@@ -59,35 +65,27 @@ object DurabilityConsumerBlockMatcher {
         add(Material.ROOTED_DIRT)
     }
 
-    fun matchConsumerBlockItem(blockItem: ItemStack): Boolean {
+    fun matchConsumerBlock(blockItem: ItemStack): Boolean {
         return blockItem.type in interactiveBlocks
     }
 
-    fun matchesNonStrippedWoodBlockItems(blockItem: ItemStack): Boolean {
-        return blockItem.type in nonStrippedWoodBlocks
+    fun matchesAxeInteractiveBlocks(blockType: Material): Boolean {
+        return blockType in axeInteractiveBlocks
     }
 
-    fun matchesExposedCopperBlockItems(blockItem: ItemStack): Boolean {
-        return blockItem.type in exposedCopperBlocks
+    fun matchesPathBlocks(blockMaterial: Material): Boolean {
+        return blockMaterial in pathBlocks
     }
 
-    fun matchesWeatheredCopperBlockItems(blockItem: ItemStack): Boolean {
-        return blockItem.type in weatheredCopperBlocks
+    fun matchesCreativeOnlyBlocks(blockMaterial: Material): Boolean {
+        return blockMaterial in creativeOnlyBlocks
     }
 
-    fun matchesOxidizedCopperBlockItems(blockItem: ItemStack): Boolean {
-        return blockItem.type in oxidizedCopperBlocks
+    fun matchesShearsInteractiveBlocks(blockMaterial: Material): Boolean {
+        return blockMaterial in shearsInteractiveBlocks
     }
 
-    fun matchesWaxedCopperBlockItems(blockItem: ItemStack): Boolean {
-        return blockItem.type in waxedCopperBlocks
-    }
-
-    fun matchesPathBlockITems(blockItem: ItemStack): Boolean {
-        return blockItem.type in pathBlocks
-    }
-
-    fun matchesCreativeOnlyBlockItems(blockItem: ItemStack): Boolean {
-        return blockItem.type in creativeOnlyBlocks
+    fun matchesBrushableBlocks(blockMaterial: Material): Boolean {
+        return blockMaterial in brushableBlocks
     }
 }

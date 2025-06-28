@@ -131,13 +131,15 @@ class CommandManager: TabExecutor {
                             AccessControlManager.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
 
-                        CommandAlias.NWaypointsAlias -> {
-                            arrayListOf()
-                        }
+//                        CommandAlias.NWaypointsAlias -> {
+//                            arrayListOf()
+//                        }
 
                         CommandAlias.NeonFeatureAlias -> {
                             NeonFeatureManager.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
+
+                        else -> arrayListOf()
                     }
                 }
         }
@@ -192,13 +194,11 @@ class CommandManager: TabExecutor {
                             AccessControlManager.getCommandDispatcher(commander, playerAccessibleCommand, args)
                         }
 
-                        CommandAlias.NWaypointsAlias -> {
-
-                        }
-
                         CommandAlias.NeonFeatureAlias -> {
                             NeonFeatureManager.getCommandDispatcher(commander, playerAccessibleCommand, args)
                         }
+
+                        else -> CommandSyntaxHandler.alertInvalidCommand(commander, args[0])
                     }
                 } ?: CommandSyntaxHandler.alertInvalidCommand(commander, args[0])
         }
