@@ -5,8 +5,8 @@ import com.islandstudio.neon.core.nmsmapping.NmsManager
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.shared.core.AppContext
-import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.initialization.IRunner
 import com.islandstudio.neon.shared.utils.data.DataUtil
 import net.minecraft.core.Holder
 import net.minecraft.core.HolderLookup

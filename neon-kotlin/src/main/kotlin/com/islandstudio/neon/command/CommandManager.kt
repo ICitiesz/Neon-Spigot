@@ -7,8 +7,8 @@ import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.player.security.AccessControlManager
 import com.islandstudio.neon.player.security.role.RoleManager
 import com.islandstudio.neon.player.session.PlayerSessionManager
-import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.initialization.IRunner
 import org.bukkit.ChatColor
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender

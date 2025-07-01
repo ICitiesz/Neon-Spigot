@@ -9,13 +9,13 @@ import com.islandstudio.neon.command.properties.AccessibleCommand
 import com.islandstudio.neon.experimental.gui.GuiManager
 import com.islandstudio.neon.features.neonfeature.gui.NeonFeatureGui
 import com.islandstudio.neon.features.neonfeature.gui.NeonFeatureGuiStateData
-import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.config.AppConfig
 import com.islandstudio.neon.shared.core.config.component.ConfigDataRange
 import com.islandstudio.neon.shared.core.config.component.ConfigNodeProperty
 import com.islandstudio.neon.shared.core.config.obj.NeonFeatureConfigObject
 import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.initialization.IRunner
 import com.islandstudio.neon.shared.core.io.resource.NeonExternalResource
 import com.islandstudio.neon.shared.utils.data.DataType
 import com.islandstudio.neon.shared.utils.data.DataUtil

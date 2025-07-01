@@ -5,9 +5,9 @@ import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.player.session.PlayerSessionManager
-import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonException
+import com.islandstudio.neon.shared.core.initialization.IRunner
 import com.islandstudio.neon.shared.utils.data.DataUtil
 import com.islandstudio.neon.util.ServerUtil
 import org.bukkit.entity.Player

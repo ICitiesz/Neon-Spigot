@@ -8,8 +8,8 @@ import com.islandstudio.neon.core.nmsmapping.type.NmsConstructor
 import com.islandstudio.neon.core.nmsmapping.type.NmsField
 import com.islandstudio.neon.core.nmsmapping.type.NmsMethod
 import com.islandstudio.neon.shared.core.AppContext
-import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.initialization.IRunner
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.shared.core.io.resource.ResourceManager
 import com.islandstudio.neon.shared.utils.data.DataUtil

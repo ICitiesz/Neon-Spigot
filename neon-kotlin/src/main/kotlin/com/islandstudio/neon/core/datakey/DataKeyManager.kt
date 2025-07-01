@@ -1,7 +1,7 @@
 package com.islandstudio.neon.core.datakey
 
-import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.initialization.IRunner
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.shared.core.io.resource.ResourceManager
 import org.koin.core.annotation.Single

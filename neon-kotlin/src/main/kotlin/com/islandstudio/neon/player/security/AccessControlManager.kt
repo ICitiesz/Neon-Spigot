@@ -14,8 +14,8 @@ import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
 import com.islandstudio.neon.player.security.permission.Permission
 import com.islandstudio.neon.player.security.role.RoleManager
-import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.initialization.IRunner
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
 import org.koin.core.annotation.Single

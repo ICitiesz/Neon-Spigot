@@ -20,8 +20,8 @@ import com.islandstudio.neon.features.nDurable.NDurable
 import com.islandstudio.neon.player.security.role.RoleManager
 import com.islandstudio.neon.server.ServerGamePacketManager
 import com.islandstudio.neon.shared.core.AppContext
-import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.initialization.IRunner
 import com.islandstudio.neon.shared.core.server.ServerRunningMode
 import com.islandstudio.neon.shared.utils.data.IObjectMapper
 import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer

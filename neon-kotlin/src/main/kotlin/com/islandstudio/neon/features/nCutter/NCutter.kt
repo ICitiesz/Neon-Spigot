@@ -4,9 +4,9 @@ import com.islandstudio.neon.Neon
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.recipe.NCutterRecipe
 import com.islandstudio.neon.recipe.component.RecipeRegistry
-import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.initialization.IRunner
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.RecipeChoice
 import org.bukkit.inventory.StonecuttingRecipe

@@ -1,7 +1,6 @@
 package com.islandstudio.neon.features.durabilityplus
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.core.initialization.NeonPluginLoader
 import com.islandstudio.neon.core.nmsmapping.NmsManager
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
@@ -10,9 +9,9 @@ import com.islandstudio.neon.experimental.gui.GuiConstructor
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.item.NeonItemMaterial
 import com.islandstudio.neon.server.ServerGamePacketManager
-import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.config.property.NeonFeatureConfigProperty
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.initialization.IRunner
 import com.islandstudio.neon.shared.utils.data.DataUtil
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.trading.MerchantOffer
@@ -61,17 +60,12 @@ class DurabilityPlus: NmsManager.INmsMapper {
         private var restrictFortuneHarvest = false
 
         override fun run() {
-            val durabilityPlusEvent = DurabilityPlusEvent()
-
             togglePlayerItemDamageProperty()
             toggleVillagerItemDamageProperty()
 
-            if (isEnabled) {
-                //restrictFortuneHarvest = true
-                NeonPluginLoader.registerEventProcessor(durabilityPlusEvent)
-            } else {
-                NeonPluginLoader.unregisterEventProcessor(durabilityPlusEvent)
-            }
+            eventRegistrationOnToggle(isEnabled,DurabilityPlusEvent(),
+                onToggleOn = { restrictFortuneHarvest = true }
+            )
         }
 
         fun togglePlayerItemDamageProperty(player: Player? = null) {
@@ -705,7 +699,10 @@ class DurabilityPlus: NmsManager.INmsMapper {
         private fun onChestLootGenerate(e: LootGenerateEvent) = durabilityPlus.updateDurabilityStateOnGenerateLoot(e)
 
         @EventHandler
-        private fun onItemSpawn(e: ItemSpawnEvent) = durabilityPlus.updateDurabilityState(e.entity.itemStack, 0)
+        private fun onItemSpawn(e: ItemSpawnEvent) {
+            durabilityPlus.updateDurabilityState(e.entity.itemStack, 0)
+            return
+        }
 
         @EventHandler
         private fun onItemPickup(e: EntityPickupItemEvent) {
