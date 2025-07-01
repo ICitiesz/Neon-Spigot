@@ -8,6 +8,7 @@ import com.islandstudio.neon.player.session.PlayerSessionManager
 import com.islandstudio.neon.shared.core.IRunner
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonException
+import com.islandstudio.neon.shared.utils.data.DataUtil
 import com.islandstudio.neon.util.ServerUtil
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -33,9 +34,8 @@ class GuiManager: IComponentInjector {
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun <T: GuiConstructor<*>>initGuiSession(player: Player, guiClass: KClass<T>): GuiSession<T> {
-        return guiSessions.find { x -> x.player == player }?.let { it as GuiSession<T> } ?: GuiSession(player, guiClass).also {
+        return guiSessions.find { x -> x.player == player }?.let { DataUtil.asType(it) /*it as GuiSession<T>*/ } ?: GuiSession(player, guiClass).also {
             guiSessions.add(it)
         }
     }

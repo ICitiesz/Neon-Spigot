@@ -14,41 +14,27 @@ object DataUtil {
     }
 
     fun validateDataType(value: String, dataType: DataType): Boolean {
-         when (dataType) {
+         return when (dataType) {
             DataType.Boolean -> {
-                value.lowercase().toBooleanStrictOrNull()?.let {
-                    return true
-                }
+                value.lowercase().toBooleanStrictOrNull()?.let { true } ?: false
             }
 
             DataType.Double -> {
-                value.toDoubleOrNull()?.let {
-                    return true
-                }
+                value.toDoubleOrNull()?.let { true } ?: false
             }
 
             DataType.Integer -> {
-                value.toIntOrNull()?.let {
-                    return true
-                }
+                value.toIntOrNull()?.let { true } ?: false
             }
 
             DataType.Long -> {
-                value.toLongOrNull()?.let {
-                    return true
-                }
+                value.toLongOrNull()?.let { true } ?: false
             }
 
-            DataType.String -> {
-                return true
-            }
+            DataType.String -> true
 
-            else -> {
-                return false
-            }
+            else -> false
         }
-
-        return false
     }
 
     fun validateDataRange(inputValue: Any, dataType: String, minValue: Any? = null, maxValue: Any? = null): Boolean {
@@ -58,7 +44,7 @@ object DataUtil {
     fun validateDataRange(inputValue: Any, dataType: DataType, minValue: Any? = null, maxValue: Any? = null): Boolean {
         when(dataType) {
             DataType.Boolean  -> {
-                inputValue.toString().lowercase().toBooleanStrictOrNull()?.let { return true } ?: return false
+                return inputValue.toString().lowercase().toBooleanStrictOrNull()?.let { true } ?: false
             }
 
             DataType.Double -> {
@@ -95,8 +81,6 @@ object DataUtil {
                 return false
             }
         }
-
-        return false
     }
 
     fun convertDataType(inputValue: Any, dataType: DataType): Any? {
