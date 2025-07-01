@@ -6,6 +6,7 @@ import com.islandstudio.neon.core.nmsmapping.NmsManager
 import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.core.nmsmapping.type.NmsField
+import com.islandstudio.neon.experimental.gui.GuiConstructor
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.item.NeonItemMaterial
 import com.islandstudio.neon.server.ServerGamePacketManager
@@ -25,11 +26,15 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockIgniteEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.entity.EntityShootBowEvent
+import org.bukkit.event.entity.ItemSpawnEvent
+import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.event.player.PlayerShearEntityEvent
+import org.bukkit.event.world.LootGenerateEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
@@ -108,51 +113,10 @@ class DurabilityPlus: NmsManager.INmsMapper {
                             else -> false
                         }
                     }.forEach { entity ->
-                        durabilityPlus.updateDurabilityStateOnTrading(entity as Villager)
+                        durabilityPlus.updateDurabilityStateOnTrading(entity as AbstractVillager)
                     }
             }
         }
-    }
-
-    fun updateDurabilityStateOnGive(gaveItem: net.minecraft.world.item.ItemStack) {
-        if (!isEnabled) return
-
-        val bukkitItemStack = NmsManager.toBukkitItemStack(gaveItem)
-
-        updateDurabilityState(bukkitItemStack, 0)
-    }
-
-    private fun updateVillagerTradeResult(e: PlayerInteractEntityEvent) {
-        with(e.rightClicked) {
-            if (this !is AbstractVillager) return
-
-            updateDurabilityStateOnTrading(this)
-        }
-    }
-
-    private fun updateDurabilityStateOnTrading(villager: AbstractVillager) {
-        /* Villager profession check */
-        if (villager is Villager && villager.profession !in villagerProfessions) return
-
-        villager.recipes
-            .filter { merchantRecipe -> DamageableItemMatcher.matchesItem(merchantRecipe.result) }
-            .forEach { merchantRecipe ->
-                updateDurabilityState(merchantRecipe.result, 0).also { durabilityState ->
-                    /* Get the nms trade recipe */
-                    val nmsMerchantRecipe = DataUtil.asType<MerchantOffer>(
-                        merchantRecipe.javaClass.getDeclaredField("handle").run {
-                            this.isAccessible = true
-                            this.get(merchantRecipe)
-                        }
-                    )
-
-                    /* Replace the recipe result with updated durability detail */
-                    nmsMerchantRecipe.javaClass.getDeclaredField(mapField(NmsField.MerchantRecipeResult)).apply {
-                        this.isAccessible = true
-                        this.set(nmsMerchantRecipe, NmsManager.toNmsItemStack(durabilityState.itemStack))
-                    }
-                }
-            }
     }
 
     private fun updateDurabilityState(itemStack: ItemStack, durabilityConsumed: Int, player: Player? = null): DurabilityState {
@@ -199,6 +163,77 @@ class DurabilityPlus: NmsManager.INmsMapper {
         itemStack.itemMeta = damageableItemMeta
 
         return DurabilityState(itemStack, isItemBroken)
+    }
+
+    fun updateDurabilityStateOnGive(gaveItem: net.minecraft.world.item.ItemStack) {
+        if (!isEnabled) return
+
+        val bukkitItemStack = NmsManager.toBukkitItemStack(gaveItem)
+
+        updateDurabilityState(bukkitItemStack, 0)
+    }
+
+    private fun updateVillagerTradeResult(e: PlayerInteractEntityEvent) {
+        with(e.rightClicked) {
+            if (this !is AbstractVillager) return
+
+            updateDurabilityStateOnTrading(this)
+        }
+    }
+
+    private fun updateDurabilityStateOnTrading(villager: AbstractVillager) {
+        /* Villager profession check */
+        if (villager is Villager && villager.profession !in villagerProfessions) return
+
+        villager.recipes
+            .filter { merchantRecipe -> DamageableItemMatcher.matchesItem(merchantRecipe.result) }
+            .forEach { merchantRecipe ->
+                updateDurabilityState(merchantRecipe.result, 0).also { durabilityState ->
+                    /* Get the nms trade recipe */
+                    val nmsMerchantRecipe = DataUtil.asType<MerchantOffer>(
+                        merchantRecipe.javaClass.getDeclaredField("handle").run {
+                            this.isAccessible = true
+                            this.get(merchantRecipe)
+                        }
+                    )
+
+                    /* Replace the recipe result with updated durability detail */
+                    nmsMerchantRecipe.javaClass.getDeclaredField(mapField(NmsField.MerchantRecipeResult)).apply {
+                        this.isAccessible = true
+                        this.set(nmsMerchantRecipe, NmsManager.toNmsItemStack(durabilityState.itemStack))
+                    }
+                }
+            }
+    }
+
+    private fun updateDurabilityStateOnCrafting(e: PrepareItemCraftEvent) {
+        val craftItem = e.view.getItem(0)?.let {
+            if (it.type == Material.AIR) return
+
+            it
+        } ?: return
+
+        updateDurabilityState(craftItem, 0)
+    }
+
+    private fun updateDurabilityStateOnPrepareCrafting(e: PrepareInventoryResultEvent) {
+        e.result?.let {
+            if (it.type == Material.AIR) return
+
+            if (!DamageableItemMatcher.matchesItem(it)) return
+
+            updateDurabilityState(it, 0)
+        }
+    }
+
+    private fun updateDurabilityStateOnGenerateLoot(e: LootGenerateEvent) {
+        if (!e.lootTable.key.toString().startsWith("minecraft:chests")) return
+
+        e.setLoot(e.loot.fold(mutableListOf<ItemStack>()) { newChestLoot, itemStack ->
+            durabilityPlus.updateDurabilityState(itemStack, 0)
+            newChestLoot.add(itemStack)
+            newChestLoot
+        })
     }
 
     private fun calculateDamageCount(currentItemDamageCount: Int, durabilityConsumed: Int): Int {
@@ -656,5 +691,34 @@ class DurabilityPlus: NmsManager.INmsMapper {
 
         @EventHandler
         private fun onPlayerInteract(e: PlayerInteractEvent) = durabilityPlus.restrictInteractiveUseOnBroken(e)
+
+        @EventHandler
+        private fun onRepairByAnvil(e: PrepareAnvilEvent) = durabilityPlus.updateDurabilityStateOnPrepareCrafting(e)
+
+        @EventHandler
+        private fun onCraftingItem(e: PrepareItemCraftEvent) = durabilityPlus.updateDurabilityStateOnCrafting(e)
+
+        @EventHandler
+        private fun onCraftingItemBySmithing(e: PrepareSmithingEvent) = durabilityPlus.updateDurabilityStateOnPrepareCrafting(e)
+
+        @EventHandler
+        private fun onChestLootGenerate(e: LootGenerateEvent) = durabilityPlus.updateDurabilityStateOnGenerateLoot(e)
+
+        @EventHandler
+        private fun onItemSpawn(e: ItemSpawnEvent) = durabilityPlus.updateDurabilityState(e.entity.itemStack, 0)
+
+        @EventHandler
+        private fun onItemPickup(e: EntityPickupItemEvent) {
+            if (e.entityType != EntityType.PLAYER) return
+
+            durabilityPlus.updateDurabilityState(e.item.itemStack, 0)
+        }
+
+        @EventHandler
+        private fun onInventoryOpen(e: InventoryOpenEvent) {
+            if (e.inventory.holder is GuiConstructor<*>) return
+
+            e.inventory.contents.filterNotNull().forEach { durabilityPlus.updateDurabilityState(it, 0) }
+        }
     }
 }

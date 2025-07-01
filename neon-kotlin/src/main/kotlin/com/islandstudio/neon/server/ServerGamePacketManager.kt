@@ -6,6 +6,7 @@ import com.islandstudio.neon.core.nmsmapping.NmsMap
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.core.nmsmapping.type.NmsMethod
 import com.islandstudio.neon.features.durabilityplus.DurabilityPlus
+import com.islandstudio.neon.features.nBundle.NBundle
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.utils.data.DataUtil
 import io.netty.channel.Channel
@@ -155,7 +156,7 @@ object ServerGamePacketManager: IComponentInjector, NmsManager.INmsMapper {
             override fun write(handlerContext: ChannelHandlerContext?, serverGamePacket: Any?, promise: ChannelPromise?) {
                 when (serverGamePacket) {
                     is ClientboundContainerSetSlotPacket -> {
-                        val bukkitPlayer = mcPlayer.javaClass.getMethod(NmsMap.GetBukkitEntity.remapped)
+                        val bukkitPlayer = mcPlayer.javaClass.getMethod(mapMethod(NmsMethod.GetBukkitEntity))
                             .invoke(mcPlayer) as Player
 
                         val nmsItemStack = DataUtil.asType<ItemStack>(
@@ -165,7 +166,7 @@ object ServerGamePacketManager: IComponentInjector, NmsManager.INmsMapper {
                         val durabilityPlus by inject<DurabilityPlus>()
 
                         durabilityPlus.updateDurabilityStateOnGive(nmsItemStack)
-                        //NBundle.discoverBundleRecipe(bukkitPlayer, mcItemStack)
+                        NBundle.discoverBundleRecipe(bukkitPlayer, nmsItemStack)
                     }
                 }
 
