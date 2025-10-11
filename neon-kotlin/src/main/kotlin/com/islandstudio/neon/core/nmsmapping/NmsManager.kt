@@ -14,8 +14,13 @@ import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.shared.core.io.resource.ResourceManager
 import com.islandstudio.neon.shared.utils.data.DataUtil
 import net.minecraft.core.BlockPos
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.Item
 import org.bukkit.Location
+import org.bukkit.attribute.Attribute
+import org.bukkit.attribute.AttributeModifier
+import org.bukkit.entity.Entity
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.koin.core.component.inject
 
@@ -48,6 +53,18 @@ object NmsManager: NmsMapping(), IComponentInjector, IRunner {
         return Class.forName("org.bukkit.craftbukkit.${craftBukkitVersion}.$clazzName")
     }
 
+    fun toNmsPlayer(bukkitPlayer: Player): ServerPlayer {
+        return DataUtil.asType(bukkitPlayer.javaClass.getMethod("getHandle").invoke(bukkitPlayer))
+    }
+
+    fun toBukkitPlayer(nmsPlayer: ServerPlayer): Player {
+        return DataUtil.asType(nmsPlayer.javaClass.getMethod(getNmsMethod(NmsMethod.GetBukkitEntity)).invoke(nmsPlayer))
+    }
+
+    inline fun <reified T: Entity>toBukkitEntity(nmsEntity: net.minecraft.world.entity.Entity): T {
+        return DataUtil.asType(nmsEntity.javaClass.getMethod("getBukkitEntity").invoke(nmsEntity))
+    }
+
     fun toNmsItemStack(bukkitItemStack: ItemStack): net.minecraft.world.item.ItemStack {
         return DataUtil.asType(getCraftBukkitClass("inventory.CraftItemStack")
             .getMethod("asNMSCopy", ItemStack::class.java)
@@ -75,13 +92,41 @@ object NmsManager: NmsMapping(), IComponentInjector, IRunner {
             .invoke(null, bukkitLocation))
     }
 
+    fun toNmsAttributeModifier(bukkitAttributeModifier: AttributeModifier): net.minecraft.world.entity.ai.attributes.AttributeModifier {
+        return DataUtil.asType(getCraftBukkitClass("attribute.CraftAttributeInstance")
+            .getMethod("convert", AttributeModifier::class.java)
+            .invoke(null, bukkitAttributeModifier)
+        )
+    }
+
+    fun toBukkitAttributeModifier(nmsAttributeModifier: net.minecraft.world.entity.ai.attributes.AttributeModifier): AttributeModifier {
+        return DataUtil.asType(getCraftBukkitClass("attribute.CraftAttributeInstance")
+            .getMethod("convert", net.minecraft.world.entity.ai.attributes.AttributeModifier::class.java)
+            .invoke(null, nmsAttributeModifier)
+        )
+    }
+
+    fun toNmsAttribute(bukktiAttribute: Attribute): net.minecraft.world.entity.ai.attributes.Attribute {
+        return DataUtil.asType(getCraftBukkitClass("attribute.CraftAttribute")
+            .getMethod("bukkitToMinecraft", Attribute::class.java)
+            .invoke(null, bukktiAttribute)
+        )
+    }
+
+    fun toBukkitAttribute(nmsAttribute: net.minecraft.world.entity.ai.attributes.Attribute): Attribute {
+        return DataUtil.asType(getCraftBukkitClass("attribute.CraftAttribute")
+            .getMethod("minecraftToBukkit", net.minecraft.world.entity.ai.attributes.Attribute::class.java)
+            .invoke(null, nmsAttribute)
+        )
+    }
+
     interface INmsMapper {
-        fun mapField(nmsField: NmsField): String = nmsFields[nmsField] ?: ""
+        fun mapField(nmsField: NmsField): String = getNmsField(nmsField)
 
-        fun mapMethod(nmsMethod: NmsMethod): String = nmsMethods[nmsMethod] ?: ""
+        fun mapMethod(nmsMethod: NmsMethod): String = getNmsMethod(nmsMethod)
 
-        fun mapConstructor(nmsConstructor: NmsConstructor): String = nmsConstructors[nmsConstructor] ?: ""
+        fun mapConstructor(nmsConstructor: NmsConstructor): String = getNmsConstructor(nmsConstructor)
 
-        fun mapClass(nmsClass: NmsClass): String = nmsClasses[nmsClass] ?: ""
+        fun mapClass(nmsClass: NmsClass): String = getNmsClass(nmsClass)
     }
 }

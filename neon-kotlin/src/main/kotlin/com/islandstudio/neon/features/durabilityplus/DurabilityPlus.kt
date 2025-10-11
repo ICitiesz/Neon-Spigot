@@ -64,7 +64,7 @@ class DurabilityPlus: NmsManager.INmsMapper {
             toggleVillagerItemDamageProperty()
 
             eventRegistrationOnToggle(isEnabled,DurabilityPlusEvent(),
-                onToggleOn = { restrictFortuneHarvest = true }
+                onToggleOn = { /*restrictFortuneHarvest = true*/ }
             )
         }
 
@@ -471,6 +471,22 @@ class DurabilityPlus: NmsManager.INmsMapper {
                 if (!(playerUseAction == Action.RIGHT_CLICK_AIR || playerUseAction == Action.RIGHT_CLICK_BLOCK)) return
 
                 e.setUseItemInHand(Event.Result.DENY)
+                updateDurabilityState(usedItem, 0, player)
+                sendItemBrokenWarning(player, usedItem)
+            }
+
+            /* Carrot on a Stick / Warped Fungus on a Stick */
+            DamageableItemMatcher.matchesGeneralToolItems(usedItem, Material.CARROT_ON_A_STICK, Material.WARPED_FUNGUS_ON_A_STICK) -> {
+                if (!isItemBroken(usedItemItemMeta.damage, usedItem.type.maxDurability.toInt())) return
+
+                player.vehicle?.let {
+                    if (it !is Steerable) return
+                } ?: return
+
+                if (!(playerUseAction == Action.RIGHT_CLICK_AIR || playerUseAction == Action.RIGHT_CLICK_BLOCK)) return
+
+                e.setUseItemInHand(Event.Result.DENY)
+
                 updateDurabilityState(usedItem, 0, player)
                 sendItemBrokenWarning(player, usedItem)
             }

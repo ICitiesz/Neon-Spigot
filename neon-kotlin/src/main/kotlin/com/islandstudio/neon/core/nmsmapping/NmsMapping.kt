@@ -41,4 +41,12 @@ abstract class NmsMapping {
             }
         }
     }
+
+    protected fun getNmsField(nmsField: NmsField): String = nmsFields[nmsField] ?: ""
+
+    protected fun getNmsMethod(nmsMethod: NmsMethod): String = nmsMethods[nmsMethod] ?: ""
+
+    protected fun getNmsConstructor(nmsConstructor: NmsConstructor): String = nmsConstructors[nmsConstructor] ?: ""
+
+    protected fun getNmsClass(nmsClass: NmsClass): String = nmsClasses[nmsClass] ?: ""
 }
