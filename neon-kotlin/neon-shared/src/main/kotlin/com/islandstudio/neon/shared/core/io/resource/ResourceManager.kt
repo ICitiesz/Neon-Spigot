@@ -83,6 +83,32 @@ class ResourceManager {
             return destinationResourceFileHash == originalResourceFileHash
         }
 
+        fun getResourceChecksum(resourceURL: URL): String {
+            val resourceChecksum: String
+
+            resourceURL.openStream().use {
+                val fileHashInBytes = MessageDigest.getInstance("MD5").digest(it.readAllBytes())
+
+                resourceChecksum = BigInteger(1, fileHashInBytes).toString(16)
+            }
+
+            return resourceChecksum
+        }
+
+        fun verifyResourceChecksum(originalResourceURL: URL, referenceResourceURL: URL): Boolean {
+            val originalResourceChecksum = getResourceChecksum(originalResourceURL)
+            val referenceResourceChecksum = getResourceChecksum(referenceResourceURL)
+
+            return originalResourceChecksum == referenceResourceChecksum
+        }
+
+        fun verifyResourceChecksum(originalResourceChecksum: String, referenceResourceURL: URL): Boolean {
+            val referenceResourceChecksum = getResourceChecksum(referenceResourceURL)
+
+            return originalResourceChecksum.trim() == referenceResourceChecksum
+        }
+
+
         fun copyResource(neonInternalResource: NeonInternalResource, destinationResource: File) {
             copyResource(getNeonResourceAsUrl(neonInternalResource)!! , destinationResource)
         }
@@ -98,9 +124,8 @@ class ResourceManager {
         }
 
         fun getNeonResourceAsStream(neonInternalResource: NeonInternalResource, pluginClassLoader: ClassLoader? = null): InputStream {
-            pluginClassLoader?.let {
-                return it.getResourceAsStream(neonInternalResource.resourceURL)
-            } ?: return pluginAdapter.getPluginClassLoader().getResourceAsStream(neonInternalResource.resourceURL)
+            return pluginClassLoader?.getResourceAsStream(neonInternalResource.resourceURL)
+                ?: pluginAdapter.getPluginClassLoader().getResourceAsStream(neonInternalResource.resourceURL)
         }
     }
 

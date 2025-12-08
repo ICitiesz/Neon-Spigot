@@ -1,5 +1,11 @@
 package com.islandstudio.neon.core.nmsmapping.type
 
 enum class NmsField {
-    MerchantRecipeResult
+    MerchantRecipeResult,
+    PlayerConnection,
+    NetworkManager,
+    Channel,
+    McServer,
+    ServerRecipes,
+
 }

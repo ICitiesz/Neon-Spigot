@@ -1,28 +1,28 @@
 package com.islandstudio.neon.shared.core.io.resource
 
-import com.islandstudio.neon.shared.core.io.folder.NeonDataFolder
+import com.islandstudio.neon.shared.experimental.NeonDataFolderNew
 
-enum class NeonExternalResource(val neonDataFolder: NeonDataFolder, val resourceName: String, val resourceType: ResourceType) {
+enum class NeonExternalResource(val neonDataFolder: NeonDataFolderNew, val resourceName: String, val resourceType: ResourceType) {
     NeonDBServerConfigFile(
-        NeonDataFolder.NeonDatabaseFolder,
+        NeonDataFolderNew.NeonDatabaseFolder,
         "database-config.yml",
         ResourceType.Yaml
     ),
 
     NeonDBServerConfigFile2(
-        NeonDataFolder.NeonDatabaseFolder,
+        NeonDataFolderNew.NeonDatabaseFolder,
         "NeonDB-config.toml",
         ResourceType.Toml
     ),
 
     NWaypointsGlobalFile(
-        NeonDataFolder.NWaypointsFolder,
+        NeonDataFolderNew.NWaypointsFolder,
         "nWaypoints-Global.json",
         ResourceType.Json
     ),
 
     NeonFeatureFile(
-        NeonDataFolder.NeonFeatureFolder,
+        NeonDataFolderNew.NeonFeatureFolder,
         "neon-feature.toml",
         ResourceType.Toml
     )

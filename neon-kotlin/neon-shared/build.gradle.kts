@@ -24,6 +24,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:${kotlinxCoroutinesVersion}")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.1")
 
     /* Server API Reference Library */
     compileOnly("org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT:shaded")

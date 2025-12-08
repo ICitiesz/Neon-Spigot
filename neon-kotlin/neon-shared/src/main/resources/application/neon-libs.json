@@ -1,0 +1,20 @@
+[
+  {
+    "name": "H2 Database",
+    "version": "2.4.240",
+    "mavenUrl": "https://repo1.maven.org/maven2/com/h2database/h2/2.4.240/h2-2.4.240.jar",
+    "checksum": {
+      "md5": "https://repo1.maven.org/maven2/com/h2database/h2/2.4.240/h2-2.4.240.jar.md5"
+    },
+    "requiredFor": []
+  },
+  {
+    "name": "Kotlin CSV",
+    "version": "1.10.0",
+    "mavenUrl": "https://repo1.maven.org/maven2/com/jsoizo/kotlin-csv-jvm/1.10.0/kotlin-csv-jvm-1.10.0.jar",
+    "checksum": {
+      "md5": "https://repo1.maven.org/maven2/com/jsoizo/kotlin-csv-jvm/1.10.0/kotlin-csv-jvm-1.10.0.jar.md5"
+    },
+    "requiredFor": ["Neon"]
+  }
+]

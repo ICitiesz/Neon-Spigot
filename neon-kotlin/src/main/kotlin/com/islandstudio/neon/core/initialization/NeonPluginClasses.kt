@@ -1,7 +1,6 @@
 package com.islandstudio.neon.core.initialization
 
 import com.islandstudio.neon.command.CommandManager
-import com.islandstudio.neon.core.datakey.DataKeyManager
 import com.islandstudio.neon.core.nmsmapping.NmsManager
 import com.islandstudio.neon.core.nmsmapping.NmsProcessor
 import com.islandstudio.neon.experimental.gui.GuiManager
@@ -43,12 +42,12 @@ enum class NeonPluginClasses(
         false
     ),
 
-    DataKeyManagerClass(
-      DataKeyManager.Companion::class.java,
-        LoadStage.PreLoad,
-        true,
-        false
-    ),
+//    DataKeyManagerClass(
+//      DataKeyManager.Companion::class.java,
+//        LoadStage.PreLoad,
+//        true,
+//        false
+//    ),
 
 //    NeonKeyClass(
 //        NeonKey.Handler::class.java,

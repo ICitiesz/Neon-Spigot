@@ -13,11 +13,10 @@ import io.github.cdimascio.dotenv.Dotenv
 import io.github.cdimascio.dotenv.dotenv
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
-import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 import java.util.*
 
-@Single
+//@Single
 class AppContext(): IComponentInjector {
     private val pluginInstance by inject<JavaPlugin>()
     private val pluginServer = pluginInstance.server

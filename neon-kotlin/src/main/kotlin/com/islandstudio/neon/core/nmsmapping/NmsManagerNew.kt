@@ -24,7 +24,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 
-object NmsManager: NmsMapping(), IComponentProvider, IRunnerAsync {
+object NmsManagerNew: NmsMapping(), IComponentProvider, IRunnerAsync {
     private val pluginContext = getComponent<IPluginContext>()
 
     override suspend fun runSuspend() {
@@ -34,9 +34,9 @@ object NmsManager: NmsMapping(), IComponentProvider, IRunnerAsync {
             val nmsMappingDataStream = pluginContext.resourceManager.getNeonResourceAsStream(NeonInternalResource.NeonNmsMapping2)
 
             nmsMappingDataStream?.let { inputStream ->
-                csvReader().open(inputStream) {
-                    pluginContext.getPluginLogger().info("Loading NMS mapping...")
+                pluginContext.getPluginLogger().info("Loading NMS mapping...")
 
+                csvReader().open(inputStream) {
                     val nmsCsvData = readAllWithHeaderAsSequence().filter { data ->
                         data["Versions"]?.let {
                             val versions = it.split(";").map { version -> version.trim() }
@@ -55,6 +55,12 @@ object NmsManager: NmsMapping(), IComponentProvider, IRunnerAsync {
         val craftBukkitVersion = pluginContext.getServer().javaClass.name.split(".")[3]
 
         return Class.forName("org.bukkit.craftbukkit.${craftBukkitVersion}.$clazzName")
+    }
+
+    fun getNmsClass(clazzName: String): Class<*>? {
+        return runCatching {
+            Class.forName("net.minecraft.${clazzName}")
+        }.getOrNull()
     }
 
     fun toNmsPlayer(bukkitPlayer: Player): ServerPlayer {

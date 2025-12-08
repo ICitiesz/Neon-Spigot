@@ -1,32 +1,40 @@
 package com.islandstudio.neon.core.datakey
 
-import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.shared.core.initialization.IRunner
+import com.islandstudio.neon.shared.core.di.IComponentProvider
+import com.islandstudio.neon.shared.core.di.getComponent
+import com.islandstudio.neon.shared.core.initialization.IPluginContext
+import com.islandstudio.neon.shared.core.initialization.IRunnerAsync
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
-import com.islandstudio.neon.shared.core.io.resource.ResourceManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
-import org.koin.core.component.inject
 import java.util.*
 
 @Single
 class DataKeyManager {
     private val dataKeyProperties = Properties()
 
-    companion object: IRunner, IComponentInjector {
-        private val dataKeyManager by inject<DataKeyManager>()
+    companion object: IRunnerAsync, IComponentProvider {
+        private val pluginContext = getComponent<IPluginContext>()
+        private val dataKeyManager = getComponent<DataKeyManager>()
+        private val resourceManager = pluginContext.resourceManager
 
-        override fun run() {
-            dataKeyManager.dataKeyProperties.load(
-                ResourceManager.getNeonResourceAsStream(
-                    NeonInternalResource.NeonGeneralDataKeyProperties
-                )
-            )
+        override suspend fun runSuspend() {
+            withContext(Dispatchers.IO) {
+                pluginContext.getPluginLogger().info("Initializing Data Key Manager...")
 
-            dataKeyManager.dataKeyProperties.load(
-                ResourceManager.getNeonResourceAsStream(
-                    NeonInternalResource.NeonRecipeDataKeyProperties
+                dataKeyManager.dataKeyProperties.load(
+                    resourceManager.getNeonResourceAsStream(
+                        NeonInternalResource.NeonGeneralDataKeyProperties
+                    )
                 )
-            )
+
+                dataKeyManager.dataKeyProperties.load(
+                    resourceManager.getNeonResourceAsStream(
+                        NeonInternalResource.NeonRecipeDataKeyProperties
+                    )
+                )
+            }
         }
     }
 

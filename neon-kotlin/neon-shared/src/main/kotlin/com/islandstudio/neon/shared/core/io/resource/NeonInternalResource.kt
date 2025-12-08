@@ -76,6 +76,11 @@ enum class NeonInternalResource(val resourceURL: String, val resourceType: Resou
     NeonDBServerConfig(
         "resources/database/NeonDB-config.toml",
         ResourceType.Toml
+    ),
+
+    NeonLibraryList(
+        "resources/application/neon-libs.json",
+        ResourceType.Json
     )
     ;
 
