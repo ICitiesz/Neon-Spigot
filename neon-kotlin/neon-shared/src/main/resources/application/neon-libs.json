@@ -1,20 +1,67 @@
 [
   {
-    "name": "H2 Database",
-    "version": "2.4.240",
-    "mavenUrl": "https://repo1.maven.org/maven2/com/h2database/h2/2.4.240/h2-2.4.240.jar",
-    "checksum": {
-      "md5": "https://repo1.maven.org/maven2/com/h2database/h2/2.4.240/h2-2.4.240.jar.md5"
-    },
-    "requiredFor": []
+	"name": "H2 Database",
+	"version": "2.4.240",
+	"mavenUrl": "https://repo1.maven.org/maven2/com/h2database/h2/2.4.240/h2-2.4.240.jar",
+	"checksum": {
+	  "md5": "https://repo1.maven.org/maven2/com/h2database/h2/2.4.240/h2-2.4.240.jar.md5"
+	},
+	"requiredFor": []
   },
   {
-    "name": "Kotlin CSV",
-    "version": "1.10.0",
-    "mavenUrl": "https://repo1.maven.org/maven2/com/jsoizo/kotlin-csv-jvm/1.10.0/kotlin-csv-jvm-1.10.0.jar",
-    "checksum": {
-      "md5": "https://repo1.maven.org/maven2/com/jsoizo/kotlin-csv-jvm/1.10.0/kotlin-csv-jvm-1.10.0.jar.md5"
-    },
-    "requiredFor": ["Neon"]
+	"name": "Kotlin CSV",
+	"version": "1.10.0",
+	"mavenUrl": "https://repo1.maven.org/maven2/com/jsoizo/kotlin-csv-jvm/1.10.0/kotlin-csv-jvm-1.10.0.jar",
+	"checksum": {
+	  "md5": "https://repo1.maven.org/maven2/com/jsoizo/kotlin-csv-jvm/1.10.0/kotlin-csv-jvm-1.10.0.jar.md5"
+	},
+	"requiredFor": [
+	  "Neon"
+	]
+  },
+  {
+	"name": "JOOQ",
+	"version": "3.19.15",
+	"mavenUrl": "https://repo1.maven.org/maven2/org/jooq/jooq/3.19.15/jooq-3.19.15.jar",
+	"checksum": {
+	  "md5": "https://repo1.maven.org/maven2/org/jooq/jooq/3.19.15/jooq-3.19.15.jar.md5"
+	},
+	"requiredFor": []
+  },
+  {
+	"name": "Reactive Relational Database Connectivity SPI",
+	"version": "1.0.0",
+	"mavenUrl": "https://repo1.maven.org/maven2/io/r2dbc/r2dbc-spi/1.0.0.RELEASE/r2dbc-spi-1.0.0.RELEASE.jar",
+	"checksum": {
+	  "md5": "https://repo1.maven.org/maven2/io/r2dbc/r2dbc-spi/1.0.0.RELEASE/r2dbc-spi-1.0.0.RELEASE.jar.md5"
+	},
+	"requiredFor": []
+  },
+  {
+	"name": "Reactive Stream",
+	"version": "1.0.3",
+	"mavenUrl": "https://repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.3/reactive-streams-1.0.3.jar",
+	"checksum": {
+	  "md5": "https://repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.3/reactive-streams-1.0.3.jar.md5"
+	},
+	"requiredFor": []
+  },
+  {
+	"name": "JOOQ Meta Extension",
+	"version": "3.19.15",
+	"mavenUrl": "https://repo1.maven.org/maven2/org/jooq/jooq-meta-extensions/3.19.15/jooq-meta-extensions-3.19.15.jar",
+	"checksum": {
+	  "md5": "https://repo1.maven.org/maven2/org/jooq/jooq-meta-extensions/3.19.15/jooq-meta-extensions-3.19.15.jar.md5"
+	},
+	"requiredFor": []
+  },
+  {
+	"name": "SQLite JDBC",
+	"version": "3.51.1.0",
+	"mavenUrl": "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.51.1.0/sqlite-jdbc-3.51.1.0.jar",
+	"checksum": {
+	  "md5": "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.51.1.0/sqlite-jdbc-3.51.1.0.jar.md5"
+	},
+	"requiredFor": []
   }
 ]

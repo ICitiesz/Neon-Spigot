@@ -1,25 +1,21 @@
 package com.islandstudio.neon.shared.core.io.resource.library
 
-import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.shared.core.initialization.IPluginContext
-import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.shared.experimental.NeonDataFolderNew
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 class NeonLibraryManager(private val pluginContext: IPluginContext) {
-    private val neonLibraryList: ArrayList<NeonLibrary> = run {
-        val neonLibsJsonBufferedReader = pluginContext.resourceManager.getNeonResourceAsStream(NeonInternalResource.NeonLibraryList)
-            ?.bufferedReader() ?: throw NeonException("Could not get library list")
-
-        return@run neonLibsJsonBufferedReader.use {
-            return@use Json.decodeFromString<ArrayList<NeonLibrary>>(it.readText())
+    private val neonLibraryList = NeonLibrary.getAllLibraries().filter {
+        if (it.isLoadByCondition) {
+            it.onLoad()
+        } else {
+            true
         }
     }
 

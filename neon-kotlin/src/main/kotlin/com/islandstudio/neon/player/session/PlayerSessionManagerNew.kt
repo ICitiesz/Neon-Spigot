@@ -1,5 +1,8 @@
 package com.islandstudio.neon.player.session
 
+import com.islandstudio.neon.apinew.dto.action.CreatePlayerProfileActionDTO
+import com.islandstudio.neon.apinew.entity.PlayerProfile
+import com.islandstudio.neon.apinew.facade.player.IPlayerProfileFacade
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
 import com.islandstudio.neon.core.nmsmapping.type.NmsConstructor
@@ -10,7 +13,10 @@ import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent
 import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import com.islandstudio.neon.shared.core.initialization.IRunnerNew
+import com.islandstudio.neon.shared.experimental.utils.coroutines.CloseableCoroutineScope
 import com.islandstudio.neon.shared.utils.data.DataUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
@@ -19,11 +25,51 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.server.ServerLoadEvent
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INmsMapper {
     private val pluginContext = getComponent<IPluginContext>()
+    private val playerProfileFacade = getComponent<IPlayerProfileFacade>()
     override fun run() {
         registerEvent(PlayerSessionManagerNewEvent(this))
+    }
+
+    suspend fun getPlayerProfile(player: Player): PlayerProfile? {
+        var result: PlayerProfile? = null
+
+        playerProfileFacade.getPlayerProfile(player.uniqueId).onResultReceived(
+            onSuccess = {
+                result = it.get()
+            },
+            onFailure = {
+                pluginContext.getPluginLogger().warning(it.message)
+            }
+        )
+
+        return result
+    }
+
+    suspend fun createPlayerProfile(player: Player): PlayerProfile? {
+        var result: PlayerProfile? = null
+
+        playerProfileFacade.createPlayerProfile(
+            CreatePlayerProfileActionDTO(
+                uuid = player.uniqueId,
+                name = player.name,
+                joinedAt = LocalDateTime.now(ZoneOffset.UTC),
+                roleId = null
+            )
+        ).onResultReceived(
+            onSuccess = {
+                result = it.get()
+            },
+            onFailure = {
+                pluginContext.getPluginLogger().warning(it.message)
+            }
+        )
+
+        return result
     }
 
     /**
@@ -88,6 +134,7 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
     }
 
     private class PlayerSessionManagerNewEvent(private val playerSessionManagerNew: PlayerSessionManagerNew): Listener {
+        private val closeableCoroutineScope = CloseableCoroutineScope(Dispatchers.IO)
         private val pluginContext = playerSessionManagerNew.pluginContext
 
         @EventHandler
@@ -108,6 +155,17 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
             ServerGamePacketManagerNew.registerServerGamePacketListener(player)
 
             /* Player join message */
+            closeableCoroutineScope.launchJob {
+                async {
+                    val playerProfile = playerSessionManagerNew.getPlayerProfile(player)
+                        ?: playerSessionManagerNew.createPlayerProfile(player)
+
+                    println("Player profile: $playerProfile")
+
+                    // TODO: Create player session
+                }.await()
+            }
+
             e.joinMessage = ""
             playerSessionManagerNew.broadcastPlayerSessionMessage(player, PlayerSessionState.OnJoining)
         }

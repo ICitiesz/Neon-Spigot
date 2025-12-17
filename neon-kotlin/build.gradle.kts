@@ -44,6 +44,7 @@ dependencies {
     /* Neon Library */
     implementation(project(":neon-shared"))
     implementation(project(":neon-api"))
+    implementation(project(":neon-api-new"))
     compileOnly("com.islandstudio:neon-database-server")
 
     /* Core Language Library */
@@ -66,16 +67,18 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
     implementation("com.akuleshov7:ktoml-core:0.5.2")
     implementation("com.akuleshov7:ktoml-file-jvm:0.5.2")
-    api("org.modelmapper:modelmapper:3.2.1")
-    //implementation("com.jsoizo:kotlin-csv-jvm:1.10.0")
+    implementation("org.modelmapper:modelmapper:3.2.6")
+
+    implementation("com.github.oshi:oshi-core:6.9.1")
     compileOnly("com.jsoizo:kotlin-csv-jvm:1.10.0")
 
+
     /* Database Library */
-    implementation("org.hsqldb:hsqldb:2.7.3")
+    compileOnly("org.hsqldb:hsqldb:2.7.3")
     implementation("org.jooq:jooq:$jooqVersion")
-    compileOnly("org.jooq:jooq-meta:$jooqVersion")
-    compileOnly("org.jooq:jooq-meta-extensions:$jooqVersion")
-    runtimeOnly("org.xerial:sqlite-jdbc:3.50.3.0")
+    compileOnly("org.jooq:jooq-meta:$jooqVersion") // Should be compileOnly
+    implementation("org.jooq:jooq-meta-extensions:$jooqVersion")
+    //runtimeOnly("org.xerial:sqlite-jdbc:3.50.3.0")
     //compileOnly("org.jooq:jooq-codegen:$jooqVersion")
     //compileOnly("com.h2database:h2:2.4.240")
     runtimeOnly("com.h2database:h2:2.4.240")

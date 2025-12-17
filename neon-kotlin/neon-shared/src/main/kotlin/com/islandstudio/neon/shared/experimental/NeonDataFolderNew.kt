@@ -140,6 +140,24 @@ sealed class NeonDataFolderNew(folder: File): File(folder.toPath().toString()) {
         private fun readResolve(): Any = NeonDatabaseFolder
     }
 
+    data object NeonDatabaseFolderNew: NeonDataFolderNew(
+        File(getRootDataFolder(), "database-new")
+    ) {
+        private fun readResolve(): Any = NeonDatabaseFolderNew
+    }
+
+    data object NeonDatabaseDataFolder: NeonDataFolderNew(
+        File(NeonDatabaseFolderNew, "data")
+    ) {
+        private fun readResolve(): Any = NeonDatabaseDataFolder
+    }
+
+    data object NeonDatabaseCoreFolder: NeonDataFolderNew(
+        File(NeonDatabaseFolderNew, "core")
+    ) {
+        private fun readResolve(): Any = NeonDatabaseCoreFolder
+    }
+
     /* Experimental */
     data object NFireworksFolder: NeonDataFolderNew(
         File(NExperimentalFolder, "nFireworks")

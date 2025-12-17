@@ -4,7 +4,6 @@ import com.islandstudio.neon.core.di.module.NeonModule
 import com.islandstudio.neon.shared.core.di.GlobalDIManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.di.SharedModule
-import com.islandstudio.neon.shared.core.di.module.NeonAPIModule
 import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.shared.core.initialization.IPluginInitializer
 import com.islandstudio.neon.shared.core.initialization.PluginContext
@@ -46,7 +45,7 @@ class Neon : JavaPlugin(), IComponentInjector, IObjectMapper {
             mainPluginContext,
             NeonModule().module,
             SharedModule().module,
-            NeonAPIModule().module,
+            //NeonAPIModule().module,
         )
     }
 

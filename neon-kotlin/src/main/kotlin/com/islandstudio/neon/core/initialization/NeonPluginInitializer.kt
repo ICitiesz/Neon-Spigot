@@ -1,8 +1,11 @@
 package com.islandstudio.neon.core.initialization
 
+import com.islandstudio.neon.apinew.connection.NeonDatabaseManager
 import com.islandstudio.neon.core.datakey.DataKeyManager
+import com.islandstudio.neon.core.di.module.NeonModule
 import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
 import com.islandstudio.neon.player.session.PlayerSessionManagerNew
+import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.PluginDIManager
 import com.islandstudio.neon.shared.core.di.SharedModule
 import com.islandstudio.neon.shared.core.initialization.IPluginInitializer
@@ -10,10 +13,11 @@ import com.islandstudio.neon.shared.core.initialization.PluginContext
 import com.islandstudio.neon.shared.experimental.utils.coroutines.CloseableCoroutineScope
 import com.islandstudio.neon.util.NeonColor
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import org.koin.ksp.generated.module
 
-class NeonPluginInitializer(private val pluginContext: PluginContext): IPluginInitializer, NmsManagerNew.INmsMapper {
+class NeonPluginInitializer(private val pluginContext: PluginContext): IPluginInitializer, NmsManagerNew.INmsMapper, IComponentProvider {
     private val neonVersionText = "${NeonColor.DefinedColor.CyanBlue.color}${NeonColor.DefinedColor.Bold.color}v${pluginContext.mainPluginInstance.description.version}${NeonColor.DefinedColor.Reset.color}"
     //private val neon = DataUtil.asType<Neon>(pluginContext.mainPluginInstance)
     private val initCloseableCoroutineScope = CloseableCoroutineScope(Dispatchers.IO)
@@ -81,15 +85,24 @@ class NeonPluginInitializer(private val pluginContext: PluginContext): IPluginIn
     init {
         PluginDIManager.startPluginScoped(
             pluginContext,
+            NeonModule().module,
             SharedModule().module
         )
     }
 
+    private val neonDatabaseManager = NeonDatabaseManager()
+    private var onLoadJob: Job? = null
+
     override fun onLoad() {
-        initCloseableCoroutineScope.launchJob {
+        onLoadJob = initCloseableCoroutineScope.launchJob {
             initCloseableCoroutineScope.launchAsCompletableDeferred {
                 async {
                     pluginContext.loadCodeMessages()
+                }.await()
+
+                async {
+                    getKoin().declare(neonDatabaseManager)
+                    neonDatabaseManager.initialize()
                 }.await()
 
                 async {
@@ -104,12 +117,14 @@ class NeonPluginInitializer(private val pluginContext: PluginContext): IPluginIn
     }
 
     override fun onEnable() {
-        PlayerSessionManagerNew().run()
-
-        pluginContext.getServer().consoleSender.sendMessage(NEON_ON_ENABLED_TITLE)
+        onLoadJob?.invokeOnCompletion {
+            PlayerSessionManagerNew().run()
+            pluginContext.getServer().consoleSender.sendMessage(NEON_ON_ENABLED_TITLE)
+        }
     }
 
     override fun onDisable() {
+        neonDatabaseManager.close()
         pluginContext.getServer().consoleSender.sendMessage(NEON_ON_DISABLED_TITLE)
     }
 }

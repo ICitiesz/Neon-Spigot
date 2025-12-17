@@ -10,7 +10,7 @@ object PluginDIManager {
     private var pluginKoinApp: KoinApplication? = null
 
     fun startPluginScoped(pluginContext: IPluginContext, vararg modules: Module) {
-        //pluginContext.mainPluginInstance.logger.info("Starting Plugin DI Manager...")
+        pluginContext.mainPluginInstance.logger.info("Starting Plugin DI Manager...")
 
         pluginKoinApp = KoinApplication.init().modules(*modules)
         pluginKoinApp!!.koin.declare(pluginContext)
