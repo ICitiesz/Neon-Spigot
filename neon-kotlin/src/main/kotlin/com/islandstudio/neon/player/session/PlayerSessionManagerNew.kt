@@ -4,6 +4,8 @@ import com.islandstudio.neon.apinew.dto.action.CreatePlayerProfileActionDTO
 import com.islandstudio.neon.apinew.entity.PlayerProfile
 import com.islandstudio.neon.apinew.facade.player.IPlayerProfileFacade
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
+import com.islandstudio.neon.core.datakey.container.DataContainerManager
+import com.islandstudio.neon.core.datakey.container.DataContainerType
 import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
 import com.islandstudio.neon.core.nmsmapping.type.NmsConstructor
 import com.islandstudio.neon.core.nmsmapping.type.NmsField
@@ -11,10 +13,12 @@ import com.islandstudio.neon.core.nmsmapping.type.NmsMethod
 import com.islandstudio.neon.server.ServerGamePacketManagerNew
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent
+import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import com.islandstudio.neon.shared.core.initialization.IRunnerNew
 import com.islandstudio.neon.shared.experimental.utils.coroutines.CloseableCoroutineScope
 import com.islandstudio.neon.shared.utils.data.DataUtil
+import com.islandstudio.neon.shared.utils.serialization.ObjectSerializer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import net.minecraft.server.level.ServerPlayer
@@ -27,6 +31,7 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.server.ServerLoadEvent
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlin.jvm.optionals.getOrNull
 
 class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INmsMapper {
     private val pluginContext = getComponent<IPluginContext>()
@@ -36,40 +41,57 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
     }
 
     suspend fun getPlayerProfile(player: Player): PlayerProfile? {
-        var result: PlayerProfile? = null
-
-        playerProfileFacade.getPlayerProfile(player.uniqueId).onResultReceived(
-            onSuccess = {
-                result = it.get()
-            },
-            onFailure = {
-                pluginContext.getPluginLogger().warning(it.message)
-            }
-        )
-
-        return result
+        return playerProfileFacade.getPlayerProfile(player.uniqueId).getResult { status, _ ->
+            pluginContext.getPluginLogger().warning(status.message)
+            throw NeonException(status.message)
+        }.getOrNull()
     }
 
-    suspend fun createPlayerProfile(player: Player): PlayerProfile? {
-        var result: PlayerProfile? = null
-
-        playerProfileFacade.createPlayerProfile(
+    suspend fun createPlayerProfile(player: Player): PlayerProfile {
+        return playerProfileFacade.createPlayerProfile(
             CreatePlayerProfileActionDTO(
                 uuid = player.uniqueId,
                 name = player.name,
                 joinedAt = LocalDateTime.now(ZoneOffset.UTC),
                 roleId = null
             )
-        ).onResultReceived(
-            onSuccess = {
-                result = it.get()
-            },
-            onFailure = {
-                pluginContext.getPluginLogger().warning(it.message)
-            }
+        ).getResult { status, _ ->
+            pluginContext.getPluginLogger().warning(status.message)
+            throw NeonException(status.message)
+        }.get()
+    }
+
+    // TODO: Need to rework
+    private fun createPlayerSession(player: Player, playerProfile: PlayerProfile) {
+        val sessionData = ObjectSerializer.serializeToByteArray(
+            PlayerSession(
+                playerProfile.uuid,
+                playerProfile.name,
+                playerProfile.roleId
+            )
         )
 
-        return result
+        DataContainerManager.attachData(player, sessionData, DataContainerType.PlayerSessionContainer)
+        // TODO: Register player accessible commands
+    }
+
+    private fun discardPlayerSession(player: Player) {
+        // TODO: Unregister player accessible commands
+        DataContainerManager.detachData(player, DataContainerType.PlayerSessionContainer)
+    }
+
+    fun updatePlayerSession(player: Player, newSessionData: PlayerSession) {
+        val sessionDataInBytes = ObjectSerializer.serializeToByteArray(newSessionData)
+
+        DataContainerManager.updateAttachedData(player, sessionDataInBytes, DataContainerType.PlayerSessionContainer)
+        // TODO: Update player accessible commands
+    }
+
+    fun getPlayerSession(player: Player): PlayerSession? {
+        val sessionData = DataContainerManager.getAttachedData(player, DataContainerType.PlayerSessionContainer)
+            ?: return null
+
+        return ObjectSerializer.deserialzeFromByteArray<PlayerSession>(sessionData)
     }
 
     /**
@@ -160,9 +182,7 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
                     val playerProfile = playerSessionManagerNew.getPlayerProfile(player)
                         ?: playerSessionManagerNew.createPlayerProfile(player)
 
-                    println("Player profile: $playerProfile")
-
-                    // TODO: Create player session
+                    playerSessionManagerNew.createPlayerSession(player, playerProfile)
                 }.await()
             }
 
@@ -175,6 +195,7 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
             val player = e.player
 
             ServerGamePacketManagerNew.unregisterServerGamePacketListener(player)
+            playerSessionManagerNew.discardPlayerSession(player)
 
             /* Player quit message */
             e.quitMessage = ""
