@@ -1,6 +1,7 @@
 package com.islandstudio.neon.apinew.repository.player.impl
 
 import com.islandstudio.neon.apinew.connection.NeonDatabaseContext
+import com.islandstudio.neon.apinew.connection.UserContext
 import com.islandstudio.neon.apinew.entity.PlayerProfile
 import com.islandstudio.neon.apinew.repository.BaseRepository
 import com.islandstudio.neon.apinew.repository.player.IPlayerProfileRepository
@@ -10,9 +11,12 @@ import org.koin.core.annotation.Single
 import kotlin.jvm.optionals.getOrNull
 
 @Single
-class PlayerProfileRepository(databaseContext: NeonDatabaseContext): BaseRepository<PlayerProfile, PlayerProfileTable>(databaseContext, PLAYER_PROFILE_TABLE), IPlayerProfileRepository {
-    override suspend fun addPlayerProfile(playerProfile: PlayerProfile): PlayerProfile? {
-        return insertEntityReturnAsync(playerProfile.updateCreatedModified(playerProfile.name))
+class PlayerProfileRepository(databaseContext: NeonDatabaseContext):
+    BaseRepository<PlayerProfile, PlayerProfileTable>(databaseContext, PLAYER_PROFILE_TABLE),
+    IPlayerProfileRepository
+{
+    override suspend fun addPlayerProfile(context: UserContext, playerProfile: PlayerProfile): PlayerProfile? {
+        return insertEntityReturnAsync(playerProfile.updateCreatedModified(context.contextName))
             .getOrNull()
     }
 

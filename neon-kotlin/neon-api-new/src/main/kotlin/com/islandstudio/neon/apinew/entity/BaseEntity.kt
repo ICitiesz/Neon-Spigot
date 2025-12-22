@@ -9,7 +9,7 @@ import java.io.Serializable
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
-abstract class BaseEntity<TEntity, TEntityRecord: Record>(private val entityRecord: TEntityRecord): Serializable, IComponentProvider {
+abstract class BaseEntity<TEntity, TEntityRecord: Record>(private val entityRecordClazz: Class<TEntityRecord>): Serializable, IComponentProvider {
     companion object {
         val defaultTime: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC)
         val defaultAuditor: String = "SYSTEM"
@@ -44,7 +44,7 @@ abstract class BaseEntity<TEntity, TEntityRecord: Record>(private val entityReco
     }
 
     fun toRecord(): TEntityRecord {
-        return mapper.mapTo(this, entityRecord::class.java)
+        return mapper.mapTo(this, entityRecordClazz)
     }
 
     fun getEntityClass(): Class<TEntity> {

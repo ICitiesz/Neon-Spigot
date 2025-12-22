@@ -45,6 +45,7 @@ dependencies {
     implementation("org.jooq:jooq-meta-extensions:$jooqVersion")
     compileOnly("org.jooq:jooq-codegen:$jooqVersion")
     jooqCodegen(project)
+    jooqCodegen("org.mariadb.jdbc:mariadb-java-client:3.5.6")
 
     /*  Experimental Library */
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.6")
@@ -89,10 +90,10 @@ jooq {
         /* Reference: https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generator/ */
         generator {
             database {
-                /* Specify the location of your SQL script. */
-                val scriptProperty = org.jooq.meta.jaxb.Property()
-                    .withKey("scripts")
-                    .withValue("${rootDir}/neon-api-new/src/main/resources/database/NeonDatabaseInit.sql")
+//                /* Specify the location of your SQL script. */
+//                val scriptProperty = org.jooq.meta.jaxb.Property()
+//                    .withKey("scripts")
+//                    .withValue("${rootDir}/neon-api-new/src/main/resources/database/NeonDatabaseInit.sql")
 
                 /* The default name case for unquoted objects:
                 * - as_is: unquoted object names are kept unquoted
@@ -122,10 +123,17 @@ jooq {
                     this.value = "[IGNORE END]"
                 }
 
-                name = "org.jooq.meta.extensions.ddl.DDLDatabase"
+                //name = "org.jooq.meta.extensions.ddl.DDLDatabase"
+                name = "org.jooq.meta.mariadb.MariaDBDatabase"
+
+                jdbc {
+                    driver = "org.mariadb.jdbc.Driver"
+                    url = "jdbc:mariadb://localhost:3306/neon_dev"
+                    user = "root"
+                    password = ""
+                }
 
                 withProperties(
-                    scriptProperty,
                     defaultNameCaseProperty,
                     parseIgnoreComment,
                     parseIgnoreCommentStart,
@@ -135,9 +143,10 @@ jooq {
                 withCatalogs(
                     CatalogMappingType()
                         .withSchemata(
-                            SchemaMappingType()
-                                .withOutputSchema("neon_data")
-                        )
+                        SchemaMappingType()
+                                .withInputSchema("neon_dev")
+                            .withOutputSchemaToDefault(true)
+                        ),
                 )
             }
 
@@ -174,16 +183,16 @@ jooq {
                 withKotlinNotNullPojoAttributes(false)
 
                 /* Generate non-nullable types on Record attributes, where column is not null. Default is false. */
-                withKotlinNotNullRecordAttributes(false)
+                withKotlinNotNullRecordAttributes(true)
 
                 /* Generate non-nullable types on interface attributes, where column is not null. Default is false. */
-                withKotlinNotNullInterfaceAttributes(false)
+                withKotlinNotNullInterfaceAttributes(true)
 
                 /* Generate defaulted nullable POJO attributes. Default is true. */
-                withKotlinDefaultedNullablePojoAttributes(true)
+                withKotlinDefaultedNullablePojoAttributes(false)
 
                 /* Generate defaulted nullable Record attributes. Default is true */
-                withKotlinDefaultedNullableRecordAttributes(true)
+                withKotlinDefaultedNullableRecordAttributes(false)
             }
         }
     }

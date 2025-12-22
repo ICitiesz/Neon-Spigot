@@ -1,15 +1,15 @@
 package com.islandstudio.neon.item
 
 import com.islandstudio.neon.core.datakey.AbstractDataKey
-import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentProvider
+import com.islandstudio.neon.shared.core.di.getComponent
 import com.islandstudio.neon.shared.core.exception.NeonException
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.item.enchantment.EnchantmentCategory
 import org.bukkit.enchantments.Enchantment
-import org.koin.core.component.inject
 
-sealed class NeonEnchantment(keyName: String): AbstractDataKey(keyName), IComponentInjector {
-    private val enchantmentManager by inject<EnchantmentManager>()
+sealed class NeonEnchantment(keyName: String): AbstractDataKey(keyName), IComponentProvider {
+    private val enchantmentManager = getComponent<EnchantmentManager>()
 
     protected abstract val enchantmentRarity: net.minecraft.world.item.enchantment.Enchantment.Rarity
     protected abstract val enchantmentCategory: EnchantmentCategory

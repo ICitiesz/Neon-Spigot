@@ -10,6 +10,7 @@ import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
 import com.islandstudio.neon.core.nmsmapping.type.NmsConstructor
 import com.islandstudio.neon.core.nmsmapping.type.NmsField
 import com.islandstudio.neon.core.nmsmapping.type.NmsMethod
+import com.islandstudio.neon.player.security.RoleManagerNew
 import com.islandstudio.neon.server.ServerGamePacketManagerNew
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent
@@ -35,19 +36,27 @@ import kotlin.jvm.optionals.getOrNull
 
 class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INmsMapper {
     private val pluginContext = getComponent<IPluginContext>()
-    private val playerProfileFacade = getComponent<IPlayerProfileFacade>()
+
+    init {
+        getKoin().declare(this)
+    }
+
     override fun run() {
         registerEvent(PlayerSessionManagerNewEvent(this))
     }
 
+    @ExperimentalStdlibApi
     suspend fun getPlayerProfile(player: Player): PlayerProfile? {
+        val playerProfileFacade = getComponent<IPlayerProfileFacade>(player)
+
         return playerProfileFacade.getPlayerProfile(player.uniqueId).getResult { status, _ ->
             pluginContext.getPluginLogger().warning(status.message)
-            throw NeonException(status.message)
         }.getOrNull()
     }
 
     suspend fun createPlayerProfile(player: Player): PlayerProfile {
+        val playerProfileFacade = getComponent<IPlayerProfileFacade>(player)
+
         return playerProfileFacade.createPlayerProfile(
             CreatePlayerProfileActionDTO(
                 uuid = player.uniqueId,
@@ -109,7 +118,8 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
         )
         val recipeList = serverRecipes.values.parallelStream().flatMap { map -> map.values.parallelStream() }.toList()
 
-        val updateRecipePacketConstructors = NmsManagerNew.getNmsClass("network.protocol.game.${mapConstructor(NmsConstructor.ClientPacketUpdateRecipes)}")
+        val updateRecipePacketConstructors = NmsManagerNew.getNmsClass("network.protocol.game.${mapConstructor(
+            NmsConstructor.ClientPacketUpdateRecipes)}")
             ?.let {
                 it.constructors.filter { constructor -> constructor.parameters.size == 1 }
             }
@@ -155,7 +165,7 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
         OnLeaving
     }
 
-    private class PlayerSessionManagerNewEvent(private val playerSessionManagerNew: PlayerSessionManagerNew): Listener {
+    private class PlayerSessionManagerNewEvent(private val playerSessionManagerNew: PlayerSessionManagerNew): Listener, IComponentProvider {
         private val closeableCoroutineScope = CloseableCoroutineScope(Dispatchers.IO)
         private val pluginContext = playerSessionManagerNew.pluginContext
 
@@ -170,6 +180,7 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
             }
         }
 
+        @OptIn(ExperimentalStdlibApi::class)
         @EventHandler
         private fun onPlayerJoin(e: PlayerJoinEvent) {
             val player = e.player
@@ -183,6 +194,18 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
                         ?: playerSessionManagerNew.createPlayerProfile(player)
 
                     playerSessionManagerNew.createPlayerSession(player, playerProfile)
+                }.await()
+            }
+
+            closeableCoroutineScope.launchJob {
+                async {
+                    val roleManagerNew = getComponent<RoleManagerNew>()
+
+                    val s = roleManagerNew.getAllRole()
+
+                    s.forEach {
+                        println("Role: $it")
+                    }
                 }.await()
             }
 

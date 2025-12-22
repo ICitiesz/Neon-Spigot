@@ -8,6 +8,9 @@ sealed class ActionResultStatus {
     data class FailedToCreatePlayerProfile(override val message: String = "Failed to create player profile")
         : ActionResultStatus()
 
+    data class FailedToCreatePlayerRole(override val message: String = "Failed to create player role")
+        : ActionResultStatus()
+
     data class PlayerProfileNotExist(override val message: String = "Player profile does not exist")
         : ActionResultStatus()
 }

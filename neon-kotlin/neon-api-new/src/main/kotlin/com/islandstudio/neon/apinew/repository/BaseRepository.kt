@@ -49,24 +49,34 @@ abstract class BaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEntityT
     }
 
     override suspend fun updateEntityAsync(entity: TEntity): Int {
-        return databaseContext
-            .update(entityTable)
-            .set(entity.toRecord())
-            .executeAsync()
-            .await()
+        return withContext(Dispatchers.IO) {
+            databaseContext
+                .update(entityTable)
+                .set(entity.toRecord())
+                .execute()
+        }
     }
 
     override suspend fun updateEntityReturnAsync(entity: TEntity): Optional<TEntity> {
         TODO("Not yet implemented")
     }
+
+    override suspend fun getAllEntitiesAsync(entityClazz: Class<TEntity>): List<TEntity> {
+        return withContext(Dispatchers.IO) {
+            databaseContext
+                .fetch(entityTable)
+                .into(entityClazz)
+        }
+    }
 }
 
-private interface IBaseRepository<TEntity: BaseEntity<TEntity, *>, TEntityTable: TableImpl<out Record>> {
+private interface IBaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEntityTable: TableImpl<out Record>> {
     suspend fun insertEntityAsync(entity: TEntity): Int
     suspend fun insertEntityReturnAsync(entity: TEntity): Optional<TEntity>
     suspend fun updateEntityAsync(entity: TEntity): Int
     suspend fun updateEntityReturnAsync(entity: TEntity): Optional<TEntity>
     suspend fun getSingleEntityAsync(entityClazz: Class<TEntity>, whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Optional<TEntity>
+    suspend fun getAllEntitiesAsync(entityClazz: Class<TEntity>): List<TEntity>
     //suspend fun deleteEntityAsync(entity: TEntity): Int
     //suspend fun getSingleEntityAsync(id: Long): Optional<TEntity>
 }

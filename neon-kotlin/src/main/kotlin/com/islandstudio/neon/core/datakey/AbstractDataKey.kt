@@ -1,13 +1,13 @@
 package com.islandstudio.neon.core.datakey
 
-import com.islandstudio.neon.Neon
-import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentProvider
+import com.islandstudio.neon.shared.core.di.getComponent
+import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import org.bukkit.NamespacedKey
-import org.koin.core.component.inject
 
-abstract class AbstractDataKey(keyName: String): IComponentInjector {
-    private val neon by inject<Neon>()
-    private val dataKeyManager by inject<DataKeyManager>()
+abstract class AbstractDataKey(keyName: String): IComponentProvider {
+    private val pluginContext = getComponent<IPluginContext>()
+    private val dataKeyManager = getComponent<DataKeyManager>()
 
-    val dataKey = NamespacedKey(neon, dataKeyManager.fromProperty(keyName))
+    val dataKey = NamespacedKey(pluginContext.mainPluginInstance, dataKeyManager.fromProperty(keyName))
 }

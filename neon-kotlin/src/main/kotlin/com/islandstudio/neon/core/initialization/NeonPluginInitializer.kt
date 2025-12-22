@@ -4,6 +4,7 @@ import com.islandstudio.neon.apinew.connection.NeonDatabaseManager
 import com.islandstudio.neon.core.datakey.DataKeyManager
 import com.islandstudio.neon.core.di.module.NeonModule
 import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
+import com.islandstudio.neon.player.security.RoleManagerNew
 import com.islandstudio.neon.player.session.PlayerSessionManagerNew
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.PluginDIManager
@@ -15,6 +16,7 @@ import com.islandstudio.neon.util.NeonColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import org.bukkit.Bukkit
 import org.koin.ksp.generated.module
 
 class NeonPluginInitializer(private val pluginContext: PluginContext): IPluginInitializer, NmsManagerNew.INmsMapper, IComponentProvider {
@@ -119,6 +121,11 @@ class NeonPluginInitializer(private val pluginContext: PluginContext): IPluginIn
     override fun onEnable() {
         onLoadJob?.invokeOnCompletion {
             PlayerSessionManagerNew().run()
+
+            Bukkit.getScheduler().runTask(pluginContext.mainPluginInstance, Runnable {
+                RoleManagerNew().run()
+            })
+
             pluginContext.getServer().consoleSender.sendMessage(NEON_ON_ENABLED_TITLE)
         }
     }

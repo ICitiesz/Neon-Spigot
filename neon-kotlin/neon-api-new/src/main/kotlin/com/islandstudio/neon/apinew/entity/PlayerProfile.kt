@@ -10,4 +10,4 @@ data class PlayerProfile(
     var name: String,
     var roleId: Long? = null,
     var joinedAt: LocalDateTime,
-): BaseEntity<PlayerProfile, PlayerProfileRecord>(PlayerProfileRecord())
+): BaseEntity<PlayerProfile, PlayerProfileRecord>(PlayerProfileRecord::class.java)

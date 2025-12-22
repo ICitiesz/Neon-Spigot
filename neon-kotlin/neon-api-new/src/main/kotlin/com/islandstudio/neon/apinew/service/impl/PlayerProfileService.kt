@@ -1,5 +1,6 @@
 package com.islandstudio.neon.apinew.service.impl
 
+import com.islandstudio.neon.apinew.connection.UserContext
 import com.islandstudio.neon.apinew.dto.ResultProvider
 import com.islandstudio.neon.apinew.dto.action.CreatePlayerProfileActionDTO
 import com.islandstudio.neon.apinew.entity.PlayerProfile
@@ -14,17 +15,19 @@ import java.time.ZoneOffset
 import java.util.*
 
 @Single
-class PlayerProfileService: IPlayerProfileService, IComponentProvider {
+class PlayerProfileService : IPlayerProfileService, IComponentProvider {
     private val playerProfileRepository = getComponent<IPlayerProfileRepository>()
 
-    override suspend fun createPlayerProfile(action: CreatePlayerProfileActionDTO): ResultProvider<PlayerProfile> {
-        return when (val result = playerProfileRepository.addPlayerProfile(PlayerProfile(
-            null,
-            action.uuid,
-            action.name,
-            action.roleId,
-            LocalDateTime.now(ZoneOffset.UTC),
-        ))) {
+    override suspend fun createPlayerProfile(context: UserContext, action: CreatePlayerProfileActionDTO): ResultProvider<PlayerProfile> {
+        return when (val result = playerProfileRepository.addPlayerProfile(context,
+            PlayerProfile(
+                null,
+                action.uuid,
+                action.name,
+                action.roleId,
+                LocalDateTime.now(ZoneOffset.UTC),
+            )
+        )) {
             null -> ResultProvider(ActionResultStatus.FailedToCreatePlayerProfile(), null)
             else -> ResultProvider(ActionResultStatus.Success(), result)
         }
