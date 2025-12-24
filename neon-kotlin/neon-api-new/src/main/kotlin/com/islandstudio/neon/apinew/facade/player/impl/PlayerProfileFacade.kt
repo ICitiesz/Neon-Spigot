@@ -14,9 +14,9 @@ import org.koin.core.annotation.InjectedParam
 import java.util.*
 
 @Factory
-class PlayerProfileFacade(@InjectedParam player: Player? = null): IPlayerProfileFacade, IComponentProvider {
+class PlayerProfileFacade(@InjectedParam player: Player?): IPlayerProfileFacade, IComponentProvider {
     private val userContext = UserContext(player)
-    private val playerProfileService = getComponent<IPlayerProfileService>(UserContext(player))
+    private val playerProfileService = getComponent<IPlayerProfileService>()
 
     override suspend fun createPlayerProfile(action: CreatePlayerProfileActionDTO): ResultProvider<PlayerProfile> {
         return playerProfileService.createPlayerProfile(userContext, action)

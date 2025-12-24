@@ -48,17 +48,26 @@ abstract class BaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEntityT
         }
     }
 
-    override suspend fun updateEntityAsync(entity: TEntity): Int {
+    override suspend fun updateEntityAsync(entity: TEntity, whereSteps: ArrayList<Condition>.() -> ArrayList<Condition>): Int {
         return withContext(Dispatchers.IO) {
             databaseContext
                 .update(entityTable)
                 .set(entity.toRecord())
+                .where(whereSteps(arrayListOf()))
                 .execute()
         }
     }
 
-    override suspend fun updateEntityReturnAsync(entity: TEntity): Optional<TEntity> {
-        TODO("Not yet implemented")
+    override suspend fun updateEntityReturnAsync(entity: TEntity, whereSteps: ArrayList<Condition>.() -> ArrayList<Condition>): Optional<TEntity> {
+        return withContext(Dispatchers.IO) {
+            databaseContext.update(entityTable)
+                .set(entity.toRecord())
+                .where(whereSteps(arrayListOf()))
+                .returning()
+                .fetchOneInto(entity.getEntityClass())
+                ?.let { Optional.of(it) }
+                ?: Optional.empty()
+        }
     }
 
     override suspend fun getAllEntitiesAsync(entityClazz: Class<TEntity>): List<TEntity> {
@@ -68,15 +77,33 @@ abstract class BaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEntityT
                 .into(entityClazz)
         }
     }
+
+    override suspend fun isEntityExistAsync(whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Boolean {
+        return withContext(Dispatchers.IO) {
+            databaseContext.fetchExists(
+                entityTable,
+                whereStep(arrayListOf())
+            )
+        }
+    }
+
+    override suspend fun deleteEntityAsync(whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Int {
+        return withContext(Dispatchers.IO) {
+            databaseContext
+                .deleteFrom(entityTable)
+                .where(whereStep(arrayListOf()))
+                .execute()
+        }
+    }
 }
 
 private interface IBaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEntityTable: TableImpl<out Record>> {
     suspend fun insertEntityAsync(entity: TEntity): Int
     suspend fun insertEntityReturnAsync(entity: TEntity): Optional<TEntity>
-    suspend fun updateEntityAsync(entity: TEntity): Int
-    suspend fun updateEntityReturnAsync(entity: TEntity): Optional<TEntity>
+    suspend fun updateEntityAsync(entity: TEntity, whereSteps: ArrayList<Condition>.() -> ArrayList<Condition>): Int
+    suspend fun updateEntityReturnAsync(entity: TEntity, whereSteps: ArrayList<Condition>.() -> ArrayList<Condition>): Optional<TEntity>
     suspend fun getSingleEntityAsync(entityClazz: Class<TEntity>, whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Optional<TEntity>
     suspend fun getAllEntitiesAsync(entityClazz: Class<TEntity>): List<TEntity>
-    //suspend fun deleteEntityAsync(entity: TEntity): Int
-    //suspend fun getSingleEntityAsync(id: Long): Optional<TEntity>
+    suspend fun isEntityExistAsync(whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Boolean
+    suspend fun deleteEntityAsync(whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Int
 }

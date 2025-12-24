@@ -45,7 +45,6 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
         registerEvent(PlayerSessionManagerNewEvent(this))
     }
 
-    @ExperimentalStdlibApi
     suspend fun getPlayerProfile(player: Player): PlayerProfile? {
         val playerProfileFacade = getComponent<IPlayerProfileFacade>(player)
 
@@ -201,11 +200,7 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
                 async {
                     val roleManagerNew = getComponent<RoleManagerNew>()
 
-                    val s = roleManagerNew.getAllRole()
-
-                    s.forEach {
-                        println("Role: $it")
-                    }
+                    roleManagerNew.getAllRole()
                 }.await()
             }
 
