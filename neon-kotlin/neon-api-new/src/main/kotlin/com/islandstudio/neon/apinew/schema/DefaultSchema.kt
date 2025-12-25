@@ -4,8 +4,10 @@
 package com.islandstudio.neon.apinew.schema
 
 
+import com.islandstudio.neon.apinew.schema.tables.PermissionTable
 import com.islandstudio.neon.apinew.schema.tables.PlayerProfileTable
 import com.islandstudio.neon.apinew.schema.tables.PlayerRoleTable
+import com.islandstudio.neon.apinew.schema.tables.RolePermissionTable
 import org.jooq.Catalog
 import org.jooq.Table
 import org.jooq.impl.SchemaImpl
@@ -25,6 +27,11 @@ open class DefaultSchema : SchemaImpl("", DefaultCatalog.DEFAULT_CATALOG) {
     }
 
     /**
+     * The table <code>permission</code>.
+     */
+    val PERMISSION_TABLE: PermissionTable get() = PermissionTable.PERMISSION_TABLE
+
+    /**
      * The table <code>player_profile</code>.
      */
     val PLAYER_PROFILE_TABLE: PlayerProfileTable get() = PlayerProfileTable.PLAYER_PROFILE_TABLE
@@ -34,10 +41,17 @@ open class DefaultSchema : SchemaImpl("", DefaultCatalog.DEFAULT_CATALOG) {
      */
     val PLAYER_ROLE_TABLE: PlayerRoleTable get() = PlayerRoleTable.PLAYER_ROLE_TABLE
 
+    /**
+     * The table <code>role_permission</code>.
+     */
+    val ROLE_PERMISSION_TABLE: RolePermissionTable get() = RolePermissionTable.ROLE_PERMISSION_TABLE
+
     override fun getCatalog(): Catalog = DefaultCatalog.DEFAULT_CATALOG
 
     override fun getTables(): List<Table<*>> = listOf(
+        PermissionTable.PERMISSION_TABLE,
         PlayerProfileTable.PLAYER_PROFILE_TABLE,
-        PlayerRoleTable.PLAYER_ROLE_TABLE
+        PlayerRoleTable.PLAYER_ROLE_TABLE,
+        RolePermissionTable.ROLE_PERMISSION_TABLE
     )
 }

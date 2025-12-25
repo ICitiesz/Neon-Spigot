@@ -1,7 +1,7 @@
 package com.islandstudio.neon.apinew.repository.player
 
 import com.islandstudio.neon.apinew.connection.UserContext
-import com.islandstudio.neon.apinew.entity.PlayerProfile
+import com.islandstudio.neon.apinew.entity.player.PlayerProfile
 
 interface IPlayerProfileRepository {
     suspend fun addPlayerProfile(context: UserContext, playerProfile: PlayerProfile): PlayerProfile?

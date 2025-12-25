@@ -1,4 +1,4 @@
-package com.islandstudio.neon.apinew.dto.action
+package com.islandstudio.neon.apinew.dto.action.player.profile
 
 import java.time.LocalDateTime
 import java.util.*

@@ -1,11 +1,11 @@
-package com.islandstudio.neon.apinew.service.impl
+package com.islandstudio.neon.apinew.service.player.impl
 
 import com.islandstudio.neon.apinew.connection.UserContext
 import com.islandstudio.neon.apinew.dto.ResultProvider
-import com.islandstudio.neon.apinew.dto.action.CreatePlayerProfileActionDTO
-import com.islandstudio.neon.apinew.entity.PlayerProfile
+import com.islandstudio.neon.apinew.dto.action.player.profile.CreatePlayerProfileActionDTO
+import com.islandstudio.neon.apinew.entity.player.PlayerProfile
 import com.islandstudio.neon.apinew.repository.player.IPlayerProfileRepository
-import com.islandstudio.neon.apinew.service.IPlayerProfileService
+import com.islandstudio.neon.apinew.service.player.IPlayerProfileService
 import com.islandstudio.neon.apinew.status.ActionResultStatus
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent

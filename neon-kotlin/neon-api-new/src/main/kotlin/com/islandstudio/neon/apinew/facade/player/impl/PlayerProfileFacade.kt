@@ -2,10 +2,10 @@ package com.islandstudio.neon.apinew.facade.player.impl
 
 import com.islandstudio.neon.apinew.connection.UserContext
 import com.islandstudio.neon.apinew.dto.ResultProvider
-import com.islandstudio.neon.apinew.dto.action.CreatePlayerProfileActionDTO
-import com.islandstudio.neon.apinew.entity.PlayerProfile
+import com.islandstudio.neon.apinew.dto.action.player.profile.CreatePlayerProfileActionDTO
+import com.islandstudio.neon.apinew.entity.player.PlayerProfile
 import com.islandstudio.neon.apinew.facade.player.IPlayerProfileFacade
-import com.islandstudio.neon.apinew.service.IPlayerProfileService
+import com.islandstudio.neon.apinew.service.player.IPlayerProfileService
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent
 import org.bukkit.entity.Player

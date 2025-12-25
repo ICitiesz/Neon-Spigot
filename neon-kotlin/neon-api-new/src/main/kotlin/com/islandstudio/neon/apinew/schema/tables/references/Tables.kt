@@ -4,10 +4,17 @@
 package com.islandstudio.neon.apinew.schema.tables.references
 
 
+import com.islandstudio.neon.apinew.schema.tables.PermissionTable
 import com.islandstudio.neon.apinew.schema.tables.PlayerProfileTable
 import com.islandstudio.neon.apinew.schema.tables.PlayerRoleTable
+import com.islandstudio.neon.apinew.schema.tables.RolePermissionTable
 
 
+
+/**
+ * The table <code>permission</code>.
+ */
+val PERMISSION_TABLE: PermissionTable = PermissionTable.PERMISSION_TABLE
 
 /**
  * The table <code>player_profile</code>.
@@ -18,3 +25,8 @@ val PLAYER_PROFILE_TABLE: PlayerProfileTable = PlayerProfileTable.PLAYER_PROFILE
  * The table <code>player_role</code>.
  */
 val PLAYER_ROLE_TABLE: PlayerRoleTable = PlayerRoleTable.PLAYER_ROLE_TABLE
+
+/**
+ * The table <code>role_permission</code>.
+ */
+val ROLE_PERMISSION_TABLE: RolePermissionTable = RolePermissionTable.ROLE_PERMISSION_TABLE

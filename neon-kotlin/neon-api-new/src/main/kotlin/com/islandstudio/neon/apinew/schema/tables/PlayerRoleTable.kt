@@ -6,8 +6,12 @@ package com.islandstudio.neon.apinew.schema.tables
 
 import com.islandstudio.neon.apinew.schema.DefaultSchema
 import com.islandstudio.neon.apinew.schema.keys.FK_PLAYER_PROFILE_ROLE_ID
+import com.islandstudio.neon.apinew.schema.keys.FK_ROLE_PERMISSION_ROLE_ID
 import com.islandstudio.neon.apinew.schema.keys.KEY_PLAYER_ROLE_PRIMARY
+import com.islandstudio.neon.apinew.schema.keys.KEY_PLAYER_ROLE_UQ_PLAYER_ROLE_CODE
+import com.islandstudio.neon.apinew.schema.tables.PermissionTable.PermissionPath
 import com.islandstudio.neon.apinew.schema.tables.PlayerProfileTable.PlayerProfilePath
+import com.islandstudio.neon.apinew.schema.tables.RolePermissionTable.RolePermissionPath
 import com.islandstudio.neon.apinew.schema.tables.records.PlayerRoleRecord
 import org.jooq.*
 import org.jooq.impl.DSL
@@ -123,6 +127,7 @@ open class PlayerRoleTable(
     override fun getSchema(): Schema? = if (aliased()) null else DefaultSchema.DEFAULT_SCHEMA
     override fun getIdentity(): Identity<PlayerRoleRecord, Long?> = super.getIdentity() as Identity<PlayerRoleRecord, Long?>
     override fun getPrimaryKey(): UniqueKey<PlayerRoleRecord> = KEY_PLAYER_ROLE_PRIMARY
+    override fun getUniqueKeys(): List<UniqueKey<PlayerRoleRecord>> = listOf(KEY_PLAYER_ROLE_UQ_PLAYER_ROLE_CODE)
 
     private lateinit var _playerProfile: PlayerProfilePath
 
@@ -139,6 +144,29 @@ open class PlayerRoleTable(
 
     val playerProfile: PlayerProfilePath
         get(): PlayerProfilePath = playerProfile()
+
+    private lateinit var _rolePermission: RolePermissionPath
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>neon_dev.role_permission</code> table
+     */
+    fun rolePermission(): RolePermissionPath {
+        if (!this::_rolePermission.isInitialized)
+            _rolePermission = RolePermissionPath(this, null, FK_ROLE_PERMISSION_ROLE_ID.inverseKey)
+
+        return _rolePermission;
+    }
+
+    val rolePermission: RolePermissionPath
+        get(): RolePermissionPath = rolePermission()
+
+    /**
+     * Get the implicit many-to-many join path to the
+     * <code>neon_dev.permission</code> table
+     */
+    val permission: PermissionPath
+        get(): PermissionPath = rolePermission().permission()
     override fun `as`(alias: String): PlayerRoleTable = PlayerRoleTable(DSL.name(alias), this)
     override fun `as`(alias: Name): PlayerRoleTable = PlayerRoleTable(alias, this)
     override fun `as`(alias: Table<*>): PlayerRoleTable = PlayerRoleTable(alias.qualifiedName, this)

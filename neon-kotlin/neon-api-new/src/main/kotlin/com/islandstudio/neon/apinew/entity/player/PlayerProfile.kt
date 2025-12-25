@@ -1,5 +1,6 @@
-package com.islandstudio.neon.apinew.entity
+package com.islandstudio.neon.apinew.entity.player
 
+import com.islandstudio.neon.apinew.entity.BaseEntity
 import com.islandstudio.neon.apinew.schema.tables.records.PlayerProfileRecord
 import java.time.LocalDateTime
 import java.util.*

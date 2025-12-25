@@ -1,7 +1,7 @@
 package com.islandstudio.neon.player.session
 
-import com.islandstudio.neon.apinew.dto.action.CreatePlayerProfileActionDTO
-import com.islandstudio.neon.apinew.entity.PlayerProfile
+import com.islandstudio.neon.apinew.dto.action.player.profile.CreatePlayerProfileActionDTO
+import com.islandstudio.neon.apinew.entity.player.PlayerProfile
 import com.islandstudio.neon.apinew.facade.player.IPlayerProfileFacade
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.core.datakey.container.DataContainerManager

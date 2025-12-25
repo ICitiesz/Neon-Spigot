@@ -2,7 +2,7 @@ package com.islandstudio.neon.apinew.repository.player.impl
 
 import com.islandstudio.neon.apinew.connection.NeonDatabaseContext
 import com.islandstudio.neon.apinew.connection.UserContext
-import com.islandstudio.neon.apinew.entity.PlayerProfile
+import com.islandstudio.neon.apinew.entity.player.PlayerProfile
 import com.islandstudio.neon.apinew.repository.BaseRepository
 import com.islandstudio.neon.apinew.repository.player.IPlayerProfileRepository
 import com.islandstudio.neon.apinew.schema.tables.PlayerProfileTable
