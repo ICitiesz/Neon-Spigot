@@ -20,33 +20,37 @@ open class PermissionRecord private constructor() : UpdatableRecordImpl<Permissi
         set(value): Unit = set(0, value)
         get(): Long? = get(0) as Long?
 
-    open var name: String
+    open var parentid: Long?
         set(value): Unit = set(1, value)
-        get(): String = get(1) as String
+        get(): Long? = get(1) as Long?
 
-    open var code: String
+    open var name: String
         set(value): Unit = set(2, value)
         get(): String = get(2) as String
 
-    open var description: String
+    open var code: String
         set(value): Unit = set(3, value)
         get(): String = get(3) as String
 
-    open var createdby: String?
+    open var description: String
         set(value): Unit = set(4, value)
-        get(): String? = get(4) as String?
+        get(): String = get(4) as String
+
+    open var createdby: String?
+        set(value): Unit = set(5, value)
+        get(): String? = get(5) as String?
 
     open var createdat: LocalDateTime?
-        set(value): Unit = set(5, value)
-        get(): LocalDateTime? = get(5) as LocalDateTime?
+        set(value): Unit = set(6, value)
+        get(): LocalDateTime? = get(6) as LocalDateTime?
 
     open var modifiedby: String?
-        set(value): Unit = set(6, value)
-        get(): String? = get(6) as String?
+        set(value): Unit = set(7, value)
+        get(): String? = get(7) as String?
 
     open var modifiedat: LocalDateTime?
-        set(value): Unit = set(7, value)
-        get(): LocalDateTime? = get(7) as LocalDateTime?
+        set(value): Unit = set(8, value)
+        get(): LocalDateTime? = get(8) as LocalDateTime?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -57,8 +61,9 @@ open class PermissionRecord private constructor() : UpdatableRecordImpl<Permissi
     /**
      * Create a detached, initialised PermissionRecord
      */
-    constructor(id: Long?, name: String, code: String, description: String, createdby: String?, createdat: LocalDateTime?, modifiedby: String?, modifiedat: LocalDateTime?): this() {
+    constructor(id: Long?, parentid: Long?, name: String, code: String, description: String, createdby: String?, createdat: LocalDateTime?, modifiedby: String?, modifiedat: LocalDateTime?): this() {
         this.id = id
+        this.parentid = parentid
         this.name = name
         this.code = code
         this.description = description

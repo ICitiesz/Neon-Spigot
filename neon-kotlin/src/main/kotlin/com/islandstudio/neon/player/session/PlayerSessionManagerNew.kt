@@ -45,6 +45,7 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
         registerEvent(PlayerSessionManagerNewEvent(this))
     }
 
+    @ExperimentalStdlibApi
     suspend fun getPlayerProfile(player: Player): PlayerProfile? {
         val playerProfileFacade = getComponent<IPlayerProfileFacade>(player)
 

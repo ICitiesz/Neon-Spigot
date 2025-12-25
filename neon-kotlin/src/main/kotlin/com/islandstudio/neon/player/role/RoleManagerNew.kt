@@ -79,6 +79,7 @@ class RoleManagerNew: IRunnerNew, IComponentProvider {
         CommandSyntaxHandler.sendCommandSyntax(commander, actionMessage)
     }
 
+    @ExperimentalStdlibApi
     suspend fun getRole(code: String): PlayerRole? {
         val playerRoleFacade = getComponent<IPlayerRoleFacade>(null)
 

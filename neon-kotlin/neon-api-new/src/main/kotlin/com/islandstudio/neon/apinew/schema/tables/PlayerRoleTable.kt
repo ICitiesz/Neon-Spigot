@@ -59,9 +59,9 @@ open class PlayerRoleTable(
     override fun getRecordType(): Class<PlayerRoleRecord> = PlayerRoleRecord::class.java
 
     /**
-     * The column <code>player_role.ID</code>.
+     * The column <code>player_role.Id</code>.
      */
-    val ID: TableField<PlayerRoleRecord, Long?> = createField(DSL.name("ID"), SQLDataType.BIGINT.nullable(false).identity(true), this, "")
+    val ID: TableField<PlayerRoleRecord, Long?> = createField(DSL.name("Id"), SQLDataType.BIGINT.nullable(false).identity(true), this, "")
 
     /**
      * The column <code>player_role.DisplayName</code>.

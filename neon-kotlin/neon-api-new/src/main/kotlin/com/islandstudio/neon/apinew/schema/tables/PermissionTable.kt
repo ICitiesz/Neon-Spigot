@@ -58,9 +58,14 @@ open class PermissionTable(
     override fun getRecordType(): Class<PermissionRecord> = PermissionRecord::class.java
 
     /**
-     * The column <code>permission.ID</code>.
+     * The column <code>permission.Id</code>.
      */
-    val ID: TableField<PermissionRecord, Long?> = createField(DSL.name("ID"), SQLDataType.BIGINT.nullable(false).identity(true), this, "")
+    val ID: TableField<PermissionRecord, Long?> = createField(DSL.name("Id"), SQLDataType.BIGINT.nullable(false).identity(true), this, "")
+
+    /**
+     * The column <code>permission.ParentId</code>.
+     */
+    val PARENTID: TableField<PermissionRecord, Long?> = createField(DSL.name("ParentId"), SQLDataType.BIGINT.defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.BIGINT)), this, "")
 
     /**
      * The column <code>permission.Name</code>.

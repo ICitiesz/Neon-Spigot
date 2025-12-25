@@ -37,6 +37,25 @@ abstract class BaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEntityT
         }
     }
 
+    override suspend fun insertEntityListAsync(entityList: ArrayList<TEntity>): Int {
+        return withContext(Dispatchers.IO) {
+            databaseContext.insertInto(entityTable)
+                .set(entityList.map { it.toRecord() })
+                .executeAsync()
+                .await()
+        }
+    }
+
+    override suspend fun insertEntityListReturnAsync(entityClazz: Class<TEntity>, entityList: ArrayList<TEntity>): ArrayList<TEntity> {
+        return withContext(Dispatchers.IO) {
+            databaseContext.insertInto(entityTable)
+                .set(entityList.map { it.toRecord() })
+                .returning()
+                .fetchInto(entityClazz)
+                .toCollection(ArrayList())
+        }
+    }
+
     override suspend fun getSingleEntityAsync(entityClazz: Class<TEntity>, whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Optional<TEntity> {
         return withContext(Dispatchers.IO) {
             databaseContext
@@ -45,6 +64,15 @@ abstract class BaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEntityT
                 .fetchOneInto(entityClazz)
                 ?.let { Optional.of(it) }
                 ?: Optional.empty()
+        }
+    }
+
+    override suspend fun getAllEntitiesAsync(entityClazz: Class<TEntity>): ArrayList<TEntity> {
+        return withContext(Dispatchers.IO) {
+            databaseContext
+                .fetch(entityTable)
+                .into(entityClazz)
+                .toCollection(ArrayList())
         }
     }
 
@@ -70,11 +98,13 @@ abstract class BaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEntityT
         }
     }
 
-    override suspend fun getAllEntitiesAsync(entityClazz: Class<TEntity>): List<TEntity> {
+    override suspend fun deleteEntityAsync(whereSteps: ArrayList<Condition>.() -> ArrayList<Condition>): Int {
         return withContext(Dispatchers.IO) {
             databaseContext
-                .fetch(entityTable)
-                .into(entityClazz)
+                .deleteFrom(entityTable)
+                .where(whereSteps(arrayListOf()))
+                .executeAsync()
+                .await()
         }
     }
 
@@ -86,24 +116,24 @@ abstract class BaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEntityT
             )
         }
     }
-
-    override suspend fun deleteEntityAsync(whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Int {
-        return withContext(Dispatchers.IO) {
-            databaseContext
-                .deleteFrom(entityTable)
-                .where(whereStep(arrayListOf()))
-                .execute()
-        }
-    }
 }
 
 private interface IBaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEntityTable: TableImpl<out Record>> {
     suspend fun insertEntityAsync(entity: TEntity): Int
     suspend fun insertEntityReturnAsync(entity: TEntity): Optional<TEntity>
+    suspend fun insertEntityListAsync(entityList: ArrayList<TEntity>): Int
+    suspend fun insertEntityListReturnAsync(
+        entityClazz: Class<TEntity>,
+        entityList: ArrayList<TEntity>
+    ): ArrayList<TEntity>
+
+    suspend fun getSingleEntityAsync(entityClazz: Class<TEntity>, whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Optional<TEntity>
+    suspend fun getAllEntitiesAsync(entityClazz: Class<TEntity>): ArrayList<TEntity>
+
     suspend fun updateEntityAsync(entity: TEntity, whereSteps: ArrayList<Condition>.() -> ArrayList<Condition>): Int
     suspend fun updateEntityReturnAsync(entity: TEntity, whereSteps: ArrayList<Condition>.() -> ArrayList<Condition>): Optional<TEntity>
-    suspend fun getSingleEntityAsync(entityClazz: Class<TEntity>, whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Optional<TEntity>
-    suspend fun getAllEntitiesAsync(entityClazz: Class<TEntity>): List<TEntity>
+
+    suspend fun deleteEntityAsync(whereSteps: ArrayList<Condition>.() -> ArrayList<Condition>): Int
+
     suspend fun isEntityExistAsync(whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Boolean
-    suspend fun deleteEntityAsync(whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Int
 }

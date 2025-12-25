@@ -34,7 +34,7 @@ class PlayerRoleRepository(databaseContext: NeonDatabaseContext):
     }
 
     override suspend fun getAll(): ArrayList<PlayerRole> {
-        return getAllEntitiesAsync(PlayerRole::class.java).toCollection(ArrayList())
+        return getAllEntitiesAsync(PlayerRole::class.java)
     }
 
     override suspend fun isExistByCode(code: String): Boolean {
@@ -46,8 +46,8 @@ class PlayerRoleRepository(databaseContext: NeonDatabaseContext):
 
     override suspend fun deleteByCode(code: String): Boolean {
         return deleteEntityAsync {
-            it.add(entityTable.CODE.eq(code))
-            it
+            add(entityTable.CODE.eq(code))
+            this
         } > 0
     }
 }

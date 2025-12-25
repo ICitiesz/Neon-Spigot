@@ -21,7 +21,7 @@ class DataKeyManager {
 
         override suspend fun runSuspend() {
             withContext(Dispatchers.IO) {
-                pluginContext.getPluginLogger().info("Initializing Data Key Manager...")
+                pluginContext.getPluginLogger().info("Initializing data key manager...")
 
                 dataKeyManager.dataKeyProperties.load(
                     resourceManager.getNeonResourceAsStream(

@@ -58,19 +58,19 @@ open class RolePermissionTable(
     override fun getRecordType(): Class<RolePermissionRecord> = RolePermissionRecord::class.java
 
     /**
-     * The column <code>role_permission.ID</code>.
+     * The column <code>role_permission.Id</code>.
      */
-    val ID: TableField<RolePermissionRecord, Long?> = createField(DSL.name("ID"), SQLDataType.BIGINT.nullable(false).identity(true), this, "")
+    val ID: TableField<RolePermissionRecord, Long?> = createField(DSL.name("Id"), SQLDataType.BIGINT.nullable(false).identity(true), this, "")
 
     /**
-     * The column <code>role_permission.RoleID</code>.
+     * The column <code>role_permission.RoleId</code>.
      */
-    val ROLEID: TableField<RolePermissionRecord, Long?> = createField(DSL.name("RoleID"), SQLDataType.BIGINT.nullable(false), this, "")
+    val ROLEID: TableField<RolePermissionRecord, Long?> = createField(DSL.name("RoleId"), SQLDataType.BIGINT.nullable(false), this, "")
 
     /**
-     * The column <code>role_permission.PermissionID</code>.
+     * The column <code>role_permission.PermissionId</code>.
      */
-    val PERMISSIONID: TableField<RolePermissionRecord, Long?> = createField(DSL.name("PermissionID"), SQLDataType.BIGINT.nullable(false), this, "")
+    val PERMISSIONID: TableField<RolePermissionRecord, Long?> = createField(DSL.name("PermissionId"), SQLDataType.BIGINT.nullable(false), this, "")
 
     /**
      * The column <code>role_permission.CreatedBy</code>.

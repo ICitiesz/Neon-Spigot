@@ -4,6 +4,7 @@ import com.islandstudio.neon.apinew.connection.NeonDatabaseManager
 import com.islandstudio.neon.core.datakey.DataKeyManager
 import com.islandstudio.neon.core.di.module.NeonModule
 import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
+import com.islandstudio.neon.player.permission.PermissionManager
 import com.islandstudio.neon.player.role.RoleManagerNew
 import com.islandstudio.neon.player.session.PlayerSessionManagerNew
 import com.islandstudio.neon.shared.core.di.IComponentProvider
@@ -109,6 +110,10 @@ class NeonPluginInitializer(private val pluginContext: PluginContext): IPluginIn
 
                 async {
                     NmsManagerNew.runSuspend()
+                }.await()
+
+                async {
+                    PermissionManager().runSuspend()
                 }.await()
 
                 async {

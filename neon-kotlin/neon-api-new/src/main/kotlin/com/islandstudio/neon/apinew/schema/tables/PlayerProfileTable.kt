@@ -55,9 +55,9 @@ open class PlayerProfileTable(
     override fun getRecordType(): Class<PlayerProfileRecord> = PlayerProfileRecord::class.java
 
     /**
-     * The column <code>player_profile.ID</code>.
+     * The column <code>player_profile.Id</code>.
      */
-    val ID: TableField<PlayerProfileRecord, Long?> = createField(DSL.name("ID"), SQLDataType.BIGINT.nullable(false).identity(true), this, "")
+    val ID: TableField<PlayerProfileRecord, Long?> = createField(DSL.name("Id"), SQLDataType.BIGINT.nullable(false).identity(true), this, "")
 
     /**
      * The column <code>player_profile.UUID</code>.
@@ -75,9 +75,9 @@ open class PlayerProfileTable(
     val JOINEDAT: TableField<PlayerProfileRecord, LocalDateTime?> = createField(DSL.name("JoinedAt"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "")
 
     /**
-     * The column <code>player_profile.RoleID</code>.
+     * The column <code>player_profile.RoleId</code>.
      */
-    val ROLEID: TableField<PlayerProfileRecord, Long?> = createField(DSL.name("RoleID"), SQLDataType.BIGINT.defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.BIGINT)), this, "")
+    val ROLEID: TableField<PlayerProfileRecord, Long?> = createField(DSL.name("RoleId"), SQLDataType.BIGINT.defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.BIGINT)), this, "")
 
     /**
      * The column <code>player_profile.CreatedBy</code>.
