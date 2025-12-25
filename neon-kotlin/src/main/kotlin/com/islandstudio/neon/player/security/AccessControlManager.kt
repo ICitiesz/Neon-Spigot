@@ -12,7 +12,7 @@ import com.islandstudio.neon.command.ICommandDispatcher
 import com.islandstudio.neon.command.option.PermissionCommandOption
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
-import com.islandstudio.neon.player.security.permission.Permission
+import com.islandstudio.neon.player.permission.NeonPermission
 import com.islandstudio.neon.player.security.role.RoleManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.initialization.IRunner
@@ -35,19 +35,19 @@ class AccessControlManager: IComponentInjector {
 
         override fun run() {
             val serverPermissions = accessControlManager.getPermissionFromDB()
-            val clientAllPermissions = Permission.getAllPermission()
-            val clientMainPermissions = Permission.getAllMainPermission()
+            val clientAllNeonPermissions = NeonPermission.getAllPermission()
+            val clientMainNeonPermissions = NeonPermission.getAllMainPermission()
 
             val serverPermissionCodes = serverPermissions.map { x -> x.permissionCode }
             val addPermissionsList: ArrayList<PermissionDTO> = arrayListOf()
 
-            clientMainPermissions.forEach {
+            clientMainNeonPermissions.forEach {
                 when {
                     /* For empty server permission and non-existing main permission:
                     * - It Will add to the server along with its sub-permission
                     *  */
                     serverPermissions.isEmpty() || it.permissionCode !in serverPermissionCodes -> {
-                        val subPermissions = Permission.getSubPermissions(it)
+                        val subPermissions = NeonPermission.getSubPermissions(it)
                             .map { subPermission ->
                                 PermissionDTO(
                                     subPermission.permissionCode,
@@ -70,7 +70,7 @@ class AccessControlManager: IComponentInjector {
                     it.permissionCode in serverPermissionCodes -> {
                         val permissionEntity = serverPermissions.find { x -> x.permissionCode == it.permissionCode }
 
-                        val subPermissions = Permission.getSubPermissions(it)
+                        val subPermissions = NeonPermission.getSubPermissions(it)
                             .filter { x -> x.permissionCode !in serverPermissionCodes }
                             .map { subPermission ->
                                 PermissionDTO(
@@ -95,7 +95,7 @@ class AccessControlManager: IComponentInjector {
 
             if (serverPermissions.isNotEmpty()) {
                 val removalPermissionList = serverPermissions
-                    .filter { it.permissionCode !in clientAllPermissions.map { x -> x.permissionCode } }
+                    .filter { it.permissionCode !in clientAllNeonPermissions.map { x -> x.permissionCode } }
                     .map {
                         RemovePermissionRequestDTO(it.permissionId)
                     }
@@ -255,13 +255,13 @@ class AccessControlManager: IComponentInjector {
     fun grantPermission(commander: CommandSender, roleCode: String, permissionCodes: ArrayList<String>) {
         val role = roleManager.getRole(commander, roleCode = roleCode) ?: return
 
-        val clientMainPermissions = Permission.getAllMainPermission()
-        val clientSubPermissions = Permission.getAllSubPermission()
+        val clientMainNeonPermissions = NeonPermission.getAllMainPermission()
+        val clientSubNeonPermissions = NeonPermission.getAllSubPermission()
         val serverPermissions = getPermissionFromDB().also {
-            val clientAllPermissionCodes = Permission.getAllPermission().map { x -> x.permissionCode }
+            val clientAllNeonPermissionCodes = NeonPermission.getAllPermission().map { x -> x.permissionCode }
 
             permissionCodes
-                .filter { x -> x !in it.map { y -> y.permissionCode } || x !in clientAllPermissionCodes }
+                .filter { x -> x !in it.map { y -> y.permissionCode } || x !in clientAllNeonPermissionCodes }
                 .also { filteredPermissionCodes ->
                     if (filteredPermissionCodes.isEmpty()) return@also
 
@@ -284,7 +284,7 @@ class AccessControlManager: IComponentInjector {
         /* Prepare main permission */
         serverPermissions
             .filter {
-                x -> x.permissionCode in permissionCodes && x.permissionCode in clientMainPermissions.map { x -> x.permissionCode }
+                x -> x.permissionCode in permissionCodes && x.permissionCode in clientMainNeonPermissions.map { x -> x.permissionCode }
             }
             .forEach {
                 pendingRolePermissions.add(GrantRolePermissionRequestDTO(roleId = role.roleId, permissionId = it.permissionId!!))
@@ -293,10 +293,10 @@ class AccessControlManager: IComponentInjector {
         /* Prepare sub permission */
         serverPermissions
             .filter {
-                x -> x.permissionCode in permissionCodes && x.permissionCode in clientSubPermissions.map { x -> x.permissionCode }
+                x -> x.permissionCode in permissionCodes && x.permissionCode in clientSubNeonPermissions.map { x -> x.permissionCode }
             }
             .forEach { serverPermission ->
-                val subPermission = clientSubPermissions.find { x -> x.permissionCode == serverPermission.permissionCode }!!
+                val subPermission = clientSubNeonPermissions.find { x -> x.permissionCode == serverPermission.permissionCode }!!
 
                 /* Attempt 1: Search the main role permission from the granted role permission */
                 grantedRolePermissions
@@ -356,8 +356,8 @@ class AccessControlManager: IComponentInjector {
     fun revokePermission(commander: CommandSender, roleCode: String, permissionCodes: ArrayList<String>, revokeAll: Boolean = false) {
         val role = roleManager.getRole(commander, roleCode = roleCode) ?: return
 
-        val clientMainPermissions = Permission.getAllMainPermission()
-        val clientSubPermissions = Permission.getAllSubPermission()
+        val clientMainNeonPermissions = NeonPermission.getAllMainPermission()
+        val clientSubNeonPermissions = NeonPermission.getAllSubPermission()
 
         val grantedRolePermissions = getGrantedRolePermission(role.roleId!!).also { grantedRolePermissionList ->
             if (revokeAll) {
@@ -369,9 +369,9 @@ class AccessControlManager: IComponentInjector {
             }
 
             getPermissionFromDB().also { permissionFromDB ->
-                val clientAllPermissionCodes = Permission.getAllPermission().map { x -> x.permissionCode }
+                val clientAllNeonPermissionCodes = NeonPermission.getAllPermission().map { x -> x.permissionCode }
 
-                permissionCodes.filter { x -> x !in permissionFromDB.map { y -> y.permissionCode } || x !in clientAllPermissionCodes }.also {
+                permissionCodes.filter { x -> x !in permissionFromDB.map { y -> y.permissionCode } || x !in clientAllNeonPermissionCodes }.also {
                     if (it.isEmpty()) return@also
 
                     return CommandSyntaxHandler.sendCommandSyntax(commander, "${ChatColor.RED}Invalid permissions: " +
@@ -391,8 +391,8 @@ class AccessControlManager: IComponentInjector {
             .filter { x ->
                 if (revokeAll) return@filter true
 
-                x.permissionCode in permissionCodes && (x.permissionCode in clientMainPermissions.map { y -> y.permissionCode }
-                    || x.permissionCode in clientSubPermissions.map { y -> y.permissionCode } )
+                x.permissionCode in permissionCodes && (x.permissionCode in clientMainNeonPermissions.map { y -> y.permissionCode }
+                    || x.permissionCode in clientSubNeonPermissions.map { y -> y.permissionCode } )
             }
             .map {
                 RevokeRolePermissionRequestDTO(rolePermissionId = it.rolePermissionId)

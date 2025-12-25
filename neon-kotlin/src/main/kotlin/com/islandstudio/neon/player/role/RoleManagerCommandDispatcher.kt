@@ -1,4 +1,4 @@
-package com.islandstudio.neon.player.security
+package com.islandstudio.neon.player.role
 
 import com.islandstudio.neon.command.ICommandDispatcherNew
 import com.islandstudio.neon.command.properties.AccessibleCommand

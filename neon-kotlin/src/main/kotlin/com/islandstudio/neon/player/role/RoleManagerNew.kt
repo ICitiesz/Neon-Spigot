@@ -1,4 +1,4 @@
-package com.islandstudio.neon.player.security
+package com.islandstudio.neon.player.role
 
 import com.islandstudio.neon.apinew.dto.action.player.role.CreatePlayerRoleActionDTO
 import com.islandstudio.neon.apinew.dto.action.player.role.UpdatePlayerRoleActionDTO

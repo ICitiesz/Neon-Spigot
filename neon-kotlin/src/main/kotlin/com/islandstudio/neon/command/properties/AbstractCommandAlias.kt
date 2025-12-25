@@ -2,14 +2,14 @@ package com.islandstudio.neon.command.properties
 
 import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
-import com.islandstudio.neon.player.security.permission.Permission
+import com.islandstudio.neon.player.permission.NeonPermission
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import kotlin.reflect.KClass
 
 abstract class AbstractCommandAlias<T: AbstractCommandOption<*>> {
     abstract val alias: String
-    abstract val requiredPermissions: ArrayList<Permission>
+    abstract val requiredNeonPermissions: ArrayList<NeonPermission>
     open val commandOptions: ArrayList<T> = ArrayList()
 
     inline fun <U> onMatchOption(
@@ -27,7 +27,7 @@ abstract class AbstractCommandAlias<T: AbstractCommandOption<*>> {
         *  */
         if (commander is Player) {
             accessibleCommand?.let {
-                if (matchOptionResult.requiredPermissions.isEmpty()) return@let
+                if (matchOptionResult.requiredNeonPermissions.isEmpty()) return@let
 
                 if (it.hasAccessibleCommandOption(matchOptionResult.option)) return@let
 

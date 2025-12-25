@@ -10,7 +10,7 @@ import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
 import com.islandstudio.neon.core.nmsmapping.type.NmsConstructor
 import com.islandstudio.neon.core.nmsmapping.type.NmsField
 import com.islandstudio.neon.core.nmsmapping.type.NmsMethod
-import com.islandstudio.neon.player.security.RoleManagerNew
+import com.islandstudio.neon.player.role.RoleManagerNew
 import com.islandstudio.neon.server.ServerGamePacketManagerNew
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent

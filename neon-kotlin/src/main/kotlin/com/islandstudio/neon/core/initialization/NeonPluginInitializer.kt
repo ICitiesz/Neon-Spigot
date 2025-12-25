@@ -4,7 +4,7 @@ import com.islandstudio.neon.apinew.connection.NeonDatabaseManager
 import com.islandstudio.neon.core.datakey.DataKeyManager
 import com.islandstudio.neon.core.di.module.NeonModule
 import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
-import com.islandstudio.neon.player.security.RoleManagerNew
+import com.islandstudio.neon.player.role.RoleManagerNew
 import com.islandstudio.neon.player.session.PlayerSessionManagerNew
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.PluginDIManager

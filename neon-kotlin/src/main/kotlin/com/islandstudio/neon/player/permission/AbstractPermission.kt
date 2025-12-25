@@ -1,4 +1,4 @@
-package com.islandstudio.neon.player.security.permission
+package com.islandstudio.neon.player.permission
 
 abstract class AbstractPermission(val mainPermission: AbstractPermission?) {
     abstract val permissionCode: String

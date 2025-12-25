@@ -7,8 +7,8 @@ import com.islandstudio.neon.command.option.RoleCommandOption
 import com.islandstudio.neon.command.properties.AbstractCommandAlias
 import com.islandstudio.neon.command.properties.AbstractCommandOption
 import com.islandstudio.neon.command.properties.AccessibleCommand
+import com.islandstudio.neon.player.permission.NeonPermission
 import com.islandstudio.neon.player.security.AccessControlManager
-import com.islandstudio.neon.player.security.permission.Permission
 import com.islandstudio.neon.player.session.PlayerSessionManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
 import org.bukkit.command.CommandSender
@@ -42,7 +42,7 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
 
             val processedCommandAlias = getAllCommandAlias()
                 .filter { commandAlias ->
-                    val cmdPermissionCodes = commandAlias.requiredPermissions.run {
+                    val cmdPermissionCodes = commandAlias.requiredNeonPermissions.run {
                         /* If required permission is empty, means everyone can access the command */
                         if (this.isEmpty()) return@filter true
 
@@ -51,14 +51,14 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
 
                     grantedPermissionCodes.containsAll(cmdPermissionCodes)
                 }.map { commandAlias ->
-                    val cmdPermissionCodes = commandAlias.requiredPermissions.run {
+                    val cmdPermissionCodes = commandAlias.requiredNeonPermissions.run {
                         if (this.isEmpty()) return@run arrayListOf()
 
                         this.map { it.permissionCode }
                     }
 
                     val accessibleCommandOptions = commandAlias.commandOptions.filter {
-                        val commandOptionPermissionCodes = it.requiredPermissions.map { x -> x.permissionCode }
+                        val commandOptionPermissionCodes = it.requiredNeonPermissions.map { x -> x.permissionCode }
 
                         /* If required permission is empty, means everyone can access the command */
                         if (cmdPermissionCodes.isEmpty() || commandOptionPermissionCodes.isEmpty()) {
@@ -71,7 +71,7 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
 
                         grantedSubPermissionCodes.any { x -> x in commandOptionPermissionCodes }
                     }.map {
-                        val commandOptionPermissionCodes = it.requiredPermissions.map { x -> x.permissionCode }
+                        val commandOptionPermissionCodes = it.requiredNeonPermissions.map { x -> x.permissionCode }
                         val commandOptionArgs = it.optionArguments
 
                         if (cmdPermissionCodes.isEmpty() || commandOptionPermissionCodes.isEmpty()) {
@@ -87,7 +87,7 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
                             it.option,
                             commandOptionArgs
                                 .filter { x ->
-                                    val commandOptionArgPermissionCodes = x.requiredPermissions
+                                    val commandOptionArgPermissionCodes = x.requiredNeonPermissions
                                         .map { requiredPermission -> requiredPermission.permissionCode }
                                         .toMutableList()
 
@@ -174,30 +174,30 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
 
     data object RoleAlias: CommandAlias<RoleCommandOption>() {
         override val alias: String = "role"
-        override val requiredPermissions: ArrayList<Permission> = arrayListOf(
-            Permission.RoleManagement
+        override val requiredNeonPermissions: ArrayList<NeonPermission> = arrayListOf(
+            NeonPermission.RoleManagement
         )
         override val commandOptions: ArrayList<RoleCommandOption> = getAllCommandOptions(RoleCommandOption::class)
     }
 
     data object PermissionAlias: CommandAlias<PermissionCommandOption>() {
         override val alias: String = "permission"
-        override val requiredPermissions: ArrayList<Permission> = arrayListOf(
-            Permission.PermissionManagement
+        override val requiredNeonPermissions: ArrayList<NeonPermission> = arrayListOf(
+            NeonPermission.NeonPermissionManagement
         )
         override val commandOptions: ArrayList<PermissionCommandOption> = getAllCommandOptions(PermissionCommandOption::class)
     }
 
     data object NWaypointsAlias: CommandAlias<NWaypointsCommandOption>() {
         override val alias: String = "waypoints"
-        override val requiredPermissions: ArrayList<Permission> = arrayListOf()
+        override val requiredNeonPermissions: ArrayList<NeonPermission> = arrayListOf()
         override val commandOptions: ArrayList<NWaypointsCommandOption> = getAllCommandOptions(NWaypointsCommandOption::class)
     }
 
     data object NeonFeatureAlias: CommandAlias<NeonFeatureCommandOption>() {
         override val alias: String = "feature"
-        override val requiredPermissions: ArrayList<Permission> = arrayListOf(
-            Permission.NeonFeatureManagement
+        override val requiredNeonPermissions: ArrayList<NeonPermission> = arrayListOf(
+            NeonPermission.NeonFeatureManagement
         )
         override val commandOptions: ArrayList<NeonFeatureCommandOption> = getAllCommandOptions(
             NeonFeatureCommandOption::class)
