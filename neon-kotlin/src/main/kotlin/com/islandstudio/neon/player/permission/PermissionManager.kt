@@ -1,12 +1,18 @@
 package com.islandstudio.neon.player.permission
 
 import com.islandstudio.neon.apinew.dto.action.player.permission.AddPermissionListActionDTO
+import com.islandstudio.neon.apinew.dto.action.player.permission.AddRolePermisionActionDTO
 import com.islandstudio.neon.apinew.entity.player.Permission
+import com.islandstudio.neon.apinew.entity.player.RolePermission
 import com.islandstudio.neon.apinew.facade.player.IPermissionFacade
+import com.islandstudio.neon.apinew.facade.player.IRolePermissionFacade
+import com.islandstudio.neon.apinew.status.ActionResultStatus
+import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent
 import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import com.islandstudio.neon.shared.core.initialization.IRunnerAsync
+import org.bukkit.command.CommandSender
 import java.util.Locale.getDefault
 
 class PermissionManager: IRunnerAsync, IComponentProvider {
@@ -109,5 +115,63 @@ class PermissionManager: IRunnerAsync, IComponentProvider {
         return permissionFacade.getAllPermissions().getResult().get()
     }
 
+    suspend fun grantPermission(commander: CommandSender, roleCode: String, permissionCodes: ArrayList<String>) {
+        val rolePermissionFacade = getComponent<IRolePermissionFacade>() // TODO: Need handle user context
+        var displayMessage = ""
 
+        rolePermissionFacade.isRolePermissionExistByPermissionCodes(roleCode, permissionCodes).getResult { status, _ ->
+            when (status) {
+                is ActionResultStatus.RolePermissionAlreadyExist -> {
+                    displayMessage = status.message
+                    CommandSyntaxHandler.sendCommandSyntax(commander, displayMessage)
+                    return
+                }
+
+                else -> return
+            }
+        }
+
+        val clientMainNeonPermissions = NeonPermission.getAllMainPermission()
+        val clientSubNeonPermissions = NeonPermission.getAllSubPermission()
+
+        val newRolePermissionList: ArrayList<AddRolePermisionActionDTO.RolePermissionActionDTO> = arrayListOf()
+
+        /* Prepare main role permissions */
+        newRolePermissionList.addAll(clientMainNeonPermissions
+            .filter { clientMainNeonPermission -> clientMainNeonPermission.permissionCode in permissionCodes }
+            .map { AddRolePermisionActionDTO.RolePermissionActionDTO(it.permissionCode) }
+        )
+
+        /* Prepare sub role permissions */
+        clientSubNeonPermissions
+            .filter { clientSubNeonPermission -> clientSubNeonPermission.permissionCode in permissionCodes }
+            .forEach { permission ->
+                permission.mainPermission?.let { mainPermission ->
+                    /* Add child to the parent if parent exist in the parent list */
+                    if (mainPermission.permissionCode in newRolePermissionList.map { it.permissionCode }) {
+                        val mainRolePermission = newRolePermissionList.first { it.permissionCode == mainPermission.permissionCode }
+
+                        mainRolePermission.subRolePermissions.add(AddRolePermisionActionDTO.RolePermissionActionDTO(permission.permissionCode))
+                        return@let
+                    }
+
+                    /* Add parent permission if not exist in the parent list */
+                    newRolePermissionList.add(
+                        AddRolePermisionActionDTO.RolePermissionActionDTO(
+                            mainPermission.permissionCode,
+                            null,
+                            arrayListOf(AddRolePermisionActionDTO.RolePermissionActionDTO(permission.permissionCode))
+                        )
+                    )
+                }
+            }
+
+        val result = rolePermissionFacade.addRolePermissionList(AddRolePermisionActionDTO(roleCode, newRolePermissionList))
+
+        println("Insert role permission test result: ${result.getResult().get()}")
+    }
+
+    suspend fun getGrantedRolePermissions(roleCode: String): ArrayList<RolePermission> {
+        return arrayListOf()
+    }
 }

@@ -15,7 +15,10 @@ class PermissionRepository(databaseContext: NeonDatabaseContext):
     IPermissionRepository
 {
     override suspend fun addPermissionList(context: UserContext, permissionList: ArrayList<Permission>): ArrayList<Permission> {
-        return insertEntityListReturnAsync(Permission::class.java, permissionList.map { it.updateCreatedModified(context.contextName) }.toCollection(ArrayList()))
+        return insertEntityListReturnAsync(
+            Permission::class.java,
+            permissionList.map { it.updateCreatedModified(context.contextName) }.toCollection(ArrayList())
+        )
     }
 
     override suspend fun getAll(): ArrayList<Permission> {

@@ -22,4 +22,7 @@ sealed class ActionResultStatus {
 
     data class PlayerRoleNotExist(override val message: String = "Player role does not exist")
         : ActionResultStatus()
+
+    data class RolePermissionAlreadyExist(override val message: String = "Role permission already exist")
+        : ActionResultStatus()
 }

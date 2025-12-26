@@ -5,10 +5,7 @@ package com.islandstudio.neon.apinew.schema.tables
 
 
 import com.islandstudio.neon.apinew.schema.DefaultSchema
-import com.islandstudio.neon.apinew.schema.keys.FK_ROLE_PERMISSION_PERMISSION_ID
-import com.islandstudio.neon.apinew.schema.keys.KEY_PERMISSION_PRIMARY
-import com.islandstudio.neon.apinew.schema.keys.KEY_PERMISSION_UQ_PERMISSION_CODE
-import com.islandstudio.neon.apinew.schema.keys.KEY_PERMISSION_UQ_PERMISSION_NAME
+import com.islandstudio.neon.apinew.schema.keys.*
 import com.islandstudio.neon.apinew.schema.tables.PlayerRoleTable.PlayerRolePath
 import com.islandstudio.neon.apinew.schema.tables.RolePermissionTable.RolePermissionPath
 import com.islandstudio.neon.apinew.schema.tables.records.PermissionRecord
@@ -137,6 +134,22 @@ open class PermissionTable(
     override fun getIdentity(): Identity<PermissionRecord, Long?> = super.getIdentity() as Identity<PermissionRecord, Long?>
     override fun getPrimaryKey(): UniqueKey<PermissionRecord> = KEY_PERMISSION_PRIMARY
     override fun getUniqueKeys(): List<UniqueKey<PermissionRecord>> = listOf(KEY_PERMISSION_UQ_PERMISSION_CODE, KEY_PERMISSION_UQ_PERMISSION_NAME)
+    override fun getReferences(): List<ForeignKey<PermissionRecord, *>> = listOf(FK_PERMISSION_PARENT_ID)
+
+    private lateinit var _permission: PermissionPath
+
+    /**
+     * Get the implicit join path to the <code>neon_dev.permission</code> table.
+     */
+    fun permission(): PermissionPath {
+        if (!this::_permission.isInitialized)
+            _permission = PermissionPath(this, FK_PERMISSION_PARENT_ID, null)
+
+        return _permission;
+    }
+
+    val permission: PermissionPath
+        get(): PermissionPath = permission()
 
     private lateinit var _rolePermission: RolePermissionPath
 

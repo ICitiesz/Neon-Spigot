@@ -67,10 +67,22 @@ abstract class BaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEntityT
         }
     }
 
+    override suspend fun getListEntityAsync(entityClazz: Class<TEntity>, whereStep: ArrayList<Condition>.() -> ArrayList<Condition>): ArrayList<TEntity> {
+        return withContext(Dispatchers.IO) {
+            databaseContext
+                .selectFrom(entityTable)
+                .where(whereStep(arrayListOf()))
+                .fetch()
+                .into(entityClazz)
+                .toCollection(ArrayList())
+        }
+    }
+
     override suspend fun getAllEntitiesAsync(entityClazz: Class<TEntity>): ArrayList<TEntity> {
         return withContext(Dispatchers.IO) {
             databaseContext
-                .fetch(entityTable)
+                .selectFrom(entityTable)
+                .fetch()
                 .into(entityClazz)
                 .toCollection(ArrayList())
         }
@@ -128,6 +140,7 @@ private interface IBaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEnt
     ): ArrayList<TEntity>
 
     suspend fun getSingleEntityAsync(entityClazz: Class<TEntity>, whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Optional<TEntity>
+    suspend fun getListEntityAsync(entityClazz: Class<TEntity>, whereStep: ArrayList<Condition>.() -> ArrayList<Condition>): ArrayList<TEntity>
     suspend fun getAllEntitiesAsync(entityClazz: Class<TEntity>): ArrayList<TEntity>
 
     suspend fun updateEntityAsync(entity: TEntity, whereSteps: ArrayList<Condition>.() -> ArrayList<Condition>): Int

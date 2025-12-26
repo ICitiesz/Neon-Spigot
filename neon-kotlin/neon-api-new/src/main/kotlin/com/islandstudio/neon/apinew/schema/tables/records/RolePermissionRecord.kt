@@ -20,29 +20,33 @@ open class RolePermissionRecord private constructor() : UpdatableRecordImpl<Role
         set(value): Unit = set(0, value)
         get(): Long? = get(0) as Long?
 
-    open var roleid: Long
+    open var parentid: Long?
         set(value): Unit = set(1, value)
-        get(): Long = get(1) as Long
+        get(): Long? = get(1) as Long?
 
-    open var permissionid: Long
+    open var roleid: Long
         set(value): Unit = set(2, value)
         get(): Long = get(2) as Long
 
-    open var createdby: String?
+    open var permissionid: Long
         set(value): Unit = set(3, value)
-        get(): String? = get(3) as String?
+        get(): Long = get(3) as Long
+
+    open var createdby: String?
+        set(value): Unit = set(4, value)
+        get(): String? = get(4) as String?
 
     open var createdat: LocalDateTime?
-        set(value): Unit = set(4, value)
-        get(): LocalDateTime? = get(4) as LocalDateTime?
+        set(value): Unit = set(5, value)
+        get(): LocalDateTime? = get(5) as LocalDateTime?
 
     open var modifiedby: String?
-        set(value): Unit = set(5, value)
-        get(): String? = get(5) as String?
+        set(value): Unit = set(6, value)
+        get(): String? = get(6) as String?
 
     open var modifiedat: LocalDateTime?
-        set(value): Unit = set(6, value)
-        get(): LocalDateTime? = get(6) as LocalDateTime?
+        set(value): Unit = set(7, value)
+        get(): LocalDateTime? = get(7) as LocalDateTime?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -53,8 +57,9 @@ open class RolePermissionRecord private constructor() : UpdatableRecordImpl<Role
     /**
      * Create a detached, initialised RolePermissionRecord
      */
-    constructor(id: Long?, roleid: Long, permissionid: Long, createdby: String?, createdat: LocalDateTime?, modifiedby: String?, modifiedat: LocalDateTime?): this() {
+    constructor(id: Long?, parentid: Long?, roleid: Long, permissionid: Long, createdby: String?, createdat: LocalDateTime?, modifiedby: String?, modifiedat: LocalDateTime?): this() {
         this.id = id
+        this.parentid = parentid
         this.roleid = roleid
         this.permissionid = permissionid
         this.createdby = createdby

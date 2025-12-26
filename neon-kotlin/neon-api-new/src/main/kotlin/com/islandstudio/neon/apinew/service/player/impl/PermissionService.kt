@@ -9,13 +9,11 @@ import com.islandstudio.neon.apinew.service.player.IPermissionService
 import com.islandstudio.neon.apinew.status.ActionResultStatus
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent
-import com.islandstudio.neon.shared.utils.data.ModelMapperUtil
 import org.koin.core.annotation.Single
 
 @Single
 class PermissionService: IPermissionService, IComponentProvider {
     private val permissionRepository = getComponent<IPermissionRepository>()
-    private val mapper = getComponent<ModelMapperUtil>()
 
     override suspend fun addPermissionList(context: UserContext, action: AddPermissionListActionDTO): ResultProvider<Int> {
         var resultCount = 0

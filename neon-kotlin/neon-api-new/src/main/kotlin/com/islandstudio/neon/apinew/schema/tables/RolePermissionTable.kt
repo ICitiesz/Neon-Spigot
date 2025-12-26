@@ -5,10 +5,7 @@ package com.islandstudio.neon.apinew.schema.tables
 
 
 import com.islandstudio.neon.apinew.schema.DefaultSchema
-import com.islandstudio.neon.apinew.schema.keys.FK_ROLE_PERMISSION_PERMISSION_ID
-import com.islandstudio.neon.apinew.schema.keys.FK_ROLE_PERMISSION_ROLE_ID
-import com.islandstudio.neon.apinew.schema.keys.KEY_ROLE_PERMISSION_PRIMARY
-import com.islandstudio.neon.apinew.schema.keys.KEY_ROLE_PERMISSION_UQ_ROLE_PERMISSION_ROLE_ID_PERMISSION_ID
+import com.islandstudio.neon.apinew.schema.keys.*
 import com.islandstudio.neon.apinew.schema.tables.PermissionTable.PermissionPath
 import com.islandstudio.neon.apinew.schema.tables.PlayerRoleTable.PlayerRolePath
 import com.islandstudio.neon.apinew.schema.tables.records.RolePermissionRecord
@@ -61,6 +58,11 @@ open class RolePermissionTable(
      * The column <code>role_permission.Id</code>.
      */
     val ID: TableField<RolePermissionRecord, Long?> = createField(DSL.name("Id"), SQLDataType.BIGINT.nullable(false).identity(true), this, "")
+
+    /**
+     * The column <code>role_permission.ParentId</code>.
+     */
+    val PARENTID: TableField<RolePermissionRecord, Long?> = createField(DSL.name("ParentId"), SQLDataType.BIGINT.defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.BIGINT)), this, "")
 
     /**
      * The column <code>role_permission.RoleId</code>.
@@ -127,7 +129,23 @@ open class RolePermissionTable(
     override fun getIdentity(): Identity<RolePermissionRecord, Long?> = super.getIdentity() as Identity<RolePermissionRecord, Long?>
     override fun getPrimaryKey(): UniqueKey<RolePermissionRecord> = KEY_ROLE_PERMISSION_PRIMARY
     override fun getUniqueKeys(): List<UniqueKey<RolePermissionRecord>> = listOf(KEY_ROLE_PERMISSION_UQ_ROLE_PERMISSION_ROLE_ID_PERMISSION_ID)
-    override fun getReferences(): List<ForeignKey<RolePermissionRecord, *>> = listOf(FK_ROLE_PERMISSION_PERMISSION_ID, FK_ROLE_PERMISSION_ROLE_ID)
+    override fun getReferences(): List<ForeignKey<RolePermissionRecord, *>> = listOf(FK_ROLE_PERMISSION_PARENT_ID, FK_ROLE_PERMISSION_PERMISSION_ID, FK_ROLE_PERMISSION_ROLE_ID)
+
+    private lateinit var _rolePermission: RolePermissionPath
+
+    /**
+     * Get the implicit join path to the <code>neon_dev.role_permission</code>
+     * table.
+     */
+    fun rolePermission(): RolePermissionPath {
+        if (!this::_rolePermission.isInitialized)
+            _rolePermission = RolePermissionPath(this, FK_ROLE_PERMISSION_PARENT_ID, null)
+
+        return _rolePermission;
+    }
+
+    val rolePermission: RolePermissionPath
+        get(): RolePermissionPath = rolePermission()
 
     private lateinit var _permission: PermissionPath
 
