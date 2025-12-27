@@ -1,15 +1,15 @@
 package com.islandstudio.neon.util
 
-import com.islandstudio.neon.Neon
-import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentProvider
+import com.islandstudio.neon.shared.core.di.getComponent
+import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import org.bukkit.event.Event
 import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.server.ServerCommandEvent
-import org.koin.core.component.inject
 
-object ServerUtil: IComponentInjector {
-    private val neon by inject<Neon>()
-    private val serverName = neon.server.name
+object ServerUtil: IComponentProvider {
+    private val pluginContext = getComponent<IPluginContext>()
+    private val serverName = pluginContext.getServer().name
     private val reloadCommands = arrayListOf("rl", "reload", "bukkit:reload", "bukkit:rl")
     private val reloadCommandsWithConfirm = arrayListOf("rl confirm", "reload confirm", "bukkit:reload confirm", "bukkit:rl confirm")
     private val doLetMeReload: Boolean? = with(System.getProperties()) {

@@ -3,6 +3,7 @@ package com.islandstudio.neon.apinew.service.player.impl
 import com.islandstudio.neon.apinew.connection.UserContext
 import com.islandstudio.neon.apinew.dto.ResultProvider
 import com.islandstudio.neon.apinew.dto.action.player.permission.AddRolePermisionActionDTO
+import com.islandstudio.neon.apinew.dto.result.player.permission.RolePermissionDetailResultDTO
 import com.islandstudio.neon.apinew.entity.player.RolePermission
 import com.islandstudio.neon.apinew.repository.player.IPermissionRepository
 import com.islandstudio.neon.apinew.repository.player.IPlayerRoleRepository
@@ -58,6 +59,13 @@ class RolePermissionService: IRolePermissionService, IComponentProvider {
         return ResultProvider(
             status = ActionResultStatus.Success(),
             totalResult
+        )
+    }
+
+    override suspend fun getRolePermissionDetailListByRoleId(roleId: Long): ResultProvider<ArrayList<RolePermissionDetailResultDTO>> {
+        return ResultProvider(
+            status = ActionResultStatus.Success(),
+            result = rolePermissionRepository.getListDetailById(roleId)
         )
     }
 

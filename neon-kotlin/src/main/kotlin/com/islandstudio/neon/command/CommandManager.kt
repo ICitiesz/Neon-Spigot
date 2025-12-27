@@ -1,37 +1,65 @@
 package com.islandstudio.neon.command
 
-import com.islandstudio.neon.Neon
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
 import com.islandstudio.neon.player.security.AccessControlManager
 import com.islandstudio.neon.player.security.role.RoleManager
-import com.islandstudio.neon.player.session.PlayerSessionManager
-import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.shared.core.initialization.IRunner
+import com.islandstudio.neon.player.session.PlayerSessionManagerNew
+import com.islandstudio.neon.shared.core.di.IComponentProvider
+import com.islandstudio.neon.shared.core.di.getComponent
+import com.islandstudio.neon.shared.core.initialization.IPluginContext
+import com.islandstudio.neon.shared.core.initialization.IRunnerNew
 import org.bukkit.ChatColor
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
-import org.koin.core.component.inject
 
-class CommandManager: TabExecutor {
-    companion object: IRunner, IComponentInjector {
-        private val neon by inject<Neon>()
-        private val playerSessionManager by inject<PlayerSessionManager>()
+class CommandManager: TabExecutor, IRunnerNew, IComponentProvider {
+    private val commandPrefix = "neon"
+    private val commandSession: HashMap<Player, ArrayList<AccessibleCommand>> = hashMapOf()
+
+    private val pluginContext = getComponent<IPluginContext>()
+    private val playerSessionManager = getComponent<PlayerSessionManagerNew>()
+
+    init {
+        getKoin().declare(this)
+    }
+
+    override fun run() {
+        pluginContext.getServer().getPluginCommand(COMMAND_PREFIX)?.setExecutor(CommandManager())
+    }
+
+    private fun isValidCommander(commander: CommandSender): Boolean {
+        return commander is Player || commander is ConsoleCommandSender
+    }
+
+    fun registerPlayerAccessibleCommands(player: Player): ArrayList<AccessibleCommand> {
+        commandSession[player]?.let { return it }
+
+        return CommandAlias.getAccessibleCommands(player).apply {
+            commandSession[player] = this
+        }
+    }
+
+    fun unregisterPlayerAccessibleCommands(player: Player) {
+        commandSession.remove(player)
+    }
+
+    fun updatePlayerAccessibleCommands(player: Player) {
+        if (!commandSession.keys.contains(player)) return
+
+        commandSession.replace(player, CommandAlias.getAccessibleCommands(player))
+    }
+
+    companion object: IComponentProvider {
+        private val playerSessionManager = getComponent<PlayerSessionManagerNew>()
         private val commandSession: HashMap<Player, ArrayList<AccessibleCommand>> = hashMapOf()
 
         private const val COMMAND_PREFIX = "neon"
 
-        override fun run() {
-            neon.server.getPluginCommand(COMMAND_PREFIX)?.setExecutor(CommandManager())
-        }
-
-        private fun isValidCommander(commander: CommandSender): Boolean {
-            return commander is Player || commander is ConsoleCommandSender
-        }
 
         fun getCommanderName(commander: CommandSender): String? {
             return when(commander) {
@@ -42,20 +70,6 @@ class CommandManager: TabExecutor {
             }
         }
 
-        fun registerPlayerAccessibleCommands(player: Player): ArrayList<AccessibleCommand> {
-            commandSession[player]?.let { return it }
-
-            return CommandAlias.getAccessibleCommands(player).apply {
-                commandSession[player] = this
-            }
-        }
-
-        fun updatePlayerAccessibleCommands(player: Player) {
-            if (!commandSession.keys.contains(player)) return
-
-            commandSession.replace(player, CommandAlias.getAccessibleCommands(player))
-        }
-
         fun updatePlayerAccessibleCommandsByRole(roleId: Long) {
             commandSession.keys
                 .filter { x->
@@ -63,12 +77,8 @@ class CommandManager: TabExecutor {
 
                     playerSession.roleId?.let { y -> y == roleId } ?: return@filter false
                 }.forEach {
-                    updatePlayerAccessibleCommands(it)
+                    //updatePlayerAccessibleCommands(it)
                 }
-        }
-
-        fun unregisterPlayerAccessibleCommands(player: Player) {
-            commandSession.remove(player)
         }
     }
 

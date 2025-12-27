@@ -3,6 +3,7 @@ package com.islandstudio.neon.player.session
 import com.islandstudio.neon.apinew.dto.action.player.profile.CreatePlayerProfileActionDTO
 import com.islandstudio.neon.apinew.entity.player.PlayerProfile
 import com.islandstudio.neon.apinew.facade.player.IPlayerProfileFacade
+import com.islandstudio.neon.command.CommandManager
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.core.datakey.container.DataContainerManager
 import com.islandstudio.neon.core.datakey.container.DataContainerType
@@ -14,6 +15,7 @@ import com.islandstudio.neon.player.role.RoleManagerNew
 import com.islandstudio.neon.server.ServerGamePacketManagerNew
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent
+import com.islandstudio.neon.shared.core.di.injectComponent
 import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import com.islandstudio.neon.shared.core.initialization.IRunnerNew
@@ -32,10 +34,12 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.server.ServerLoadEvent
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INmsMapper {
     private val pluginContext = getComponent<IPluginContext>()
+    private val commandManager by injectComponent<CommandManager>()
 
     init {
         getKoin().declare(this)
@@ -81,11 +85,11 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
         )
 
         DataContainerManager.attachData(player, sessionData, DataContainerType.PlayerSessionContainer)
-        // TODO: Register player accessible commands
+        commandManager.registerPlayerAccessibleCommands(player)
     }
 
     private fun discardPlayerSession(player: Player) {
-        // TODO: Unregister player accessible commands
+        commandManager.unregisterPlayerAccessibleCommands(player)
         DataContainerManager.detachData(player, DataContainerType.PlayerSessionContainer)
     }
 
@@ -93,7 +97,7 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
         val sessionDataInBytes = ObjectSerializer.serializeToByteArray(newSessionData)
 
         DataContainerManager.updateAttachedData(player, sessionDataInBytes, DataContainerType.PlayerSessionContainer)
-        // TODO: Update player accessible commands
+        commandManager.updatePlayerAccessibleCommands(player)
     }
 
     fun getPlayerSession(player: Player): PlayerSession? {
@@ -101,6 +105,14 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
             ?: return null
 
         return ObjectSerializer.deserialzeFromByteArray<PlayerSession>(sessionData)
+    }
+
+    fun getAllPlayerGeneralDetails(): HashMap<UUID, String> {
+        return pluginContext.getServer().offlinePlayers
+            .filter { offLinePlayer -> offLinePlayer.name != null }
+            .associateTo(HashMap()) { offLinePlayer ->
+                offLinePlayer.uniqueId to offLinePlayer.name!!
+            }
     }
 
     /**
@@ -175,6 +187,7 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
                 ServerLoadEvent.LoadType.STARTUP, ServerLoadEvent.LoadType.RELOAD -> {
                     pluginContext.getServer().onlinePlayers.forEach { player ->
                         ServerGamePacketManagerNew.registerServerGamePacketListener(player)
+                        playerSessionManagerNew.updatePlayerRecipe(player)
                     }
                 }
             }

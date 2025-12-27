@@ -8,15 +8,18 @@ import com.islandstudio.neon.command.properties.AbstractCommandAlias
 import com.islandstudio.neon.command.properties.AbstractCommandOption
 import com.islandstudio.neon.command.properties.AccessibleCommand
 import com.islandstudio.neon.player.permission.NeonPermission
-import com.islandstudio.neon.player.security.AccessControlManager
-import com.islandstudio.neon.player.session.PlayerSessionManager
-import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.player.permission.PermissionManager
+import com.islandstudio.neon.player.session.PlayerSessionManagerNew
+import com.islandstudio.neon.shared.core.di.IComponentProvider
+import com.islandstudio.neon.shared.core.di.getComponent
+import com.islandstudio.neon.shared.experimental.utils.coroutines.CloseableCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.koin.core.component.inject
 
 sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>() {
-    companion object: IComponentInjector {
+    companion object: IComponentProvider {
         fun getAllCommandAlias(): ArrayList<CommandAlias<*>> {
             return CommandAlias::class.sealedSubclasses
                 .map {
@@ -27,85 +30,90 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
         fun getAccessibleCommands(player: Player): ArrayList<AccessibleCommand> {
             val accessibleCommand = ArrayList<AccessibleCommand>()
 
-            val playerSessionManager by inject<PlayerSessionManager>()
-            val accessControlManager by inject<AccessControlManager>()
+            val playerSessionManager = getComponent<PlayerSessionManagerNew>()
+            val permissionManager = getComponent<PermissionManager>()
 
-            val grantedRolePermissions = playerSessionManager.getPlayerSession(player)!!.roleId?.let {
-                accessControlManager.getGrantedRolePermission(it)
-            } ?: return arrayListOf()
+            CloseableCoroutineScope(Dispatchers.IO).launchJob {
+                val grantedRolePermissions = async {
+                    playerSessionManager.getPlayerSession(player)!!.roleId?.let {
+                        permissionManager.getGrantedRolePermissions(it)
+                    } ?: return@async arrayListOf()
+                }.await()
 
-            val grantedPermissionCodes = accessControlManager.getGrantedParentPermission(grantedRolePermissions)
-                .map { permission -> permission.permissionCode }
+                val grantedParentPermissionCodes = grantedRolePermissions
+                    .filter { permission -> permission.parentId == null }
+                    .map { permission -> permission.permissionCode }
+                val grantedSubPermissionCodes = grantedRolePermissions
+                    .filter { permission -> permission.parentId != null }
+                    .map { permission -> permission.permissionCode }
 
-            val grantedSubPermissionCodes = accessControlManager.getGrantedChildPermission(grantedRolePermissions)
-                .map { permission -> permission.permissionCode }
+                val processedCommandAlias = getAllCommandAlias()
+                    .filter { commandAlias ->
+                        val cmdPermissionCodes = commandAlias.requiredNeonPermissions.run {
+                            /* If required permission is empty, means everyone can access the command */
+                            if (this.isEmpty()) return@filter true
 
-            val processedCommandAlias = getAllCommandAlias()
-                .filter { commandAlias ->
-                    val cmdPermissionCodes = commandAlias.requiredNeonPermissions.run {
-                        /* If required permission is empty, means everyone can access the command */
-                        if (this.isEmpty()) return@filter true
-
-                        this.map { it.permissionCode }
-                    }
-
-                    grantedPermissionCodes.containsAll(cmdPermissionCodes)
-                }.map { commandAlias ->
-                    val cmdPermissionCodes = commandAlias.requiredNeonPermissions.run {
-                        if (this.isEmpty()) return@run arrayListOf()
-
-                        this.map { it.permissionCode }
-                    }
-
-                    val accessibleCommandOptions = commandAlias.commandOptions.filter {
-                        val commandOptionPermissionCodes = it.requiredNeonPermissions.map { x -> x.permissionCode }
-
-                        /* If required permission is empty, means everyone can access the command */
-                        if (cmdPermissionCodes.isEmpty() || commandOptionPermissionCodes.isEmpty()) {
-                            return@filter true
+                            this.map { it.permissionCode }
                         }
 
-                        if (it.inheritPermission) {
-                            return@filter grantedPermissionCodes.any { x -> x in commandOptionPermissionCodes }
+                        grantedParentPermissionCodes.containsAll(cmdPermissionCodes)
+                    }.map { commandAlias ->
+                        val cmdPermissionCodes = commandAlias.requiredNeonPermissions.run {
+                            if (this.isEmpty()) return@run arrayListOf()
+
+                            this.map { it.permissionCode }
                         }
 
-                        grantedSubPermissionCodes.any { x -> x in commandOptionPermissionCodes }
-                    }.map {
-                        val commandOptionPermissionCodes = it.requiredNeonPermissions.map { x -> x.permissionCode }
-                        val commandOptionArgs = it.optionArguments
+                        val accessibleCommandOptions = commandAlias.commandOptions.filter {
+                            val commandOptionPermissionCodes = it.requiredNeonPermissions.map { x -> x.permissionCode }
 
-                        if (cmdPermissionCodes.isEmpty() || commandOptionPermissionCodes.isEmpty()) {
-                            return@map AccessibleCommand.AccessibleCommandOption(
+                            /* If required permission is empty, means everyone can access the command */
+                            if (cmdPermissionCodes.isEmpty() || commandOptionPermissionCodes.isEmpty()) {
+                                return@filter true
+                            }
+
+                            if (it.inheritPermission) {
+                                return@filter grantedParentPermissionCodes.any { x -> x in commandOptionPermissionCodes }
+                            }
+
+                            grantedSubPermissionCodes.any { x -> x in commandOptionPermissionCodes }
+                        }.map {
+                            val commandOptionPermissionCodes = it.requiredNeonPermissions.map { x -> x.permissionCode }
+                            val commandOptionArgs = it.optionArguments
+
+                            if (cmdPermissionCodes.isEmpty() || commandOptionPermissionCodes.isEmpty()) {
+                                return@map AccessibleCommand.AccessibleCommandOption(
+                                    it.option,
+                                    commandOptionArgs
+                                        .map { commandOptionArg -> commandOptionArg.optionArg }
+                                        .toCollection(ArrayList())
+                                )
+                            }
+
+                            AccessibleCommand.AccessibleCommandOption(
                                 it.option,
                                 commandOptionArgs
-                                    .map { commandOptionArg -> commandOptionArg.optionArg }
+                                    .filter { x ->
+                                        val commandOptionArgPermissionCodes = x.requiredNeonPermissions
+                                            .map { requiredPermission -> requiredPermission.permissionCode }
+                                            .toMutableList()
+
+                                        if (commandOptionArgPermissionCodes.isEmpty()) return@filter true
+
+                                        grantedParentPermissionCodes.any { grantedSubPermissionCode -> grantedSubPermissionCode in commandOptionArgPermissionCodes }
+                                    }
+                                    .map { x -> x.optionArg }
                                     .toCollection(ArrayList())
                             )
-                        }
+                        }.toCollection(ArrayList())
 
-                        AccessibleCommand.AccessibleCommandOption(
-                            it.option,
-                            commandOptionArgs
-                                .filter { x ->
-                                    val commandOptionArgPermissionCodes = x.requiredNeonPermissions
-                                        .map { requiredPermission -> requiredPermission.permissionCode }
-                                        .toMutableList()
+                        AccessibleCommand(commandAlias.alias, accessibleCommandOptions)
+                    }
 
-                                    if (commandOptionArgPermissionCodes.isEmpty()) return@filter true
-
-                                    grantedPermissionCodes.any { grantedSubPermissionCode -> grantedSubPermissionCode in commandOptionArgPermissionCodes }
-                                }
-                                .map { x -> x.optionArg }
-                                .toCollection(ArrayList())
-                        )
-                    }.toCollection(ArrayList())
-
-                    AccessibleCommand(commandAlias.alias, accessibleCommandOptions)
-                }
-
-            return accessibleCommand.apply {
-                this.addAll(processedCommandAlias)
+                accessibleCommand.addAll(processedCommandAlias)
             }
+
+            return accessibleCommand
         }
 
         fun getAccessibleCommandOptions(commander: CommandSender, commandAlias: CommandAlias<*>, playerAccessibleCommand: AccessibleCommand?, argValue: String, commandOptionIndex: Int = 1): MutableList<String> {
@@ -114,6 +122,7 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
                    val accessibleCommandOption = it.accessibleCommandOptions.map { x -> x.commandOption }
 
                    commandAlias.commandOptions
+                       .asSequence()
                        .filter { x -> x.optionIndex == commandOptionIndex }
                        .filter { x -> x.option in accessibleCommandOption }
                        .filter { x -> x.option.startsWith(argValue, true) }

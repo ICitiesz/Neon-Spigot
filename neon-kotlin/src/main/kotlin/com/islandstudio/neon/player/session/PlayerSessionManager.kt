@@ -34,11 +34,10 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.server.ServerLoadEvent
-import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 import java.util.*
 
-@Single
+//@Single
 class PlayerSessionManager: IComponentInjector, IObjectMapper {
     private val neon by inject<Neon>()
     private val appContext by inject<AppContext>()
@@ -63,11 +62,11 @@ class PlayerSessionManager: IComponentInjector, IObjectMapper {
         )
 
         DataContainerManager.attachData(player, playerSessionData, DataContainerType.PlayerSessionContainer)
-        CommandManager.registerPlayerAccessibleCommands(player)
+        //CommandManager.registerPlayerAccessibleCommands(player)
     }
 
     fun discardPlayerSession(player: Player) {
-        CommandManager.unregisterPlayerAccessibleCommands(player)
+        //CommandManager.unregisterPlayerAccessibleCommands(player)
         DataContainerManager.detachData(player, DataContainerType.PlayerSessionContainer)
     }
 
@@ -75,7 +74,7 @@ class PlayerSessionManager: IComponentInjector, IObjectMapper {
         val playerSessionData = ObjectSerializer.serializeToByteArray(newPlayerSession)
 
         DataContainerManager.updateAttachedData(player, playerSessionData, DataContainerType.PlayerSessionContainer)
-        CommandManager.updatePlayerAccessibleCommands(player)
+        //CommandManager.updatePlayerAccessibleCommands(player)
     }
 
     fun getPlayerSession(player: Player): PlayerSession? {

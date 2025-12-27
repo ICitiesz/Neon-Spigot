@@ -2,8 +2,8 @@ package com.islandstudio.neon.player.permission
 
 import com.islandstudio.neon.apinew.dto.action.player.permission.AddPermissionListActionDTO
 import com.islandstudio.neon.apinew.dto.action.player.permission.AddRolePermisionActionDTO
+import com.islandstudio.neon.apinew.dto.result.player.permission.RolePermissionDetailResultDTO
 import com.islandstudio.neon.apinew.entity.player.Permission
-import com.islandstudio.neon.apinew.entity.player.RolePermission
 import com.islandstudio.neon.apinew.facade.player.IPermissionFacade
 import com.islandstudio.neon.apinew.facade.player.IRolePermissionFacade
 import com.islandstudio.neon.apinew.status.ActionResultStatus
@@ -166,12 +166,15 @@ class PermissionManager: IRunnerAsync, IComponentProvider {
                 }
             }
 
-        val result = rolePermissionFacade.addRolePermissionList(AddRolePermisionActionDTO(roleCode, newRolePermissionList))
-
-        println("Insert role permission test result: ${result.getResult().get()}")
+        rolePermissionFacade.addRolePermissionList(AddRolePermisionActionDTO(roleCode, newRolePermissionList))
     }
 
-    suspend fun getGrantedRolePermissions(roleCode: String): ArrayList<RolePermission> {
-        return arrayListOf()
+    suspend fun revokePermission(commander: CommandSender, roleCode: String, permissionCodes: ArrayList<String>) {
+    }
+
+    suspend fun getGrantedRolePermissions(roleId: Long): ArrayList<RolePermissionDetailResultDTO> {
+        val rolePermissionFacade = getComponent<IRolePermissionFacade>()
+
+        return rolePermissionFacade.getRolePermissionDetailList(roleId).getResult().get()
     }
 }

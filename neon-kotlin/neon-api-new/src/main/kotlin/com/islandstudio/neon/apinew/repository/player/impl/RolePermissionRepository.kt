@@ -72,4 +72,36 @@ class RolePermissionRepository(databaseContext: NeonDatabaseContext):
         }
     }
 
+    override suspend fun getListDetailById(roleId: Long): ArrayList<RolePermissionDetailResultDTO> {
+        return withContext(Dispatchers.IO) {
+            databaseContext
+                .select(
+                    ROLE_PERMISSION_TABLE.ID,
+                    ROLE_PERMISSION_TABLE.PARENTID,
+                    ROLE_PERMISSION_TABLE.ROLEID,
+                    PLAYER_ROLE_TABLE.CODE,
+                    ROLE_PERMISSION_TABLE.PERMISSIONID,
+                    PERMISSION_TABLE.CODE
+                )
+                .from(ROLE_PERMISSION_TABLE)
+                .join(PLAYER_ROLE_TABLE)
+                .on(ROLE_PERMISSION_TABLE.ROLEID.eq(PLAYER_ROLE_TABLE.ID))
+                .join(PERMISSION_TABLE)
+                .on(ROLE_PERMISSION_TABLE.PERMISSIONID.eq(PERMISSION_TABLE.ID))
+                .where(PLAYER_ROLE_TABLE.ID.eq(roleId))
+                .fetch()
+                .map {
+                    RolePermissionDetailResultDTO(
+                        it[ROLE_PERMISSION_TABLE.ID]!!,
+                        it[ROLE_PERMISSION_TABLE.PARENTID],
+                        it[ROLE_PERMISSION_TABLE.ROLEID]!!,
+                        it[PLAYER_ROLE_TABLE.CODE]!!,
+                        it[ROLE_PERMISSION_TABLE.PERMISSIONID]!!,
+                        it[PERMISSION_TABLE.CODE]!!
+                    )
+                }
+                .toCollection(ArrayList())
+        }
+    }
+
 }

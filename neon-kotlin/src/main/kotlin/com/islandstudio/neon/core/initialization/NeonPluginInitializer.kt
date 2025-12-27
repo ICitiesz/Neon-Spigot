@@ -1,16 +1,17 @@
 package com.islandstudio.neon.core.initialization
 
 import com.islandstudio.neon.apinew.connection.NeonDatabaseManager
+import com.islandstudio.neon.command.CommandManager
 import com.islandstudio.neon.core.datakey.DataKeyManager
 import com.islandstudio.neon.core.di.module.NeonModule
 import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
+import com.islandstudio.neon.experimental.gui.GuiManager
 import com.islandstudio.neon.player.permission.PermissionManager
 import com.islandstudio.neon.player.role.RoleManagerNew
 import com.islandstudio.neon.player.session.PlayerSessionManagerNew
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.PluginDIManager
 import com.islandstudio.neon.shared.core.di.SharedModule
-import com.islandstudio.neon.shared.core.di.getComponent
 import com.islandstudio.neon.shared.core.initialization.IPluginInitializer
 import com.islandstudio.neon.shared.core.initialization.PluginContext
 import com.islandstudio.neon.shared.experimental.utils.coroutines.CloseableCoroutineScope
@@ -126,19 +127,12 @@ class NeonPluginInitializer(private val pluginContext: PluginContext): IPluginIn
 
     override fun onEnable() {
         onLoadJob?.invokeOnCompletion {
-            PlayerSessionManagerNew().run()
-
             Bukkit.getScheduler().runTask(pluginContext.mainPluginInstance, Runnable {
                 RoleManagerNew().run()
             })
-
-            val permissionManager = getComponent<PermissionManager>()
-
-//            CloseableCoroutineScope(Dispatchers.IO).launchJob {
-//
-//            }
-
-
+            GuiManager().run()
+            PlayerSessionManagerNew().run()
+            CommandManager().run()
 
             pluginContext.getServer().consoleSender.sendMessage(NEON_ON_ENABLED_TITLE)
         }

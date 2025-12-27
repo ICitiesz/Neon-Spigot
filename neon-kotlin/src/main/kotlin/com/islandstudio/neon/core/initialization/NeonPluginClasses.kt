@@ -142,7 +142,7 @@ enum class NeonPluginClasses(
 //    ),
 
     GuiManagerClass(
-        GuiManager.Companion::class.java,
+        GuiManager::class.java,//GuiManager.Companion::class.java,
         LoadStage.PostLoad,
         true,
         false

@@ -1,13 +1,13 @@
 package com.islandstudio.neon.experimental.gui
 
-import com.islandstudio.neon.Neon
 import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
-import com.islandstudio.neon.core.initialization.NeonPluginLoader
-import com.islandstudio.neon.player.session.PlayerSessionManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
+import com.islandstudio.neon.shared.core.di.IComponentProvider
+import com.islandstudio.neon.shared.core.di.getComponent
 import com.islandstudio.neon.shared.core.exception.NeonException
-import com.islandstudio.neon.shared.core.initialization.IRunner
+import com.islandstudio.neon.shared.core.initialization.IPluginContext
+import com.islandstudio.neon.shared.core.initialization.IRunnerNew
 import com.islandstudio.neon.shared.utils.data.DataUtil
 import com.islandstudio.neon.util.ServerUtil
 import org.bukkit.entity.Player
@@ -18,20 +18,20 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.server.ServerCommandEvent
-import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 import kotlin.reflect.KClass
 
-@Single
-class GuiManager: IComponentInjector {
-    private val neon by inject<Neon>()
+class GuiManager: IRunnerNew, IComponentProvider {
+    private val pluginContext = getComponent<IPluginContext>()
     private val guiSessions: HashSet<GuiSession<*>> = hashSetOf()
-    private val playerSessionManager by inject<PlayerSessionManager>()
+    //private val playerSessionManager by inject<PlayerSessionManager>()
 
-    companion object: IRunner {
-        override fun run() {
-            NeonPluginLoader.registerEventProcessor(EventProcessor())
-        }
+    init {
+        getKoin().declare(this)
+    }
+
+    override fun run() {
+        registerEvent(EventProcessor())
     }
 
     fun <T: GuiConstructor<*>>initGuiSession(player: Player, guiClass: KClass<T>): GuiSession<T> {
@@ -67,7 +67,7 @@ class GuiManager: IComponentInjector {
 
     private fun forceCloseAllPlayerInventory(commandEvent: Event) {
         ServerUtil.onServerReload(commandEvent) {
-            neon.server.onlinePlayers.forEach {
+            pluginContext.getServer().onlinePlayers.forEach {
                 it.closeInventory()
             }
         }

@@ -3,12 +3,15 @@ package com.islandstudio.neon.player.role
 import com.islandstudio.neon.apinew.dto.action.player.role.CreatePlayerRoleActionDTO
 import com.islandstudio.neon.apinew.dto.action.player.role.UpdatePlayerRoleActionDTO
 import com.islandstudio.neon.apinew.entity.player.PlayerRole
+import com.islandstudio.neon.apinew.facade.player.IPlayerProfileFacade
 import com.islandstudio.neon.apinew.facade.player.IPlayerRoleFacade
 import com.islandstudio.neon.apinew.status.ActionResultStatus
 import com.islandstudio.neon.command.ICommandDispatcherNew
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
+import com.islandstudio.neon.player.session.PlayerSessionManagerNew
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent
+import com.islandstudio.neon.shared.core.di.injectComponent
 import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import com.islandstudio.neon.shared.core.initialization.IRunnerNew
@@ -22,6 +25,7 @@ import kotlin.jvm.optionals.getOrNull
 
 class RoleManagerNew: IRunnerNew, IComponentProvider {
     private val pluginContext = getComponent<IPluginContext>()
+    private val playerSessionManager by injectComponent<PlayerSessionManagerNew>()
     private var roleScoreboard: Scoreboard? = null
 
     val roleManagerCommandDispatcher: ICommandDispatcherNew = RoleManagerCommandDispatcher(this)
@@ -125,6 +129,19 @@ class RoleManagerNew: IRunnerNew, IComponentProvider {
         }
 
         CommandSyntaxHandler.sendCommandSyntax(commander, actionMessage)
+    }
+
+    suspend fun assignPlayerRole(commander: CommandSender, targetPlayerName: String, roleCode: String) {
+        val playerProfileFacade = getComponent<IPlayerProfileFacade>() // TODO: Need handle user context
+
+        playerSessionManager.getAllPlayerGeneralDetails().entries.find { it.value == targetPlayerName }
+            ?.let {
+                playerProfileFacade.assignPlayerRole(it.key, roleCode)
+            }
+    }
+
+    suspend fun unassignPlayerRole(commander: CommandSender, targetPlayerName: String) {
+
     }
 
     suspend fun getAllRole(): ArrayList<PlayerRole> {

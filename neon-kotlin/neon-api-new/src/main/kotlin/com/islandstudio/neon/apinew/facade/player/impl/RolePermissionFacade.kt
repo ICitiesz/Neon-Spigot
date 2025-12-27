@@ -3,6 +3,7 @@ package com.islandstudio.neon.apinew.facade.player.impl
 import com.islandstudio.neon.apinew.connection.UserContext
 import com.islandstudio.neon.apinew.dto.ResultProvider
 import com.islandstudio.neon.apinew.dto.action.player.permission.AddRolePermisionActionDTO
+import com.islandstudio.neon.apinew.dto.result.player.permission.RolePermissionDetailResultDTO
 import com.islandstudio.neon.apinew.facade.player.IRolePermissionFacade
 import com.islandstudio.neon.apinew.service.player.IRolePermissionService
 import com.islandstudio.neon.shared.core.di.IComponentProvider
@@ -18,6 +19,10 @@ class RolePermissionFacade(@InjectedParam player: Player?): IRolePermissionFacad
 
     override suspend fun addRolePermissionList(action: AddRolePermisionActionDTO): ResultProvider<Int> {
         return rolePermissionService.addRolePermissionList(userContext, action)
+    }
+
+    override suspend fun getRolePermissionDetailList(roleId: Long): ResultProvider<ArrayList<RolePermissionDetailResultDTO>> {
+        return rolePermissionService.getRolePermissionDetailListByRoleId(roleId)
     }
 
     override suspend fun removeRolePermissionListByIds(ids: ArrayList<Long>): ResultProvider<Boolean> {

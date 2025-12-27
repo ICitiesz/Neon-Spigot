@@ -8,4 +8,6 @@ import java.util.*
 interface IPlayerProfileFacade {
     suspend fun createPlayerProfile(action: CreatePlayerProfileActionDTO): ResultProvider<PlayerProfile>
     suspend fun getPlayerProfile(uuid: UUID): ResultProvider<PlayerProfile>
+    suspend fun assignPlayerRole(uuid: UUID, roleCode: String): ResultProvider<PlayerProfile>
+    suspend fun unassignPlayerRole(uuid: UUID): ResultProvider<PlayerProfile>
 }

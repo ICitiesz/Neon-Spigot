@@ -27,4 +27,11 @@ class PlayerProfileRepository(databaseContext: NeonDatabaseContext):
             }
         }.getOrNull()
     }
+
+    override suspend fun updatePlayerProfile(context: UserContext, playerProfile: PlayerProfile): PlayerProfile? {
+        return updateEntityReturnAsync(playerProfile.updateModified(context.contextName)) {
+            add(entityTable.ID.eq(playerProfile.id))
+            this
+        }.getOrNull()
+    }
 }

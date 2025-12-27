@@ -9,4 +9,5 @@ interface IRolePermissionRepository {
     suspend fun getListByRoleId(roleId: Long): ArrayList<RolePermission>
     suspend fun removeListByIds(ids: ArrayList<Long>): Boolean
     suspend fun getListDetailByPermissionCodes(roleCode: String, permissionCodes: ArrayList<String>): ArrayList<RolePermissionDetailResultDTO>
+    suspend fun getListDetailById(roleId: Long): ArrayList<RolePermissionDetailResultDTO>
 }

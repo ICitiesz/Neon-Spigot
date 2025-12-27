@@ -16,3 +16,7 @@ interface IComponentProvider {
 inline fun <reified T : Any> IComponentProvider.getComponent(vararg parameters: Any? = emptyArray()): T {
     return getKoin().get<T>(parameters = { ParametersHolder(parameters.toMutableList()) })
 }
+
+inline fun <reified T : Any> IComponentProvider.injectComponent(): Lazy<T> {
+    return getKoin().inject<T>()
+}
