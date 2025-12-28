@@ -49,4 +49,29 @@ class CloseableCoroutineScope(dispatcher: CoroutineContext): CoroutineScope {
 
         return jobCompletion
     }
+
+    fun <T>launchAsCompletableDeferredResult(throwsError: Boolean = true, block: suspend CoroutineScope.() -> T): CompletableDeferred<T> {
+        val jobCompletion = CompletableDeferred<T>()
+
+        launch {
+            try {
+                val result = block()
+                jobCompletion.complete(result)
+            } catch (e: Throwable) {
+                /* Cancel job upon errors */
+                job.cancel("Error while trying to execute job.", e)
+
+                if (throwsError) {
+                    jobCompletion.completeExceptionally(NeonException("Error while trying to execute job.", e))
+                }
+            } finally {
+                /* Close job upon completion to avoid leaks */
+                if (job.children.none { it.isActive }) {
+                    job.cancel()
+                }
+            }
+        }
+
+        return jobCompletion
+    }
 }

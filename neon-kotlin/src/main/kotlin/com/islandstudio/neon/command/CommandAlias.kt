@@ -165,7 +165,7 @@ sealed class CommandAlias<T: AbstractCommandOption<*>>: AbstractCommandAlias<T>(
             completionValue: Collection<T>,
             refValue: String,
             ignoreCase: Boolean = true,
-            block: (Collection<T>) -> Collection<String>
+            block: Collection<T>.() -> Collection<String> = { completionValue.map { it.toString() } }
         ): MutableList<String> {
             return block(completionValue)
                 .filter { it.startsWith(refValue, ignoreCase) }

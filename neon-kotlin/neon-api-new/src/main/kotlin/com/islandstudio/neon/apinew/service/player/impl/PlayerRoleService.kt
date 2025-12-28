@@ -69,10 +69,17 @@ class PlayerRoleService: IPlayerRoleService, IComponentProvider {
         )
     }
 
-    override suspend fun getPlayerRoleByCode(code: String): ResultProvider<PlayerRole> {
+    override suspend fun getPlayerRoleById(id: Long): ResultProvider<PlayerRole> {
         return ResultProvider(
             status = ActionResultStatus.Success(),
-            result = playerRoleRepository.getSingleByCode(code)
+            result = playerRoleRepository.getSingleById(id)
+        )
+    }
+
+    override suspend fun getPlayerRoleByCode(roleCode: String): ResultProvider<PlayerRole> {
+        return ResultProvider(
+            status = ActionResultStatus.Success(),
+            result = playerRoleRepository.getSingleByCode(roleCode)
         )
     }
 

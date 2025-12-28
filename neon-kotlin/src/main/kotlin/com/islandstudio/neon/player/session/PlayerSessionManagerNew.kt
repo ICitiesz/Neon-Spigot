@@ -11,7 +11,6 @@ import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
 import com.islandstudio.neon.core.nmsmapping.type.NmsConstructor
 import com.islandstudio.neon.core.nmsmapping.type.NmsField
 import com.islandstudio.neon.core.nmsmapping.type.NmsMethod
-import com.islandstudio.neon.player.role.RoleManagerNew
 import com.islandstudio.neon.server.ServerGamePacketManagerNew
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent
@@ -34,7 +33,6 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.server.ServerLoadEvent
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INmsMapper {
@@ -107,12 +105,12 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
         return ObjectSerializer.deserialzeFromByteArray<PlayerSession>(sessionData)
     }
 
-    fun getAllPlayerGeneralDetails(): HashMap<UUID, String> {
+    fun getAllPlayers(): HashSet<Player> {
         return pluginContext.getServer().offlinePlayers
-            .filter { offLinePlayer -> offLinePlayer.name != null }
-            .associateTo(HashMap()) { offLinePlayer ->
-                offLinePlayer.uniqueId to offLinePlayer.name!!
-            }
+            .filter { offlinePlayer -> offlinePlayer.name != null }
+            .filter { offlinePlayer -> offlinePlayer.player != null }
+            .map { offlinePlayer -> offlinePlayer.player!! }
+            .toHashSet()
     }
 
     /**
@@ -200,7 +198,6 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
 
             ServerGamePacketManagerNew.registerServerGamePacketListener(player)
 
-            /* Player join message */
             closeableCoroutineScope.launchJob {
                 async {
                     val playerProfile = playerSessionManagerNew.getPlayerProfile(player)
@@ -210,14 +207,12 @@ class PlayerSessionManagerNew: IRunnerNew, IComponentProvider, NmsManagerNew.INm
                 }.await()
             }
 
-            closeableCoroutineScope.launchJob {
-                async {
-                    val roleManagerNew = getComponent<RoleManagerNew>()
+//            DurabilityPlus.togglePlayerItemDamageProperty(player)
+//            NDurable.toggleDamageProperty()
+//
+//            roleManager.addRoleTag(player)
 
-                    roleManagerNew.getAllRole()
-                }.await()
-            }
-
+            /* Player join message */
             e.joinMessage = ""
             playerSessionManagerNew.broadcastPlayerSessionMessage(player, PlayerSessionState.OnJoining)
         }

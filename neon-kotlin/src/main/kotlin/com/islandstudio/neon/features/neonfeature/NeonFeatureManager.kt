@@ -260,7 +260,7 @@ class NeonFeatureManager {
                                     neonFeatureManager.getNeonFeatureNames(),
                                     args[argLength - 1]
                                 ) {
-                                    it.filter { x -> neonFeatureManager.getNeonFeatureOptionNames(x).isNotEmpty() }
+                                    this.filter { x -> neonFeatureManager.getNeonFeatureOptionNames(x).isNotEmpty() }
                                 }
                             }
 
@@ -270,7 +270,7 @@ class NeonFeatureManager {
                                 CommandAlias.getTabCompleteSuggestion(
                                     neonFeatureManager.getNeonFeatureNames(),
                                     args[argLength - 1]
-                                ) { it }
+                                )
                             }
 
                             else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
@@ -286,7 +286,7 @@ class NeonFeatureManager {
                     ) { neonFeatureCommandOption ->
                         when (neonFeatureCommandOption) {
                             NeonFeatureCommandOption.SetToggle -> {
-                                CommandAlias.getTabCompleteSuggestion(booleanValueList, args[argLength - 1]) { it }
+                                CommandAlias.getTabCompleteSuggestion(booleanValueList, args[argLength - 1])
                             }
 
                             NeonFeatureCommandOption.GetOption,
@@ -297,7 +297,7 @@ class NeonFeatureManager {
                                 CommandAlias.getTabCompleteSuggestion(
                                     neonFeatureManager.getNeonFeatureOptionNames(featureName),
                                     args[argLength - 1]
-                                ) { it }
+                                )
                             }
 
                             else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
@@ -319,7 +319,7 @@ class NeonFeatureManager {
                                 CommandAlias.getTabCompleteSuggestion(
                                     neonFeatureManager.getServerFeatureOptions(featureName), args[argLength - 1]
                                 ) {
-                                    it.filter { x -> x.keyName.equals(featureOptionName, true) }
+                                    this.filter { x -> x.keyName.equals(featureOptionName, true) }
                                         .flatMap { x ->
                                             if (x.dataType == DataType.Boolean) {
                                                 return@flatMap booleanValueList

@@ -20,7 +20,7 @@ class RolePermissionService: IRolePermissionService, IComponentProvider {
     private val permissionRepository = getComponent<IPermissionRepository>()
     private val rolePermissionRepository = getComponent<IRolePermissionRepository>()
 
-    override suspend fun addRolePermissionList(context: UserContext, action: AddRolePermisionActionDTO): ResultProvider<Int> {
+    override suspend fun addRolePermissionList(context: UserContext, action: AddRolePermisionActionDTO): ResultProvider<Long> {
         val playerRole = playerRoleRepository.getSingleByCode(action.roleCode) ?: return ResultProvider(ActionResultStatus.PlayerRoleNotExist())
         val grantedRolePermissionList = rolePermissionRepository.getListByRoleId(playerRole.id!!)
         val serverPermissionList = permissionRepository.getAll()
@@ -54,11 +54,14 @@ class RolePermissionService: IRolePermissionService, IComponentProvider {
            )
         }
 
-        val totalResult = rolePermissionRepository.addList(context, newChildRolePermissionList).size + newParentRolePermissionList.size
+        rolePermissionRepository.addList(context, newChildRolePermissionList)
+
+        // TODO: Need to refine
+        //val totalResult = rolePermissionRepository.addList(context, newChildRolePermissionList).size + newParentRolePermissionList.size
 
         return ResultProvider(
             status = ActionResultStatus.Success(),
-            totalResult
+            playerRole.id
         )
     }
 

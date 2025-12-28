@@ -2,7 +2,6 @@ package com.islandstudio.neon.experimental.gui
 
 import com.islandstudio.neon.command.processing.CommandSyntax
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
-import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent
 import com.islandstudio.neon.shared.core.exception.NeonException
@@ -18,7 +17,6 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.server.ServerCommandEvent
-import org.koin.core.component.inject
 import kotlin.reflect.KClass
 
 class GuiManager: IRunnerNew, IComponentProvider {
@@ -31,7 +29,7 @@ class GuiManager: IRunnerNew, IComponentProvider {
     }
 
     override fun run() {
-        registerEvent(EventProcessor())
+        registerEvent(GuiEvent(this))
     }
 
     fun <T: GuiConstructor<*>>initGuiSession(player: Player, guiClass: KClass<T>): GuiSession<T> {
@@ -73,8 +71,7 @@ class GuiManager: IRunnerNew, IComponentProvider {
         }
     }
 
-    private class EventProcessor: Listener, IComponentInjector {
-        private val guiManager by inject<GuiManager>()
+    private class GuiEvent(private val guiManager: GuiManager): Listener {
 
         @EventHandler
         private fun onInventoryClick(e: InventoryClickEvent) {

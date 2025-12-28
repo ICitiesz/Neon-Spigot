@@ -7,9 +7,11 @@ import com.islandstudio.neon.apinew.entity.player.Permission
 import com.islandstudio.neon.apinew.facade.player.IPermissionFacade
 import com.islandstudio.neon.apinew.facade.player.IRolePermissionFacade
 import com.islandstudio.neon.apinew.status.ActionResultStatus
+import com.islandstudio.neon.command.CommandManager
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent
+import com.islandstudio.neon.shared.core.di.injectComponent
 import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import com.islandstudio.neon.shared.core.initialization.IRunnerAsync
 import org.bukkit.command.CommandSender
@@ -17,6 +19,9 @@ import java.util.Locale.getDefault
 
 class PermissionManager: IRunnerAsync, IComponentProvider {
     private val pluginContext = getComponent<IPluginContext>()
+    private val commandManager by injectComponent<CommandManager>()
+
+    val commandDispatcher = PermissionCommandDispatcher(this)
 
     init {
         getKoin().declare(this)
@@ -109,7 +114,7 @@ class PermissionManager: IRunnerAsync, IComponentProvider {
         }
     }
 
-    private suspend fun getAllPermissionFromDatabase(): ArrayList<Permission> {
+    suspend fun getAllPermissionFromDatabase(): ArrayList<Permission> {
         val permissionFacade = getComponent<IPermissionFacade>()
 
         return permissionFacade.getAllPermissions().getResult().get()
@@ -117,13 +122,11 @@ class PermissionManager: IRunnerAsync, IComponentProvider {
 
     suspend fun grantPermission(commander: CommandSender, roleCode: String, permissionCodes: ArrayList<String>) {
         val rolePermissionFacade = getComponent<IRolePermissionFacade>() // TODO: Need handle user context
-        var displayMessage = ""
 
         rolePermissionFacade.isRolePermissionExistByPermissionCodes(roleCode, permissionCodes).getResult { status, _ ->
             when (status) {
                 is ActionResultStatus.RolePermissionAlreadyExist -> {
-                    displayMessage = status.message
-                    CommandSyntaxHandler.sendCommandSyntax(commander, displayMessage)
+                    CommandSyntaxHandler.sendCommandSyntax(commander, status.message)
                     return
                 }
 
@@ -166,7 +169,10 @@ class PermissionManager: IRunnerAsync, IComponentProvider {
                 }
             }
 
-        rolePermissionFacade.addRolePermissionList(AddRolePermisionActionDTO(roleCode, newRolePermissionList))
+        rolePermissionFacade.addRolePermissionList(AddRolePermisionActionDTO(roleCode, newRolePermissionList)).getResult().get().also {
+            commandManager.updatePlayerAccessibleCommandsByRole(it)
+            CommandSyntaxHandler.sendCommandSyntax(commander, "Permision has been granted!")
+        }
     }
 
     suspend fun revokePermission(commander: CommandSender, roleCode: String, permissionCodes: ArrayList<String>) {

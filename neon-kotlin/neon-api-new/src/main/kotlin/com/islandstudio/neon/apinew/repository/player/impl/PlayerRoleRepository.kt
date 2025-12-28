@@ -28,8 +28,15 @@ class PlayerRoleRepository(databaseContext: NeonDatabaseContext):
 
     override suspend fun getSingleByCode(code: String): PlayerRole? {
         return getSingleEntityAsync(PlayerRole::class.java) {
-            it.add(entityTable.CODE.eq(code))
-            it
+            add(entityTable.CODE.eq(code))
+            this
+        }.getOrNull()
+    }
+
+    override suspend fun getSingleById(id: Long): PlayerRole? {
+        return getSingleEntityAsync(PlayerRole::class.java) {
+            add(entityTable.ID.eq(id))
+            this
         }.getOrNull()
     }
 

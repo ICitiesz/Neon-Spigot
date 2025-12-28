@@ -26,6 +26,12 @@ sealed class ActionResultStatus {
     data class RolePermissionAlreadyExist(override val message: String = "Role permission already exist")
         : ActionResultStatus()
 
-    data class PlayerRoleAlreadyAssigned(override val message: String = "Player role already assigned")
+    data class PlayerRoleAlreadyAssigned(override val message: String = "Player role already assigned!")
+        : ActionResultStatus()
+
+    data class PlayerRoleNotAssigned(override val message: String = "Player has no role assigned!")
+        : ActionResultStatus()
+
+    data class FailedToGetData(override val message: String = "Failed to get data")
         : ActionResultStatus()
 }

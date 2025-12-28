@@ -3,11 +3,12 @@ package com.islandstudio.neon.command
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
 import com.islandstudio.neon.command.properties.AccessibleCommand
 import com.islandstudio.neon.features.neonfeature.NeonFeatureManager
-import com.islandstudio.neon.player.security.AccessControlManager
-import com.islandstudio.neon.player.security.role.RoleManager
+import com.islandstudio.neon.player.permission.PermissionManager
+import com.islandstudio.neon.player.role.RoleManagerNew
 import com.islandstudio.neon.player.session.PlayerSessionManagerNew
 import com.islandstudio.neon.shared.core.di.IComponentProvider
 import com.islandstudio.neon.shared.core.di.getComponent
+import com.islandstudio.neon.shared.core.di.injectComponent
 import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import com.islandstudio.neon.shared.core.initialization.IRunnerNew
 import org.bukkit.ChatColor
@@ -22,14 +23,17 @@ class CommandManager: TabExecutor, IRunnerNew, IComponentProvider {
     private val commandSession: HashMap<Player, ArrayList<AccessibleCommand>> = hashMapOf()
 
     private val pluginContext = getComponent<IPluginContext>()
-    private val playerSessionManager = getComponent<PlayerSessionManagerNew>()
+
+    private val playerSessionManager by injectComponent<PlayerSessionManagerNew>()
+    private val permissionManager by injectComponent<PermissionManager>()
+    private val roleManager by injectComponent<RoleManagerNew>()
 
     init {
         getKoin().declare(this)
     }
 
     override fun run() {
-        pluginContext.getServer().getPluginCommand(COMMAND_PREFIX)?.setExecutor(CommandManager())
+        pluginContext.getServer().getPluginCommand(commandPrefix)?.setExecutor(CommandManager())
     }
 
     private fun isValidCommander(commander: CommandSender): Boolean {
@@ -54,12 +58,18 @@ class CommandManager: TabExecutor, IRunnerNew, IComponentProvider {
         commandSession.replace(player, CommandAlias.getAccessibleCommands(player))
     }
 
+    fun updatePlayerAccessibleCommandsByRole(roleId: Long) {
+        commandSession.keys
+            .filter { x->
+                val playerSession = playerSessionManager.getPlayerSession(x) ?: return@filter false
+
+                playerSession.roleId?.let { y -> y == roleId } ?: return@filter false
+            }.forEach {
+                updatePlayerAccessibleCommands(it)
+            }
+    }
+
     companion object: IComponentProvider {
-        private val playerSessionManager = getComponent<PlayerSessionManagerNew>()
-        private val commandSession: HashMap<Player, ArrayList<AccessibleCommand>> = hashMapOf()
-
-        private const val COMMAND_PREFIX = "neon"
-
 
         fun getCommanderName(commander: CommandSender): String? {
             return when(commander) {
@@ -68,17 +78,6 @@ class CommandManager: TabExecutor, IRunnerNew, IComponentProvider {
 
                 else -> null
             }
-        }
-
-        fun updatePlayerAccessibleCommandsByRole(roleId: Long) {
-            commandSession.keys
-                .filter { x->
-                    val playerSession = playerSessionManager.getPlayerSession(x) ?: return@filter false
-
-                    playerSession.roleId?.let { y -> y == roleId } ?: return@filter false
-                }.forEach {
-                    //updatePlayerAccessibleCommands(it)
-                }
         }
     }
 
@@ -90,7 +89,7 @@ class CommandManager: TabExecutor, IRunnerNew, IComponentProvider {
     ): List<String?>? {
         if (!isValidCommander(commander)) return emptyList()
 
-        if (!cmd.name.equals(COMMAND_PREFIX, true)) return emptyList()
+        if (!cmd.name.equals(commandPrefix, true)) return emptyList()
 
         val playerAccessibleCommands = if (commander is Player) {
             registerPlayerAccessibleCommands(commander)
@@ -134,11 +133,11 @@ class CommandManager: TabExecutor, IRunnerNew, IComponentProvider {
 
                     return when(it) {
                         CommandAlias.RoleAlias -> {
-                            RoleManager.getTabCompletion(commander, playerAccessibleCommand, args)
+                            roleManager.commandDispatcher.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
 
                         CommandAlias.PermissionAlias -> {
-                            AccessControlManager.getTabCompletion(commander, playerAccessibleCommand, args)
+                            permissionManager.commandDispatcher.getTabCompletion(commander, playerAccessibleCommand, args)
                         }
 
 //                        CommandAlias.NWaypointsAlias -> {
@@ -168,7 +167,7 @@ class CommandManager: TabExecutor, IRunnerNew, IComponentProvider {
             return true
         }
 
-        if (!cmd.name.equals(COMMAND_PREFIX, true)) return true
+        if (!cmd.name.equals(commandPrefix, true)) return true
 
         val playerAccessibleCommands = if (commander is Player) {
             registerPlayerAccessibleCommands(commander)
@@ -197,11 +196,11 @@ class CommandManager: TabExecutor, IRunnerNew, IComponentProvider {
 
                     when(it) {
                         CommandAlias.RoleAlias -> {
-                            RoleManager.getCommandDispatcher(commander, playerAccessibleCommand, args)
+                            roleManager.commandDispatcher.processCommand(commander, playerAccessibleCommand, args)
                         }
 
                         CommandAlias.PermissionAlias -> {
-                            AccessControlManager.getCommandDispatcher(commander, playerAccessibleCommand, args)
+                            permissionManager.commandDispatcher.processCommand(commander, playerAccessibleCommand, args)
                         }
 
                         CommandAlias.NeonFeatureAlias -> {

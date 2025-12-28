@@ -6,7 +6,7 @@ import com.islandstudio.neon.apinew.dto.action.player.permission.AddRolePermisio
 import com.islandstudio.neon.apinew.dto.result.player.permission.RolePermissionDetailResultDTO
 
 interface IRolePermissionService {
-    suspend fun addRolePermissionList(context: UserContext, action: AddRolePermisionActionDTO): ResultProvider<Int>
+    suspend fun addRolePermissionList(context: UserContext, action: AddRolePermisionActionDTO): ResultProvider<Long>
     suspend fun getRolePermissionDetailListByRoleId(roleId: Long): ResultProvider<ArrayList<RolePermissionDetailResultDTO>>
     suspend fun removeRolePermissionListByIds(ids: ArrayList<Long>): ResultProvider<Boolean>
     suspend fun isRolePermissionExistByPermissionCodes(roleCode: String, permissionCodes: ArrayList<String>): ResultProvider<Boolean>

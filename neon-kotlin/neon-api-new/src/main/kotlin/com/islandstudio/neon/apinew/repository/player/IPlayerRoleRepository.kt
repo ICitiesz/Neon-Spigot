@@ -7,6 +7,7 @@ interface IPlayerRoleRepository {
     suspend fun addPlayerRole(context: UserContext, playerRole: PlayerRole): PlayerRole?
     suspend fun updatePlayerRole(context: UserContext, playerRole: PlayerRole): PlayerRole?
     suspend fun getSingleByCode(code: String): PlayerRole?
+    suspend fun getSingleById(id: Long): PlayerRole?
     suspend fun getAll(): ArrayList<PlayerRole>
     suspend fun isExistByCode(code: String): Boolean
     suspend fun deleteByCode(code: String): Boolean

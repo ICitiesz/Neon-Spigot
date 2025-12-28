@@ -41,6 +41,9 @@ class PlayerProfileFacade(@InjectedParam player: Player?): IPlayerProfileFacade,
     }
 
     override suspend fun unassignPlayerRole(uuid: UUID): ResultProvider<PlayerProfile> {
-        TODO("Not yet implemented")
+        val playerProfile = playerProfileService.getPlayerProfile(uuid).getResult().getOrNull()
+            ?: return ResultProvider(ActionResultStatus.PlayerProfileNotExist())
+
+        return playerProfileService.unassignPlayerRole(userContext, playerProfile)
     }
 }

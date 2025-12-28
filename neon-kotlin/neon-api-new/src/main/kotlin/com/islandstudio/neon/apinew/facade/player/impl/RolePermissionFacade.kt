@@ -17,7 +17,7 @@ class RolePermissionFacade(@InjectedParam player: Player?): IRolePermissionFacad
     private val userContext = UserContext(player)
     private val rolePermissionService = getComponent<IRolePermissionService>()
 
-    override suspend fun addRolePermissionList(action: AddRolePermisionActionDTO): ResultProvider<Int> {
+    override suspend fun addRolePermissionList(action: AddRolePermisionActionDTO): ResultProvider<Long> {
         return rolePermissionService.addRolePermissionList(userContext, action)
     }
 

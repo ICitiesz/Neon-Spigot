@@ -56,7 +56,7 @@ abstract class BaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEntityT
         }
     }
 
-    override suspend fun getSingleEntityAsync(entityClazz: Class<TEntity>, whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Optional<TEntity> {
+    override suspend fun getSingleEntityAsync(entityClazz: Class<TEntity>, whereStep: ArrayList<Condition>.() -> ArrayList<Condition>): Optional<TEntity> {
         return withContext(Dispatchers.IO) {
             databaseContext
                 .selectFrom(entityTable)
@@ -139,7 +139,7 @@ private interface IBaseRepository<TEntity: BaseEntity<TEntity, out Record>, TEnt
         entityList: ArrayList<TEntity>
     ): ArrayList<TEntity>
 
-    suspend fun getSingleEntityAsync(entityClazz: Class<TEntity>, whereStep: (ArrayList<Condition>) -> ArrayList<Condition>): Optional<TEntity>
+    suspend fun getSingleEntityAsync(entityClazz: Class<TEntity>, whereStep: ArrayList<Condition>.() -> ArrayList<Condition>): Optional<TEntity>
     suspend fun getListEntityAsync(entityClazz: Class<TEntity>, whereStep: ArrayList<Condition>.() -> ArrayList<Condition>): ArrayList<TEntity>
     suspend fun getAllEntitiesAsync(entityClazz: Class<TEntity>): ArrayList<TEntity>
 

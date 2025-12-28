@@ -11,5 +11,5 @@ interface IPlayerProfileService {
     suspend fun createPlayerProfile(context: UserContext, action: CreatePlayerProfileActionDTO): ResultProvider<PlayerProfile>
     suspend fun getPlayerProfile(uuid: UUID): ResultProvider<PlayerProfile>
     suspend fun assignPlayerRole(context: UserContext, playerProfile: PlayerProfile, playerRole: PlayerRole): ResultProvider<PlayerProfile>
-    suspend fun unassignPlayerRole(context: UserContext, uuid: UUID): ResultProvider<PlayerProfile>
+    suspend fun unassignPlayerRole(context: UserContext, playerProfile: PlayerProfile): ResultProvider<PlayerProfile>
 }

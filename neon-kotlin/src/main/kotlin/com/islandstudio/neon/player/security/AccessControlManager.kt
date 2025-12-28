@@ -6,12 +6,8 @@ import com.islandstudio.neon.api.adapter.security.RolePermissionAdapter
 import com.islandstudio.neon.api.dto.request.security.permission.*
 import com.islandstudio.neon.api.dto.response.security.RolePermissionPermissionCodeDTO
 import com.islandstudio.neon.api.entity.security.PermissionEntity
-import com.islandstudio.neon.command.CommandAlias
 import com.islandstudio.neon.command.CommandManager
-import com.islandstudio.neon.command.ICommandDispatcher
-import com.islandstudio.neon.command.option.PermissionCommandOption
 import com.islandstudio.neon.command.processing.CommandSyntaxHandler
-import com.islandstudio.neon.command.properties.AccessibleCommand
 import com.islandstudio.neon.player.permission.NeonPermission
 import com.islandstudio.neon.player.security.role.RoleManager
 import com.islandstudio.neon.shared.core.di.IComponentInjector
@@ -26,9 +22,7 @@ class AccessControlManager: IComponentInjector {
     private val neon by inject<Neon>()
     private val rolePermissionAdapter by inject<RolePermissionAdapter>()
 
-    companion object: IRunner, ICommandDispatcher, IComponentInjector {
-        private val permissionCommandAlias = CommandAlias.PermissionAlias
-
+    companion object: IRunner, IComponentInjector {
         private val accessControlManager by inject<AccessControlManager>()
         private val roleManager by inject<RoleManager>()
         private val permissionAdaptor by inject<PermissionAdaptor>()
@@ -105,149 +99,6 @@ class AccessControlManager: IComponentInjector {
                 }.onFailure {
                     throw it.neonException!!
                 }
-            }
-        }
-
-        override fun getCommandDispatcher(
-            commander: CommandSender,
-            playerAccessibleCommand: AccessibleCommand?,
-            args: Array<out String>
-        ) {
-            val argLength = args.size.apply {
-                if (this != 1) return@apply
-
-                // TODO: GUI implementation
-            }
-
-            permissionCommandAlias.onMatchOption(commander, args[1], playerAccessibleCommand) { commandOption ->
-                when(commandOption) {
-                    PermissionCommandOption.Grant -> {
-                        if (argLength < 4) {
-                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
-                        }
-
-                        val roleCode = args[2].uppercase()
-                        val permissionCodes = args.toMutableList() // Split and group permission codes
-                            .subList(3, argLength)
-                            .distinctBy { x -> x.uppercase() }
-                            .toCollection(ArrayList())
-
-                        accessControlManager.grantPermission(commander, roleCode, permissionCodes)
-                    }
-
-                    PermissionCommandOption.Revoke -> {
-                        if (argLength < 4) {
-                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
-                        }
-
-                        val roleCode = args[2].uppercase()
-                        val permissionCodes = args.toMutableList().subList(3, argLength).run {
-                            val tempList = this.filter { x -> !CommandAlias.validateConfirmation(x) }.also {
-                                if (it.isNotEmpty()) return@also
-
-                                return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander, "${ChatColor.RED}Please provide permission(s) to revoke!")
-                            }
-
-                            if (CommandAlias.validateConfirmation(this.last())) {
-                                return@run tempList
-                                    .distinctBy { x -> x.uppercase() }
-                                    .toCollection(ArrayList())
-                            }
-
-                            return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander, "${ChatColor.RED}Are you sure to revoke these permission(s) from the role " +
-                                    "'${ChatColor.WHITE}${roleCode}${ChatColor.RED}'? Upon revocation, player will not able to access certain feature. " +
-                                    "To continue, please add '${ChatColor.WHITE}confirm${ChatColor.RED}' at the end of the command.")
-                        }
-
-                        accessControlManager.revokePermission(commander, roleCode, permissionCodes)
-                    }
-
-                    PermissionCommandOption.RevokeAll -> {
-                        if (!CommandAlias.validateCommandOptionArgLength(argLength, 3, 4)) {
-                            return@onMatchOption CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
-                        }
-
-                        val roleCode = args[2].uppercase()
-
-                        if (!CommandAlias.validateConfirmation(args.last())) {
-                            return@onMatchOption CommandSyntaxHandler.sendCommandSyntax(commander, "${ChatColor.RED}Are you sure to revoke all permissions from the role " +
-                                    "'${ChatColor.WHITE}${roleCode}${ChatColor.RED}'? Upon revocation, player will not able to access certain feature. " +
-                                    "To continue, please add '${ChatColor.WHITE}confirm${ChatColor.RED}' at the end of the command.")
-                        }
-
-                        accessControlManager.revokePermission(commander, roleCode, arrayListOf(), true)
-                    }
-
-                    else -> CommandSyntaxHandler.alertInvalidCommandArg(commander, args)
-                }
-            }
-        }
-
-        override fun getTabCompletion(
-            commander: CommandSender,
-            playerAccessibleCommand: AccessibleCommand?,
-            args: Array<out String>
-        ): MutableList<String> {
-            val argLength = args.size
-
-            return when {
-                argLength == 2 -> {
-                    CommandAlias.getAccessibleCommandOptions(
-                        commander,
-                        permissionCommandAlias,
-                        playerAccessibleCommand,
-                        args[argLength - 1]
-                    )
-                }
-
-                argLength == 3 -> {
-                    permissionCommandAlias.onMatchOption(
-                        commander,
-                        args[1],
-                        playerAccessibleCommand
-                    ) { permissionCommandOption ->
-                        when (permissionCommandOption) {
-                            PermissionCommandOption.Grant,
-                            PermissionCommandOption.Revoke,
-                            PermissionCommandOption.RevokeAll
-                                -> {
-                                CommandAlias.getTabCompleteSuggestion(roleManager.getAllRole(), args[argLength - 1]) {
-                                    it.filter { x -> !x.roleCode.isNullOrEmpty() }
-                                        .map { x -> x.roleCode!! }
-                                }
-                            }
-
-                            else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
-                        }
-                    }
-                }
-
-                argLength >= 4 -> {
-                    permissionCommandAlias.onMatchOption(
-                        commander,
-                        args[1],
-                        playerAccessibleCommand
-                    ) { permissionCommandOption ->
-                        when (permissionCommandOption) {
-                            PermissionCommandOption.Grant,
-                            PermissionCommandOption.Revoke
-                                -> {
-                                CommandAlias.getTabCompleteSuggestion(
-                                    accessControlManager.getPermissionFromDB(),
-                                    args[argLength - 1]
-                                ) {
-                                    it.filter { x -> !x.permissionCode.isNullOrEmpty() }
-                                        .map { x -> x.permissionCode!! }
-                                }
-                            }
-
-                            else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
-                        }
-
-                    }
-                }
-
-                else -> super.getTabCompletion(commander, playerAccessibleCommand, args)
             }
         }
     }
@@ -341,7 +192,7 @@ class AccessControlManager: IComponentInjector {
             CommandManager.getCommanderName(commander),
             BatchGrantRolePermissionRequestDTO(pendingRolePermissions)
         ).onSuccess {
-            CommandManager.updatePlayerAccessibleCommandsByRole(role.roleId!!)
+            //CommandManager.updatePlayerAccessibleCommandsByRole(role.roleId!!)
 
             CommandSyntaxHandler.sendCommandSyntax(commander, "${ChatColor.GREEN}Selected permission(s) has been granted to the role " +
                     "'${ChatColor.WHITE}${role.roleCode}${ChatColor.GREEN}'!")
@@ -400,7 +251,7 @@ class AccessControlManager: IComponentInjector {
 
         rolePermissionAdapter.revokeRolepermission(BatchRevokeRolePermissionRequestDTO(pendingRolePermissions))
             .onSuccess {
-                CommandManager.updatePlayerAccessibleCommandsByRole(role.roleId!!)
+                //CommandManager.updatePlayerAccessibleCommandsByRole(role.roleId!!)
 
                 if (revokeAll) {
                     return@onSuccess CommandSyntaxHandler.sendCommandSyntax(commander, "${ChatColor.GREEN}All permissions has been revoked from the role " +
@@ -445,13 +296,5 @@ class AccessControlManager: IComponentInjector {
             }
 
         return grantedRolePermissionList
-    }
-
-    fun getGrantedParentPermission(grantedRolePermissions: ArrayList<RolePermissionPermissionCodeDTO>): ArrayList<RolePermissionPermissionCodeDTO> {
-        return grantedRolePermissions.filter { permission -> permission.parentRolePermissionId == null }.toCollection(ArrayList())
-    }
-
-    fun getGrantedChildPermission(grantedRolePermissions: ArrayList<RolePermissionPermissionCodeDTO>): ArrayList<RolePermissionPermissionCodeDTO> {
-        return grantedRolePermissions.filter { permission -> permission.parentRolePermissionId != null }.toCollection(ArrayList())
     }
 }

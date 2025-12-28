@@ -22,9 +22,8 @@ class PlayerProfileRepository(databaseContext: NeonDatabaseContext):
 
     override suspend fun getPlayerProfile(uuid: String): PlayerProfile? {
         return getSingleEntityAsync(PlayerProfile::class.java) {
-            it.apply {
-                add(entityTable.UUID.eq(uuid))
-            }
+            add(entityTable.UUID.eq(uuid))
+            this
         }.getOrNull()
     }
 

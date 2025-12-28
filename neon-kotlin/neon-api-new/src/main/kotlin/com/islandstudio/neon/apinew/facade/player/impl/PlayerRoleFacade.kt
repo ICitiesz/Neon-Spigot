@@ -35,8 +35,20 @@ class PlayerRoleFacade(@InjectedParam player: Player?): IPlayerRoleFacade, IComp
         }
     }
 
-    override suspend fun getPlayerRole(code: String): ResultProvider<PlayerRole> {
-        return playerRoleService.getPlayerRoleByCode(code)
+    override suspend fun getPlayerRole(roleId: Long?, roleCode: String?): ResultProvider<PlayerRole> {
+        return when {
+            roleId != null -> {
+                playerRoleService.getPlayerRoleById(roleId)
+            }
+
+            !roleCode.isNullOrEmpty() -> {
+                playerRoleService.getPlayerRoleByCode(roleCode)
+            }
+
+            else -> {
+                ResultProvider(ActionResultStatus.FailedToGetData("Failed to get role as both role id and role code are null!"))
+            }
+        }
     }
 
     override suspend fun getAllPlayerRoles(): ResultProvider<ArrayList<PlayerRole>> {

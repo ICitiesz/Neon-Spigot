@@ -1,10 +1,7 @@
 package com.islandstudio.neon.api.adapter.player
 
-import com.islandstudio.neon.api.dto.action.ActionResult
-import com.islandstudio.neon.api.dto.action.ActionStatus
 import com.islandstudio.neon.api.dto.action.IActionResult
 import com.islandstudio.neon.api.dto.request.player.CreatePlayerProfileRequestDTO
-import com.islandstudio.neon.api.dto.request.player.GetPlayerProfileRequestDTO
 import com.islandstudio.neon.api.dto.request.player.UpdatePlayerProfileRequestDTO
 import com.islandstudio.neon.api.dto.request.security.AssignRoleRequestDTO
 import com.islandstudio.neon.api.dto.request.security.UnassignRoleRequestDTO
@@ -26,27 +23,27 @@ class PlayerProfileAdapter: IComponentInjector {
         return playerProfileService.updatePlayerProfile(invoker, request)
     }
 
-    fun getPlayerProfile(request: GetPlayerProfileRequestDTO): IActionResult<PlayerProfileEntity?> {
-        /* Validate either 1 of both field is not null or empty */
-        return when {
-            request.playerUuid != null -> {
-                playerProfileService.getPlayerProfileByUuid(request)
-            }
+//    fun getPlayerProfile(request: GetPlayerProfileRequestDTO): IActionResult<PlayerProfileEntity?> {
+//        /* Validate either 1 of both field is not null or empty */
+//        return when {
+//            request.playerUuid != null -> {
+//                playerProfileService.getPlayerProfileByUuid(request)
+//            }
+//
+//            !request.playerName.isNullOrEmpty() -> {
+//                playerProfileService.getPlayerProfileByName(request)
+//            }
+//
+//            else -> {
+//                ActionResult<PlayerProfileEntity?>()
+//                    .withStatus(ActionStatus.INVALID_REQUEST_FIELD)
+//            }
+//        }
+//    }
 
-            !request.playerName.isNullOrEmpty() -> {
-                playerProfileService.getPlayerProfileByName(request)
-            }
-
-            else -> {
-                ActionResult<PlayerProfileEntity?>()
-                    .withStatus(ActionStatus.INVALID_REQUEST_FIELD)
-            }
-        }
-    }
-
-    fun getAllPlayerProfile(): IActionResult<List<PlayerProfileEntity>> {
-        return playerProfileService.getAllPlayerProfile()
-    }
+//    fun getAllPlayerProfile(): IActionResult<List<PlayerProfileEntity>> {
+//        return playerProfileService.getAllPlayerProfile()
+//    }
 
     fun assignRole(invoker: String?, request: AssignRoleRequestDTO): IActionResult<Long?> {
         return playerProfileService.assignRole(invoker, request)

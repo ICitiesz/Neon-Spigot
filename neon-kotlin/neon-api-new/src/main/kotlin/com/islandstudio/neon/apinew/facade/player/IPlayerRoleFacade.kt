@@ -9,6 +9,6 @@ interface IPlayerRoleFacade {
     suspend fun createPlayerRole(action: CreatePlayerRoleActionDTO): ResultProvider<PlayerRole>
     suspend fun removePlayerRole(code: String): ResultProvider<Boolean>
     suspend fun updatePlayerRole(action: UpdatePlayerRoleActionDTO): ResultProvider<PlayerRole>
-    suspend fun getPlayerRole(code: String): ResultProvider<PlayerRole>
+    suspend fun getPlayerRole(roleId: Long?, roleCode: String?): ResultProvider<PlayerRole>
     suspend fun getAllPlayerRoles(): ResultProvider<ArrayList<PlayerRole>>
 }

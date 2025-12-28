@@ -10,6 +10,7 @@ interface IPlayerRoleService {
     suspend fun createPlayerRole(context: UserContext, action: CreatePlayerRoleActionDTO): ResultProvider<PlayerRole>
     suspend fun removePlyaerRoleByCode(code: String): ResultProvider<Boolean>
     suspend fun updatePlayerRole(context: UserContext, action: UpdatePlayerRoleActionDTO): ResultProvider<PlayerRole>
-    suspend fun getPlayerRoleByCode(code: String): ResultProvider<PlayerRole>
+    suspend fun getPlayerRoleById(id: Long): ResultProvider<PlayerRole>
+    suspend fun getPlayerRoleByCode(roleCode: String): ResultProvider<PlayerRole>
     suspend fun getAllPlayerRoles(): ResultProvider<ArrayList<PlayerRole>>
 }
