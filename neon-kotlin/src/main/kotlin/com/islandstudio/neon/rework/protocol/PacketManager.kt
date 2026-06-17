@@ -1,9 +1,10 @@
-package com.islandstudio.neon.server
+package com.islandstudio.neon.rework.protocol
 
-import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
 import com.islandstudio.neon.core.nmsmapping.type.NmsClass
 import com.islandstudio.neon.core.nmsmapping.type.NmsField
 import com.islandstudio.neon.core.nmsmapping.type.NmsMethod
+import com.islandstudio.neon.rework.core.nms.INmsMapper
+import com.islandstudio.neon.rework.core.nms.NmsManagerRework
 import com.islandstudio.neon.shared.utils.data.DataUtil
 import io.netty.channel.Channel
 import io.netty.channel.ChannelDuplexHandler
@@ -15,11 +16,11 @@ import org.bukkit.entity.Player
 object PacketManager: INmsMapper {
     private const val COMMON_PLAYER_CONNECTION_CLASS_NAME = "server.network.ServerCommonPacketListenerImpl"
 
-    fun registerServerGamePacketListener(player: Player) {
-        val serverGamePacketChannel = getServerGamePacketChannel(player)
+    fun registerListener(player: Player) {
+        val packetChannel = getPacketChannel(player)
 
-        serverGamePacketChannel.eventLoop().submit {
-            serverGamePacketChannel.pipeline().addBefore(
+        packetChannel.eventLoop().submit {
+            packetChannel.pipeline().addBefore(
                 "packet_handler",
                 player.name,
                 ServerChannelDuplexHandler(player)
@@ -27,16 +28,16 @@ object PacketManager: INmsMapper {
         }
     }
 
-    fun unregisterServerGamePacketListener(player: Player) {
-        val serverGamePacketChannel = getServerGamePacketChannel(player)
+    fun deregisterListener(player: Player) {
+        val serverGamePacketChannel = getPacketChannel(player)
 
         serverGamePacketChannel.eventLoop().submit {
             serverGamePacketChannel.pipeline().remove(player.name)
         }
     }
 
-    fun reloadServerGamePacketListener(player: Player) {
-        val serverGamePacketChannel = getServerGamePacketChannel(player)
+    fun reloadListener(player: Player) {
+        val serverGamePacketChannel = getPacketChannel(player)
 
         serverGamePacketChannel.eventLoop().submit {
             serverGamePacketChannel.pipeline().replace(
@@ -47,9 +48,9 @@ object PacketManager: INmsMapper {
         }
     }
 
-    fun sendServerGamePacket(player: Player, serverGamePacket: Any) {
-        val nmsPlayer = NmsManagerNew.toNmsPlayer(player)
-        val packetClass = NmsManagerNew.getNmsClass("network.protocol.${mapClass(NmsClass.Packet)}")
+    fun sendPacket(player: Player, serverGamePacket: Any) {
+        val nmsPlayer = NmsManagerRework.toNmsPlayer(player)
+        val packetClass = NmsManagerRework.getNmsClass("network.protocol.${mapClass(NmsClass.Packet)}")
         val playerConnection = nmsPlayer.javaClass.getField(mapField(NmsField.PlayerConnection)).get(nmsPlayer)
 
         getPlayerConnectionClass(player).getMethod(mapMethod(NmsMethod.SendPacket), packetClass)
@@ -57,22 +58,22 @@ object PacketManager: INmsMapper {
     }
 
     private fun getPlayerConnectionClass(player: Player): Class<*> {
-        val nmsPlayer = NmsManagerNew.toNmsPlayer(player)
+        val nmsPlayer = NmsManagerRework.toNmsPlayer(player)
         val playerConnection = nmsPlayer.javaClass.getField(mapField(NmsField.PlayerConnection)).get(nmsPlayer)
 
-        return NmsManagerNew.getNmsClass(COMMON_PLAYER_CONNECTION_CLASS_NAME)?.let {
+        return NmsManagerRework.getNmsClass(COMMON_PLAYER_CONNECTION_CLASS_NAME)?.let {
             playerConnection.javaClass.superclass
         } ?: playerConnection.javaClass
     }
 
-    private fun getServerGamePacketChannel(player: Player): Channel {
+    private fun getPacketChannel(player: Player): Channel {
         return getNetworkManager(player).run {
             DataUtil.asType(this.javaClass.getField(mapField(NmsField.Channel)).get(this))
         }
     }
 
     private fun getNetworkManager(player: Player): Connection {
-        val nmsPlayer = NmsManagerNew.toNmsPlayer(player)
+        val nmsPlayer = NmsManagerRework.toNmsPlayer(player)
         val playerConnection = nmsPlayer.javaClass.getField(mapField(NmsField.PlayerConnection)).get(nmsPlayer)
 
         return DataUtil.asType(getPlayerConnectionClass(player).getDeclaredField(mapField(NmsField.NetworkManager)).run {
