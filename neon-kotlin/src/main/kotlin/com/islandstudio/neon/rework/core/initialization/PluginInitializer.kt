@@ -1,28 +1,55 @@
-package com.islandstudio.neon.core.initialization
+package com.islandstudio.neon.rework.core.initialization
 
-import com.islandstudio.neon.apinew.connection.NeonDatabaseManager
-import com.islandstudio.neon.command.CommandManager
+import com.islandstudio.neon.Neon
 import com.islandstudio.neon.core.datakey.DataKeyManager
 import com.islandstudio.neon.core.di.module.NeonModule
 import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
-import com.islandstudio.neon.experimental.gui.GuiManager
-import com.islandstudio.neon.player.permission.PermissionManager
-import com.islandstudio.neon.player.role.RoleManagerNew
-import com.islandstudio.neon.player.session.PlayerSessionManagerNew
-import com.islandstudio.neon.shared.core.di.IComponentProvider
-import com.islandstudio.neon.shared.core.di.PluginDIManager
-import com.islandstudio.neon.shared.core.di.SharedModule
-import com.islandstudio.neon.shared.core.initialization.IPluginInitializer
-import com.islandstudio.neon.shared.core.initialization.PluginContext
 import com.islandstudio.neon.shared.experimental.utils.coroutines.CloseableCoroutineScope
+import com.islandstudio.neon.shared.rework.core.di.IComponentProvider
+import com.islandstudio.neon.shared.rework.core.di.PluginDIManager
+import com.islandstudio.neon.shared.rework.core.initialization.IPluginInitializer
+import com.islandstudio.neon.shared.rework.core.initialization.NeonClassLoader
+import com.islandstudio.neon.shared.rework.core.initialization.context.PluginContext
+import com.islandstudio.neon.shared.utils.data.DataUtil
 import com.islandstudio.neon.util.NeonColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import org.bukkit.Bukkit
+import org.bukkit.plugin.Plugin
 import org.koin.ksp.generated.module
+import java.io.File
+import java.lang.reflect.Proxy
 
-class NeonPluginInitializer(private val pluginContext: PluginContext): IPluginInitializer, NmsManagerNew.INmsMapper, IComponentProvider {
+class PluginInitializer(private val pluginContext: PluginContext): IPluginInitializer, NmsManagerNew.INmsMapper, IComponentProvider {
+    companion object {
+        private val INITIALIZER_CLASS_PATH = this.javaClass.enclosingClass.name
+
+        fun load(neon: Neon, neonPluginFile: File, neonClassLoader: NeonClassLoader): IPluginInitializer {
+            neon.logger.info("Loading plugin initializer......")
+
+            val pluginScopedPluginContext = neonClassLoader.loadClass(PluginContext::class.java.name, true).run {
+                this.getDeclaredConstructor(Plugin::class.java, File::class.java).newInstance(neon, neonPluginFile)
+            }
+
+            val pluginInitializerProxy = neonClassLoader.loadClass(INITIALIZER_CLASS_PATH).declaredConstructors.first().newInstance(pluginScopedPluginContext).run {
+                Proxy.newProxyInstance(IPluginInitializer::class.java.classLoader, arrayOf(IPluginInitializer::class.java)) { _, method, args ->
+                    /* Resolve equivalent method on child instance’s class */
+                    val childMethod = this.javaClass.getMethod(method.name,
+                        *method.parameterTypes.map { type ->
+                            /* Remap parameter types into neon classloader if needed */
+                            try { Class.forName(type.name, false, this.javaClass.classLoader) }
+                            catch (_: ClassNotFoundException) { type }
+                        }.toTypedArray()
+                    )
+
+                    childMethod.invoke(this, *(args ?: emptyArray()))
+                }
+            }
+
+            return DataUtil.asType<IPluginInitializer>(pluginInitializerProxy)
+        }
+    }
+
     private val neonVersionText = "${NeonColor.DefinedColor.CyanBlue.color}${NeonColor.DefinedColor.Bold.color}v${pluginContext.mainPluginInstance.description.version}${NeonColor.DefinedColor.Reset.color}"
     //private val neon = DataUtil.asType<Neon>(pluginContext.mainPluginInstance)
     private val initCloseableCoroutineScope = CloseableCoroutineScope(Dispatchers.IO)
@@ -88,14 +115,14 @@ class NeonPluginInitializer(private val pluginContext: PluginContext): IPluginIn
         """.trimIndent() + "\n"
 
     init {
-        PluginDIManager.startPluginScoped(
+        PluginDIManager.start(
             pluginContext,
             NeonModule().module,
-            SharedModule().module
+            //SharedComponentModule().module
         )
     }
 
-    private val neonDatabaseManager = NeonDatabaseManager()
+    //private val neonDatabaseManager = NeonDatabaseManager()
     private var onLoadJob: Job? = null
 
     override fun onLoad() {
@@ -105,18 +132,18 @@ class NeonPluginInitializer(private val pluginContext: PluginContext): IPluginIn
                     pluginContext.loadCodeMessages()
                 }.await()
 
-                async {
-                    getKoin().declare(neonDatabaseManager)
-                    neonDatabaseManager.initialize()
-                }.await()
+//                async {
+//                    getPluginScopedKoin().declare(neonDatabaseManager)
+//                    neonDatabaseManager.initialize()
+//                }.await()
 
                 async {
                     NmsManagerNew.runSuspend()
                 }.await()
 
-                async {
-                    PermissionManager().runSuspend()
-                }.await()
+//                async {
+//                    PermissionManager().runSuspend()
+//                }.await()
 
                 async {
                     DataKeyManager.runSuspend()
@@ -126,20 +153,20 @@ class NeonPluginInitializer(private val pluginContext: PluginContext): IPluginIn
     }
 
     override fun onEnable() {
-        onLoadJob?.invokeOnCompletion {
-            Bukkit.getScheduler().runTask(pluginContext.mainPluginInstance, Runnable {
-                RoleManagerNew().run()
-            })
-            GuiManager().run()
-            PlayerSessionManagerNew().run()
-            CommandManager().run()
-
-            pluginContext.getServer().consoleSender.sendMessage(NEON_ON_ENABLED_TITLE)
-        }
+//        onLoadJob?.invokeOnCompletion {
+//            Bukkit.getScheduler().runTask(pluginContext.mainPluginInstance, Runnable {
+//                RoleManagerNew().run()
+//            })
+//            GuiManager().run()
+//            PlayerSessionManagerNew().run()
+//            CommandManager().run()
+//
+//            pluginContext.getServer().consoleSender.sendMessage(NEON_ON_ENABLED_TITLE)
+//        }
     }
 
     override fun onDisable() {
-        neonDatabaseManager.close()
+        //neonDatabaseManager.close()
         pluginContext.getServer().consoleSender.sendMessage(NEON_ON_DISABLED_TITLE)
     }
 }

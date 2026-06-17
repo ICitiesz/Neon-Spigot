@@ -1,10 +1,10 @@
-package com.islandstudio.neon.shared.core.initialization
+package com.islandstudio.neon.shared.rework.core.initialization.context
 
 import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.shared.core.server.ServerProvider
 import com.islandstudio.neon.shared.core.server.ServerRunningMode
-import com.islandstudio.neon.shared.experimental.ResourceManagerNew
+import com.islandstudio.neon.shared.rework.core.io.ResourceManagerRework
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.bukkit.Server
@@ -23,7 +23,7 @@ class PluginContext(
     override val serverVersion: String = getServer().bukkitVersion.split("-").first()
     override val serverMajorVersion: String = "${serverVersion.split(".")[0]}.${serverVersion.split(".")[1]}"
     override val serverOperationMode: ServerRunningMode = if (getServer().onlineMode) ServerRunningMode.Online else ServerRunningMode.Offline
-    override val resourceManager = ResourceManagerNew(this)
+    override val resourceManager = ResourceManagerRework(this)
 
     private val compatibleVersions = arrayOf(
         "1.17", "1.17.1",
@@ -51,7 +51,7 @@ class PluginContext(
     override fun isVersionCompatible(): Boolean = serverVersion in compatibleVersions
 
     override fun isServerProviderCompatible(serverProvider: ServerProvider): Boolean {
-        // TODO: Pending implementation
+        //TODO: Pending implementation
         return true
     }
 

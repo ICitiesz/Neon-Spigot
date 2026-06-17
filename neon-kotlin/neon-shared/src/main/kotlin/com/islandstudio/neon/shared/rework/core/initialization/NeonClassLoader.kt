@@ -1,5 +1,6 @@
-package com.islandstudio.neon.shared.experimental
+package com.islandstudio.neon.shared.rework.core.initialization
 
+import com.islandstudio.neon.shared.rework.core.initialization.context.IPluginContext
 import java.io.File
 import java.net.URLClassLoader
 import java.security.CodeSource
@@ -13,7 +14,8 @@ class NeonClassLoader(
     private var jarLibraries: Array<JarFile>? = null
 
     companion object {
-        fun buildNeonClassLoader(libraryUrls: Array<File>, pluginClassLoader: ClassLoader, bridgeClassPaths: Array<String>): NeonClassLoader {
+        fun buildClassLoader(pluginContext: IPluginContext, libraryUrls: Array<File>, pluginClassLoader: ClassLoader, bridgeClassPaths: Array<String>): NeonClassLoader {
+            pluginContext.getPluginLogger().info("Building class loader......")
             return NeonClassLoader(libraryUrls, pluginClassLoader, bridgeClassPaths)
         }
     }

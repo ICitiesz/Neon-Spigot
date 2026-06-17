@@ -1,8 +1,8 @@
 package com.islandstudio.neon.shared.rework.core.io
 
 import com.islandstudio.neon.shared.core.exception.NeonException
-import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
+import com.islandstudio.neon.shared.rework.core.initialization.context.IPluginContext
 import java.io.InputStream
 import java.math.BigInteger
 import java.net.URL
@@ -17,8 +17,8 @@ class ResourceManagerRework(private val pluginContext: IPluginContext) {
 
         pluginContext.getPluginLogger().info("Initializing required folders...")
 
-        NeonDataFolderRework.reformatVersionFolder()
-        NeonDataFolderRework.getAllDataFolder().forEach { folder ->
+        DataDirectory.reformatVersionFolder()
+        DataDirectory.getAllDataFolder().forEach { folder ->
             if (!folder.exists()) folder.mkdirs()
         }
 

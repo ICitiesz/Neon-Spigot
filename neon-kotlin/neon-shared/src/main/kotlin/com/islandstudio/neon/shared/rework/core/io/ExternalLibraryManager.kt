@@ -1,6 +1,6 @@
 package com.islandstudio.neon.shared.rework.core.io
 
-import com.islandstudio.neon.shared.core.initialization.IPluginContext
+import com.islandstudio.neon.shared.rework.core.initialization.context.IPluginContext
 import com.islandstudio.neon.shared.utils.data.DataUtil
 import kotlinx.coroutines.*
 import java.io.File
@@ -12,8 +12,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class ExternalLibraryManager(private val pluginContext: IPluginContext) {
     private val externalLibraryList = ExternalLibrary.getAllExternalLibraries().filter {
-        if (it.isLoadByCondition) {
-            it.onLoad()
+        if (it.isRegisterByCondition) {
+            it.onRegister()
         } else {
             true
         }
@@ -32,7 +32,7 @@ class ExternalLibraryManager(private val pluginContext: IPluginContext) {
             val libraryRegisterEntries = ArrayList<LibraryRegisterEntry>()
 
             externalLibraryList.forEach { externalLibrary ->
-                val libraryFile = File(NeonDataFolderRework.NeonLibraryFolder, externalLibrary.getJarFileName())
+                val libraryFile = File(DataDirectory.NeonLibraryFolder, externalLibrary.getJarFileName())
 
                 /* If library file not exist in local, download both library file and checksum */
                 if (!libraryFile.exists()) {
@@ -107,8 +107,8 @@ class ExternalLibraryManager(private val pluginContext: IPluginContext) {
     }
 
     private suspend fun tryDownloadChecksumFile(externalLibrary: ExternalLibrary): File? {
-        val librarySHA256ChecksumFile = File(NeonDataFolderRework.NeonLibraryFolder, externalLibrary.getSHA256ChecksumFileName())
-        val librarySHA1ChecksumFile = File(NeonDataFolderRework.NeonLibraryFolder, externalLibrary.getSHA1ChecksumFileName())
+        val librarySHA256ChecksumFile = File(DataDirectory.NeonLibraryFolder, externalLibrary.getSHA256ChecksumFileName())
+        val librarySHA1ChecksumFile = File(DataDirectory.NeonLibraryFolder, externalLibrary.getSHA1ChecksumFileName())
 
         return when {
             librarySHA256ChecksumFile.exists() -> librarySHA256ChecksumFile

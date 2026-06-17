@@ -1,4 +1,4 @@
-package com.islandstudio.neon.shared.core.initialization
+package com.islandstudio.neon.shared.rework.core.initialization
 
 interface IPluginInitializer {
     fun onLoad()

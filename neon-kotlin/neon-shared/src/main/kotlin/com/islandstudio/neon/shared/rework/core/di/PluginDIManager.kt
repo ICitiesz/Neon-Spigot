@@ -1,7 +1,7 @@
 package com.islandstudio.neon.shared.rework.core.di
 
-import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import com.islandstudio.neon.shared.rework.core.di.module.SharedComponentModule
+import com.islandstudio.neon.shared.rework.core.initialization.context.IPluginContext
 import org.koin.core.Koin
 import org.koin.core.KoinApplication
 import org.koin.core.module.Module

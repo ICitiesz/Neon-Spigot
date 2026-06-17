@@ -1,4 +1,4 @@
-package com.islandstudio.neon.shared.core.initialization
+package com.islandstudio.neon.shared.rework.core.initialization.context
 
 import com.islandstudio.neon.shared.core.server.ServerProvider
 import com.islandstudio.neon.shared.core.server.ServerRunningMode

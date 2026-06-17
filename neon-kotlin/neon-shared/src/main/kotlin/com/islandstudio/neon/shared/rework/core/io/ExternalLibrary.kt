@@ -15,7 +15,7 @@ sealed class ExternalLibrary(override val name: String): IExternalLibrary {
         override val artifactId: String = "kotlin-csv-jvm"
         override val version: String = "1.10.0"
         override val requiredFor: Array<String> = arrayOf("Neon")
-        override val isLoadByCondition: Boolean = false
+        override val isRegisterByCondition: Boolean = false
     }
 
     data object MariaDB4jDBWinx64Library: ExternalLibrary("MariaDB4j DB Winx64") {
@@ -23,9 +23,9 @@ sealed class ExternalLibrary(override val name: String): IExternalLibrary {
         override val artifactId: String = "mariaDB4j-db-winx64"
         override val version: String = "11.4.5"
         override val requiredFor: Array<String> = emptyArray()
-        override val isLoadByCondition: Boolean = true
+        override val isRegisterByCondition: Boolean = true
 
-        override fun onLoad(): Boolean {
+        override fun onRegister(): Boolean {
             return false
             //return SystemInfo.getCurrentPlatform() == PlatformEnum.WINDOWS && SystemInfo().operatingSystem.bitness == 64
         }

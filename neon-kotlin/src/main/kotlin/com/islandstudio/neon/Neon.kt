@@ -1,33 +1,29 @@
 package com.islandstudio.neon
 
 import com.islandstudio.neon.core.di.module.NeonModule
-import com.islandstudio.neon.shared.core.di.GlobalDIManager
+import com.islandstudio.neon.rework.core.initialization.PluginInitializer
 import com.islandstudio.neon.shared.core.di.IComponentInjector
-import com.islandstudio.neon.shared.core.di.SharedModule
 import com.islandstudio.neon.shared.core.exception.NeonException
-import com.islandstudio.neon.shared.core.initialization.IPluginInitializer
-import com.islandstudio.neon.shared.core.initialization.PluginContext
-import com.islandstudio.neon.shared.core.io.resource.library.NeonLibraryManager
-import com.islandstudio.neon.shared.experimental.NeonClassLoader
 import com.islandstudio.neon.shared.experimental.utils.coroutines.CloseableCoroutineScope
-import com.islandstudio.neon.shared.utils.data.DataUtil
+import com.islandstudio.neon.shared.rework.core.di.BootstrapDIManager
+import com.islandstudio.neon.shared.rework.core.initialization.IPluginInitializer
+import com.islandstudio.neon.shared.rework.core.initialization.NeonClassLoader
+import com.islandstudio.neon.shared.rework.core.initialization.context.PluginContext
+import com.islandstudio.neon.shared.rework.core.io.ExternalLibraryManager
 import com.islandstudio.neon.shared.utils.data.IObjectMapper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerLoginEvent
-import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.inject
 import org.koin.ksp.generated.module
 import java.io.File
-import java.lang.reflect.Proxy
 
 class Neon : JavaPlugin(), IComponentInjector, IObjectMapper {
     private val neonPluginInitializerClassPath = "com.islandstudio.neon.core.initialization.NeonPluginInitializer"
 
-    private val mainPluginContext = PluginContext(this, this.file)
+    private val bootstrapScopedPluginContext = PluginContext(this, this.file)
     private val initCloseableCoroutineScope = CloseableCoroutineScope(Dispatchers.IO)
     private lateinit var neonClassLoader: NeonClassLoader
     private lateinit var neonPluginInitializer: IPluginInitializer
@@ -41,61 +37,34 @@ class Neon : JavaPlugin(), IComponentInjector, IObjectMapper {
 
 
     init {
-        GlobalDIManager.startGlobalScoped(
-            mainPluginContext,
+        BootstrapDIManager.start(
+            bootstrapScopedPluginContext,
             NeonModule().module,
-            SharedModule().module,
             //NeonAPIModule().module,
         )
     }
 
     override fun onLoad() {
         initCloseableCoroutineScope.launchJob {
-            async {
-                mainPluginContext.loadCodeMessages()
-            }.await()
+            bootstrapScopedPluginContext.loadCodeMessages() // Should be loaded first as most of log may depends on it
+            bootstrapScopedPluginContext.resourceManager.initialize()
 
-            async {
-                mainPluginContext.resourceManager.initialize()
-            }.await()
+            val externalLibraryManager = ExternalLibraryManager(bootstrapScopedPluginContext)
 
-            /* Get libraries */
-            val libraries: ArrayList<File> = async {
-                return@async NeonLibraryManager(mainPluginContext).getLibraries()
-            }.await()
+            /* Register external libraries */
+            val externalLibraries: Array<File> = externalLibraryManager.registerLibrary()
 
-            /* Build neon classloader with the libraries */
-            logger.info("Building Neon class loader...")
-            neonClassLoader = NeonClassLoader.buildNeonClassLoader(
-                libraries.toTypedArray(),
+            /* Build neon classloader with the external libraries */
+            neonClassLoader = NeonClassLoader.buildClassLoader(
+                bootstrapScopedPluginContext,
+                externalLibraries,
                 this@Neon.classLoader,
                 arrayOf()
             )
 
-            /* Load Neon Plugin Initializer */
-            logger.info("Loading Neon plugin initializer...")
+            /* Load plugin initializer */
             neonPluginInitializer = runCatching {
-                val scopedPluginContext = neonClassLoader.loadClass(PluginContext::class.java.name, true).run {
-                    this.getDeclaredConstructor(Plugin::class.java, File::class.java).newInstance(this@Neon, this@Neon.file)
-                }
-
-                val pluginInitializerProxy = neonClassLoader.loadClass(neonPluginInitializerClassPath).declaredConstructors.first()
-                    .newInstance(scopedPluginContext).run {
-                        Proxy.newProxyInstance(IPluginInitializer::class.java.classLoader, arrayOf(IPluginInitializer::class.java)) { _, method, args ->
-                            /* Resolve equivalent method on child instance’s class */
-                            val childMethod = this.javaClass.getMethod(method.name,
-                                *method.parameterTypes.map { type ->
-                                    /* Remap parameter types into neon classloader if needed */
-                                    try { Class.forName(type.name, false, this.javaClass.classLoader) }
-                                    catch (_: ClassNotFoundException) { type }
-                                }.toTypedArray()
-                            )
-
-                            childMethod.invoke(this, *(args ?: emptyArray()))
-                        }
-                    }
-
-                DataUtil.asType<IPluginInitializer>(pluginInitializerProxy)
+                PluginInitializer.load(this@Neon, this@Neon.file, neonClassLoader)
             }.getOrElse {
                 throw NeonException("Failed to load Neon plugin initializer", it)
             }
