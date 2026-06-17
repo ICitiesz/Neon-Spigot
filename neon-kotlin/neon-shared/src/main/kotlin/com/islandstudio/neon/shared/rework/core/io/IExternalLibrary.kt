@@ -12,10 +12,10 @@ internal interface IExternalLibrary {
     val artifactId: String
     val version: String
     val requiredFor: Array<String>
-    val isLoadByCondition: Boolean
+    val isRegisterByCondition: Boolean
 
-    fun onLoad(): Boolean {
-        return !isLoadByCondition
+    fun onRegister(): Boolean {
+        return !isRegisterByCondition
     }
 
     fun getLibraryBaseRepoURL(): URL {

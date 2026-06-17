@@ -1,15 +1,12 @@
-package com.islandstudio.neon.core.nmsmapping
+package com.islandstudio.neon.rework.core.nms
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.islandstudio.neon.core.nmsmapping.type.NmsClass
-import com.islandstudio.neon.core.nmsmapping.type.NmsConstructor
-import com.islandstudio.neon.core.nmsmapping.type.NmsField
 import com.islandstudio.neon.core.nmsmapping.type.NmsMethod
-import com.islandstudio.neon.shared.core.di.IComponentProvider
-import com.islandstudio.neon.shared.core.di.getComponent
-import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import com.islandstudio.neon.shared.core.initialization.IRunnerAsync
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
+import com.islandstudio.neon.shared.rework.core.di.IComponentProvider
+import com.islandstudio.neon.shared.rework.core.di.getPluginScopedComponent
+import com.islandstudio.neon.shared.rework.core.initialization.context.IPluginContext
 import com.islandstudio.neon.shared.utils.data.DataUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,9 +20,9 @@ import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
-
-object NmsManagerNew: NmsMapping(), IComponentProvider, IRunnerAsync {
-    private val pluginContext = getComponent<IPluginContext>()
+object NmsManagerRework: IComponentProvider, IRunnerAsync {
+    private val pluginContext = getPluginScopedComponent<IPluginContext>()
+    private val mappingRegistry = NmsMappingRegistry()
 
     override suspend fun runSuspend() {
         withContext(Dispatchers.IO) {
@@ -34,7 +31,7 @@ object NmsManagerNew: NmsMapping(), IComponentProvider, IRunnerAsync {
             val nmsMappingDataStream = pluginContext.resourceManager.getNeonResourceAsStream(NeonInternalResource.NeonNmsMapping2)
 
             nmsMappingDataStream?.let { inputStream ->
-                pluginContext.getPluginLogger().info("Loading NMS mapping...")
+                pluginContext.getPluginLogger().info("Loading NMS mapping......")
 
                 csvReader().open(inputStream) {
                     val nmsCsvData = readAllWithHeaderAsSequence().filter { data ->
@@ -45,10 +42,14 @@ object NmsManagerNew: NmsMapping(), IComponentProvider, IRunnerAsync {
                         } ?: false
                     }
 
-                    nmsCsvData.forEach { registerMapping(it) }
+                    nmsCsvData.forEach { mappingRegistry.registerMapping(it) }
                 }
             }
         }
+    }
+
+    fun getMappingRegistry(): NmsMappingRegistry {
+        return mappingRegistry
     }
 
     fun getCraftBukkitClass(clazzName: String): Class<*> {
@@ -68,7 +69,7 @@ object NmsManagerNew: NmsMapping(), IComponentProvider, IRunnerAsync {
     }
 
     fun toBukkitPlayer(nmsPlayer: ServerPlayer): Player {
-        return DataUtil.asType(nmsPlayer.javaClass.getMethod(getNmsMethod(NmsMethod.GetBukkitEntity)).invoke(nmsPlayer))
+        return DataUtil.asType(nmsPlayer.javaClass.getMethod(mappingRegistry.getNmsMethod(NmsMethod.GetBukkitEntity)).invoke(nmsPlayer))
     }
 
     inline fun <reified T: Entity>toBukkitEntity(nmsEntity: net.minecraft.world.entity.Entity): T {
@@ -128,15 +129,5 @@ object NmsManagerNew: NmsMapping(), IComponentProvider, IRunnerAsync {
             .getMethod("minecraftToBukkit", net.minecraft.world.entity.ai.attributes.Attribute::class.java)
             .invoke(null, nmsAttribute)
         )
-    }
-
-    interface INmsMapper {
-        fun mapField(nmsField: NmsField): String = getNmsField(nmsField)
-
-        fun mapMethod(nmsMethod: NmsMethod): String = getNmsMethod(nmsMethod)
-
-        fun mapConstructor(nmsConstructor: NmsConstructor): String = getNmsConstructor(nmsConstructor)
-
-        fun mapClass(nmsClass: NmsClass): String = getNmsClass(nmsClass)
     }
 }

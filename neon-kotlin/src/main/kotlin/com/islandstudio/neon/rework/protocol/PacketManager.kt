@@ -12,7 +12,7 @@ import io.netty.channel.ChannelPromise
 import net.minecraft.network.Connection
 import org.bukkit.entity.Player
 
-object ServerGamePacketManagerNew: NmsManagerNew.INmsMapper {
+object PacketManager: INmsMapper {
     private const val COMMON_PLAYER_CONNECTION_CLASS_NAME = "server.network.ServerCommonPacketListenerImpl"
 
     fun registerServerGamePacketListener(player: Player) {

@@ -21,12 +21,11 @@ import org.koin.ksp.generated.module
 import java.io.File
 
 class Neon : JavaPlugin(), IComponentInjector, IObjectMapper {
-    private val neonPluginInitializerClassPath = "com.islandstudio.neon.core.initialization.NeonPluginInitializer"
 
     private val bootstrapScopedPluginContext = PluginContext(this, this.file)
     private val initCloseableCoroutineScope = CloseableCoroutineScope(Dispatchers.IO)
     private lateinit var neonClassLoader: NeonClassLoader
-    private lateinit var neonPluginInitializer: IPluginInitializer
+    private lateinit var pluginInitializer: IPluginInitializer
 
     //private val neonPluginLoader by inject<NeonPluginLoader>()
 
@@ -63,13 +62,13 @@ class Neon : JavaPlugin(), IComponentInjector, IObjectMapper {
             )
 
             /* Load plugin initializer */
-            neonPluginInitializer = runCatching {
+            pluginInitializer = runCatching {
                 PluginInitializer.load(this@Neon, this@Neon.file, neonClassLoader)
             }.getOrElse {
-                throw NeonException("Failed to load Neon plugin initializer", it)
+                throw NeonException("Failed to load plugin initializer", it)
             }
         }.invokeOnCompletion {
-            neonPluginInitializer.onLoad()
+            pluginInitializer.onLoad()
         }
 
         //neonPluginLoader.preLoad().apply { isPreLoaded = this }
@@ -107,7 +106,7 @@ class Neon : JavaPlugin(), IComponentInjector, IObjectMapper {
 
     override fun onEnable() {
         //server.pluginManager.registerEvents(TestEventClass(), this)
-        neonPluginInitializer.onEnable()
+        pluginInitializer.onEnable()
 
         //neonPluginLoader.postLoad().apply { isPostLoaded = this }
 
@@ -126,7 +125,7 @@ class Neon : JavaPlugin(), IComponentInjector, IObjectMapper {
     }
 
     override fun onDisable() {
-        neonPluginInitializer.onDisable()
+        pluginInitializer.onDisable()
         neonClassLoader.close()
 
         if (!(isPreLoaded && isPostLoaded)) return

@@ -3,7 +3,8 @@ package com.islandstudio.neon.rework.core.initialization
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.core.datakey.DataKeyManager
 import com.islandstudio.neon.core.di.module.NeonModule
-import com.islandstudio.neon.core.nmsmapping.NmsManagerNew
+import com.islandstudio.neon.rework.core.nms.INmsMapper
+import com.islandstudio.neon.rework.core.nms.NmsManagerRework
 import com.islandstudio.neon.shared.experimental.utils.coroutines.CloseableCoroutineScope
 import com.islandstudio.neon.shared.rework.core.di.IComponentProvider
 import com.islandstudio.neon.shared.rework.core.di.PluginDIManager
@@ -20,7 +21,7 @@ import org.koin.ksp.generated.module
 import java.io.File
 import java.lang.reflect.Proxy
 
-class PluginInitializer(private val pluginContext: PluginContext): IPluginInitializer, NmsManagerNew.INmsMapper, IComponentProvider {
+class PluginInitializer(private val pluginContext: PluginContext): IPluginInitializer, INmsMapper, IComponentProvider {
     companion object {
         private val INITIALIZER_CLASS_PATH = this.javaClass.enclosingClass.name
 
@@ -128,9 +129,7 @@ class PluginInitializer(private val pluginContext: PluginContext): IPluginInitia
     override fun onLoad() {
         onLoadJob = initCloseableCoroutineScope.launchJob {
             initCloseableCoroutineScope.launchAsCompletableDeferred {
-                async {
-                    pluginContext.loadCodeMessages()
-                }.await()
+                pluginContext.loadCodeMessages()
 
 //                async {
 //                    getPluginScopedKoin().declare(neonDatabaseManager)
@@ -138,7 +137,7 @@ class PluginInitializer(private val pluginContext: PluginContext): IPluginInitia
 //                }.await()
 
                 async {
-                    NmsManagerNew.runSuspend()
+                    NmsManagerRework.runSuspend()
                 }.await()
 
 //                async {
