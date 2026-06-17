@@ -2,7 +2,7 @@ package com.islandstudio.neon.shared.core.initialization
 
 import com.islandstudio.neon.shared.core.server.ServerProvider
 import com.islandstudio.neon.shared.core.server.ServerRunningMode
-import com.islandstudio.neon.shared.experimental.ResourceManagerNew
+import com.islandstudio.neon.shared.rework.core.io.ResourceManagerRework
 import org.bukkit.Server
 import org.bukkit.plugin.Plugin
 import java.io.File
@@ -17,7 +17,7 @@ interface IPluginContext {
     val serverMajorVersion: String
     val serverOperationMode: ServerRunningMode
 
-    val resourceManager: ResourceManagerNew
+    val resourceManager: ResourceManagerRework
 
     fun getParentPlugin(): Plugin
     fun getServer(): Server

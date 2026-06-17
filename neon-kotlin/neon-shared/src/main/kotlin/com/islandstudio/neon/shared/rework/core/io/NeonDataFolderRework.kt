@@ -1,16 +1,14 @@
-package com.islandstudio.neon.shared.experimental
+package com.islandstudio.neon.shared.rework.core.io
 
-import com.islandstudio.neon.shared.core.di.IComponentProvider
-import com.islandstudio.neon.shared.core.di.getComponent
 import com.islandstudio.neon.shared.core.initialization.IPluginContext
 import com.islandstudio.neon.shared.core.io.resource.NeonExternalResource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.islandstudio.neon.shared.rework.core.di.IComponentProvider
+import com.islandstudio.neon.shared.rework.core.di.getBootstrapScopedComponent
 import java.io.File
 
-sealed class NeonDataFolderNew(folder: File): File(folder.toPath().toString()) {
+sealed class NeonDataFolderRework(folder: File): File(folder.toPath().toString()) {
     companion object: IComponentProvider {
-        private val pluginContext = getComponent<IPluginContext>()
+        private val pluginContext = getBootstrapScopedComponent<IPluginContext>()
 
         /**
          * Create and get the new file with NeonExternalResources
@@ -45,7 +43,7 @@ sealed class NeonDataFolderNew(folder: File): File(folder.toPath().toString()) {
          * @return
          */
         fun getAllDataFolder(): ArrayList<File> {
-            return NeonDataFolderNew::class.sealedSubclasses
+            return NeonDataFolderRework::class.sealedSubclasses
                 .map {
                     it.objectInstance as File
                 }.toCollection(ArrayList())
@@ -64,132 +62,130 @@ sealed class NeonDataFolderNew(folder: File): File(folder.toPath().toString()) {
         /**
          * Reformat version folder from older formart, '1_17' to new format '1.17'
          */
-        suspend fun reformatVersionFolder() {
-            withContext(Dispatchers.IO) {
-                /* Old version format: '1_17'
-                * New version format: '1.17' */
-                getRootDataFolder().listFiles()?.let { folders ->
-                    folders.filter { folder ->
-                        folder.isDirectory && folder.name.matches("^\\d_\\d\\d\$".toRegex())
-                    }.forEach { folder ->
-                        folder.renameTo(File(getRootDataFolder(), folder.name.replace("_", ".")))
-                    }
+        fun reformatVersionFolder() {
+            /* Old version format: '1_17'
+                 * New version format: '1.17' */
+            getRootDataFolder().listFiles()?.let { folders ->
+                folders.filter { folder ->
+                    folder.isDirectory && folder.name.matches("^\\d_\\d\\d\$".toRegex())
+                }.forEach { folder ->
+                    folder.renameTo(File(getRootDataFolder(), folder.name.replace("_", ".")))
                 }
             }
         }
 
     }
 
-    data object VersionFolder: NeonDataFolderNew(
+    data object VersionFolder: NeonDataFolderRework(
         File(getRootDataFolder(), pluginContext.serverMajorVersion)
     ) {
         private fun readResolve(): Any = VersionFolder
     }
 
-    data object ModeFolder: NeonDataFolderNew(
+    data object ModeFolder: NeonDataFolderRework(
         File(VersionFolder, pluginContext.serverOperationMode.value)
     ) {
         private fun readResolve(): Any = ModeFolder
     }
 
-    data object NeonLibraryFolder: NeonDataFolderNew(
+    data object NeonLibraryFolder: NeonDataFolderRework(
         File(getRootDataFolder(), "libs")
     ) {
         private fun readResolve(): Any = NeonLibraryFolder
     }
 
-    data object NServerFeaturesFolder: NeonDataFolderNew(
+    data object NServerFeaturesFolder: NeonDataFolderRework(
         File(ModeFolder, "nServerFeatures")
     ) {
         private fun readResolve(): Any = NServerFeaturesFolder
     }
 
-    data object NeonFeatureFolder: NeonDataFolderNew(
+    data object NeonFeatureFolder: NeonDataFolderRework(
         File(ModeFolder, "NeonFeature")
     ) {
         private fun readResolve(): Any = NeonFeatureFolder
     }
 
-    data object NExperimentalFolder: NeonDataFolderNew(
+    data object NExperimentalFolder: NeonDataFolderRework(
         File(NServerFeaturesFolder, "nExperimental")
     ) {
         private fun readResolve(): Any = NExperimentalFolder
     }
 
-    data object NProfileFolder: NeonDataFolderNew(
+    data object NProfileFolder: NeonDataFolderRework(
         File(ModeFolder, "nProfile")
     ) {
         private fun readResolve(): Any = NProfileFolder
     }
 
-    data object NWaypointsFolder: NeonDataFolderNew(
+    data object NWaypointsFolder: NeonDataFolderRework(
         File(NServerFeaturesFolder, "nWaypoints")
     ) {
         private fun readResolve(): Any = NWaypointsFolder
     }
 
-    data object ExtensionFolder: NeonDataFolderNew(
+    data object ExtensionFolder: NeonDataFolderRework(
         File(getRootDataFolder(), "extensions")
     ) {
         private fun readResolve(): Any = ExtensionFolder
     }
 
-    data object NeonDatabaseFolder: NeonDataFolderNew(
+    data object NeonDatabaseFolder: NeonDataFolderRework(
         File(getRootDataFolder(), "database")
     ) {
         private fun readResolve(): Any = NeonDatabaseFolder
     }
 
-    data object NeonDatabaseFolderNew: NeonDataFolderNew(
+    data object NeonDatabaseFolderNew: NeonDataFolderRework(
         File(getRootDataFolder(), "database-new")
     ) {
         private fun readResolve(): Any = NeonDatabaseFolderNew
     }
 
-    data object NeonDatabaseDataFolder: NeonDataFolderNew(
+    data object NeonDatabaseDataFolder: NeonDataFolderRework(
         File(NeonDatabaseFolderNew, "data")
     ) {
         private fun readResolve(): Any = NeonDatabaseDataFolder
     }
 
-    data object NeonDatabaseCoreFolder: NeonDataFolderNew(
+    data object NeonDatabaseCoreFolder: NeonDataFolderRework(
         File(NeonDatabaseFolderNew, "core")
     ) {
         private fun readResolve(): Any = NeonDatabaseCoreFolder
     }
 
     /* Experimental */
-    data object NFireworksFolder: NeonDataFolderNew(
+    data object NFireworksFolder: NeonDataFolderRework(
         File(NExperimentalFolder, "nFireworks")
     ) {
         private fun readResolve(): Any = NFireworksFolder
     }
 
-    data object NFireworkdsImageFolder: NeonDataFolderNew(
+    data object NFireworkdsImageFolder: NeonDataFolderRework(
         File(NFireworksFolder, "images")
     ) {
         private fun readResolve(): Any = NFireworkdsImageFolder
     }
 
-    data object NFireworksPatternFramesFolder: NeonDataFolderNew(
+    data object NFireworksPatternFramesFolder: NeonDataFolderRework(
         File(NFireworksFolder, "patterns")
     ) {
         private fun readResolve(): Any = NFireworksPatternFramesFolder
     }
 
-    data object NPaintingFolder: NeonDataFolderNew(
+    data object NPaintingFolder: NeonDataFolderRework(
         File(NExperimentalFolder, "nPainting")
     ) {
         private fun readResolve(): Any = NPaintingFolder
     }
 
-    data object NPaintingImageFolder: NeonDataFolderNew(
+    data object NPaintingImageFolder: NeonDataFolderRework(
         File(NPaintingFolder, "images")
     ) {
         private fun readResolve(): Any = NPaintingImageFolder
     }
 
-    data object NPaintingRenderDataFolder: NeonDataFolderNew(
+    data object NPaintingRenderDataFolder: NeonDataFolderRework(
         File(NPaintingFolder, "render_data")
     ) {
         private fun readResolve(): Any = NPaintingRenderDataFolder

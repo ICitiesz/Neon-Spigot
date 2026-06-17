@@ -1,0 +1,57 @@
+[versions]
+kotlin = "2.4.0"
+koin-annotation = "2.3.1"
+papermc-base-version = "1.17.1-R0.1-SNAPSHOT"
+papermc-target-version = "1.20.4-R0.1-SNAPSHOT"
+jooq = "3.19.15"
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-noarg = { id = "org.jetbrains.kotlin.plugin.noarg", version.ref = "kotlin" }
+gradle-shadow = { id = "com.gradleup.shadow", version = "9.4.2" }
+google-devtools-ksp = { id = "com.google.devtools.ksp", version = "2.3.9" }
+jooq-codegen-gradle = {id = "org.jooq.jooq-codegen-gradle", version.ref = "jooq" }
+papermc-paperweight-userdev = { id = "io.papermc.paperweight.userdev", version = "1.7.7" }
+
+[libraries]
+# Internal Module
+neon-shared = { group = "com.islandstudio", name = "neon-shared" }
+neon-api = { group = "com.islandstudio", name = "neon-api" }
+neon-api-new = { group = "com.islandstudio", name = "neon-api-new" }
+
+# Core Language Library
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlinx-coroutines-core-jvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version = "1.9.0" }
+kotlinx-serilazation-json-jvm = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm", version = "1.8.1" }
+
+# Server API Reference Library
+papermc-api-base = { module = "io.papermc.paper:paper-api", version.ref = "papermc-base-version" }
+papermc-api-target = { module = "io.papermc.paper:paper-api", version.ref = "papermc-target-version" }
+papermc-dev-bundle-base = { module = "io.papermc.paper:dev-bundle", version.ref = "papermc-base-version" }
+papermc-dev-bundle-target = { module = "io.papermc.paper:dev-bundle", version.ref = "papermc-target-version" }
+
+# Function Library
+koin-core-jvm = { module = "io.insert-koin:koin-core-jvm", version = "4.1.0" }
+koin-annotations-jvm = { module = "io.insert-koin:koin-annotations-jvm", version.ref = "koin-annotation" }
+koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotation" }
+ulid-creator = { module = "com.github.f4b6a3:ulid-creator", version = "5.2.3" }
+simple-yaml = { module = "me.carleslc.Simple-YAML:Simple-Yaml", version = "1.8.4" }
+fastexcel-reader = { module = "org.dhatim:fastexcel-reader", version = "0.18.4" }
+dotenv-kotlin = {module = "io.github.cdimascio:dotenv-kotlin", version = "6.4.1" }
+ktoml-core-jvm = { module = "com.akuleshov7:ktoml-core-jvm", version = "0.7.1" }
+ktoml-file-jvm = { module = "com.akuleshov7:ktoml-file-jvm", version = "0.7.1" }
+modelmapper = { module = "org.modelmapper:modelmapper", version = "3.2.6" }
+oshi-core = { module = "com.github.oshi:oshi-core", version = "6.9.1" }
+kotlin-csv-jvm = { module = "com.jsoizo:kotlin-csv-jvm", version = "1.10.0" }
+
+# Database Library
+hsqldb = { module = "org.hsqldb:hsqldb", version = "2.7.3" }
+jooq-core = { module = "org.jooq:jooq", version.ref = "jooq" }
+jooq-meta = { module = "org.jooq:jooq-meta", version.ref = "jooq" }
+jooq-meta-extensions = { module = "org.jooq:jooq-meta-extensions", version.ref = "jooq" }
+h2 = { module = "com.h2database:h2", version = "2.4.240" }
+hikari-cp = { module = "com.zaxxer:HikariCP", version = "5.1.0" }
+guava = { module = "com.google.guava:guava", version = "33.2.1-jre" }
+liquibase-core = { module = "org.liquibase:liquibase-core", version = "4.30.0" }

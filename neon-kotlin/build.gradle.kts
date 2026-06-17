@@ -5,16 +5,16 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "com.islandstudio"
 version = "final"
 
-val kotlinxCoroutinesVersion = "1.9.0"
 val pluginFinalJarName = "neon-kotlin.jar"
 val pluginShadedjarName = "neon-kotlin-shaded.jar"
 
 plugins {
-    kotlin("jvm") version "2.0.20" apply true
-    kotlin("plugin.serialization") version "2.0.20" apply true
-    kotlin("plugin.noarg") version "2.0.20" apply true
-    id("com.gradleup.shadow") version "8.3.5" apply true
-    id("com.google.devtools.ksp") version "2.0.20-1.0.25" apply true
+    alias(libs.plugins.kotlin.jvm) apply true
+    alias(libs.plugins.kotlin.serialization) apply true
+    alias(libs.plugins.kotlin.noarg) apply true
+    alias(libs.plugins.gradle.shadow) apply true
+    alias(libs.plugins.google.devtools.ksp) apply true
+    alias(libs.plugins.papermc.paperweight.userdev) apply true
 }
 
 repositories {
@@ -39,52 +39,48 @@ repositories {
 
 dependencies {
     val jooqVersion = "3.19.15"
-    val koinAnnotationsVersion = "2.0.0-Beta1"
 
     /* Neon Library */
-    implementation(project(":neon-shared"))
-    implementation(project(":neon-api"))
-    implementation(project(":neon-api-new"))
-    compileOnly("com.islandstudio:neon-database-server")
+    implementation(libs.neon.shared)
+    //implementation(libs.neon.api)
+    //implementation(libs.neon.api.new)
+    //compileOnly("com.islandstudio:neon-database-server")
 
     /* Core Language Library */
-    implementation(kotlin("stdlib"))
-    implementation(kotlin("reflect"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:${kotlinxCoroutinesVersion}")
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.kotlinx.coroutines.core.jvm)
 
     /* Server API Reference Library */
-    compileOnly("org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT:shaded")
-    compileOnly("org.spigotmc:spigot:1.20.4-R0.1-SNAPSHOT:remapped-mojang")
-    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+    paperweightDevelopmentBundle(libs.papermc.dev.bundle.target) // PaperMC Mojang Mappings
+    compileOnly(libs.papermc.api.base)
 
     /* Function Library */
-    implementation("com.github.f4b6a3:ulid-creator:5.2.3")
-    implementation("io.insert-koin:koin-core-jvm:4.0.0")
-    implementation("io.insert-koin:koin-annotations-jvm:$koinAnnotationsVersion")
-    ksp("io.insert-koin:koin-ksp-compiler:$koinAnnotationsVersion")
-    implementation("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4")
-    implementation("org.dhatim:fastexcel-reader:0.18.4")
-    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
-    implementation("com.akuleshov7:ktoml-core:0.5.2")
-    implementation("com.akuleshov7:ktoml-file-jvm:0.5.2")
-    implementation("org.modelmapper:modelmapper:3.2.6")
-
-    implementation("com.github.oshi:oshi-core:6.9.1")
-    compileOnly("com.jsoizo:kotlin-csv-jvm:1.10.0")
-
+    implementation(libs.koin.core.jvm)
+    implementation(libs.koin.annotations.jvm)
+    ksp(libs.koin.ksp.compiler)
+    implementation(libs.ulid.creator)
+    implementation(libs.simple.yaml)
+    implementation(libs.fastexcel.reader)
+    implementation(libs.dotenv.kotlin)
+    implementation(libs.ktoml.core.jvm)
+    implementation(libs.ktoml.file.jvm)
+    implementation(libs.modelmapper)
+    implementation(libs.oshi.core)
+    compileOnly(libs.kotlin.csv.jvm)
 
     /* Database Library */
-    compileOnly("org.hsqldb:hsqldb:2.7.3")
-    implementation("org.jooq:jooq:$jooqVersion")
-    compileOnly("org.jooq:jooq-meta:$jooqVersion") // Should be compileOnly
-    implementation("org.jooq:jooq-meta-extensions:$jooqVersion")
+    compileOnly(libs.hsqldb)
+    implementation(libs.jooq.core)
+    compileOnly(libs.jooq.meta) // Should be compileOnly
+    implementation(libs.jooq.meta.extensions)
     //runtimeOnly("org.xerial:sqlite-jdbc:3.50.3.0")
     //compileOnly("org.jooq:jooq-codegen:$jooqVersion")
     //compileOnly("com.h2database:h2:2.4.240")
-    runtimeOnly("com.h2database:h2:2.4.240")
-    implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("com.google.guava:guava:33.2.1-jre")
-    runtimeOnly("org.liquibase:liquibase-core:4.30.0")
+    runtimeOnly(libs.h2)
+    implementation(libs.hikari.cp)
+    implementation(libs.guava)
+    runtimeOnly(libs.liquibase.core)
 }
 
 kotlin {
@@ -96,7 +92,7 @@ kotlin {
             resources.exclude("**")
 
             dependencies {
-                api("io.insert-koin:koin-annotations-jvm:2.0.0-Beta1")
+                api(libs.koin.annotations.jvm)
             }
         }
     }
@@ -117,8 +113,8 @@ tasks.processResources {
 
 tasks.withType<KotlinCompile> {
     compilerOptions {
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
-        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
+        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
