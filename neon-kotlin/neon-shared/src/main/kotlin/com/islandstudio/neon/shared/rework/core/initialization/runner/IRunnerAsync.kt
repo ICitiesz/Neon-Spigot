@@ -1,5 +1,6 @@
-package com.islandstudio.neon.shared.core.initialization
+package com.islandstudio.neon.shared.rework.core.initialization.runner
 
+import com.islandstudio.neon.shared.core.initialization.IEventRegistryNew
 import org.bukkit.event.Listener
 
 interface IRunnerAsync: IEventRegistryNew {

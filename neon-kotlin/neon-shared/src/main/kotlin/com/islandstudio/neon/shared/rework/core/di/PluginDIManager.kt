@@ -20,6 +20,10 @@ object PluginDIManager {
 
             this.koin.declare(pluginContext)
         }
+
+        pluginKoinApp?.let {
+            KoinContextRegistry.registerContext(this.javaClass.classLoader, it.koin)
+        }
     }
 
     fun getKoin(): Koin = pluginKoinApp?.koin ?: throw IllegalStateException("Plugin dependency injection not initialized!")

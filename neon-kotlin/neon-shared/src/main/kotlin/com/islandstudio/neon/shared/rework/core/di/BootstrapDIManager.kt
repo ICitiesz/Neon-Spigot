@@ -20,6 +20,10 @@ object BootstrapDIManager {
 
             this.koin.declare(pluginContext)
         }
+
+        koinApp?.let {
+            KoinContextRegistry.registerContext(this.javaClass.classLoader, it.koin)
+        }
     }
 
     fun getKoin(): Koin = koinApp?.koin ?: throw IllegalStateException("Bootstrap dependency injection not initialized!")

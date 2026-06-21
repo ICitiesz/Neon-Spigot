@@ -1,8 +1,8 @@
 package com.islandstudio.neon.util
 
-import com.islandstudio.neon.shared.core.di.IComponentProvider
-import com.islandstudio.neon.shared.core.di.getComponent
-import com.islandstudio.neon.shared.core.initialization.IPluginContext
+import com.islandstudio.neon.shared.rework.core.di.IComponentProvider
+import com.islandstudio.neon.shared.rework.core.di.getComponent
+import com.islandstudio.neon.shared.rework.core.initialization.context.IPluginContext
 import org.bukkit.event.Event
 import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.server.ServerCommandEvent

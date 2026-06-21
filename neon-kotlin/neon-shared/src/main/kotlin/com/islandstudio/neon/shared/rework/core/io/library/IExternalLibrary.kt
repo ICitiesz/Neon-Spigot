@@ -1,4 +1,4 @@
-package com.islandstudio.neon.shared.rework.core.io
+package com.islandstudio.neon.shared.rework.core.io.library
 
 import java.net.URL
 

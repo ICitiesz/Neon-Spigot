@@ -1,6 +1,7 @@
-package com.islandstudio.neon.shared.rework.core.io
+package com.islandstudio.neon.shared.rework.core.io.library
 
 import com.islandstudio.neon.shared.rework.core.initialization.context.IPluginContext
+import com.islandstudio.neon.shared.rework.core.io.DataDirectory
 import com.islandstudio.neon.shared.utils.data.DataUtil
 import kotlinx.coroutines.*
 import java.io.File

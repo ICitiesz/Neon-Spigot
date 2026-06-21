@@ -1,10 +1,10 @@
-package com.islandstudio.neon.core.datakey
+package com.islandstudio.neon.rework.core.datakey
 
-import com.islandstudio.neon.shared.core.di.IComponentProvider
-import com.islandstudio.neon.shared.core.di.getComponent
-import com.islandstudio.neon.shared.core.initialization.IPluginContext
-import com.islandstudio.neon.shared.core.initialization.IRunnerAsync
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
+import com.islandstudio.neon.shared.rework.core.di.IComponentProvider
+import com.islandstudio.neon.shared.rework.core.di.getComponent
+import com.islandstudio.neon.shared.rework.core.initialization.context.IPluginContext
+import com.islandstudio.neon.shared.rework.core.initialization.runner.IRunnerAsync
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single

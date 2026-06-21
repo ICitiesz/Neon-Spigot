@@ -2,13 +2,13 @@ package com.islandstudio.neon.shared.rework.core.io
 
 import com.islandstudio.neon.shared.core.io.resource.NeonExternalResource
 import com.islandstudio.neon.shared.rework.core.di.IComponentProvider
-import com.islandstudio.neon.shared.rework.core.di.getBootstrapScopedComponent
+import com.islandstudio.neon.shared.rework.core.di.getComponent
 import com.islandstudio.neon.shared.rework.core.initialization.context.IPluginContext
 import java.io.File
 
 sealed class DataDirectory(folder: File): File(folder.toPath().toString()) {
     companion object: IComponentProvider {
-        private val pluginContext = getBootstrapScopedComponent<IPluginContext>()
+        private val pluginContext = getComponent<IPluginContext>()
 
         /**
          * Create and get the new file with NeonExternalResources
