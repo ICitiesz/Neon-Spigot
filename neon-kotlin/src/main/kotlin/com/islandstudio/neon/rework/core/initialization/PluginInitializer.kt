@@ -3,7 +3,8 @@ package com.islandstudio.neon.rework.core.initialization
 import com.islandstudio.neon.Neon
 import com.islandstudio.neon.core.datakey.DataKeyManager
 import com.islandstudio.neon.core.di.module.NeonModule
-import com.islandstudio.neon.rework.core.nms.INmsMapper
+import com.islandstudio.neon.persistence.DatabaseManager
+import com.islandstudio.neon.rework.core.datakey.DataKeyManager
 import com.islandstudio.neon.rework.core.nms.NmsManagerRework
 import com.islandstudio.neon.shared.experimental.utils.coroutines.CloseableCoroutineScope
 import com.islandstudio.neon.shared.rework.core.di.IComponentProvider
@@ -21,7 +22,7 @@ import org.koin.ksp.generated.module
 import java.io.File
 import java.lang.reflect.Proxy
 
-class PluginInitializer(private val pluginContext: PluginContext): IPluginInitializer, INmsMapper, IComponentProvider {
+class PluginInitializer(private val pluginContext: PluginContext): IPluginInitializer, IComponentProvider {
     companion object {
         private val INITIALIZER_CLASS_PATH = this.javaClass.enclosingClass.name
 
@@ -119,53 +120,57 @@ class PluginInitializer(private val pluginContext: PluginContext): IPluginInitia
         PluginDIManager.start(
             pluginContext,
             NeonModule().module,
-            //SharedComponentModule().module
         )
     }
 
-    //private val neonDatabaseManager = NeonDatabaseManager()
+    private val databaseManager = DatabaseManager(pluginContext)
     private var onLoadJob: Job? = null
 
     override fun onLoad() {
         onLoadJob = initCloseableCoroutineScope.launchJob {
             initCloseableCoroutineScope.launchAsCompletableDeferred {
+                /* Stage 1: Load code message */
                 pluginContext.loadCodeMessages()
 
-//                async {
-//                    getPluginScopedKoin().declare(neonDatabaseManager)
-//                    neonDatabaseManager.initialize()
-//                }.await()
+                /* Stage 2: Initialize database manager */
+                val databaseManagerInitJob = async {
+                    getKoinContext().declare(databaseManager)
+                    databaseManager.runSuspend()
+                }
 
-                async {
+                /* Stage 3: Initialize NMS manager */
+                val nmsManagerInitJob = async {
                     NmsManagerRework.runSuspend()
-                }.await()
+                }
+
+                awaitAll(databaseManagerInitJob, nmsManagerInitJob)
 
 //                async {
 //                    PermissionManager().runSuspend()
 //                }.await()
 
-                async {
-                    DataKeyManager.runSuspend()
-                }.await()
+                /* Stage 5: Initialize data key manager */
+                DataKeyManager.runSuspend()
             }.await()
         }
     }
 
     override fun onEnable() {
-//        onLoadJob?.invokeOnCompletion {
+        onLoadJob?.invokeOnCompletion {
 //            Bukkit.getScheduler().runTask(pluginContext.mainPluginInstance, Runnable {
 //                RoleManagerNew().run()
 //            })
 //            GuiManager().run()
 //            PlayerSessionManagerNew().run()
 //            CommandManager().run()
-//
-//            pluginContext.getServer().consoleSender.sendMessage(NEON_ON_ENABLED_TITLE)
-//        }
+
+            pluginContext.getServer().consoleSender.sendMessage(NEON_ON_ENABLED_TITLE)
+        }
     }
 
     override fun onDisable() {
         //neonDatabaseManager.close()
+        PluginDIManager.close()
         pluginContext.getServer().consoleSender.sendMessage(NEON_ON_DISABLED_TITLE)
     }
 }

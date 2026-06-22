@@ -13,15 +13,26 @@
 /neon-kotlin/.kotlin/*
 /neon-kotlin/.gradle/*
 /neon-kotlin/target/*
+
+# Neon Kotlin Shared
 /neon-kotlin/neon-shared/build/*
 /neon-kotlin/neon-shared/.kotlin/*
 /neon-kotlin/neon-shared/.gradle/*
+
+# Neon Kotlin Extension
+/neon-kotlin/neon-extension/build/*
 /neon-kotlin/neon-extension/.gradle/*
 /neon-kotlin/neon-extension/.kotlin/*
-/neon-kotlin/neon-datasource/.gradle/*
-/neon-kotlin/neon-datasource/build/*
+
+# Neon Kotlin Persistence
+/neon-kotlin/neon-persistence/.kotlin/*
+/neon-kotlin/neon-persistence/.gradle/*
+/neon-kotlin/neon-persistence/build/*
+
+# Neon Kotlin API
 /neon-kotlin/neon-api/build/*
 /neon-kotlin/neon-api-new/build/*
+/neon-kotlin/neon-api-rework/build/*
 
 # Neon Database Server
 /neon-kotlin/neon-extension/neon-database-server/build/*

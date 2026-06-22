@@ -2,11 +2,11 @@ package com.islandstudio.neon.rework.core.nms
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.islandstudio.neon.core.nmsmapping.type.NmsMethod
-import com.islandstudio.neon.shared.core.initialization.IRunnerAsync
 import com.islandstudio.neon.shared.core.io.resource.NeonInternalResource
 import com.islandstudio.neon.shared.rework.core.di.IComponentProvider
-import com.islandstudio.neon.shared.rework.core.di.getPluginScopedComponent
+import com.islandstudio.neon.shared.rework.core.di.getComponent
 import com.islandstudio.neon.shared.rework.core.initialization.context.IPluginContext
+import com.islandstudio.neon.shared.rework.core.initialization.runner.IRunnerAsync
 import com.islandstudio.neon.shared.utils.data.DataUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,7 +21,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 object NmsManagerRework: IComponentProvider, IRunnerAsync {
-    private val pluginContext = getPluginScopedComponent<IPluginContext>()
+    private val pluginContext = getComponent<IPluginContext>()
     private val mappingRegistry = NmsMappingRegistry()
 
     override suspend fun runSuspend() {

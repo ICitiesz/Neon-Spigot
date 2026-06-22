@@ -3,3 +3,5 @@ plugins {
 }
 include("neon-shared", "neon-api", "neon-api-new")
 includeBuild("neon-extension/")
+include("neon-api-rework")
+include("neon-persistence")

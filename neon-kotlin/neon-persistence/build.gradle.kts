@@ -3,46 +3,45 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "com.islandstudio"
 version = "final"
 
-val kotlinxCoroutinesVersion = "1.9.0"
-
 plugins {
     alias(libs.plugins.kotlin.jvm) apply true
     alias(libs.plugins.kotlin.serialization) apply true
-    alias(libs.plugins.kotlin.noarg) apply true
     alias(libs.plugins.google.devtools.ksp) apply true
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
-
-    maven {
-        name = "papermc"
-        url = uri("https://repo.papermc.io/repository/maven-public/")
-    }
 }
 
 dependencies {
+    /* Neon Library */
+    compileOnly(libs.neon.shared)
+    compileOnly(libs.neon.api.rework)
+
     /* Core Language Library */
     compileOnly(libs.kotlin.stdlib)
     compileOnly(libs.kotlin.reflect)
     compileOnly(libs.kotlinx.coroutines.core.jvm)
     compileOnly(libs.kotlinx.serialization.json.jvm)
 
-    /* Server API Reference Library */
-    compileOnly(libs.papermc.api.base)
-    compileOnly(libs.papermc.dev.bundle.target) // PaperMC Mojang Mappings
-
     /* Function Library */
-    implementation(libs.oshi.core)
-    compileOnly(libs.ulid.creator)
-    compileOnly(libs.modelmapper)
     compileOnly(libs.koin.core.jvm)
     compileOnly(libs.koin.annotations.jvm)
     ksp(libs.koin.ksp.compiler)
-    compileOnly(libs.ktoml.core.jvm)
-    compileOnly(libs.ktoml.file.jvm)
-    compileOnly(libs.dotenv.kotlin)
+    compileOnly(libs.modelmapper)
+
+    /* Database Library */
+    implementation(libs.hikari.cp)
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.java.time)
+    implementation(libs.mariadb.java.client)
+    implementation(libs.mariadb4j.core)
+    implementation(libs.mariadb4j.exce)
+    compileOnly(libs.mariadb4j.winx64)
+    compileOnly(libs.mariadb4j.linux64)
+    compileOnly(libs.mariadb4j.macosarm64)
 }
 
 kotlin {
@@ -62,14 +61,15 @@ kotlin {
     }
 }
 
-noArg {
-    annotation("com.islandstudio.neon.shared.annotation.NoArgConstructor")
-}
-
 tasks.processResources {
     from("src/main/resources") {
         exclude("application/*.template")
+        exclude("META-INF")
         into("resources/")
+    }
+
+    from("src/main/resources/META-INF") {
+        into("META-INF")
     }
 }
 
