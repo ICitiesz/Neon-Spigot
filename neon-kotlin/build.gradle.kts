@@ -70,14 +70,6 @@ dependencies {
     compileOnly(libs.kotlin.csv.jvm)
 
     /* Database Library */
-    compileOnly(libs.hsqldb)
-    implementation(libs.jooq.core)
-    compileOnly(libs.jooq.meta) // Should be compileOnly
-    implementation(libs.jooq.meta.extensions)
-    //runtimeOnly("org.xerial:sqlite-jdbc:3.50.3.0")
-    //compileOnly("org.jooq:jooq-codegen:$jooqVersion")
-    //compileOnly("com.h2database:h2:2.4.240")
-    runtimeOnly(libs.h2)
     implementation(libs.hikari.cp)
     implementation(libs.guava)
     runtimeOnly(libs.liquibase.core)
