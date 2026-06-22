@@ -1,7 +1,6 @@
 package com.islandstudio.neon.rework.core.initialization
 
 import com.islandstudio.neon.Neon
-import com.islandstudio.neon.core.datakey.DataKeyManager
 import com.islandstudio.neon.core.di.module.NeonModule
 import com.islandstudio.neon.persistence.DatabaseManager
 import com.islandstudio.neon.rework.core.datakey.DataKeyManager
@@ -9,6 +8,7 @@ import com.islandstudio.neon.rework.core.nms.NmsManagerRework
 import com.islandstudio.neon.shared.experimental.utils.coroutines.CloseableCoroutineScope
 import com.islandstudio.neon.shared.rework.core.di.IComponentProvider
 import com.islandstudio.neon.shared.rework.core.di.PluginDIManager
+import com.islandstudio.neon.shared.rework.core.di.getKoinContext
 import com.islandstudio.neon.shared.rework.core.initialization.IPluginInitializer
 import com.islandstudio.neon.shared.rework.core.initialization.NeonClassLoader
 import com.islandstudio.neon.shared.rework.core.initialization.context.PluginContext
@@ -17,6 +17,7 @@ import com.islandstudio.neon.util.NeonColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import org.bukkit.plugin.Plugin
 import org.koin.ksp.generated.module
 import java.io.File

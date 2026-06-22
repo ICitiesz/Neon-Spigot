@@ -20,8 +20,6 @@ papermc-paperweight-userdev = { id = "io.papermc.paperweight.userdev", version =
 # Internal Module
 neon-shared = { group = "com.islandstudio", name = "neon-shared" }
 neon-api = { group = "com.islandstudio", name = "neon-api" }
-neon-api-new = { group = "com.islandstudio", name = "neon-api-new" }
-neon-api-rework = { group = "com.islandstudio", name = "neon-api-rework" }
 neon-persistence = { group = "com.islandstudio", name = "neon-persistence" }
 
 # Core Language Library

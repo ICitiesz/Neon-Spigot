@@ -42,8 +42,8 @@ dependencies {
 
     /* Neon Library */
     implementation(libs.neon.shared)
-    //implementation(libs.neon.api)
-    //implementation(libs.neon.api.new)
+    implementation(libs.neon.api)
+    implementation(libs.neon.persistence)
     //compileOnly("com.islandstudio:neon-database-server")
 
     /* Core Language Library */

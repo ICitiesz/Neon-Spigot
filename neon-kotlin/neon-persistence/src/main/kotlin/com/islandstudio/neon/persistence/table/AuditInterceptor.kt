@@ -1,6 +1,6 @@
 package com.islandstudio.neon.persistence.table
 
-import com.islandstudio.neon.apirework.context.SecurityContextHolder
+import com.islandstudio.neon.api.context.SecurityContextHolder
 import org.jetbrains.exposed.v1.core.InternalApi
 import org.jetbrains.exposed.v1.core.Transaction
 import org.jetbrains.exposed.v1.core.statements.GlobalStatementInterceptor

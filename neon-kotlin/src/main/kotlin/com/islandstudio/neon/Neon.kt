@@ -6,10 +6,11 @@ import com.islandstudio.neon.shared.core.di.IComponentInjector
 import com.islandstudio.neon.shared.core.exception.NeonException
 import com.islandstudio.neon.shared.experimental.utils.coroutines.CloseableCoroutineScope
 import com.islandstudio.neon.shared.rework.core.di.BootstrapDIManager
+import com.islandstudio.neon.shared.rework.core.di.KoinContextRegistry
 import com.islandstudio.neon.shared.rework.core.initialization.IPluginInitializer
 import com.islandstudio.neon.shared.rework.core.initialization.NeonClassLoader
 import com.islandstudio.neon.shared.rework.core.initialization.context.PluginContext
-import com.islandstudio.neon.shared.rework.core.io.ExternalLibraryManager
+import com.islandstudio.neon.shared.rework.core.io.library.ExternalLibraryManager
 import com.islandstudio.neon.shared.utils.data.IObjectMapper
 import kotlinx.coroutines.Dispatchers
 import org.bukkit.event.EventHandler
@@ -127,6 +128,8 @@ class Neon : JavaPlugin(), IComponentInjector, IObjectMapper {
     override fun onDisable() {
         pluginInitializer.onDisable()
         neonClassLoader.close()
+        BootstrapDIManager.close()
+        KoinContextRegistry.clear()
 
         if (!(isPreLoaded && isPostLoaded)) return
     }

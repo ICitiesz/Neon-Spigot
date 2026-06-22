@@ -1,7 +1,7 @@
 package com.islandstudio.neon.persistence.repository.security
 
-import com.islandstudio.neon.apirework.dto.security.PermissionDto
-import com.islandstudio.neon.apirework.repository.security.PermissionRepository
+import com.islandstudio.neon.api.dto.security.PermissionDto
+import com.islandstudio.neon.api.repository.security.PermissionRepository
 import com.islandstudio.neon.persistence.DatabaseContext
 import com.islandstudio.neon.persistence.entity.security.Permission
 import com.islandstudio.neon.persistence.entity.security.PermissionTable

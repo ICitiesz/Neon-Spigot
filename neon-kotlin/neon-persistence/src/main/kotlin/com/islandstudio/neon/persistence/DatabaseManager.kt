@@ -36,7 +36,7 @@ class DatabaseManager(private val pluginContext: IPluginContext): IRunnerAsync, 
                 dataSource = dbCore?.let { db ->
                     DataSource.create(
                         db.configuration.getURL("neon_online_preview") + "?allowMultiQueries=true",
-                        ""
+                        "root"
                     )
                 }?.apply {
                     val exposedDatabase by lazy {

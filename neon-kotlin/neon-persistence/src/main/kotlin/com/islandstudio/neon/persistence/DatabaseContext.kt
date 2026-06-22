@@ -1,6 +1,6 @@
 package com.islandstudio.neon.persistence
 
-import com.islandstudio.neon.apirework.context.CoroutineUserContext
+import com.islandstudio.neon.api.context.CoroutineUserContext
 import kotlinx.coroutines.currentCoroutineContext
 import org.jetbrains.exposed.v1.core.Transaction
 import org.jetbrains.exposed.v1.jdbc.Database

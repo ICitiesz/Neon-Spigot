@@ -25,8 +25,7 @@ object PermissionTable: BaseTable<Permission>("permission"), IdColumn {
 
     override val primaryKey = PrimaryKey(id)
 
-    override fun toTable(statement: UpdateBuilder<*>, entity: Permission, ) {
-        statement[id] = entity.id
+    override fun toTable(statement: UpdateBuilder<*>, entity: Permission) {
         statement[parentId] = entity.parentId
         statement[name] = entity.name
         statement[code] = entity.code

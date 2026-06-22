@@ -17,7 +17,7 @@ repositories {
 dependencies {
     /* Neon Library */
     compileOnly(libs.neon.shared)
-    compileOnly(libs.neon.api.rework)
+    compileOnly(libs.neon.api)
 
     /* Core Language Library */
     compileOnly(libs.kotlin.stdlib)

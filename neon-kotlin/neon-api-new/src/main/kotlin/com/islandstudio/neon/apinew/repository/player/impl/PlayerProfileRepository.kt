@@ -1,7 +1,7 @@
 package com.islandstudio.neon.apinew.repository.player.impl
 
+import com.islandstudio.neon.apinew.connection.ApiContext
 import com.islandstudio.neon.apinew.connection.NeonDatabaseContext
-import com.islandstudio.neon.apinew.connection.UserContext
 import com.islandstudio.neon.apinew.entity.player.PlayerProfile
 import com.islandstudio.neon.apinew.repository.BaseRepository
 import com.islandstudio.neon.apinew.repository.player.IPlayerProfileRepository
@@ -15,7 +15,7 @@ class PlayerProfileRepository(databaseContext: NeonDatabaseContext):
     BaseRepository<PlayerProfile, PlayerProfileTable>(databaseContext, PLAYER_PROFILE_TABLE),
     IPlayerProfileRepository
 {
-    override suspend fun addPlayerProfile(context: UserContext, playerProfile: PlayerProfile): PlayerProfile? {
+    override suspend fun addPlayerProfile(context: ApiContext, playerProfile: PlayerProfile): PlayerProfile? {
         return insertEntityReturnAsync(playerProfile.updateCreatedModified(context.contextName))
             .getOrNull()
     }
@@ -27,7 +27,7 @@ class PlayerProfileRepository(databaseContext: NeonDatabaseContext):
         }.getOrNull()
     }
 
-    override suspend fun updatePlayerProfile(context: UserContext, playerProfile: PlayerProfile): PlayerProfile? {
+    override suspend fun updatePlayerProfile(context: ApiContext, playerProfile: PlayerProfile): PlayerProfile? {
         return updateEntityReturnAsync(playerProfile.updateModified(context.contextName)) {
             add(entityTable.ID.eq(playerProfile.id))
             this

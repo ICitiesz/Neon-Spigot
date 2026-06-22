@@ -1,9 +1,9 @@
 package com.islandstudio.neon.persistence.repository.player
 
-import com.islandstudio.neon.apirework.dto.player.CreatePlayerProfileDto
-import com.islandstudio.neon.apirework.dto.player.PlayerProfileDto
-import com.islandstudio.neon.apirework.dto.player.UpdatePlayerProfileDto
-import com.islandstudio.neon.apirework.repository.player.PlayerProfileRepository
+import com.islandstudio.neon.api.dto.player.CreatePlayerProfileDto
+import com.islandstudio.neon.api.dto.player.PlayerProfileDto
+import com.islandstudio.neon.api.dto.player.UpdatePlayerProfileDto
+import com.islandstudio.neon.api.repository.player.PlayerProfileRepository
 import com.islandstudio.neon.persistence.DatabaseContext
 import com.islandstudio.neon.persistence.entity.player.PlayerProfile
 import com.islandstudio.neon.persistence.entity.player.PlayerProfileTable

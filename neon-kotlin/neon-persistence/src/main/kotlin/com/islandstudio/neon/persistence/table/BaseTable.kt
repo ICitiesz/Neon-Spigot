@@ -1,6 +1,6 @@
 package com.islandstudio.neon.persistence.table
 
-import com.islandstudio.neon.apirework.context.SecurityContextHolder
+import com.islandstudio.neon.api.context.SecurityContextHolder
 import com.islandstudio.neon.persistence.entity.BaseEntity
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ResultRow
