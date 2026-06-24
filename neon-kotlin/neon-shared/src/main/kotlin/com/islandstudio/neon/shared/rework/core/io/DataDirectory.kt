@@ -16,8 +16,8 @@ sealed class DataDirectory(folder: File): File(folder.toPath().toString()) {
          * @param neonExternalResource Defined NeonExternalResources
          * @return
          */
-        fun createNewFile(neonExternalResource: NeonExternalResource): File {
-            return createNewFile(neonExternalResource.neonDataFolder, neonExternalResource.resourceName)
+        fun createOrGetFile(neonExternalResource: NeonExternalResource): File {
+            return createOrGetFile(neonExternalResource.neonDataFolder, neonExternalResource.resourceName)
         }
 
         /**
@@ -27,7 +27,7 @@ sealed class DataDirectory(folder: File): File(folder.toPath().toString()) {
          * @param fileName The new file name.
          * @return
          */
-        fun createNewFile(requiredFolder: File, fileName: String): File {
+        fun createOrGetFile(requiredFolder: File, fileName: String): File {
             if (!requiredFolder.exists()) requiredFolder.mkdirs()
 
             val newFile = File(requiredFolder, fileName)

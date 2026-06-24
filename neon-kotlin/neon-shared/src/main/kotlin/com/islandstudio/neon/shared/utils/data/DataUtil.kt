@@ -83,15 +83,15 @@ object DataUtil {
         }
     }
 
-    fun convertDataType(inputValue: Any, dataType: DataType): Any? {
-        return convertDataType(inputValue.toString(), dataType)
+    fun toDataType(inputValue: Any, dataType: DataType): Any? {
+        return toDataType(inputValue.toString(), dataType)
     }
 
-    fun convertDataType(inputValue: String, dataType: String): Any? {
-        return convertDataType(inputValue, DataType.valueOf(dataType.uppercase()))
+    fun toDataType(inputValue: String, dataType: String): Any? {
+        return toDataType(inputValue, DataType.valueOf(dataType.uppercase()))
     }
 
-    fun convertDataType(inputValue: String, dataType: DataType): Any? {
+    fun toDataType(inputValue: String, dataType: DataType): Any? {
         when (dataType) {
             DataType.Boolean -> {
                 return inputValue.lowercase().toBooleanStrictOrNull()
